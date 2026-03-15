@@ -1,0 +1,183 @@
+import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
+
+const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
+  return (
+    <div id="daily-calendar">
+      <div id="cal-nav">
+        <button id="cal-prev">←</button>
+        <span id="cal-title"></span>
+        <button id="cal-next">→</button>
+      </div>
+      <div id="cal-grid"></div>
+    </div>
+  )
+}
+
+DailyCalendar.css = `
+#daily-calendar { padding: 0.5rem; font-size: 0.85rem; }
+#cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: bold; }
+#cal-nav button { background: none; border: 1px solid var(--gray); border-radius: 4px; padding: 0.1rem 0.5rem; cursor: pointer; color: var(--dark); }
+#cal-nav button:hover { background: var(--highlight); }
+#cal-title { cursor: pointer; text-decoration: underline dotted; }
+#cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.cal-header { font-weight: bold; font-size: 0.7rem; color: var(--gray); padding: 2px; }
+.cal-day { padding: 3px 2px; border-radius: 3px; font-size: 0.8rem; color: var(--dark); }
+.cal-day.has-note a { color: var(--secondary); font-weight: bold; text-decoration: none; }
+.cal-day.has-note:hover { background: var(--highlight); }
+.cal-day.empty { color: var(--lightgray); }
+.cal-day.today { background: var(--highlight); border: 1px solid var(--secondary); }
+.cal-day.active a { background: var(--secondary); color: var(--light) !important; border-radius: 3px; padding: 1px 3px; }
+#cal-picker { background: var(--light); border: 1px solid var(--lightgray); border-radius: 6px; padding: 0.5rem; margin-top: 0.5rem; }
+.cal-picker-year { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 0.5rem; }
+.cal-picker-year button { background: none; border: 1px solid var(--gray); border-radius: 4px; padding: 0.1rem 0.4rem; cursor: pointer; color: var(--dark); }
+.cal-picker-months { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.cal-picker-month { background: none; border: 1px solid var(--lightgray); border-radius: 4px; padding: 0.2rem; cursor: pointer; font-size: 0.8rem; color: var(--dark); }
+.cal-picker-month:hover { background: var(--highlight); }
+.cal-picker-month.active { background: var(--secondary); color: var(--light); border-color: var(--secondary); }
+`
+
+DailyCalendar.afterDOMLoaded = `
+(function() {
+  if (!window._calState) {
+    window._calState = { date: new Date(), dates: null }
+  }
+
+  async function calLoadNotes() {
+    if (window._calState.dates) return window._calState.dates
+    try {
+      const res = await fetch('/static/contentIndex.json')
+      const data = await res.json()
+      const dates = Object.keys(data)
+        .filter(k => /^Daily\\/\\d{4}-\\d{2}-\\d{2}$/.test(k))
+        .map(k => k.replace('Daily/', ''))
+        .sort()
+      window._calState.dates = dates
+      return dates
+    } catch(e) { return [] }
+  }
+
+  function calShowPicker(dates) {
+    const existing = document.getElementById('cal-picker')
+    if (existing) { existing.remove(); return }
+    const calNav = document.getElementById('cal-nav')
+    if (!calNav) return
+
+    let pickerYear = window._calState.date.getFullYear()
+    const picker = document.createElement('div')
+    picker.id = 'cal-picker'
+
+    const yearRow = document.createElement('div')
+    yearRow.className = 'cal-picker-year'
+    const prevBtn = document.createElement('button')
+    prevBtn.textContent = '←'
+    const yearSpan = document.createElement('span')
+    yearSpan.textContent = String(pickerYear)
+    const nextBtn = document.createElement('button')
+    nextBtn.textContent = '→'
+    prevBtn.onclick = function() { pickerYear--; yearSpan.textContent = String(pickerYear) }
+    nextBtn.onclick = function() { pickerYear++; yearSpan.textContent = String(pickerYear) }
+    yearRow.appendChild(prevBtn)
+    yearRow.appendChild(yearSpan)
+    yearRow.appendChild(nextBtn)
+    picker.appendChild(yearRow)
+
+    const monthGrid = document.createElement('div')
+    monthGrid.className = 'cal-picker-months'
+    ;['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].forEach(function(m, i) {
+      const btn = document.createElement('button')
+      btn.textContent = m
+      btn.className = 'cal-picker-month'
+      if (i === window._calState.date.getMonth() && pickerYear === window._calState.date.getFullYear()) {
+        btn.classList.add('active')
+      }
+      btn.onclick = function() {
+        window._calState.date = new Date(pickerYear, i, 1)
+        picker.remove()
+        calRender(dates)
+      }
+      monthGrid.appendChild(btn)
+    })
+    picker.appendChild(monthGrid)
+    calNav.insertAdjacentElement('afterend', picker)
+  }
+
+  function calRender(dates) {
+    const year = window._calState.date.getFullYear()
+    const month = window._calState.date.getMonth()
+    const currentPath = window.location.pathname
+
+    const titleEl = document.getElementById('cal-title')
+    if (titleEl) {
+      titleEl.textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })
+      titleEl.onclick = function() { calShowPicker(dates) }
+    }
+
+    const grid = document.getElementById('cal-grid')
+    if (!grid) return
+    grid.innerHTML = ''
+
+    ;['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(function(d) {
+      const el = document.createElement('div')
+      el.className = 'cal-header'
+      el.textContent = d
+      grid.appendChild(el)
+    })
+
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const today = new Date()
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div')
+      el.className = 'cal-day empty'
+      grid.appendChild(el)
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(month + 1).padStart(2, '0')
+      const dd = String(d).padStart(2, '0')
+      const dateStr = year + '-' + mm + '-' + dd
+      const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear()
+      const isActive = currentPath.endsWith('/Daily/' + dateStr)
+
+      const el = document.createElement('div')
+      el.className = 'cal-day' + (isToday ? ' today' : '') + (isActive ? ' active' : '')
+      if (dates.includes(dateStr)) {
+        el.classList.add('has-note')
+        el.innerHTML = '<a href="/Daily/' + dateStr + '">' + d + '</a>'
+      } else {
+        el.textContent = String(d)
+      }
+      grid.appendChild(el)
+    }
+  }
+
+  function calInit() {
+    const pageMatch = window.location.pathname.match(/\\/Daily\\/(\\d{4})-(\\d{2})-\\d{2}/)
+    if (pageMatch) {
+      window._calState.date = new Date(parseInt(pageMatch[1]), parseInt(pageMatch[2]) - 1, 1)
+    }
+    calLoadNotes().then(function(dates) { calRender(dates) })
+  }
+
+  const prevBtn = document.getElementById('cal-prev')
+  const nextBtn = document.getElementById('cal-next')
+  if (prevBtn) {
+    prevBtn.onclick = function() {
+      window._calState.date = new Date(window._calState.date.getFullYear(), window._calState.date.getMonth() - 1, 1)
+      calRender(window._calState.dates || [])
+    }
+  }
+  if (nextBtn) {
+    nextBtn.onclick = function() {
+      window._calState.date = new Date(window._calState.date.getFullYear(), window._calState.date.getMonth() + 1, 1)
+      calRender(window._calState.dates || [])
+    }
+  }
+
+  calInit()
+  document.addEventListener('nav', calInit)
+})()
+`
+
+export default (() => DailyCalendar) satisfies QuartzComponentConstructor

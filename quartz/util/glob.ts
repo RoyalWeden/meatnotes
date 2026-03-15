@@ -16,6 +16,7 @@ export async function glob(
       cwd,
       ignore: ignorePatterns,
       gitignore: true,
+      dot: true,
     })
   ).map(toPosixPath)
   return fps as FilePath[]

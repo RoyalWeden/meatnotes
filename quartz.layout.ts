@@ -5,11 +5,16 @@ import * as Component from "./quartz/components"
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
-  afterBody: [],
-  footer: Component.Footer({
+  afterBody: [
+    Component.DailyNoteNav(),
+  ],
+  footer: Component.CustomFooter({
     links: {
-      GitHub: "https://github.com/jackyzha0/quartz",
-      "Discord Community": "https://discord.gg/cRFFHYye7t",
+      "Main Website": "https://straitisthegate.net",
+      Zoom: "https://zoom.us/j/8858934548?pwd=144",
+      "Video Search Tool": "https://straitisthegatesearch.netlify.app/",
+      "Notes Search Tool": "https://straitisthegatex.net/",
+      "Iron Sharpener": "Iron Sharpener",
     },
   }),
 }
@@ -38,7 +43,12 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    Component.DailyCalendar(),
+    Component.Explorer({
+      filterFn: (node) => {
+        return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
+      },
+    }),
   ],
   right: [
     Component.Graph(),
@@ -62,7 +72,12 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    Component.DailyCalendar(),
+    Component.Explorer({
+      filterFn: (node) => {
+        return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
+      },
+    }),
   ],
   right: [],
 }

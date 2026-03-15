@@ -45,7 +45,7 @@ Now we know that when Yeshua says “I will have mercy” or “I desired mercy,
 
 > Psalm 40:6 Sacrifice and offering thou didst not desire; ***~mine ears hast thou opened~***: burnt offering and sin offering hast thou not required.
 
-Why were David’s ears opened? Why was he able to understand what scripture truly meant? It was because he kept God’s commandments. 
+Why were David’s ears opened? Why was he able to understand what scripture truly meant? It was because he kept God’s commandments.
 
 > Psalm 119:98-100
 >

@@ -3,15 +3,6 @@ pinned: false
 
 ---
 
-
-
-
-
-
-
-
-
-
 # Bible Cheat Codes
 
 [[bible cheat codes.jpg]]
@@ -40,11 +31,11 @@ Last few things:
 
 # A
 
-[[Studies/content/20 — Complete/01 — Idioms/Adultery]]
+[[20 — Complete/01 — Idioms/Adultery]]
 
-[[Studies/content/20 — Complete/01 — Idioms/Ahab]]
+[[20 — Complete/01 — Idioms/Ahab]]
 
-[[Studies/content/20 — Complete/01 — Idioms/Apple of Eye]]
+[[20 — Complete/01 — Idioms/Apple of Eye]]
 
 # B
 
@@ -83,6 +74,8 @@ Last few things:
 # S
 
 # T
+
+[[20 — Complete/01 — Idioms/Testimony]]
 
 # U
 

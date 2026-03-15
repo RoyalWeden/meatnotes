@@ -1,0 +1,11 @@
+[[Dead Sea Scrolls.pdf]]
+
+- starting from page 180
+
+> None of those brought into the Covenant shall enter the Temple to light His altar in vain. They shall bar the door, forasmuch as God said, Who among you will bar its door? And, You shall not light my altar in vain (Mal. 1:10). They shall take care to act according to the exact interpretation [15] of the Law during the age of wickedness. They shall separate from the sons of the Pit, and shall keep away from the unclean riches of wickedness acquired by vow or anathema or from the Temple treasure; they shall not rob the poor of His people, to make of widows their prey and of the fatherless their victim (Isa. 10:2). They shall distinguish between clean and unclean, and shall proclaim the difference between holy and profane. They shall keep the Sabbath day according to its exact interpretation, and the feasts and the Day of Fasting according to the finding of the members of the New Covenant in the land of Damascus. They shall [20] set aside the holy things according to the exact teaching concerning them. They shall love each man his brother as himself; they shall succour the poor, the needy, and the stranger.
+>
+> A man shall seek his brother’s well-being VII and shall not sin against his near kin. They shall keep from fornication according to the statute. They shall rebuke each man his brother according to the commandment and shall bear no rancour from one day to the next. They shall keep apart from every uncleanness according to the statutes relating to each one, and no man shall defile his holy spirit since God has set them apart. For [5] all who walk in these (precepts) in perfect holiness, according to all the teaching of God, the Covenant of God shall be an assurance that they shall live for thousands of generations (MS. B: as it is written, Keeping the Covenant and grace with those who love me and keep my commandments, to a thousand generations, Deut. 7:9).
+
+> Malachi 1:6 A son honoureth his father, and a servant his master: if then I be a father, where is mine honour? and if I be a master, where is my fear? saith the Lord of hosts unto you, O priests, that ***~despise my name~***. And ye say, Wherein have we despised thy name?
+
+> Jeremiah 23:25 I have heard what the prophets said, that ***~prophesy lies in my name~***, saying, I have dreamed, I have dreamed.

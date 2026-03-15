@@ -1,0 +1,47 @@
+*Things that Mark has said or have happened to him.*
+
+- guy visits to pray for john
+
+
+- general info about leah
+- brothers vision playing guitar
+- being baptist
+- conviction when 4 years old
+- everything on sale at the store when he went there to deck his house out
+- first wife
+- angel dissapearing 18
+- devil grabbing him at night, learnt name of yeshua, other guy got sick
+- mum passed away wrote letter
+- 'whats christmas really all about'
+- 'are you ready to listen'
+- 'will you be a watchman'
+- naming channel aka watchmen wakeup
+- considering cemetary school
+- moving to alberta
+- travelling man
+- eagle
+- white stone asher
+- throwing out all idols while drinking egg nog
+- blow spirit then forgive everyone john 20:23
+- watching the rev 12 sign unfold
+- rebuked for not focusing on rev 2-3
+- asking God how to show chirstians to keep the 10c from NT then hosea 6
+- trying to do feasts figuring out not to do feasts
+- day dawning w sabbath dan
+- wondering why they dont come at their wives in exodus 19
+- KOD with janice
+- janice dream of short hair in kingdom
+- God telling mark to be silent in the court room
+- God telling mark to let his dad move in with him
+- waking up the same time as nick vanderland
+- God saying "the church is why you sin so much"
+- micheal rood stroke
+- my wifes lying husband
+- who he snagged talents off (adam potv etc)
+- monker getting koster to repent
+- rebuking Mia - palano family
+- dumb dogs video and shift to evil servants warning/revolving door
+- american tour with james that didnt happen
+- jackie/isaias betrayal janice leaving eze 24
+- troubles with rcmp/neighbours/gracie/other daughters
+- natalie coming

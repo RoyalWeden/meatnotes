@@ -1,5 +1,3 @@
-# 70 years & 80 years
-
 [[70 years & 80 years.png]]
 
 > Psalm 119:84 How many are the days of thy servant? when wilt thou execute judgment on them that persecute me?

@@ -1,3 +1,19 @@
 @use "./base.scss";
 
 // put your custom CSS here!
+ins {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-decoration-color: inherit;
+}
+
+blockquote p {
+  margin: 0.2rem 0;
+}
+
+ul, ol {
+  margin: 0.2rem 0;
+  li {
+    margin: 0.1rem 0;
+  }
+}

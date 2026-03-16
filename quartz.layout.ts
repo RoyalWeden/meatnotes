@@ -3,7 +3,10 @@ import * as Component from "./quartz/components"
 
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
-  header: [Component.ReadingProgress()],
+  header: [
+    Component.ReadingProgress(),
+    Component.MobileOnly(Component.Search()),
+  ],
   afterBody: [
     Component.DailyNoteNav(),
     Component.BackToTop(),
@@ -40,7 +43,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        { Component: Component.Search(), grow: true },
+        { Component: Component.DesktopOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
       ],
@@ -62,7 +65,7 @@ export const defaultListPageLayout: PageLayout = {
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        { Component: Component.Search(), grow: true },
+        { Component: Component.DesktopOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
       ],
     }),

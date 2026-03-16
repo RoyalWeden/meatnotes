@@ -1,12 +1,38 @@
 @use "../../styles/variables.scss" as *;
 
 .graph {
-  & > h3 {
-    font-size: 1rem;
-    margin: 0;
+  & > .graph-details {
+    & > .graph-summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::after {
+        content: "›";
+        font-size: 1.2rem;
+        color: var(--gray);
+        transition: transform 0.2s ease;
+        display: inline-block;
+      }
+
+      & > h3 {
+        font-size: 1rem;
+        margin: 0;
+      }
+    }
+
+    &[open] > .graph-summary::after {
+      transform: rotate(90deg);
+    }
   }
 
-  & > .graph-outer {
+  .graph-outer {
     border-radius: 5px;
     border: 1px solid var(--lightgray);
     box-sizing: border-box;

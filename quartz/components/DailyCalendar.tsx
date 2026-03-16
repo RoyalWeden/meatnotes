@@ -35,9 +35,34 @@ DailyCalendar.css = `
 #cal-title { cursor: pointer; text-decoration: underline dotted; }
 #cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
 .cal-header { font-weight: bold; font-size: 0.7rem; color: var(--gray); padding: 2px; }
-.cal-day { padding: 3px 2px; border-radius: 3px; font-size: 0.8rem; color: var(--dark); }
-.cal-day.has-note a { color: var(--secondary); font-weight: bold; text-decoration: none; }
-.cal-day.has-note:hover { background: var(--highlight); }
+.cal-day {
+  padding: 0;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: var(--dark);
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cal-day.has-note {
+  cursor: pointer;
+}
+.cal-day.has-note a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 20px;
+  color: var(--secondary);
+  font-weight: bold;
+  text-decoration: none;
+  padding: 3px 2px;
+}
+.cal-day.has-note:hover {
+  background: var(--highlight);
+}
 .cal-day.empty { color: var(--lightgray); }
 .cal-day.today { background: var(--highlight); border: 1px solid var(--secondary); }
 .cal-day.active a { background: var(--secondary); color: var(--light) !important; border-radius: 3px; padding: 1px 3px; }
@@ -118,12 +143,56 @@ DailyCalendar.css = `
   gap: 4px;
   text-align: center;
 }
-
+#cal-grid-mobile .cal-day {
+  padding: 0;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#cal-grid-mobile .cal-day.has-note a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 36px;
+  color: var(--secondary);
+  font-weight: bold;
+  text-decoration: none;
+}
 @media (max-width: 768px) {
   #cal-mobile-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  #cal-mobile-inner {
+    width: 95vw;
+    padding: 1.5rem 1rem;
+  }
+
+  #cal-grid-mobile .cal-day {
+    padding: 8px 4px;
+    font-size: 1rem;
+  }
+
+  #cal-grid-mobile .cal-header {
+    font-size: 0.85rem;
+    padding: 4px 2px;
+  }
+
+  #cal-nav-mobile {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  #cal-nav-mobile button {
+    padding: 0.3rem 0.75rem;
+    font-size: 1rem;
   }
 }
 `
@@ -237,6 +306,9 @@ DailyCalendar.afterDOMLoaded = `
       if (dates.includes(dateStr)) {
         el.classList.add('has-note')
         el.innerHTML = '<a href="/Daily/' + dateStr + '">' + d + '</a>'
+        el.onclick = function() {
+          window.location.href = '/Daily/' + dateStr
+        }
       } else {
         el.textContent = String(d)
       }
@@ -311,6 +383,10 @@ DailyCalendar.afterDOMLoaded = `
       if (dates.includes(dateStr)) {
         el.classList.add('has-note')
         el.innerHTML = '<a href="/Daily/' + dateStr + '">' + d + '</a>'
+        el.onclick = function() {
+          window.location.href = '/Daily/' + dateStr
+          if (overlay) overlay.classList.remove('open')
+        }
       } else {
         el.textContent = String(d)
       }

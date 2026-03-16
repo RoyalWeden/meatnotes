@@ -426,6 +426,60 @@ DailyCalendar.afterDOMLoaded = `
 
   setupMobile()
   document.addEventListener('nav', setupMobile)
+
+  function setupHamburgerInjection() {
+    const explorer = document.querySelector('.explorer')
+    if (!explorer) return
+
+    function injectIntoDrawer() {
+      if (window.innerWidth > 768) return
+      const explorerContent = document.querySelector('.explorer-content')
+      if (!explorerContent) return
+
+      const existing = document.getElementById('mobile-drawer-header')
+      if (existing) existing.remove()
+
+      const header = document.createElement('div')
+      header.id = 'mobile-drawer-header'
+
+      const titleEl = document.createElement('a')
+      titleEl.href = '/'
+      titleEl.className = 'mobile-drawer-title'
+      const siteTitle = document.querySelector('.page-title a')
+      titleEl.textContent = siteTitle ? siteTitle.textContent : 'Bible Notes'
+      header.appendChild(titleEl)
+
+      const darkmodeBtn = document.querySelector('.darkmode button')
+      if (darkmodeBtn) {
+        const dmClone = darkmodeBtn.cloneNode(true)
+        dmClone.addEventListener('click', function() {
+          darkmodeBtn.click()
+        })
+        const dmWrapper = document.createElement('div')
+        dmWrapper.className = 'mobile-drawer-darkmode'
+        dmWrapper.appendChild(dmClone)
+        header.appendChild(dmWrapper)
+      }
+
+      explorerContent.insertBefore(header, explorerContent.firstChild)
+    }
+
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'aria-expanded') {
+          const expanded = explorer.getAttribute('aria-expanded')
+          if (expanded === 'true') {
+            injectIntoDrawer()
+          }
+        }
+      })
+    })
+
+    observer.observe(explorer, { attributes: true })
+  }
+
+  setupHamburgerInjection()
+  document.addEventListener('nav', setupHamburgerInjection)
 })()
 `
 

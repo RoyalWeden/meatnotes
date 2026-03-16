@@ -23,6 +23,10 @@ ul, ol {
     display: none !important;
   }
 
+  #daily-calendar {
+    display: none !important;
+  }
+
   // Hide page title and darkmode from the mobile top bar
   // They still appear inside the hamburger drawer
   .sidebar.left .page-title {

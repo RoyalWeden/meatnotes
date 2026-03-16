@@ -36,18 +36,16 @@ export const defaultContentPageLayout: PageLayout = {
     Component.TagList(),
   ],
   left: [
-    Component.DesktopOnly(Component.PageTitle()),
+    Component.PageTitle(),
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
         { Component: Component.Search(), grow: true },
-        { Component: Component.DesktopOnly(Component.Darkmode()) },
-        { Component: Component.DesktopOnly(Component.ReaderMode()) },
+        { Component: Component.Darkmode() },
+        { Component: Component.ReaderMode() },
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),
-    Component.MobileOnly(Component.PageTitle()),
-    Component.MobileOnly(Component.Darkmode()),
     Component.Explorer(explorerConfig),
   ],
   right: [
@@ -60,17 +58,15 @@ export const defaultContentPageLayout: PageLayout = {
 export const defaultListPageLayout: PageLayout = {
   beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
   left: [
-    Component.DesktopOnly(Component.PageTitle()),
+    Component.PageTitle(),
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
         { Component: Component.Search(), grow: true },
-        { Component: Component.DesktopOnly(Component.Darkmode()) },
+        { Component: Component.Darkmode() },
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),
-    Component.MobileOnly(Component.PageTitle()),
-    Component.MobileOnly(Component.Darkmode()),
     Component.Explorer(explorerConfig),
   ],
   right: [],

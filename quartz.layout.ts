@@ -26,6 +26,9 @@ const explorerConfig = {
   filterFn: (node: any) => {
     return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
   },
+  mapFn: (node: any) => {
+    node.displayName = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
+  },
 }
 
 export const defaultContentPageLayout: PageLayout = {
@@ -37,6 +40,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ArticleTitle(),
     Component.ContentMeta(),
     Component.TagList(),
+    Component.MobileOnly(Component.TableOfContents()),
   ],
   left: [
     Component.PageTitle(),

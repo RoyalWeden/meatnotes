@@ -1,6 +1,17 @@
 @use "./base.scss";
 
 // put your custom CSS here!
+
+// Fix code block text wrapping so Copy-Paste Rebukes are fully readable
+pre {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+}
+pre > code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+}
+
 ins {
   text-decoration: underline;
   text-decoration-style: solid;
@@ -15,6 +26,30 @@ ul, ol {
   margin: 0.2rem 0;
   li {
     margin: 0.1rem 0;
+  }
+}
+
+// Make copy button always visible on mobile (no hover needed)
+@media (max-width: 800px) {
+  pre button.clipboard-button {
+    opacity: 1 !important;
+    display: flex !important;
+  }
+}
+
+// Style the home page primary link as a prominent button
+.page[data-slug="index"] article > p > a:first-child {
+  display: inline-block;
+  padding: 0.45rem 1rem;
+  background: var(--secondary);
+  color: var(--light) !important;
+  border-radius: 5px;
+  text-decoration: none !important;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.85;
   }
 }
 

@@ -19,6 +19,27 @@ ul, ol {
 }
 
 @media (max-width: 768px) {
+  // Hide reader mode on mobile
+  .readermode {
+    display: none !important;
+  }
+
+  // Hide darkmode and page title from top bar on mobile
+  // (they show in hamburger menu instead)
+  .left .darkmode {
+    display: none !important;
+  }
+
+  .left .page-title {
+    display: none !important;
+  }
+
+  // Make search take up full top bar
+  .search {
+    width: 100% !important;
+    flex: 1 !important;
+  }
+  
   // Hide graph on mobile
   .graph {
     display: none !important;

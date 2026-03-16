@@ -31,23 +31,13 @@ ul, ol {
     display: none !important;
   }
 
-  // Hide title and darkmode from top bar but keep in hamburger
-  .sidebar.left > .page-title {
-    display: none !important;
-  }
-
-  .sidebar.left > .spacer {
-    display: none !important;
-  }
-
-  // Make the flex row with search fill the top
   .sidebar.left .flex {
     width: 100% !important;
-    flex: 1 !important;
+    flex: 1 1 auto !important;
   }
 
   .sidebar.left .search {
-    flex: 1 !important;
+    flex: 1 1 auto !important;
     width: 100% !important;
   }
 }

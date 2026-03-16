@@ -20,6 +20,12 @@ export const sharedPageComponents: SharedLayout = {
   }),
 }
 
+const explorerConfig = {
+  filterFn: (node: any) => {
+    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
+  },
+}
+
 // components for pages that display a single page (e.g. a single note)
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
@@ -32,24 +38,17 @@ export const defaultContentPageLayout: PageLayout = {
     Component.TagList(),
   ],
   left: [
-    Component.PageTitle(),
+    Component.DesktopOnly(Component.PageTitle()),
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
-        { Component: Component.ReaderMode() },
+        { Component: Component.Search(), grow: true },
+        { Component: Component.DesktopOnly(Component.Darkmode()) },
+        { Component: Component.DesktopOnly(Component.ReaderMode()) },
       ],
     }),
-    Component.DailyCalendar(),
-    Component.Explorer({
-      filterFn: (node) => {
-        return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
-      },
-    }),
+    Component.DesktopOnly(Component.DailyCalendar()),
+    Component.Explorer(explorerConfig),
   ],
   right: [
     Component.Graph(),
@@ -58,27 +57,20 @@ export const defaultContentPageLayout: PageLayout = {
   ],
 }
 
-// components for pages that display lists of pages  (e.g. tags or folders)
+// components for pages that display lists of pages (e.g. tags or folders)
 export const defaultListPageLayout: PageLayout = {
   beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
   left: [
-    Component.PageTitle(),
+    Component.DesktopOnly(Component.PageTitle()),
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
+        { Component: Component.Search(), grow: true },
+        { Component: Component.DesktopOnly(Component.Darkmode()) },
       ],
     }),
-    Component.DailyCalendar(),
-    Component.Explorer({
-      filterFn: (node) => {
-        return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
-      },
-    }),
+    Component.DesktopOnly(Component.DailyCalendar()),
+    Component.Explorer(explorerConfig),
   ],
   right: [],
 }

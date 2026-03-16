@@ -14,13 +14,13 @@ const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
       <button id="cal-mobile-btn" aria-label="Open calendar">📅</button>
       <div id="cal-mobile-overlay">
         <div id="cal-mobile-inner">
-          <button id="cal-mobile-close">✕</button>
           <div id="cal-nav-mobile">
             <button id="cal-prev-mobile">←</button>
             <span id="cal-title-mobile"></span>
             <button id="cal-next-mobile">→</button>
           </div>
           <div id="cal-grid-mobile"></div>
+          <button id="cal-mobile-close">Close</button>
         </div>
       </div>
     </>
@@ -113,14 +113,17 @@ DailyCalendar.css = `
   position: relative;
 }
 #cal-mobile-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  display: block;
+  width: 100%;
   background: none;
-  border: none;
-  font-size: 1.2rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  padding: 0.4rem;
+  font-size: 1rem;
   cursor: pointer;
   color: var(--dark);
+  margin-top: 1rem;
+  text-align: center;
 }
 #cal-nav-mobile {
   display: flex;

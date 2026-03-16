@@ -1,19 +1,17 @@
-# How to Read the bible
-
-## Videos
+# Videos
 
 Mark:
 
 - [How to read the bible for beginners 🍼](https://youtu.be/Z1IER1Lrye8)
 
-## Questions to ask:
+# Questions to ask:
 
 - “What is he quoting?”
 - “Why is he quoting it?”
 
 ---
 
-## Yeshua Tells You How to Read the Bible
+# Yeshua Tells You How to Read the Bible
 
 > Matthew 9:13
 >
@@ -41,7 +39,7 @@ The reason he quotes Hosea 6 is to tell you that God no longer desires people to
 
 Now we know that when Yeshua says “I will have mercy” or “I desired mercy,” he really meant “I desired my covenant to be kept.”
 
-## He Opens the Ears
+# He Opens the Ears
 
 > Psalm 40:6 Sacrifice and offering thou didst not desire; ***~mine ears hast thou opened~***: burnt offering and sin offering hast thou not required.
 
@@ -99,7 +97,7 @@ That truth is the spirit of truth that is only given to those that keep the comm
 >
 > 17 Even ***~the Spirit of truth~***; whom the world cannot receive, because it seeth him not, neither knoweth him: but ye know him; for he dwelleth with you, and shall be in you.
 
-## Isaiah Tells You How to Read the Bible
+# Isaiah Tells You How to Read the Bible
 
 > Isaiah 28:9-13
 >
@@ -147,9 +145,9 @@ Since we understand what “milk” is, let’s jump back to what Isaiah said.
 
 We can now understand that verse 9 means God will give more understanding in his word once we repent and get more understanding in the basics. In verse 10, he tells us how to actually read the Bible, which, in fact, we have already been doing.
 
-### Precept Upon Precept
+## Precept Upon Precept
 
-## Why He Spoke in Parables
+# Why He Spoke in Parables
 
 > Matthew 13:10-17
 >

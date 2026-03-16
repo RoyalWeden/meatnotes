@@ -75,6 +75,7 @@ const config: QuartzConfig = {
       Plugin.Underline(),
       Plugin.ImageLinks(),
       Plugin.ColorHighlight(),
+      Plugin.BibleLinks(),
     ],
     filters: [Plugin.RemoveDrafts()],
     emitters: [

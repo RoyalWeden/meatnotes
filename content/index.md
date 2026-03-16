@@ -1,6 +1,6 @@
 ---
-title: Welcome to Quartz
+title: Welcome to Straitisthegate.net Meat Notes
+
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+[[20 — Complete/Meat in Due Season]] 

@@ -2,9 +2,9 @@
 
 From this list, tell me how well you could teach each of these topics with relevant scriptures. If it takes more than a minute to think about, that's too long. Write next to each either “Yes” (you can teach it with the relevant scriptures), “Sorta” (you partly understand it or need a refresher of the scriptures), “No” (you have no idea what this means or refers to).
 
-- [[Studies/content/10 — In Progress/How to Read the Bible]]
+- [[10 — In Progress/How to Read the Bible]]
 
-  - [[Studies/content/20 — Complete/Bible Idioms]]
+  - [[20 — Complete/Bible Idioms]]
     - Pray = Judge
     - Incense = Prayer
     - Salvation = Yeshua
@@ -36,7 +36,7 @@ From this list, tell me how well you could teach each of these topics with relev
     - Baptize in the Name of the Father, Son, Holy Ghost Equals
   - Christmas Log in Eye
 
-- [[Studies/content/10 — In Progress/Peculiar People & Holy Nation]]
+- [[10 — In Progress/Peculiar People & Holy Nation]]
 
 - The 10 Commandments
 
@@ -53,7 +53,7 @@ From this list, tell me how well you could teach each of these topics with relev
 - Works of the Law & Letter of the Law & Law of Sin and Death
 
   - First Things Gentiles Should Do & Covenants of Promise
-  - [[Studies/content/10 — In Progress/Ministration of Death, Written & Engraven in Stone]]
+  - [[10 — In Progress/Ministration of Death, Written & Engraven in Stone]]
   - Twisting Paul’s Words
   - Why the Book of Galatians Was Written
   - Yoke of Bondage vs. Yeshua’s Yoke
@@ -65,7 +65,7 @@ From this list, tell me how well you could teach each of these topics with relev
 
 - Green Tree vs. Dry Tree
 
-- [[Studies/content/10 — In Progress/Sabbath]]
+- [[10 — In Progress/Sabbath]]
 
   - Day Dawning
   - Lunar Sabbath
@@ -93,12 +93,12 @@ From this list, tell me how well you could teach each of these topics with relev
 
 - Royal Law & Love Your Neighbor & Law of Liberty
 
-  - [[Studies/content/10 — In Progress/Faith of Yeshua]]
-  - [[Studies/content/10 — In Progress/Cain vs. Abel’s Offering]]
-  - [[Studies/content/10 — In Progress/Judging the Cause of the Fatherless & Widows]]
-  - [[Studies/content/10 — In Progress/Freely Give & Don’t Make Merchandise of God’s People]]
-  - [[Studies/content/10 — In Progress/Bless = Rebuke]]
-  - [[Studies/content/10 — In Progress/Hide a Multitude of Sins]]
+  - [[10 — In Progress/Faith of Yeshua]]
+  - [[10 — In Progress/Cain vs. Abel’s Offering]]
+  - [[10 — In Progress/Judging the Cause of the Fatherless & Widows]]
+  - [[10 — In Progress/Freely Give & Don’t Make Merchandise of God’s People]]
+  - [[10 — In Progress/Bless = Rebuke]]
+  - [[10 — In Progress/Hide a Multitude of Sins]]
   - Acceptable Sacrifice
 
 - Least in the Kingdom vs. Great in the Kingdom
@@ -158,7 +158,7 @@ From this list, tell me how well you could teach each of these topics with relev
   - Why the Ezekiel Temple Wasn’t Built
   - The Apostasy of the Church & 2 Timothy 3-4
   - Septuagint & Why It Was Written
-  - [[Studies/content/10 — In Progress/Judah Already Taken]]
+  - [[10 — In Progress/Judah Already Taken]]
   - Blindness in Part to Israel
   - 390 years x 7 = 2730 year punishment & Fullness of Gentiles
 
@@ -216,7 +216,7 @@ From this list, tell me how well you could teach each of these topics with relev
 
   - Do This & You’ll Never Fall
 
-  - [[Studies/content/10 — In Progress/Why Titus Fell & Let No Man Take Your Crown]]
+  - [[10 — In Progress/Why Titus Fell & Let No Man Take Your Crown]]
 
   - Wise in Their Own Conceits
 
@@ -246,7 +246,7 @@ From this list, tell me how well you could teach each of these topics with relev
   - Promise to Abraham
   - Death, Burial, Resurrection (DBR) Gospel
   - When Will Yeshua Return
-    - [[Studies/content/10 — In Progress/70 years & 80 years]]
+    - [[10 — In Progress/70 years & 80 years]]
   - The Melchizedek Scroll (11Q13) - Dead Sea Scrolls
   - Horeb vs. Sinai
     - Built Upon the Rock
@@ -258,7 +258,7 @@ From this list, tell me how well you could teach each of these topics with relev
   - “It is Finished”
   - Romans 10 → Isaiah 52 & Luke 4 → Isaiah 61
 
-- [[Studies/content/10 — In Progress/Sermon on the Mount & Beatitudes]]
+- [[10 — In Progress/Sermon on the Mount & Beatitudes]]
 
   - The Testimony of the Beatitudes
   - The Blessed & The Beloved & Who Yeshua Prayed For
@@ -326,7 +326,7 @@ From this list, tell me how well you could teach each of these topics with relev
 
 - Depart from Me I Never Knew You That Work Lawlessness & Unjust
 
-- [[Studies/content/10 — In Progress/Psalm 40]] (every verse)
+- [[10 — In Progress/Psalm 40]] (every verse)
 
 - Don’t Say You’ve Done Your Full Duty
 
@@ -361,9 +361,9 @@ From this list, tell me how well you could teach each of these topics with relev
 
 - Hallelujah = Praise Yah
 
-- [[Studies/content/10 — In Progress/Yeshua Lifted Up As Brazen Serpent]]
+- [[10 — In Progress/Yeshua Lifted Up As Brazen Serpent]]
 
-- [[Studies/content/00 — Capture/Damascus Document]] - Dead Sea Scrolls
+- [[00 — Capture/Damascus Document]] - Dead Sea Scrolls
 
 - Romans 1 is Well Under Way
 

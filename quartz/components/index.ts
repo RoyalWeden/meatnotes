@@ -26,6 +26,8 @@ import ConditionalRender from "./ConditionalRender"
 export { default as DailyCalendar } from "./DailyCalendar"
 export { default as DailyNoteNav } from "./DailyNoteNav"
 export { default as CustomFooter } from "./CustomFooter"
+export { default as ReadingProgress } from "./ReadingProgress"
+export { default as BackToTop } from "./BackToTop"
 
 export {
   ArticleTitle,

@@ -41,3 +41,18 @@ ul, ol {
     width: 100% !important;
   }
 }
+
+#mobile-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0 1rem 0;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+#mobile-drawer-header .mobile-site-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--dark);
+}

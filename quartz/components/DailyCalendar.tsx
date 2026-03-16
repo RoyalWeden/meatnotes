@@ -2,14 +2,28 @@ import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } fro
 
 const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
   return (
-    <div id="daily-calendar">
-      <div id="cal-nav">
-        <button id="cal-prev">←</button>
-        <span id="cal-title"></span>
-        <button id="cal-next">→</button>
+    <>
+      <div id="daily-calendar">
+        <div id="cal-nav">
+          <button id="cal-prev">←</button>
+          <span id="cal-title"></span>
+          <button id="cal-next">→</button>
+        </div>
+        <div id="cal-grid"></div>
       </div>
-      <div id="cal-grid"></div>
-    </div>
+      <button id="cal-mobile-btn" aria-label="Open calendar">📅</button>
+      <div id="cal-mobile-overlay">
+        <div id="cal-mobile-inner">
+          <button id="cal-mobile-close">✕</button>
+          <div id="cal-nav-mobile">
+            <button id="cal-prev-mobile">←</button>
+            <span id="cal-title-mobile"></span>
+            <button id="cal-next-mobile">→</button>
+          </div>
+          <div id="cal-grid-mobile"></div>
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -34,6 +48,84 @@ DailyCalendar.css = `
 .cal-picker-month { background: none; border: 1px solid var(--lightgray); border-radius: 4px; padding: 0.2rem; cursor: pointer; font-size: 0.8rem; color: var(--dark); }
 .cal-picker-month:hover { background: var(--highlight); }
 .cal-picker-month.active { background: var(--secondary); color: var(--light); border-color: var(--secondary); }
+
+/* Mobile calendar button */
+#cal-mobile-btn {
+  display: none;
+  position: fixed;
+  bottom: 5rem;
+  right: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--secondary);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Mobile overlay */
+#cal-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#cal-mobile-overlay.open {
+  display: flex;
+}
+#cal-mobile-inner {
+  background: var(--light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 90vw;
+  max-width: 360px;
+  position: relative;
+}
+#cal-mobile-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--dark);
+}
+#cal-nav-mobile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-weight: bold;
+}
+#cal-nav-mobile button {
+  background: none;
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
+  cursor: pointer;
+  color: var(--dark);
+}
+#cal-grid-mobile {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #cal-mobile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
 `
 
 DailyCalendar.afterDOMLoaded = `
@@ -177,6 +269,84 @@ DailyCalendar.afterDOMLoaded = `
 
   calInit()
   document.addEventListener('nav', calInit)
+
+  // Mobile overlay logic
+  function calRenderMobile(dates) {
+    const year = window._calState.date.getFullYear()
+    const month = window._calState.date.getMonth()
+    const currentPath = window.location.pathname
+
+    const titleEl = document.getElementById('cal-title-mobile')
+    if (titleEl) titleEl.textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })
+
+    const grid = document.getElementById('cal-grid-mobile')
+    if (!grid) return
+    grid.innerHTML = ''
+
+    ;['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(function(d) {
+      const el = document.createElement('div')
+      el.className = 'cal-header'
+      el.textContent = d
+      grid.appendChild(el)
+    })
+
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const today = new Date()
+
+    for (let i = 0; i < firstDay; i++) {
+      const el = document.createElement('div')
+      el.className = 'cal-day empty'
+      grid.appendChild(el)
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const mm = String(month + 1).padStart(2, '0')
+      const dd = String(d).padStart(2, '0')
+      const dateStr = year + '-' + mm + '-' + dd
+      const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear()
+      const isActive = currentPath.endsWith('/Daily/' + dateStr)
+      const el = document.createElement('div')
+      el.className = 'cal-day' + (isToday ? ' today' : '') + (isActive ? ' active' : '')
+      if (dates.includes(dateStr)) {
+        el.classList.add('has-note')
+        el.innerHTML = '<a href="/Daily/' + dateStr + '">' + d + '</a>'
+      } else {
+        el.textContent = String(d)
+      }
+      grid.appendChild(el)
+    }
+  }
+
+  function setupMobile() {
+    const btn = document.getElementById('cal-mobile-btn')
+    const overlay = document.getElementById('cal-mobile-overlay')
+    const closeBtn = document.getElementById('cal-mobile-close')
+    const prevBtn = document.getElementById('cal-prev-mobile')
+    const nextBtn = document.getElementById('cal-next-mobile')
+
+    if (btn) btn.onclick = function() {
+      if (overlay) overlay.classList.add('open')
+      calRenderMobile(window._calState.dates || [])
+    }
+    if (closeBtn) closeBtn.onclick = function() {
+      if (overlay) overlay.classList.remove('open')
+    }
+    if (overlay) overlay.onclick = function(e) {
+      if (e.target === overlay) overlay.classList.remove('open')
+    }
+    if (prevBtn) prevBtn.onclick = function() {
+      window._calState.date = new Date(window._calState.date.getFullYear(), window._calState.date.getMonth() - 1, 1)
+      calRenderMobile(window._calState.dates || [])
+    }
+    if (nextBtn) nextBtn.onclick = function() {
+      window._calState.date = new Date(window._calState.date.getFullYear(), window._calState.date.getMonth() + 1, 1)
+      calRenderMobile(window._calState.dates || [])
+    }
+  }
+
+  setupMobile()
+  document.addEventListener('nav', setupMobile)
 })()
 `
 

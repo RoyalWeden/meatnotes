@@ -17,3 +17,15 @@ ul, ol {
     margin: 0.1rem 0;
   }
 }
+
+@media (max-width: 768px) {
+  // Hide graph on mobile
+  .graph {
+    display: none !important;
+  }
+
+  // Hide calendar in sidebar on mobile
+  #daily-calendar {
+    display: none !important;
+  }
+}

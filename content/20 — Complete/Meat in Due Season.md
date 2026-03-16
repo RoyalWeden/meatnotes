@@ -310,6 +310,8 @@
 
 - Corner Stone & Rock of Offence & Stumbling Stone
 
+  - “I am he” w/ John 18
+
 - Be Perfect
 
 - Armor of God

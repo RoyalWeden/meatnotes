@@ -19,34 +19,35 @@ ul, ol {
 }
 
 @media (max-width: 768px) {
-  // Hide reader mode on mobile
-  .readermode {
-    display: none !important;
-  }
-
-  // Hide darkmode and page title from top bar on mobile
-  // (they show in hamburger menu instead)
-  .left .darkmode {
-    display: none !important;
-  }
-
-  .left .page-title {
-    display: none !important;
-  }
-
-  // Make search take up full top bar
-  .search {
-    width: 100% !important;
-    flex: 1 !important;
-  }
-  
-  // Hide graph on mobile
   .graph {
     display: none !important;
   }
 
-  // Hide calendar in sidebar on mobile
   #daily-calendar {
     display: none !important;
+  }
+
+  .readermode {
+    display: none !important;
+  }
+
+  // Hide title and darkmode from top bar but keep in hamburger
+  .sidebar.left > .page-title {
+    display: none !important;
+  }
+
+  .sidebar.left > .spacer {
+    display: none !important;
+  }
+
+  // Make the flex row with search fill the top
+  .sidebar.left .flex {
+    width: 100% !important;
+    flex: 1 !important;
+  }
+
+  .sidebar.left .search {
+    flex: 1 !important;
+    width: 100% !important;
   }
 }

@@ -426,33 +426,6 @@ DailyCalendar.afterDOMLoaded = `
 
   setupMobile()
   document.addEventListener('nav', setupMobile)
-
-  function injectMobileDrawerHeader() {
-    if (window.innerWidth > 768) return
-    const explorer = document.querySelector('.explorer')
-    if (!explorer || document.getElementById('mobile-drawer-header')) return
-
-    const darkmode = document.querySelector('.darkmode')
-    const pageTitle = document.querySelector('.page-title')
-
-    const header = document.createElement('div')
-    header.id = 'mobile-drawer-header'
-
-    const titleEl = document.createElement('span')
-    titleEl.className = 'mobile-site-title'
-    titleEl.textContent = pageTitle ? pageTitle.textContent : 'Bible Notes'
-    header.appendChild(titleEl)
-
-    if (darkmode) {
-      const dm = darkmode.cloneNode(true)
-      header.appendChild(dm)
-    }
-
-    explorer.insertBefore(header, explorer.firstChild)
-  }
-
-  injectMobileDrawerHeader()
-  document.addEventListener('nav', injectMobileDrawerHeader)
 })()
 `
 

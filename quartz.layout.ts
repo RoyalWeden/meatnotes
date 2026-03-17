@@ -5,6 +5,13 @@ export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [
     Component.ReadingProgress(),
+    Component.DesktopOnly(Component.Flex({
+      components: [
+        { Component: Component.Search(), grow: true },
+        { Component: Component.Darkmode() },
+        { Component: Component.ReaderMode() },
+      ],
+    })),
   ],
   afterBody: [
     Component.DailyNoteNav(),
@@ -72,7 +79,6 @@ export const defaultContentPageLayout: PageLayout = {
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        { Component: Component.DesktopOnly(Component.Search()), grow: true },
         { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
@@ -95,7 +101,6 @@ export const defaultListPageLayout: PageLayout = {
     Component.MobileOnly(Component.Spacer()),
     Component.Flex({
       components: [
-        { Component: Component.DesktopOnly(Component.Search()), grow: true },
         { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
       ],

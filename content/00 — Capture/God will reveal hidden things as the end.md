@@ -1,3 +1,0 @@
-> Isaiah 45:3 And I will give thee the treasures of darkness, and hidden riches of secret places, that thou mayest know that I, the Lord, which call thee by thy name, am the God of Israel.
-
-> 2 Baruch 6:8 And he spoke to the earth with a loud voice: 'Earth, earth, earth, hear the word of the mighty God, And receive what I commit to you, And guard them ***~until the last times~***, So that, when you are ordered, you may restore them, So that strangers may not get possession of them.

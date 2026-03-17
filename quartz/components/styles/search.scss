@@ -6,11 +6,14 @@
   @media all and ($mobile) {
     flex-grow: 1;
   }
+  @media all and not ($mobile) {
+    width: 100%;
+  }
 
   & > .search-button {
     background-color: color-mix(in srgb, var(--lightgray) 50%, transparent);
     border: 1px var(--lightgray) solid;
-    border-radius: 4px;
+    border-radius: 20px;
     font-family: inherit;
     font-size: inherit;
     height: 2.75rem;
@@ -59,7 +62,7 @@
     }
 
     & > .search-space {
-      width: 65%;
+      width: 80%;
       margin-top: 12vh;
       margin-left: auto;
       margin-right: auto;
@@ -70,7 +73,7 @@
 
       & > * {
         width: 100%;
-        border-radius: 7px;
+        border-radius: 12px;
         background: var(--light);
         box-shadow:
           0 14px 50px rgba(27, 33, 48, 0.12),
@@ -88,6 +91,82 @@
 
         &:focus {
           outline: none;
+        }
+      }
+
+      & > .search-filter-btns {
+        display: flex;
+        gap: 0.4em;
+        padding: 0.35em 1em 0;
+        flex-wrap: wrap;
+
+        & > .filter-btn {
+          display: inline-block;
+          padding: 0.15em 0.65em;
+          border: 1px solid var(--lightgray);
+          border-radius: 4px;
+          background: var(--light);
+          font-family: inherit;
+          font-size: 0.72em;
+          line-height: 1.4;
+          color: var(--darkgray);
+          cursor: pointer;
+          transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+          &:hover {
+            background: var(--lightgray);
+          }
+
+          &.active {
+            background: var(--secondary);
+            color: var(--light);
+            border-color: var(--secondary);
+          }
+        }
+
+        @media all and ($mobile) {
+          padding: 0.4em 0.75em 0;
+          gap: 0.35em;
+
+          & > .filter-btn {
+            font-size: 0.8em;
+            padding: 0.2em 0.75em;
+          }
+        }
+      }
+
+      & > .search-kbd-hints {
+        display: flex;
+        gap: 1.2em;
+        padding: 0.35em 1em;
+        font-size: 0.72em;
+        color: var(--gray);
+        background: transparent !important;
+        box-shadow: none !important;
+        margin-bottom: 0 !important;
+        border-radius: 0 !important;
+        flex-wrap: wrap;
+
+        @media all and ($mobile) {
+          display: none !important;
+        }
+
+        & > span {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25em;
+
+          & > kbd {
+            display: inline-block;
+            padding: 0.1em 0.35em;
+            border: 1px solid var(--lightgray);
+            border-radius: 4px;
+            background: var(--light);
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 1.4;
+            color: var(--darkgray);
+          }
         }
       }
 
@@ -129,7 +208,7 @@
 
         & > div {
           height: calc(75vh - 12vh);
-          border-radius: 5px;
+          border-radius: 10px;
         }
 
         @media all and ($mobile) {
@@ -175,6 +254,114 @@
 
         & > .results-container {
           overflow-y: auto;
+
+          & .see-all-results {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6em 1em;
+            background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+            border-bottom: 2px solid var(--secondary);
+            font-weight: $boldWeight;
+            color: var(--secondary);
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+
+            &:hover,
+            &:focus,
+            &.focus {
+              background: color-mix(in srgb, var(--secondary) 20%, var(--light));
+            }
+
+            & > p {
+              margin: 0;
+              font-size: 0.9em;
+            }
+          }
+
+          & .recent-searches {
+            padding: 0.6em 1em 0.4em;
+            border-bottom: 1px solid var(--lightgray);
+
+            & > .recent-label {
+              font-size: 0.75em;
+              color: var(--gray);
+              margin: 0 0 0.4em;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+
+            & > .recent-chips {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.4em;
+
+              & > .recent-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25em;
+                padding: 0.2em 0.6em;
+                border-radius: 12px;
+                background: var(--highlight);
+                color: var(--secondary);
+                font-size: 0.8em;
+                cursor: pointer;
+                border: 1px solid var(--lightgray);
+                transition: background 0.2s ease;
+                text-decoration: none;
+
+                &:hover {
+                  background: color-mix(in srgb, var(--secondary) 15%, var(--light));
+                }
+              }
+            }
+          }
+
+          & .did-you-mean {
+            padding: 0.6em 1em;
+            border-bottom: 1px solid var(--lightgray);
+            font-style: italic;
+            color: var(--gray);
+            font-size: 0.9em;
+
+            & > p { margin: 0; }
+
+            & .dym-link {
+              color: var(--secondary);
+              text-decoration: underline;
+              cursor: pointer;
+            }
+          }
+
+          & .fuzzy-results-label {
+            font-size: 0.72em;
+            color: var(--gray);
+            margin: 0.4em 1em 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+
+          & .fuzzy-result-card {
+            opacity: 0.75;
+            background: color-mix(in srgb, var(--lightgray) 25%, transparent);
+            font-style: italic;
+
+            & > h3 {
+              color: var(--gray);
+              font-weight: normal;
+            }
+
+            &:hover,
+            &:focus,
+            &.focus {
+              opacity: 1;
+              background: var(--lightgray);
+            }
+          }
 
           & .result-card {
             overflow: hidden;

@@ -82,7 +82,8 @@ export default (() => {
           </>
         )}
 
-        <link rel="icon" href={iconPath} />
+        <link rel="icon" type="image/png" href={`${iconPath}?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" href={`${iconPath}?v=${Date.now()}`} />
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 

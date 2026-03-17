@@ -39,6 +39,12 @@ export default ((userOpts?: Partial<SearchOptions>) => {
               aria-label={searchPlaceholder}
               placeholder={searchPlaceholder}
             />
+            <div class="search-filter-btns" role="group" aria-label="Search filter">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="title">Title</button>
+              <button class="filter-btn" data-filter="content">Content</button>
+              <button class="filter-btn" data-filter="tags">Tags</button>
+            </div>
             <div class="search-layout" data-preview={opts.enablePreview}></div>
           </div>
         </div>

@@ -14,7 +14,9 @@ interface Item {
 
 // Can be expanded with things like "term" in the future
 type SearchType = "basic" | "tags"
+type SearchFilter = "all" | "title" | "content" | "tags"
 let searchType: SearchType = "basic"
+let searchFilter: SearchFilter = "all"
 let currentSearchTerm: string = ""
 const encoder = (str: string): string[] => {
   const tokens: string[] = []
@@ -96,8 +98,7 @@ interface DateRange {
   label: string
 }
 
-function parseDateQuery(term: string): DateRange | null {
-  const lower = term.trim().toLowerCase()
+function parseSingleDate(lower: string): DateRange | null {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
@@ -122,6 +123,10 @@ function parseDateQuery(term: string): DateRange | null {
 
   if (lower === "today") return single(today)
   if (lower === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); return single(d) }
+  if (lower === "recent" || lower === "new" || lower === "latest") {
+    const start = new Date(today); start.setDate(today.getDate() - 7)
+    return makeRange(start, today, "Last 7 days")
+  }
 
   if (lower === "this week") {
     const mon = new Date(today); mon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
@@ -141,6 +146,24 @@ function parseDateQuery(term: string): DateRange | null {
     const first = new Date(today.getFullYear(), today.getMonth() - 1, 1)
     const last = new Date(today.getFullYear(), today.getMonth(), 0)
     return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+  }
+  if (lower === "this year") {
+    const first = new Date(today.getFullYear(), 0, 1)
+    return makeRange(first, today, String(today.getFullYear()))
+  }
+  if (lower === "last year") {
+    const yr = today.getFullYear() - 1
+    return makeRange(new Date(yr, 0, 1), new Date(yr, 11, 31), String(yr))
+  }
+
+  // "in 2024" or bare 4-digit year "2024"
+  const inYearMatch = lower.match(/^(?:in\s+)?(\d{4})$/)
+  if (inYearMatch) {
+    const yr = parseInt(inYearMatch[1])
+    if (yr >= 1900 && yr <= 2100) {
+      const isCurrentYear = yr === today.getFullYear()
+      return makeRange(new Date(yr, 0, 1), isCurrentYear ? today : new Date(yr, 11, 31), String(yr))
+    }
   }
 
   // Weekday: "monday", "last monday", "this monday"
@@ -168,10 +191,15 @@ function parseDateQuery(term: string): DateRange | null {
   const isoMatch = lower.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (isoMatch) return single(new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3])))
 
-  // US slash: M/D or M/D/YYYY
-  const slashMatch = lower.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/)
+  // US slash: M/D or M/D/YY or M/D/YYYY (e.g. 3/10, 3/10/26, 03/10/2026)
+  const slashMatch = lower.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/)
   if (slashMatch) {
-    const m = parseInt(slashMatch[1]) - 1, d = parseInt(slashMatch[2]), yr = slashMatch[3] ? parseInt(slashMatch[3]) : now.getFullYear()
+    const m = parseInt(slashMatch[1]) - 1, d = parseInt(slashMatch[2])
+    let yr = now.getFullYear()
+    if (slashMatch[3]) {
+      const rawYr = parseInt(slashMatch[3])
+      yr = slashMatch[3].length <= 2 ? (rawYr <= 50 ? 2000 + rawYr : 1900 + rawYr) : rawYr
+    }
     if (m >= 0 && m <= 11 && d >= 1 && d <= 31) return single(new Date(yr, m, d))
   }
 
@@ -206,6 +234,36 @@ function parseDateQuery(term: string): DateRange | null {
   }
 
   return null
+}
+
+function parseDateQuery(term: string): DateRange | null {
+  const lower = term.trim().toLowerCase()
+
+  // Strip conversational framing prefixes
+  const stripped = lower
+    .replace(/^(?:notes?\s+from|entries?\s+from|find\s+(?:notes?\s+)?(?:from\s+|about\s+)?)\s*/, "")
+    .trim()
+
+  // Try range expressions first (avoids ambiguity with single ISO dates containing hyphens)
+  const rangePatterns: RegExp[] = [
+    /^from\s+(.+?)\s+to\s+(.+)$/,   // "from X to Y"
+    /^(.+?)\s+to\s+(.+)$/,           // "X to Y"
+    /^(.+?)\s+through\s+(.+)$/,      // "X through Y"
+    /^(.+?)\s+-\s+(.+)$/,            // "X - Y" (space-hyphen-space)
+    /^(.+?)\s+–\s+(.+)$/,            // "X – Y" (en dash)
+  ]
+  for (const pattern of rangePatterns) {
+    const match = stripped.match(pattern)
+    if (match) {
+      const start = parseSingleDate(match[1].trim())
+      const end = parseSingleDate(match[2].trim())
+      if (start && end) {
+        return { start: start.start, end: end.end, label: `${start.label} – ${end.label}` }
+      }
+    }
+  }
+
+  return parseSingleDate(stripped)
 }
 
 const tokenizeTerm = (term: string) => {
@@ -306,6 +364,139 @@ function highlightHTML(searchTerm: string, el: HTMLElement) {
   return html.body
 }
 
+const RECENT_SEARCHES_KEY = "quartz-recent-searches"
+const MAX_RECENT_SEARCHES = 5
+
+function saveRecentSearch(term: string) {
+  if (!term.trim()) return
+  try {
+    const existing: string[] = JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]")
+    const deduped = [term, ...existing.filter((t) => t !== term)].slice(0, MAX_RECENT_SEARCHES)
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(deduped))
+  } catch { /* ignore storage errors */ }
+}
+
+function loadRecentSearches(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]")
+  } catch {
+    return []
+  }
+}
+
+// ─── Fuzzy / phonetic helpers ─────────────────────────────────────────────────
+
+// Word dictionary built from all note titles+content during fillDocument
+const wordDictionary: Set<string> = new Set()
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length
+  const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  )
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+    }
+  }
+  return dp[m][n]
+}
+
+function soundex(s: string): string {
+  const lower = s.toLowerCase().replace(/[^a-z]/g, "")
+  if (!lower) return "0000"
+  const table: Record<string, string> = {
+    b: "1", f: "1", p: "1", v: "1",
+    c: "2", g: "2", j: "2", k: "2", q: "2", s: "2", x: "2", z: "2",
+    d: "3", t: "3",
+    l: "4",
+    m: "5", n: "5",
+    r: "6",
+  }
+  let code = lower[0].toUpperCase()
+  let prev = table[lower[0]] ?? "0"
+  for (let i = 1; i < lower.length && code.length < 4; i++) {
+    const c = table[lower[i]] ?? "0"
+    if (c !== "0" && c !== prev) code += c
+    prev = c
+  }
+  return code.padEnd(4, "0")
+}
+
+function findFuzzySuggestion(term: string): string | null {
+  const lower = term.toLowerCase().trim()
+  if (lower.length < 3) return null
+  const maxDist = Math.ceil(lower.length / 4) // 1 edit per 4 chars
+  let bestWord: string | null = null
+  let bestDist = Infinity
+  // Edit-distance pass
+  for (const word of wordDictionary) {
+    if (Math.abs(word.length - lower.length) > maxDist) continue
+    const dist = levenshtein(lower, word)
+    if (dist < bestDist && dist <= maxDist) {
+      bestDist = dist
+      bestWord = word
+    }
+  }
+  if (bestWord) return bestWord
+  // Phonetic pass
+  const targetCode = soundex(lower)
+  for (const word of wordDictionary) {
+    if (word !== lower && soundex(word) === targetCode) return word
+  }
+  return null
+}
+
+// ─── Bible book abbreviation expansion ────────────────────────────────────────
+
+const BIBLE_BOOKS: Record<string, string> = {
+  gen: "genesis", exod: "exodus", ex: "exodus", lev: "leviticus",
+  num: "numbers", deut: "deuteronomy", josh: "joshua", judg: "judges",
+  ruth: "ruth", "1sam": "1 samuel", "2sam": "2 samuel",
+  "1ki": "1 kings", "2ki": "2 kings",
+  "1chr": "1 chronicles", "2chr": "2 chronicles",
+  ezra: "ezra", neh: "nehemiah", esth: "esther", job: "job",
+  ps: "psalms", psa: "psalms", prov: "proverbs", eccl: "ecclesiastes",
+  song: "song of solomon", sos: "song of solomon",
+  isa: "isaiah", jer: "jeremiah", lam: "lamentations",
+  ezek: "ezekiel", dan: "daniel", hos: "hosea", joel: "joel",
+  amos: "amos", obad: "obadiah", jonah: "jonah", mic: "micah",
+  nah: "nahum", hab: "habakkuk", zeph: "zephaniah", hag: "haggai",
+  zech: "zechariah", mal: "malachi",
+  matt: "matthew", mk: "mark", lk: "luke", jn: "john",
+  acts: "acts", rom: "romans",
+  "1cor": "1 corinthians", "2cor": "2 corinthians",
+  gal: "galatians", eph: "ephesians", phil: "philippians",
+  col: "colossians",
+  "1thess": "1 thessalonians", "2thess": "2 thessalonians",
+  "1tim": "1 timothy", "2tim": "2 timothy",
+  tit: "titus", phlm: "philemon", heb: "hebrews", jas: "james",
+  "1pet": "1 peter", "2pet": "2 peter",
+  "1jn": "1 john", "2jn": "2 john", "3jn": "3 john",
+  jude: "jude", rev: "revelation",
+}
+
+/**
+ * If term starts with (or equals) a known Bible book abbreviation,
+ * returns the expanded full-name equivalent so we can search both.
+ * e.g. "rev 3" → "revelation 3", "rev" → "revelation"
+ */
+function expandBibleBook(term: string): string | null {
+  const lower = term.trim().toLowerCase()
+  // Exact match
+  if (BIBLE_BOOKS[lower]) return BIBLE_BOOKS[lower]
+  // Prefix match: "rev 3:16" → abbr="rev", rest=" 3:16"
+  const spaceIdx = lower.indexOf(" ")
+  if (spaceIdx !== -1) {
+    const abbr = lower.slice(0, spaceIdx)
+    if (BIBLE_BOOKS[abbr]) return BIBLE_BOOKS[abbr] + lower.slice(spaceIdx)
+  }
+  return null
+}
+
 async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: ContentIndex) {
   const container = searchElement.querySelector(".search-container") as HTMLElement
   if (!container) return
@@ -339,6 +530,14 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     appendLayout(preview)
   }
 
+  function setFilter(filter: SearchFilter) {
+    searchFilter = filter
+    const filterBtns = searchElement.querySelectorAll(".filter-btn")
+    filterBtns.forEach((btn) => {
+      btn.classList.toggle("active", (btn as HTMLElement).dataset.filter === filter)
+    })
+  }
+
   function hideSearch() {
     container.classList.remove("active")
     searchBar.value = "" // clear the input when we dismiss the search
@@ -349,7 +548,88 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
     searchLayout.classList.remove("display-results")
     searchType = "basic" // reset search type after closing
+    setFilter("all") // reset filter after closing
+    stopPlaceholderCycle()
     searchButton.focus()
+  }
+
+  // Keyboard hints bar — injected once below the search input
+  const kbdHints = searchElement.querySelector(".search-kbd-hints") ?? (() => {
+    const el = document.createElement("div")
+    el.className = "search-kbd-hints"
+    el.innerHTML = `
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>Tab</kbd> next</span>
+      <span><kbd>Enter</kbd> open</span>
+      <span><kbd>Esc</kbd> close</span>
+    `
+    searchBar.after(el)
+    return el
+  })()
+
+  // Cycling placeholder hints
+  const placeholderHints = [
+    "try: today",
+    "try: #faith",
+    "try: last week",
+    "try: this year",
+    "try: recent",
+    "try: march 2026",
+    "try: 3/10/26",
+    "try: yesterday",
+  ]
+  let placeholderIdx = 0
+  let placeholderInterval: ReturnType<typeof setInterval> | null = null
+  const defaultPlaceholder = searchBar.placeholder || "Search..."
+
+  function startPlaceholderCycle() {
+    if (placeholderInterval) return
+    placeholderInterval = setInterval(() => {
+      if (searchBar.value === "" && document.activeElement !== searchBar) {
+        placeholderIdx = (placeholderIdx + 1) % placeholderHints.length
+        searchBar.placeholder = placeholderHints[placeholderIdx]
+      }
+    }, 3000)
+  }
+
+  function stopPlaceholderCycle() {
+    if (placeholderInterval) {
+      clearInterval(placeholderInterval)
+      placeholderInterval = null
+    }
+    searchBar.placeholder = defaultPlaceholder
+  }
+
+  function showRecentSearches() {
+    const recent = loadRecentSearches()
+    if (recent.length === 0) return
+    removeAllChildren(results)
+    searchLayout.classList.add("display-results")
+
+    const wrapper = document.createElement("div")
+    wrapper.className = "recent-searches"
+    const label = document.createElement("p")
+    label.className = "recent-label"
+    label.textContent = "Recent searches"
+    const chips = document.createElement("div")
+    chips.className = "recent-chips"
+
+    for (const term of recent) {
+      const chip = document.createElement("button")
+      chip.className = "recent-chip"
+      chip.textContent = term
+      const chipHandler = () => {
+        searchBar.value = term
+        searchBar.dispatchEvent(new Event("input"))
+      }
+      chip.addEventListener("click", chipHandler)
+      window.addCleanup(() => chip.removeEventListener("click", chipHandler))
+      chips.appendChild(chip)
+    }
+
+    wrapper.appendChild(label)
+    wrapper.appendChild(chips)
+    results.appendChild(wrapper)
   }
 
   function showSearch(searchTypeNew: SearchType) {
@@ -357,6 +637,11 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     if (sidebar) sidebar.style.zIndex = "1"
     container.classList.add("active")
     searchBar.focus()
+    startPlaceholderCycle()
+    // Show recent searches if input is empty
+    if (searchBar.value === "") {
+      showRecentSearches()
+    }
   }
 
   let currentHover: HTMLInputElement | null = null
@@ -470,11 +755,13 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     `
     itemTile.addEventListener("click", (event) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+      saveRecentSearch(currentSearchTerm)
       hideSearch()
     })
 
     const handler = (event: MouseEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+      saveRecentSearch(currentSearchTerm)
       hideSearch()
     }
 
@@ -495,6 +782,19 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   async function displayResults(finalResults: Item[], totalCount?: number, dateLabel?: string) {
     removeAllChildren(results)
 
+    // "See all results" banner at the TOP so it's always visible without scrolling
+    if (totalCount !== undefined && totalCount > finalResults.length) {
+      const seeAll = document.createElement("a")
+      seeAll.className = "see-all-results"
+      const searchUrl = resolveUrl("Search" as FullSlug)
+      searchUrl.searchParams.set("q", currentSearchTerm)
+      seeAll.href = searchUrl.toString()
+      seeAll.innerHTML = `<p>See all ${totalCount} results →</p>`
+      seeAll.addEventListener("click", hideSearch)
+      window.addCleanup(() => seeAll.removeEventListener("click", hideSearch))
+      results.append(seeAll)
+    }
+
     if (dateLabel) {
       const label = document.createElement("p")
       label.className = "date-search-label"
@@ -509,16 +809,51 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       results.append(noMatch)
     } else {
       results.append(...finalResults.map(resultToHTML))
-      if (totalCount !== undefined && totalCount > finalResults.length) {
-        const seeAll = document.createElement("a")
-        seeAll.className = "result-card see-all-results"
-        const searchUrl = resolveUrl("Search" as FullSlug)
-        searchUrl.searchParams.set("q", currentSearchTerm)
-        seeAll.href = searchUrl.toString()
-        seeAll.innerHTML = `<p>See all ${totalCount} results →</p>`
-        seeAll.addEventListener("click", hideSearch)
-        window.addCleanup(() => seeAll.removeEventListener("click", hideSearch))
-        results.append(seeAll)
+    }
+
+    // "Did you mean" — fires when results are sparse (0–2) using edit-distance + phonetic matching
+    const term = currentSearchTerm.trim()
+    if (term.length >= 3 && finalResults.length <= 2) {
+      const suggestion = findFuzzySuggestion(term)
+      if (suggestion && suggestion !== term.toLowerCase()) {
+        const didYouMean = document.createElement("div")
+        didYouMean.className = "did-you-mean"  // no "result-card" — prevents keyboard nav from picking it up
+        didYouMean.innerHTML = `<p>Did you mean: <a class="dym-link" href="#" data-router-ignore>${suggestion}</a>?</p>`
+        const link = didYouMean.querySelector(".dym-link") as HTMLElement
+        const dymHandler = (e: Event) => {
+          e.preventDefault()
+          e.stopPropagation()
+          searchBar.value = suggestion
+          searchBar.dispatchEvent(new Event("input"))
+          searchBar.focus()
+        }
+        link.addEventListener("click", dymHandler)
+        window.addCleanup(() => link.removeEventListener("click", dymHandler))
+        results.append(didYouMean)
+
+        // Fetch and render fuzzy results for the suggestion below the DYM banner
+        const fuzzyRaw = await index.searchAsync({
+          query: suggestion,
+          limit: 4,
+          index: ["title", "content"],
+        })
+        const fuzzyIds: Set<number> = new Set([
+          ...((fuzzyRaw.find((x) => x.field === "title")?.result ?? []) as number[]),
+          ...((fuzzyRaw.find((x) => x.field === "content")?.result ?? []) as number[]),
+        ])
+        const fuzzyIdsList = [...fuzzyIds].filter((id) => idDataMap[id] !== "Search")
+        if (fuzzyIdsList.length > 0) {
+          const fuzzyLabel = document.createElement("p")
+          fuzzyLabel.className = "fuzzy-results-label"
+          fuzzyLabel.textContent = "Similar results:"
+          results.append(fuzzyLabel)
+          for (const id of fuzzyIdsList) {
+            const item = formatForDisplay(suggestion, id)
+            const card = resultToHTML(item)
+            card.classList.add("fuzzy-result-card")
+            results.append(card)
+          }
+        }
       }
     }
 
@@ -526,7 +861,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       // no results, clear previous preview
       removeAllChildren(preview)
     } else {
-      // focus on first result-card (skip the label if present)
+      // focus on first result-card (skip non-result elements at top)
       const firstCard = results.querySelector(".result-card") as HTMLElement | null
       if (firstCard) {
         firstCard.classList.add("focus")
@@ -578,7 +913,12 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   async function onType(e: HTMLElementEventMap["input"]) {
     if (!searchLayout || !index) return
     currentSearchTerm = (e.target as HTMLInputElement).value
-    searchLayout.classList.toggle("display-results", currentSearchTerm !== "")
+    if (currentSearchTerm === "") {
+      searchLayout.classList.remove("display-results")
+      showRecentSearches()
+      return
+    }
+    searchLayout.classList.add("display-results")
     searchType = currentSearchTerm.startsWith("#") ? "tags" : "basic"
 
     // Natural language date query detection
@@ -653,10 +993,36 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         })
       }
     } else if (searchType === "basic") {
+      // Determine which index fields to search based on active filter
+      const filterFields: string[] =
+        searchFilter === "title" ? ["title"] :
+        searchFilter === "content" ? ["content"] :
+        searchFilter === "tags" ? ["tags"] :
+        ["title", "content"]  // "all"
+
+      const expandedTerm = expandBibleBook(currentSearchTerm)
+      if (expandedTerm && searchFilter !== "tags") {
+        // Search both the original term (abbr) and the expanded full name, merge results
+        const [r1, r2] = await Promise.all([
+          index.searchAsync({ query: currentSearchTerm, limit: 500, index: filterFields }),
+          index.searchAsync({ query: expandedTerm, limit: 500, index: filterFields }),
+        ])
+        // Merge results from both queries
+        const mergeField = (field: string): number[] => {
+          const a = (r1.find((x) => x.field === field)?.result ?? []) as number[]
+          const b = (r2.find((x) => x.field === field)?.result ?? []) as number[]
+          return [...new Set([...a, ...b])]
+        }
+        const allIds = new Set(filterFields.flatMap((f) => mergeField(f)))
+        const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
+        const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
+        await displayResults(finalResults, allIdsList.length)
+        return
+      }
       searchResults = await index.searchAsync({
         query: currentSearchTerm,
         limit: 500,
-        index: ["title", "content"],
+        index: filterFields,
       })
     }
 
@@ -665,16 +1031,24 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       return results.length === 0 ? [] : ([...results[0].result] as number[])
     }
 
-    // order titles ahead of content
+    // order titles ahead of content (respect active filter)
     const allIds: Set<number> = new Set([
-      ...getByField("title"),
-      ...getByField("content"),
-      ...getByField("tags"),
+      ...(searchType !== "tags" && searchFilter !== "content" && searchFilter !== "tags" ? getByField("title") : []),
+      ...(searchType !== "tags" && searchFilter !== "title" && searchFilter !== "tags" ? getByField("content") : []),
+      ...(searchType === "tags" || searchFilter === "tags" ? getByField("tags") : []),
     ])
     const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
     const totalCount = allIdsList.length
     const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
     await displayResults(finalResults, totalCount)
+  }
+
+  function onSearchFocus() {
+    stopPlaceholderCycle()
+    // If input is cleared, show recent searches again
+    if (searchBar.value === "") {
+      showRecentSearches()
+    }
   }
 
   document.addEventListener("keydown", shortcutHandler)
@@ -683,8 +1057,26 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   window.addCleanup(() => searchButton.removeEventListener("click", () => showSearch("basic")))
   searchBar.addEventListener("input", onType)
   window.addCleanup(() => searchBar.removeEventListener("input", onType))
+  searchBar.addEventListener("focus", onSearchFocus)
+  window.addCleanup(() => searchBar.removeEventListener("focus", onSearchFocus))
 
   registerEscapeHandler(container, hideSearch)
+
+  // Filter button click handlers
+  const filterBtns = searchElement.querySelectorAll(".filter-btn")
+  filterBtns.forEach((btn) => {
+    const filterHandler = () => {
+      const filter = (btn as HTMLElement).dataset.filter as SearchFilter
+      setFilter(filter)
+      // Re-run search with new filter if there's a query
+      if (searchBar.value.trim()) {
+        searchBar.dispatchEvent(new Event("input"))
+      }
+    }
+    btn.addEventListener("click", filterHandler)
+    window.addCleanup(() => btn.removeEventListener("click", filterHandler))
+  })
+
   await fillDocument(data)
 }
 
@@ -708,6 +1100,12 @@ async function fillDocument(data: ContentIndex) {
         tags: fileData.tags,
       }),
     )
+    // Build word dictionary from titles for fuzzy "did you mean"
+    const text = (fileData.title ?? "") + " " + (fileData.content ?? "")
+    for (const raw of text.split(/\s+/)) {
+      const word = raw.toLowerCase().replace(/[^a-z]/g, "")
+      if (word.length >= 4) wordDictionary.add(word)
+    }
   }
 
   await Promise.all(promises)

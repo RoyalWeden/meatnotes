@@ -89,88 +89,120 @@ const contextWindowWords = 30
 const numSearchResults = 8
 const numTagResults = 5
 
-// Natural language date query parser
-function parseDateQuery(term: string): Date | null {
+// Natural language date query parser — returns a date range (start/end as YYYY-MM-DD) + display label
+interface DateRange {
+  start: string
+  end: string
+  label: string
+}
+
+function parseDateQuery(term: string): DateRange | null {
   const lower = term.trim().toLowerCase()
   const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-  if (lower === "today") {
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  }
-  if (lower === "yesterday") {
-    const d = new Date(now)
-    d.setDate(d.getDate() - 1)
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-  }
+  const ymd = (d: Date) => d.toLocaleDateString("sv")
+  const single = (d: Date): DateRange => ({
+    start: ymd(d),
+    end: ymd(d),
+    label: d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }),
+  })
+  const makeRange = (start: Date, end: Date, label: string): DateRange => ({
+    start: ymd(start),
+    end: ymd(end),
+    label,
+  })
 
-  const agoMatch = lower.match(/^(\d+)\s+(day|days|week|weeks|month|months)\s+ago$/)
-  if (agoMatch) {
-    const n = parseInt(agoMatch[1])
-    const unit = agoMatch[2]
-    const d = new Date(now)
-    if (unit.startsWith("day")) d.setDate(d.getDate() - n)
-    else if (unit.startsWith("week")) d.setDate(d.getDate() - n * 7)
-    else if (unit.startsWith("month")) d.setMonth(d.getMonth() - n)
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-  }
-
-  const lastDayMatch = lower.match(
-    /^last\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/,
-  )
-  if (lastDayMatch) {
-    const dayNames = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ]
-    const targetDay = dayNames.indexOf(lastDayMatch[1])
-    const d = new Date(now)
-    const daysBack = ((d.getDay() - targetDay + 7) % 7) || 7
-    d.setDate(d.getDate() - daysBack)
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-  }
-
-  const monthNames = [
-    "january",
-    "february",
-    "march",
-    "april",
-    "may",
-    "june",
-    "july",
-    "august",
-    "september",
-    "october",
-    "november",
-    "december",
-  ]
-  const monthShort = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+  const monthNames = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+  const monthShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+  const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
   const allMonths = monthNames.join("|") + "|" + monthShort.join("|")
+  const getMonthIdx = (m: string) => { let i = monthNames.indexOf(m); if (i === -1) i = monthShort.indexOf(m); return i }
+  const stripOrd = (s: string) => s.replace(/(st|nd|rd|th)$/, "")
 
-  const monthDayMatch = lower.match(
-    new RegExp(`^(${allMonths})\\s+(\\d{1,2})(?:[,\\s]+(\\d{4}))?$`),
-  )
-  if (monthDayMatch) {
-    let monthIdx = monthNames.indexOf(monthDayMatch[1])
-    if (monthIdx === -1) monthIdx = monthShort.indexOf(monthDayMatch[1])
-    const day = parseInt(monthDayMatch[2])
-    const year = monthDayMatch[3] ? parseInt(monthDayMatch[3]) : now.getFullYear()
-    return new Date(year, monthIdx, day)
+  if (lower === "today") return single(today)
+  if (lower === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); return single(d) }
+
+  if (lower === "this week") {
+    const mon = new Date(today); mon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+    return makeRange(mon, today, `${mon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${today.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`)
+  }
+  if (lower === "last week") {
+    const thisMon = new Date(today); thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+    const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate() - 7)
+    const lastSun = new Date(thisMon); lastSun.setDate(thisMon.getDate() - 1)
+    return makeRange(lastMon, lastSun, `${lastMon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${lastSun.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`)
+  }
+  if (lower === "this month") {
+    const first = new Date(today.getFullYear(), today.getMonth(), 1)
+    return makeRange(first, today, today.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+  }
+  if (lower === "last month") {
+    const first = new Date(today.getFullYear(), today.getMonth() - 1, 1)
+    const last = new Date(today.getFullYear(), today.getMonth(), 0)
+    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
   }
 
-  const dayMonthMatch = lower.match(
-    new RegExp(`^(\\d{1,2})\\s+(${allMonths})(?:\\s+(\\d{4}))?$`),
-  )
-  if (dayMonthMatch) {
-    const day = parseInt(dayMonthMatch[1])
-    let monthIdx = monthNames.indexOf(dayMonthMatch[2])
-    if (monthIdx === -1) monthIdx = monthShort.indexOf(dayMonthMatch[2])
-    const year = dayMonthMatch[3] ? parseInt(dayMonthMatch[3]) : now.getFullYear()
-    return new Date(year, monthIdx, day)
+  // Weekday: "monday", "last monday", "this monday"
+  const wdMatch = lower.match(/^(?:(?:last|this)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/)
+  if (wdMatch) {
+    const target = dayNames.indexOf(wdMatch[1])
+    const d = new Date(today)
+    const back = ((d.getDay() - target + 7) % 7) || 7
+    d.setDate(d.getDate() - back)
+    return single(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
+  }
+
+  // "N/a day/week/month ago|back"
+  const agoMatch = lower.match(/^(a|\d+)\s+(day|days|week|weeks|month|months)\s+(?:ago|back)$/)
+  if (agoMatch) {
+    const n = agoMatch[1] === "a" ? 1 : parseInt(agoMatch[1])
+    const d = new Date(today)
+    if (agoMatch[2].startsWith("day")) d.setDate(d.getDate() - n)
+    else if (agoMatch[2].startsWith("week")) d.setDate(d.getDate() - n * 7)
+    else if (agoMatch[2].startsWith("month")) d.setMonth(d.getMonth() - n)
+    return single(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
+  }
+
+  // ISO: YYYY-MM-DD
+  const isoMatch = lower.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) return single(new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3])))
+
+  // US slash: M/D or M/D/YYYY
+  const slashMatch = lower.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/)
+  if (slashMatch) {
+    const m = parseInt(slashMatch[1]) - 1, d = parseInt(slashMatch[2]), yr = slashMatch[3] ? parseInt(slashMatch[3]) : now.getFullYear()
+    if (m >= 0 && m <= 11 && d >= 1 && d <= 31) return single(new Date(yr, m, d))
+  }
+
+  // Month + year: "march 2026"
+  const myMatch = lower.match(new RegExp(`^(${allMonths})\\s+(\\d{4})$`))
+  if (myMatch) {
+    const mi = getMonthIdx(myMatch[1]), yr = parseInt(myMatch[2])
+    const first = new Date(yr, mi, 1), last = new Date(yr, mi + 1, 0)
+    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+  }
+
+  // Month alone: "march"
+  const mAlone = lower.match(new RegExp(`^(${allMonths})$`))
+  if (mAlone) {
+    const mi = getMonthIdx(mAlone[1]), yr = now.getFullYear()
+    const first = new Date(yr, mi, 1), last = new Date(yr, mi + 1, 0)
+    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+  }
+
+  // Month + day (with optional ordinal + year): "march 3rd", "march 3", "march 3rd, 2026"
+  const mdMatch = lower.match(new RegExp(`^(${allMonths})\\s+(\\d{1,2}(?:st|nd|rd|th)?)(?:[,\\s]+(\\d{4}))?$`))
+  if (mdMatch) {
+    const mi = getMonthIdx(mdMatch[1]), day = parseInt(stripOrd(mdMatch[2])), yr = mdMatch[3] ? parseInt(mdMatch[3]) : now.getFullYear()
+    return single(new Date(yr, mi, day))
+  }
+
+  // Day + month (with optional "the", "of", ordinal): "3rd march", "3rd of march", "the 3rd of march"
+  const dmMatch = lower.match(new RegExp(`^(?:the\\s+)?(\\d{1,2}(?:st|nd|rd|th)?)(?:\\s+of)?\\s+(${allMonths})(?:\\s+(\\d{4}))?$`))
+  if (dmMatch) {
+    const day = parseInt(stripOrd(dmMatch[1])), mi = getMonthIdx(dmMatch[2]), yr = dmMatch[3] ? parseInt(dmMatch[3]) : now.getFullYear()
+    return single(new Date(yr, mi, day))
   }
 
   return null
@@ -460,13 +492,21 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     return itemTile
   }
 
-  async function displayResults(finalResults: Item[], totalCount?: number) {
+  async function displayResults(finalResults: Item[], totalCount?: number, dateLabel?: string) {
     removeAllChildren(results)
+
+    if (dateLabel) {
+      const label = document.createElement("p")
+      label.className = "date-search-label"
+      label.textContent = `📅 ${dateLabel}`
+      results.append(label)
+    }
+
     if (finalResults.length === 0) {
-      results.innerHTML = `<a class="result-card no-match">
-          <h3>No results.</h3>
-          <p>Try another search term?</p>
-      </a>`
+      const noMatch = document.createElement("a")
+      noMatch.className = "result-card no-match"
+      noMatch.innerHTML = `<h3>No results.</h3><p>Try another search term?</p>`
+      results.append(noMatch)
     } else {
       results.append(...finalResults.map(resultToHTML))
       if (totalCount !== undefined && totalCount > finalResults.length) {
@@ -486,11 +526,13 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       // no results, clear previous preview
       removeAllChildren(preview)
     } else {
-      // focus on first result, then also dispatch preview immediately
-      const firstChild = results.firstElementChild as HTMLElement
-      firstChild.classList.add("focus")
-      currentHover = firstChild as HTMLInputElement
-      await displayPreview(firstChild)
+      // focus on first result-card (skip the label if present)
+      const firstCard = results.querySelector(".result-card") as HTMLElement | null
+      if (firstCard) {
+        firstCard.classList.add("focus")
+        currentHover = firstCard as HTMLInputElement
+        await displayPreview(firstCard)
+      }
     }
   }
 
@@ -542,24 +584,24 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     // Natural language date query detection
     if (searchType === "basic") {
       try {
-        const dateTarget = parseDateQuery(currentSearchTerm)
-        if (dateTarget) {
-          // Use locale "sv" (Swedish) which gives YYYY-MM-DD format — timezone-safe local date string
-          const targetStr = dateTarget.toLocaleDateString("sv")
+        const dateRange = parseDateQuery(currentSearchTerm)
+        if (dateRange) {
           const toLocalDateStr = (ts: string | Date | undefined): string => {
             if (!ts) return ""
-            return new Date(ts as string).toLocaleDateString("sv")
+            const d = new Date(ts as string)
+            return d.toLocaleDateString("sv")
           }
           const toSlugDateStr = (slug: string): string => {
             const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
             return m ? m[1] : ""
           }
           const dateResults = Object.entries(data)
-            .filter(([slug, fileData]) =>
-              (toLocalDateStr(fileData.date as string | undefined) === targetStr ||
-               toSlugDateStr(slug) === targetStr) &&
-              slug !== "Search"
-            )
+            .filter(([slug, fileData]) => {
+              const fileDate = toLocalDateStr(fileData.date as string | undefined)
+              const slugDate = toSlugDateStr(slug)
+              const inRange = (d: string) => d >= dateRange.start && d <= dateRange.end
+              return (inRange(fileDate) || inRange(slugDate)) && slug !== "Search"
+            })
             .sort(([, a], [, b]) => {
               const aTs = new Date((a.date ?? 0) as string | number).getTime()
               const bTs = new Date((b.date ?? 0) as string | number).getTime()
@@ -568,10 +610,12 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           const totalCount = dateResults.length
           const displayItems: Item[] = dateResults.slice(0, numSearchResults).map(([slug, fileData]) => {
             const id = idDataMap.indexOf(slug as FullSlug)
-            const dateStr = new Date(fileData.date as string).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
-            return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: `Modified: ${dateStr}`, tags: [] }
+            const dateStr = fileData.date
+              ? new Date(fileData.date as string).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+              : ""
+            return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: dateStr ? `Modified: ${dateStr}` : "", tags: [] }
           })
-          await displayResults(displayItems, totalCount)
+          await displayResults(displayItems, totalCount, dateRange.label)
           return
         }
       } catch {

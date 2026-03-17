@@ -8,9 +8,13 @@
     list-style: none;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.5rem;
 
     &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::marker {
       display: none;
     }
 

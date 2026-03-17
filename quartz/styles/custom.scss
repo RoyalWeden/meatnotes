@@ -67,7 +67,8 @@ body[data-slug="index"] article > p > a:first-child {
     display: none !important;
   }
 
-  .sidebar.left .darkmode {
+  // Only hide darkmode in the flex-component (top bar) — not the clone in the drawer
+  .sidebar.left .flex-component button.darkmode {
     display: none !important;
   }
 
@@ -93,6 +94,12 @@ body[data-slug="index"] article > p > a:first-child {
     max-width: 100% !important;
   }
 
+  // Hide the wrapper div holding the desktop-only search — it takes up ~105px
+  // of space even though its contents are hidden, squishing the mobile search
+  .sidebar.left > .flex-component > div:has(.search.desktop-only) {
+    display: none !important;
+  }
+
   // Each item wrapper inside flex-component that contains a search
   .sidebar.left > .flex-component > div:has(.search) {
     flex: 1 1 auto !important;
@@ -100,26 +107,22 @@ body[data-slug="index"] article > p > a:first-child {
     max-width: 100% !important;
   }
 
-  // The search component itself fills its container, overriding search.scss max-width: 14rem
+  // The search component itself fills its container
   .sidebar.left .flex-component .search {
     max-width: 100% !important;
     width: 100% !important;
     min-width: 0 !important;
   }
 
-  // Search button fills the full width of the search component
+  // Search button fills the full width of the search component, taller for touch
   .sidebar.left .flex-component .search .search-button {
     width: 100% !important;
     justify-content: flex-start !important;
+    min-height: 2.75rem !important;
   }
 
   // ToC: force hidden when collapsed (flexbox trick doesn't work in article body on mobile)
   .toc-content.collapsed {
-    display: none !important;
-  }
-
-  // Hide the "Search" text label — icon alone is sufficient in the compact top bar
-  .sidebar.left .flex-component .search .search-button p {
     display: none !important;
   }
 
@@ -129,8 +132,15 @@ body[data-slug="index"] article > p > a:first-child {
   }
 }
 
-// Hamburger button rotates when drawer is open (mobile)
+// Hamburger button rotates when drawer is open (mobile), with "Menu" label
 @media (max-width: 800px) {
+  .explorer button.mobile-explorer {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
   .explorer button.mobile-explorer svg {
     transition: transform 0.3s ease;
   }
@@ -138,13 +148,138 @@ body[data-slug="index"] article > p > a:first-child {
   .explorer:not(.collapsed) button.mobile-explorer svg {
     transform: rotate(90deg);
   }
+
+  .explorer button.mobile-explorer::after {
+    content: "Menu";
+    display: block;
+    font-size: 0.55rem;
+    color: var(--gray);
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+}
+
+// Make darkmode and readermode buttons slightly larger on desktop for better discoverability
+// (.darkmode and .readermode are the button elements themselves)
+button.darkmode,
+button.readermode {
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+// On desktop, hide the MobileOnly search wrapper from the sidebar
+// (search is now in the top header on desktop)
+@media (min-width: 801px) {
+  .sidebar.left > .flex-component > div:has(.search.mobile-only) {
+    display: none !important;
+  }
+
+  // Hide darkmode/readermode from sidebar on desktop — they're now in the header
+  .sidebar.left .flex-component button.darkmode,
+  .sidebar.left .flex-component button.readermode {
+    display: none !important;
+  }
+}
+
+// Desktop header search bar — looks like a browser address bar
+@media (min-width: 801px) {
+  // Sticky: stays at top as user scrolls
+  .page-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--light);
+  }
+
+  header {
+    // Stack: reading-progress on top, then search bar below
+    display: flex;
+    flex-direction: column;
+  }
+
+  header > .desktop-only {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  header .flex-component {
+    width: 100%;
+    padding: 0.5rem 2rem;
+    box-sizing: border-box;
+    background: var(--light);
+    border-bottom: 1px solid var(--lightgray);
+    gap: 0.75rem;
+    transition: padding 0.2s ease;
+  }
+
+  // Search fills all remaining width in the header
+  header .flex-component > div:has(.search) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  header .search {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  header .search-button {
+    width: 100%;
+    transition: height 0.2s ease;
+
+    & > p {
+      transition: opacity 0.15s ease, max-width 0.2s ease, margin 0.2s ease;
+      max-width: 200px;
+      overflow: hidden;
+    }
+  }
+
+  // Compact mode: shrinks when scrolling down
+  .search-compact header .flex-component {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .search-compact header .search-button {
+    height: 2rem;
+  }
+
+  .search-compact header .search-button > p {
+    opacity: 0;
+    max-width: 0;
+    margin: 0;
+  }
+}
+
+// Mobile compact search (already sticky via existing Quartz styles)
+@media (max-width: 800px) {
+  .sidebar.left .search-button {
+    transition: min-height 0.2s ease;
+
+    & > p {
+      transition: opacity 0.15s ease, max-width 0.2s ease, margin 0.2s ease;
+      max-width: 200px;
+      overflow: hidden;
+    }
+  }
+
+  .search-compact .sidebar.left .flex-component .search .search-button {
+    min-height: 2.25rem !important;
+  }
+
+  .search-compact .sidebar.left .flex-component .search .search-button > p {
+    opacity: 0;
+    max-width: 0;
+    margin: 0;
+  }
 }
 
 #mobile-drawer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 1.25rem 0.75rem 0.5rem;
   margin-bottom: 0.75rem;
   border-bottom: 1px solid var(--lightgray);
 }
@@ -156,12 +291,24 @@ body[data-slug="index"] article > p > a:first-child {
   text-decoration: none;
 }
 
-.mobile-drawer-darkmode button {
+.mobile-drawer-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+// The cloned darkmode button inside the drawer
+.mobile-drawer-darkmode button.darkmode {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.2rem;
   color: var(--dark);
+  min-width: 2rem;
+  min-height: 2rem;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 // Date search label shown when a date query is recognized

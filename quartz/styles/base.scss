@@ -223,6 +223,9 @@ a {
       top: 0;
       box-sizing: border-box;
       padding: $topSpacing 2rem 2rem 2rem;
+      @media all and ($desktop) {
+        padding-top: 4.5rem;
+      }
       display: flex;
       height: 100vh;
       position: sticky;
@@ -275,6 +278,23 @@ a {
     & .page-header {
       grid-area: grid-header;
       margin: $topSpacing 0 0 0;
+      @media all and ($desktop) {
+        margin-top: 0;
+        position: static;
+        // Only the <header> element (search bar) breaks out to full width and
+        // becomes sticky. The popover-hint (breadcrumbs/title) stays in the
+        // center column and scrolls normally.
+        & > header {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: var(--light);
+          width: 75vw;
+          margin-left: calc(50% - 37.5vw);
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+      }
       @media all and ($mobile) {
         margin-top: 0;
         padding: 0;

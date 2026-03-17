@@ -100,10 +100,22 @@ body[data-slug="index"] article > p > a:first-child {
     max-width: 100% !important;
   }
 
-  // The search component itself fills its container
+  // The search component itself fills its container, overriding search.scss max-width: 14rem
   .sidebar.left .flex-component .search {
+    max-width: 100% !important;
     width: 100% !important;
     min-width: 0 !important;
+  }
+
+  // Search button fills the full width of the search component
+  .sidebar.left .flex-component .search .search-button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  // Hide the "Search" text label — icon alone is sufficient in the compact top bar
+  .sidebar.left .flex-component .search .search-button p {
+    display: none !important;
   }
 
   .sidebar.left .flex-component .search input {

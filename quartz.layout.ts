@@ -28,7 +28,7 @@ export const sharedPageComponents: SharedLayout = {
 const explorerConfig = {
   filterFn: (node: any) => {
     const cleaned = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
-    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) && cleaned !== "Daily"
+    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) && cleaned !== "Daily" && cleaned !== "Search"
   },
   mapFn: (node: any) => {
     node.displayName = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
@@ -51,12 +51,21 @@ export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
       component: Component.Breadcrumbs(),
-      condition: (page) => page.fileData.slug !== "index",
+      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search",
     }),
     Component.ArticleTitle(),
-    Component.ContentMeta(),
-    Component.TagList(),
-    Component.MobileOnly(Component.TableOfContents()),
+    Component.ConditionalRender({
+      component: Component.ContentMeta(),
+      condition: (page) => page.fileData.slug !== "Search",
+    }),
+    Component.ConditionalRender({
+      component: Component.TagList(),
+      condition: (page) => page.fileData.slug !== "Search",
+    }),
+    Component.ConditionalRender({
+      component: Component.MobileOnly(Component.TableOfContents()),
+      condition: (page) => page.fileData.slug !== "Search",
+    }),
   ],
   left: [
     Component.PageTitle(),

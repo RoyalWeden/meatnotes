@@ -81,7 +81,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
               slug: node.slug,
               dates: getMostRecentDates(),
               frontmatter: {
-                title: node.displayName,
+                title: node.displayName.replace(/^\d+\s*[—–-]\s*/, ""),
                 tags: [],
               },
             }

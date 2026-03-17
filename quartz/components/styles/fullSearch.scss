@@ -38,6 +38,17 @@
     color: var(--darkgray);
     cursor: pointer;
     user-select: none;
+
+    input[type="checkbox"] {
+      appearance: auto;
+      -webkit-appearance: checkbox;
+      margin: 0;
+      margin-inline-start: 0;
+      transform: none;
+      width: auto;
+      height: auto;
+      flex-shrink: 0;
+    }
   }
 
   .full-search-sort {

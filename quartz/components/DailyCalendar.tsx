@@ -11,7 +11,10 @@ const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
         </div>
         <div id="cal-grid"></div>
       </div>
-      <button id="cal-mobile-btn" aria-label="Open calendar">📅</button>
+      <button id="cal-mobile-btn" aria-label="Open daily notes calendar">
+        <span id="cal-btn-icon">📅</span>
+        <span id="cal-btn-label">Daily Notes</span>
+      </button>
       <div id="cal-mobile-overlay">
         <div id="cal-mobile-inner">
           <div id="cal-nav-mobile">
@@ -74,22 +77,30 @@ DailyCalendar.css = `
 .cal-picker-month:hover { background: var(--highlight); }
 .cal-picker-month.active { background: var(--secondary); color: var(--light); border-color: var(--secondary); }
 
-/* Mobile calendar button */
+/* Mobile calendar button — pill shape */
 #cal-mobile-btn {
   display: none;
   position: fixed;
   bottom: 5rem;
-  right: 1.5rem;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
+  right: 1rem;
+  height: auto;
+  width: auto;
+  padding: 0.65rem 1.25rem;
+  border-radius: 2rem;
   border: none;
   background: var(--secondary);
-  font-size: 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   z-index: 999;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--light);
 }
+#cal-btn-icon { font-size: 1.2rem; line-height: 1; }
+#cal-btn-label { font-size: 0.9rem; letter-spacing: 0.01em; }
 
 /* Mobile overlay */
 #cal-mobile-overlay {
@@ -201,7 +212,32 @@ DailyCalendar.css = `
 `
 
 DailyCalendar.afterDOMLoaded = `
+// Compact search bar on scroll: shrinks when scrolling down, restores on scroll up
 (function() {
+  let lastY = window.scrollY
+  let ticking = false
+  function updateCompact() {
+    const y = window.scrollY
+    if (y < 10) {
+      document.documentElement.classList.remove('search-compact')
+    } else if (y > lastY) {
+      document.documentElement.classList.add('search-compact')
+    } else {
+      document.documentElement.classList.remove('search-compact')
+    }
+    lastY = y
+    ticking = false
+  }
+  window.addEventListener('scroll', function() {
+    if (!ticking) { requestAnimationFrame(updateCompact); ticking = true }
+  }, { passive: true })
+  document.addEventListener('nav', function() {
+    lastY = window.scrollY
+    document.documentElement.classList.remove('search-compact')
+  })
+})()
+
+;(function() {
   if (!window._calState) {
     window._calState = { date: new Date(), dates: null }
   }
@@ -429,7 +465,7 @@ DailyCalendar.afterDOMLoaded = `
 
   function injectIntoDrawer() {
     if (window.innerWidth > 768) return
-    const explorerContent = document.getElementById('explorer-98') 
+    const explorerContent = document.getElementById('explorer-98')
       || document.querySelector('.explorer-content')
     if (!explorerContent) return
 
@@ -445,16 +481,26 @@ DailyCalendar.afterDOMLoaded = `
     titleEl.textContent = 'Bible Notes'
     header.appendChild(titleEl)
 
-    const darkmodeBtn = document.querySelector('.darkmode button')
+    // Wrapper for darkmode + readermode icons
+    const iconsWrapper = document.createElement('div')
+    iconsWrapper.className = 'mobile-drawer-icons'
+
+    // .darkmode and .readermode are the buttons themselves (not wrappers)
+    const darkmodeBtn = document.querySelector('button.darkmode')
     if (darkmodeBtn) {
       const dmClone = darkmodeBtn.cloneNode(true)
+      dmClone.style.display = 'flex'
+      dmClone.style.alignItems = 'center'
+      dmClone.style.justifyContent = 'center'
       dmClone.addEventListener('click', function() { darkmodeBtn.click() })
       const dmWrapper = document.createElement('div')
       dmWrapper.className = 'mobile-drawer-darkmode'
+      dmWrapper.title = 'Toggle dark/light mode'
       dmWrapper.appendChild(dmClone)
-      header.appendChild(dmWrapper)
+      iconsWrapper.appendChild(dmWrapper)
     }
 
+    header.appendChild(iconsWrapper)
     explorerContent.insertBefore(header, explorerContent.firstChild)
   }
 

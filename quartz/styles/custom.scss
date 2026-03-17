@@ -110,7 +110,7 @@ body[data-slug="index"] article > p > a:first-child {
   // Search button fills the full width of the search component
   .sidebar.left .flex-component .search .search-button {
     width: 100% !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
   }
 
   // Hide the "Search" text label — icon alone is sufficient in the compact top bar

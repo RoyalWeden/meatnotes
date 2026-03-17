@@ -29,8 +29,24 @@ export default ((opts?: Partial<BacklinksOptions>) => {
       return null
     }
     return (
-      <div class={classNames(displayClass, "backlinks")}>
-        <h3>{i18n(cfg.locale).components.backlinks.title}</h3>
+      <details class={classNames(displayClass, "backlinks")}>
+        <summary class="backlinks-summary">
+          <h3>{i18n(cfg.locale).components.backlinks.title}</h3>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="fold"
+          >
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
         <OverflowList>
           {backlinkFiles.length > 0 ? (
             backlinkFiles.map((f) => (
@@ -44,7 +60,7 @@ export default ((opts?: Partial<BacklinksOptions>) => {
             <li>{i18n(cfg.locale).components.backlinks.noBacklinksFound}</li>
           )}
         </OverflowList>
-      </div>
+      </details>
     )
   }
 

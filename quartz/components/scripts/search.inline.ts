@@ -550,8 +550,16 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
             if (!ts) return ""
             return new Date(ts as string).toLocaleDateString("sv")
           }
+          const toSlugDateStr = (slug: string): string => {
+            const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+            return m ? m[1] : ""
+          }
           const dateResults = Object.entries(data)
-            .filter(([, fileData]) => toLocalDateStr(fileData.date as string | undefined) === targetStr)
+            .filter(([slug, fileData]) =>
+              (toLocalDateStr(fileData.date as string | undefined) === targetStr ||
+               toSlugDateStr(slug) === targetStr) &&
+              slug !== "Search"
+            )
             .sort(([, a], [, b]) => {
               const aTs = new Date((a.date ?? 0) as string | number).getTime()
               const bTs = new Date((b.date ?? 0) as string | number).getTime()
@@ -619,7 +627,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       ...getByField("content"),
       ...getByField("tags"),
     ])
-    const allIdsList = [...allIds]
+    const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
     const totalCount = allIdsList.length
     const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
     await displayResults(finalResults, totalCount)

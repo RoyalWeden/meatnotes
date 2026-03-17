@@ -5,11 +5,14 @@ export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [
     Component.ReadingProgress(),
-    Component.MobileOnly(Component.Search()),
   ],
   afterBody: [
     Component.DailyNoteNav(),
     Component.BackToTop(),
+    Component.ConditionalRender({
+      component: Component.FullSearch(),
+      condition: (page) => page.fileData.slug === "Search",
+    }),
   ],
   footer: Component.CustomFooter({
     links: {
@@ -24,10 +27,23 @@ export const sharedPageComponents: SharedLayout = {
 
 const explorerConfig = {
   filterFn: (node: any) => {
-    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName)
+    const cleaned = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
+    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) && cleaned !== "Daily"
   },
   mapFn: (node: any) => {
     node.displayName = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
+  },
+  sortFn: (a: any, b: any) => {
+    const priority: Record<string, number> = {
+      "Capture": 0,
+      "In Progress": 1,
+      "Complete": 2,
+      "Copy-Paste Rebukes": 3,
+    }
+    const aP = priority[a.displayName] ?? 99
+    const bP = priority[b.displayName] ?? 99
+    if (aP !== bP) return aP - bP
+    return a.displayName.localeCompare(b.displayName)
   },
 }
 
@@ -48,6 +64,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Flex({
       components: [
         { Component: Component.DesktopOnly(Component.Search()), grow: true },
+        { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
       ],
@@ -70,6 +87,7 @@ export const defaultListPageLayout: PageLayout = {
     Component.Flex({
       components: [
         { Component: Component.DesktopOnly(Component.Search()), grow: true },
+        { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.Darkmode() },
       ],
     }),

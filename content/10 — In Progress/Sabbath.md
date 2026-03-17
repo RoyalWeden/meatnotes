@@ -1,3 +1,0 @@
-Do not do your own pleasures
-
-Jubilees 50:8 And the man that does any work on it shall die: whoever desecrates that day, ~whoever lies with (his) wife~, or whoever says he will do something on it, that he will set out on a journey thereon in regard to any buying or selling: and whoever draws water thereon which he had not prepared for himself on the sixth day, and whoever takes up any burden to carry it out of his tent or out of his house shall die.

@@ -541,34 +541,33 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
     // Natural language date query detection
     if (searchType === "basic") {
-      const dateTarget = parseDateQuery(currentSearchTerm)
-      if (dateTarget) {
-        const dateResults = Object.entries(data)
-          .filter(([, fileData]) => {
-            const checkTs = (ts: number | string | undefined) => {
-              if (ts == null) return false
-              const d = new Date(ts)
-              return (
-                d.getFullYear() === dateTarget.getFullYear() &&
-                d.getMonth() === dateTarget.getMonth() &&
-                d.getDate() === dateTarget.getDate()
-              )
-            }
-            return checkTs(fileData.date) || checkTs(fileData.date)
+      try {
+        const dateTarget = parseDateQuery(currentSearchTerm)
+        if (dateTarget) {
+          // Use locale "sv" (Swedish) which gives YYYY-MM-DD format — timezone-safe local date string
+          const targetStr = dateTarget.toLocaleDateString("sv")
+          const toLocalDateStr = (ts: string | Date | undefined): string => {
+            if (!ts) return ""
+            return new Date(ts as string).toLocaleDateString("sv")
+          }
+          const dateResults = Object.entries(data)
+            .filter(([, fileData]) => toLocalDateStr(fileData.date as string | undefined) === targetStr)
+            .sort(([, a], [, b]) => {
+              const aTs = new Date((a.date ?? 0) as string | number).getTime()
+              const bTs = new Date((b.date ?? 0) as string | number).getTime()
+              return bTs - aTs
+            })
+          const totalCount = dateResults.length
+          const displayItems: Item[] = dateResults.slice(0, numSearchResults).map(([slug, fileData]) => {
+            const id = idDataMap.indexOf(slug as FullSlug)
+            const dateStr = new Date(fileData.date as string).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+            return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: `Modified: ${dateStr}`, tags: [] }
           })
-          .sort(([, a], [, b]) => {
-            const aTs = new Date(a.date ?? 0).getTime()
-            const bTs = new Date(b.date ?? 0).getTime()
-            return bTs - aTs
-          })
-        const totalCount = dateResults.length
-        const displayItems: Item[] = dateResults.slice(0, numSearchResults).map(([slug, fileData]) => {
-          const id = idDataMap.indexOf(slug as FullSlug)
-          const dateStr = new Date(fileData.date ?? fileData.date ?? 0).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
-          return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: `Modified: ${dateStr}`, tags: [] }
-        })
-        await displayResults(displayItems, totalCount)
-        return
+          await displayResults(displayItems, totalCount)
+          return
+        }
+      } catch {
+        // Date parse failed — fall through to normal FlexSearch
       }
     }
 

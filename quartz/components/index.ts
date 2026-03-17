@@ -28,6 +28,7 @@ export { default as DailyNoteNav } from "./DailyNoteNav"
 export { default as CustomFooter } from "./CustomFooter"
 export { default as ReadingProgress } from "./ReadingProgress"
 export { default as BackToTop } from "./BackToTop"
+export { default as FullSearch } from "./FullSearch"
 
 export {
   ArticleTitle,

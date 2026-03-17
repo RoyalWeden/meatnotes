@@ -3,9 +3,30 @@
 .backlinks {
   flex-direction: column;
 
-  & > h3 {
-    font-size: 1rem;
-    margin: 0;
+  & > .backlinks-summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    & > h3 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    & > .fold {
+      color: var(--gray);
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &:not([open]) > .backlinks-summary > .fold {
+    transform: rotate(-90deg);
   }
 
   & > ul.overflow {

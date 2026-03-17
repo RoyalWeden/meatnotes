@@ -71,7 +71,7 @@ function computeFolderInfo(
       defaultProcessedContent({
         slug: joinSegments(folder, "index") as FullSlug,
         frontmatter: {
-          title: `${i18n(locale).pages.folderContent.folder}: ${folder}`,
+          title: `${i18n(locale).pages.folderContent.folder}: ${path.basename(folder).replace(/^\d+[-\s]*[—–-][-\s]*/, "").replace(/-/g, " ")}`,
           tags: [],
         },
       }),

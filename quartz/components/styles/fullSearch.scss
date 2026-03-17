@@ -1,0 +1,130 @@
+.full-search {
+  margin: 1.5rem 0;
+
+  .full-search-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .full-search-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 5px;
+    background: var(--light);
+    color: var(--dark);
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: var(--secondary);
+    }
+  }
+
+  .full-search-options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .full-search-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--darkgray);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .full-search-sort {
+    margin-left: auto;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 4px;
+    background: var(--light);
+    color: var(--dark);
+    cursor: pointer;
+    outline: none;
+  }
+
+  .full-search-count {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin: 0.5rem 0 0.3rem;
+    min-height: 1.2em;
+  }
+
+  .full-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .fs-result-card {
+    display: block;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--dark);
+    background: var(--light);
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:hover {
+      border-color: var(--secondary);
+      background: var(--lightgray);
+    }
+
+    .fs-result-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.2rem;
+      color: var(--secondary);
+    }
+
+    .fs-result-meta {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin: 0 0 0.3rem;
+    }
+
+    .fs-result-excerpt {
+      font-size: 0.85rem;
+      color: var(--darkgray);
+      margin: 0;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .fs-result-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+      list-style: none;
+      padding: 0;
+
+      li {
+        font-size: 0.75rem;
+        color: var(--secondary);
+        background: color-mix(in srgb, var(--secondary) 10%, transparent);
+        padding: 0.1rem 0.4rem;
+        border-radius: 3px;
+      }
+    }
+  }
+
+  .fs-no-results {
+    color: var(--gray);
+    font-size: 0.95rem;
+    padding: 1rem 0;
+  }
+}

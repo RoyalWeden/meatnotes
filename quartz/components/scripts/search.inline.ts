@@ -89,6 +89,93 @@ const contextWindowWords = 30
 const numSearchResults = 8
 const numTagResults = 5
 
+// Natural language date query parser
+function parseDateQuery(term: string): Date | null {
+  const lower = term.trim().toLowerCase()
+  const now = new Date()
+
+  if (lower === "today") {
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  }
+  if (lower === "yesterday") {
+    const d = new Date(now)
+    d.setDate(d.getDate() - 1)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  }
+
+  const agoMatch = lower.match(/^(\d+)\s+(day|days|week|weeks|month|months)\s+ago$/)
+  if (agoMatch) {
+    const n = parseInt(agoMatch[1])
+    const unit = agoMatch[2]
+    const d = new Date(now)
+    if (unit.startsWith("day")) d.setDate(d.getDate() - n)
+    else if (unit.startsWith("week")) d.setDate(d.getDate() - n * 7)
+    else if (unit.startsWith("month")) d.setMonth(d.getMonth() - n)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  }
+
+  const lastDayMatch = lower.match(
+    /^last\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/,
+  )
+  if (lastDayMatch) {
+    const dayNames = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ]
+    const targetDay = dayNames.indexOf(lastDayMatch[1])
+    const d = new Date(now)
+    const daysBack = ((d.getDay() - targetDay + 7) % 7) || 7
+    d.setDate(d.getDate() - daysBack)
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  }
+
+  const monthNames = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ]
+  const monthShort = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+  const allMonths = monthNames.join("|") + "|" + monthShort.join("|")
+
+  const monthDayMatch = lower.match(
+    new RegExp(`^(${allMonths})\\s+(\\d{1,2})(?:[,\\s]+(\\d{4}))?$`),
+  )
+  if (monthDayMatch) {
+    let monthIdx = monthNames.indexOf(monthDayMatch[1])
+    if (monthIdx === -1) monthIdx = monthShort.indexOf(monthDayMatch[1])
+    const day = parseInt(monthDayMatch[2])
+    const year = monthDayMatch[3] ? parseInt(monthDayMatch[3]) : now.getFullYear()
+    return new Date(year, monthIdx, day)
+  }
+
+  const dayMonthMatch = lower.match(
+    new RegExp(`^(\\d{1,2})\\s+(${allMonths})(?:\\s+(\\d{4}))?$`),
+  )
+  if (dayMonthMatch) {
+    const day = parseInt(dayMonthMatch[1])
+    let monthIdx = monthNames.indexOf(dayMonthMatch[2])
+    if (monthIdx === -1) monthIdx = monthShort.indexOf(dayMonthMatch[2])
+    const year = dayMonthMatch[3] ? parseInt(dayMonthMatch[3]) : now.getFullYear()
+    return new Date(year, monthIdx, day)
+  }
+
+  return null
+}
+
 const tokenizeTerm = (term: string) => {
   const tokens = term.split(/\s+/).filter((t) => t.trim() !== "")
   const tokenLen = tokens.length
@@ -373,7 +460,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     return itemTile
   }
 
-  async function displayResults(finalResults: Item[]) {
+  async function displayResults(finalResults: Item[], totalCount?: number) {
     removeAllChildren(results)
     if (finalResults.length === 0) {
       results.innerHTML = `<a class="result-card no-match">
@@ -382,6 +469,17 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       </a>`
     } else {
       results.append(...finalResults.map(resultToHTML))
+      if (totalCount !== undefined && totalCount > finalResults.length) {
+        const seeAll = document.createElement("a")
+        seeAll.className = "result-card see-all-results"
+        const searchUrl = resolveUrl("Search" as FullSlug)
+        searchUrl.searchParams.set("q", currentSearchTerm)
+        seeAll.href = searchUrl.toString()
+        seeAll.innerHTML = `<p>See all ${totalCount} results →</p>`
+        seeAll.addEventListener("click", hideSearch)
+        window.addCleanup(() => seeAll.removeEventListener("click", hideSearch))
+        results.append(seeAll)
+      }
     }
 
     if (finalResults.length === 0 && preview) {
@@ -441,6 +539,39 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchLayout.classList.toggle("display-results", currentSearchTerm !== "")
     searchType = currentSearchTerm.startsWith("#") ? "tags" : "basic"
 
+    // Natural language date query detection
+    if (searchType === "basic") {
+      const dateTarget = parseDateQuery(currentSearchTerm)
+      if (dateTarget) {
+        const dateResults = Object.entries(data)
+          .filter(([, fileData]) => {
+            const checkTs = (ts: number | string | undefined) => {
+              if (ts == null) return false
+              const d = new Date(ts)
+              return (
+                d.getFullYear() === dateTarget.getFullYear() &&
+                d.getMonth() === dateTarget.getMonth() &&
+                d.getDate() === dateTarget.getDate()
+              )
+            }
+            return checkTs(fileData.date) || checkTs(fileData.date)
+          })
+          .sort(([, a], [, b]) => {
+            const aTs = new Date(a.date ?? 0).getTime()
+            const bTs = new Date(b.date ?? 0).getTime()
+            return bTs - aTs
+          })
+        const totalCount = dateResults.length
+        const displayItems: Item[] = dateResults.slice(0, numSearchResults).map(([slug, fileData]) => {
+          const id = idDataMap.indexOf(slug as FullSlug)
+          const dateStr = new Date(fileData.date ?? fileData.date ?? 0).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
+          return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: `Modified: ${dateStr}`, tags: [] }
+        })
+        await displayResults(displayItems, totalCount)
+        return
+      }
+    }
+
     let searchResults: DefaultDocumentSearchResults<Item>
     if (searchType === "tags") {
       currentSearchTerm = currentSearchTerm.substring(1).trim()
@@ -473,7 +604,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     } else if (searchType === "basic") {
       searchResults = await index.searchAsync({
         query: currentSearchTerm,
-        limit: numSearchResults,
+        limit: 500,
         index: ["title", "content"],
       })
     }
@@ -489,8 +620,10 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       ...getByField("content"),
       ...getByField("tags"),
     ])
-    const finalResults = [...allIds].map((id) => formatForDisplay(currentSearchTerm, id))
-    await displayResults(finalResults)
+    const allIdsList = [...allIds]
+    const totalCount = allIdsList.length
+    const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
+    await displayResults(finalResults, totalCount)
   }
 
   document.addEventListener("keydown", shortcutHandler)

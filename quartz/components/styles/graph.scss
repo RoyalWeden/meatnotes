@@ -7,28 +7,25 @@
       list-style: none;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
+      justify-content: space-between;
 
       &::-webkit-details-marker {
         display: none;
-      }
-
-      &::after {
-        content: "›";
-        font-size: 1.2rem;
-        color: var(--gray);
-        transition: transform 0.2s ease;
-        display: inline-block;
       }
 
       & > h3 {
         font-size: 1rem;
         margin: 0;
       }
+
+      & > .fold {
+        color: var(--gray);
+        transition: transform 0.3s ease;
+      }
     }
 
-    &[open] > .graph-summary::after {
-      transform: rotate(90deg);
+    &:not([open]) > .graph-summary > .fold {
+      transform: rotate(-90deg);
     }
   }
 

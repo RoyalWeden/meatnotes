@@ -89,8 +89,7 @@ function parseDateQuery(term: string): Date | null {
 
 function sameDay(ts: number | string | undefined, target: Date): boolean {
   if (ts == null) return false
-  const d = new Date(ts)
-  return d.getFullYear() === target.getFullYear() && d.getMonth() === target.getMonth() && d.getDate() === target.getDate()
+  return new Date(ts as string).toLocaleDateString("sv") === target.toLocaleDateString("sv")
 }
 
 function highlight(term: string, text: string): string {
@@ -202,8 +201,16 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     // Check for date query
     const dateTarget = parseDateQuery(query)
     if (dateTarget) {
+      const targetStr = dateTarget.toLocaleDateString("sv")
+      const toSlugDateStr = (slug: string): string => {
+        const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+        return m ? m[1] : ""
+      }
       const dateMatches = Object.entries(data)
-        .filter(([, fd]) => sameDay(fd.date, dateTarget) || sameDay(fd.date, dateTarget))
+        .filter(([slug, fd]) =>
+          (sameDay(fd.date, dateTarget) || toSlugDateStr(slug) === targetStr) &&
+          slug !== "Search"
+        )
         .sort(([, a], [, b]) => {
           const aTs = new Date(a.date ?? 0).getTime()
           const bTs = new Date(b.date ?? 0).getTime()
@@ -234,7 +241,7 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
       slug: idDataMap[id],
       fileData: data[idDataMap[id]],
       highlight: query,
-    })).filter((item) => item.fileData != null)
+    })).filter((item) => item.slug !== "Search" && item.fileData != null)
 
     if (sort === "date-desc" || sort === "date-asc") {
       items.sort((a, b) => {

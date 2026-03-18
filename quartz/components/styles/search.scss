@@ -293,12 +293,34 @@
             padding: 0.6em 1em 0.4em;
             border-bottom: 1px solid var(--lightgray);
 
-            & > .recent-label {
+            & > .recent-label-row {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin: 0 0 0.4em;
+            }
+
+            & .recent-label {
               font-size: 0.75em;
               color: var(--gray);
-              margin: 0 0 0.4em;
+              margin: 0;
               text-transform: uppercase;
               letter-spacing: 0.05em;
+            }
+
+            & .recent-clear-btn {
+              font-size: 0.75em;
+              color: var(--gray);
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 0;
+              text-decoration: underline;
+              text-underline-offset: 2px;
+
+              &:hover {
+                color: var(--darkgray);
+              }
             }
 
             & > .recent-chips {

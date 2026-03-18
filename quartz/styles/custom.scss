@@ -140,6 +140,11 @@ body[data-slug="index"] article > p > a:first-child {
     width: 100% !important;
     min-width: 0 !important;
   }
+
+  // Hide keyboard shortcut hint — irrelevant on touch devices
+  .search-open-hint {
+    display: none !important;
+  }
 }
 
 // Hamburger button rotates when drawer is open (mobile), with "Menu" label

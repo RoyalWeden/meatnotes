@@ -608,9 +608,23 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
     const wrapper = document.createElement("div")
     wrapper.className = "recent-searches"
+    const labelRow = document.createElement("div")
+    labelRow.className = "recent-label-row"
     const label = document.createElement("p")
     label.className = "recent-label"
     label.textContent = "Recent searches"
+    const clearBtn = document.createElement("button")
+    clearBtn.className = "recent-clear-btn"
+    clearBtn.textContent = "Clear"
+    const clearHandler = () => {
+      localStorage.removeItem(RECENT_SEARCHES_KEY)
+      removeAllChildren(results)
+      searchLayout.classList.remove("display-results")
+    }
+    clearBtn.addEventListener("click", clearHandler)
+    window.addCleanup(() => clearBtn.removeEventListener("click", clearHandler))
+    labelRow.appendChild(label)
+    labelRow.appendChild(clearBtn)
     const chips = document.createElement("div")
     chips.className = "recent-chips"
 
@@ -627,7 +641,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       chips.appendChild(chip)
     }
 
-    wrapper.appendChild(label)
+    wrapper.appendChild(labelRow)
     wrapper.appendChild(chips)
     results.appendChild(wrapper)
   }

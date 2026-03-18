@@ -45,6 +45,7 @@ export default ((userOpts?: Partial<SearchOptions>) => {
               <button class="filter-btn" data-filter="title">Title</button>
               <button class="filter-btn" data-filter="content">Content</button>
               <button class="filter-btn" data-filter="tags">Tags</button>
+              <button class="phrase-btn" id="search-phrase-btn" aria-pressed="false">Phrase</button>
             </div>
             <div class="search-layout" data-preview={opts.enablePreview}></div>
           </div>

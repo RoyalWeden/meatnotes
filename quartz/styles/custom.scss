@@ -114,11 +114,21 @@ body[data-slug="index"] article > p > a:first-child {
     min-width: 0 !important;
   }
 
-  // Search button fills the full width of the search component, taller for touch
+  // Search button fills the full width of the search component, shrinks with scroll
   .sidebar.left .flex-component .search .search-button {
     width: 100% !important;
     justify-content: flex-start !important;
-    min-height: 2.75rem !important;
+    min-height: calc(2.75rem - var(--header-shrink, 0) * 0.75rem) !important;
+
+    & > p {
+      opacity: calc(1 - var(--header-shrink, 0));
+      overflow: hidden;
+    }
+
+    & svg {
+      transform: scale(calc(1 - var(--header-shrink, 0) * 0.18));
+      transform-origin: center;
+    }
   }
 
   // ToC: force hidden when collapsed (flexbox trick doesn't work in article body on mobile)
@@ -185,9 +195,10 @@ button.readermode {
 // Desktop header search bar — looks like a browser address bar
 @media (min-width: 801px) {
   // Sticky: stays at top as user scrolls
+  // !important needed to override Quartz's .page > #quartz-body .page-header { position: static }
   .page-header {
-    position: sticky;
-    top: 0;
+    position: sticky !important;
+    top: 0 !important;
     z-index: 100;
     background: var(--light);
   }
@@ -205,12 +216,11 @@ button.readermode {
 
   header .flex-component {
     width: 100%;
-    padding: 0.5rem 2rem;
+    padding: calc(0.5rem - var(--header-shrink, 0) * 0.3rem) 2rem;
     box-sizing: border-box;
     background: var(--light);
     border-bottom: 1px solid var(--lightgray);
     gap: 0.75rem;
-    transition: padding 0.2s ease;
   }
 
   // Search fills all remaining width in the header
@@ -226,54 +236,53 @@ button.readermode {
 
   header .search-button {
     width: 100%;
-    transition: height 0.2s ease;
+    // !important needed to beat search.scss `.search > .search-button { height: 2.75rem }` (higher specificity)
+    // Shrinks to 75% of max (2.0625rem) when fully scrolled
+    height: calc(2.75rem - var(--header-shrink, 0) * 0.6875rem) !important;
 
     & > p {
-      transition: opacity 0.15s ease, max-width 0.2s ease, margin 0.2s ease;
       max-width: 200px;
       overflow: hidden;
+      opacity: calc(1 - var(--header-shrink, 0));
+    }
+
+    & svg {
+      transform: scale(calc(1 - var(--header-shrink, 0) * 0.18));
+      transform-origin: center;
     }
   }
 
-  // Compact mode: shrinks when scrolling down
-  .search-compact header .flex-component {
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+  // Darkmode and readermode icons scale with scroll
+  header button.darkmode,
+  header button.readermode {
+    transform: scale(calc(1 - var(--header-shrink, 0) * 0.25));
+    transform-origin: center;
   }
 
-  .search-compact header .search-button {
-    height: 2rem;
-  }
-
-  .search-compact header .search-button > p {
+  // Keyboard shortcut hint inside the search button (⌘K / Ctrl+K) — only on hover
+  .search-open-hint {
+    margin-left: auto;
+    margin-right: 0.5rem;
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--lightgray);
+    border-radius: 4px;
+    font-size: 0.72em;
+    font-family: inherit;
+    line-height: 1.4;
+    color: var(--gray);
+    background: var(--light);
     opacity: 0;
-    max-width: 0;
-    margin: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    white-space: nowrap;
   }
+
+  .search-button:hover .search-open-hint {
+    opacity: 1;
+  }
+
 }
 
-// Mobile compact search (already sticky via existing Quartz styles)
-@media (max-width: 800px) {
-  .sidebar.left .search-button {
-    transition: min-height 0.2s ease;
-
-    & > p {
-      transition: opacity 0.15s ease, max-width 0.2s ease, margin 0.2s ease;
-      max-width: 200px;
-      overflow: hidden;
-    }
-  }
-
-  .search-compact .sidebar.left .flex-component .search .search-button {
-    min-height: 2.25rem !important;
-  }
-
-  .search-compact .sidebar.left .flex-component .search .search-button > p {
-    opacity: 0;
-    max-width: 0;
-    margin: 0;
-  }
-}
 
 #mobile-drawer-header {
   display: flex;

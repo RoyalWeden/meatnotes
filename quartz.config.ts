@@ -16,7 +16,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "en-US",
-    baseUrl: "quartz.jzhao.xyz",
+    baseUrl: "sitgmeat.com",
     ignorePatterns: ["private", "templates", ".obsidian", ".git", ".gitignore", ".templates"],
     defaultDateType: "modified",
     theme: {

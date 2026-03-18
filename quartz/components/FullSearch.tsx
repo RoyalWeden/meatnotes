@@ -25,6 +25,9 @@ export default (() => {
             <label class="full-search-filter">
               <input type="checkbox" id="fs-filter-tags" checked /> Tags
             </label>
+            <label class="full-search-filter" id="fs-phrase-wrapper">
+              <input type="checkbox" id="fs-filter-phrase" /> Phrase
+            </label>
             <select id="fs-sort" class="full-search-sort">
               <option value="relevance">Sort: Relevance</option>
               <option value="date-desc">Sort: Newest first</option>

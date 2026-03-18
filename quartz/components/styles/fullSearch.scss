@@ -136,6 +136,62 @@
   .fs-no-results {
     color: var(--gray);
     font-size: 0.95rem;
-    padding: 1rem 0;
+    padding: 1rem 0 0.25rem;
+  }
+
+  // Smart suggestions
+  .fs-similar {
+    margin-top: 0.75rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 6px;
+    overflow: hidden;
+
+    summary {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--darkgray);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      background: color-mix(in srgb, var(--lightgray) 40%, transparent);
+
+      &::-webkit-details-marker { display: none; }
+      &:hover { color: var(--secondary); }
+    }
+
+    .fs-similar-group {
+      padding: 0.6rem 0.9rem;
+      border-top: 1px solid var(--lightgray);
+
+      & + .fs-similar-group {
+        border-top: 1px solid var(--lightgray);
+      }
+    }
+
+    .fs-similar-label {
+      font-size: 0.78rem;
+      color: var(--gray);
+      margin: 0 0 0.5rem;
+      font-style: italic;
+    }
+
+    .fs-result-card {
+      margin-bottom: 0.4rem;
+
+      &:last-child { margin-bottom: 0; }
+    }
+  }
+
+  // Phrase button — visually separated from the field filters
+  #fs-phrase-wrapper {
+    margin-left: 0.5rem;
+    padding-left: 0.7rem;
+    border-left: 1px solid var(--lightgray);
+    color: var(--gray);
+
+    input:checked + * {
+      color: var(--secondary);
+    }
   }
 }

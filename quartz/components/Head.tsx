@@ -1,10 +1,11 @@
 import { i18n } from "../i18n"
-import { FullSlug, getFileExtension, joinSegments, pathToRoot } from "../util/path"
+import { FullSlug, getFileExtension, joinSegments, pathToRoot, QUARTZ } from "../util/path"
 import { CSSResourceToStyleElement, JSResourceToScriptElement } from "../util/resources"
 import { googleFontHref, googleFontSubsetHref } from "../util/theme"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { unescapeHTML } from "../util/escape"
 import { CustomOgImagesEmitterName } from "../plugins/emitters/ogImage"
+import { statSync } from "node:fs"
 export default (() => {
   const Head: QuartzComponent = ({
     cfg,
@@ -34,7 +35,14 @@ export default (() => {
     const usesCustomOgImage = ctx.cfg.plugins.emitters.some(
       (e) => e.name === CustomOgImagesEmitterName,
     )
-    const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
+    let ogImageVersion = ""
+    try {
+      const stat = statSync(joinSegments(QUARTZ, "static", "og-image.png"))
+      ogImageVersion = `?v=${stat.mtimeMs.toString(36)}`
+    } catch {
+      // ignore if file doesn't exist
+    }
+    const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png${ogImageVersion}`
 
     return (
       <head>

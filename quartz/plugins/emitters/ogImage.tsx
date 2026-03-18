@@ -11,6 +11,7 @@ import { write } from "./helpers"
 import { BuildCtx } from "../../util/ctx"
 import { QuartzPluginData } from "../vfile"
 import fs from "node:fs/promises"
+import { statSync } from "node:fs"
 import { styleText } from "util"
 
 const defaultOptions: SocialImageOptions = {
@@ -141,6 +142,14 @@ export const CustomOgImages: QuartzEmitterPlugin<Partial<SocialImageOptions>> = 
       }
 
       const baseUrl = ctx.cfg.configuration.baseUrl
+      let ogImageVersion = ""
+      try {
+        const ogImageFilePath = joinSegments(QUARTZ, "static", "og-image.png")
+        const stat = statSync(ogImageFilePath)
+        ogImageVersion = `?v=${stat.mtimeMs.toString(36)}`
+      } catch {
+        // ignore if file doesn't exist
+      }
       return {
         additionalHead: [
           (pageData) => {
@@ -156,7 +165,7 @@ export const CustomOgImages: QuartzEmitterPlugin<Partial<SocialImageOptions>> = 
             const generatedOgImagePath = isRealFile
               ? `https://${baseUrl}/${pageData.slug!}-og-image.webp`
               : undefined
-            const defaultOgImagePath = `https://${baseUrl}/static/og-image.png`
+            const defaultOgImagePath = `https://${baseUrl}/static/og-image.png${ogImageVersion}`
             const ogImagePath = userDefinedOgImagePath ?? generatedOgImagePath ?? defaultOgImagePath
             const ogImageMimeType = `image/${getFileExtension(ogImagePath) ?? "png"}`
             return (

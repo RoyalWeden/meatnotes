@@ -644,6 +644,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
   }
 
+  const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent)
+
   let currentHover: HTMLInputElement | null = null
   async function shortcutHandler(e: HTMLElementEventMap["keydown"]) {
     if (e.key === "k" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
@@ -1077,6 +1079,12 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     window.addCleanup(() => btn.removeEventListener("click", filterHandler))
   })
 
+  // Set platform-aware shortcut hint on search button
+  const openHint = searchElement.querySelector(".search-open-hint") as HTMLElement | null
+  if (openHint) {
+    openHint.textContent = isMac ? "⌘K" : "Ctrl+K"
+  }
+
   await fillDocument(data)
 }
 
@@ -1119,4 +1127,24 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
   for (const element of searchElement) {
     await setupSearch(element, currentSlug, data)
   }
+
+  // Scroll-driven header shrink: sets --header-shrink (0→1) on :root
+  // CSS uses this to linearly animate search bar height, text opacity, and icon scale
+  let rafScheduled = false
+  const onHeaderScroll = () => {
+    if (!rafScheduled) {
+      rafScheduled = true
+      requestAnimationFrame(() => {
+        const ratio = Math.min(Math.max((window.scrollY - 30) / 150, 0), 1)
+        document.documentElement.style.setProperty("--header-shrink", ratio.toFixed(4))
+        rafScheduled = false
+      })
+    }
+  }
+  window.addEventListener("scroll", onHeaderScroll, { passive: true })
+  window.addCleanup(() => {
+    window.removeEventListener("scroll", onHeaderScroll)
+    document.documentElement.style.removeProperty("--header-shrink")
+  })
+  onHeaderScroll() // initialize on page load
 })

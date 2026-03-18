@@ -65,7 +65,7 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
 
     if (created) {
       segments.push(
-        <span class="meta-created" data-tooltip={formatExact(created)}>
+        <span class="meta-created" data-date-iso={created.toISOString()} data-tooltip={formatExact(created)}>
           {formatCreated(created)}
         </span>
       )
@@ -73,7 +73,7 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
 
     if (modified) {
       segments.push(
-        <span class="meta-modified" data-tooltip={formatExact(modified)}>
+        <span class="meta-modified" data-date-iso={modified.toISOString()} data-tooltip={formatExact(modified)}>
           updated {formatRelative(modified)}
         </span>
       )
@@ -154,18 +154,36 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
         return diffYears + "y ago"
       }
 
+      function updateCreatedDate() {
+        const el = document.querySelector('.meta-created')
+        if (!el) return
+        const iso = el.getAttribute('data-date-iso')
+        if (!iso) return
+        const date = new Date(iso)
+        if (isNaN(date.getTime())) return
+        el.textContent = date.toLocaleString('en-AU', { year: 'numeric', month: 'short', day: 'numeric' })
+        el.setAttribute('data-tooltip', date.toLocaleString('en-AU', {
+          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }))
+      }
+
       function updateMeta() {
         const el = document.querySelector('.meta-modified')
         if (!el) return
-        const tooltip = el.getAttribute('data-tooltip')
-        if (!tooltip) return
-        const date = new Date(tooltip)
+        const iso = el.getAttribute('data-date-iso')
+        if (!iso) return
+        const date = new Date(iso)
         if (isNaN(date.getTime())) return
         el.textContent = "updated " + relativeTime(date)
+        el.setAttribute('data-tooltip', date.toLocaleString('en-AU', {
+          year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }))
       }
 
+      updateCreatedDate()
       updateMeta()
       setInterval(updateMeta, 60000)
+      document.addEventListener('nav', updateCreatedDate)
       document.addEventListener('nav', updateMeta)
     })()
     `

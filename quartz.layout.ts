@@ -27,7 +27,7 @@ export const sharedPageComponents: SharedLayout = {
       Zoom: "https://zoom.us/j/8858934548?pwd=144",
       "Video Search Tool": "https://straitisthegatesearch.netlify.app/",
       "Notes Search Tool": "https://straitisthegatex.net/",
-      "Iron Sharpener": "Iron Sharpener",
+      "Iron Sharpener": "https://andrewrepent.github.io/sharpen-iron/",
     },
   }),
 }

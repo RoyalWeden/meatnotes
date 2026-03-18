@@ -1,0 +1,93 @@
+.home-sections {
+  margin-top: 1.5rem;
+
+  .site-description {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--darkgray);
+
+    .site-ref-link {
+      color: inherit;
+      font-weight: inherit;
+      text-decoration: underline;
+      text-decoration-color: var(--gray);
+      text-underline-offset: 2px;
+    }
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .sections-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.75rem;
+
+    th,
+    td {
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--lightgray);
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--gray);
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+
+    // Emoji column — tight
+    td:first-child,
+    th:first-child {
+      width: 2rem;
+      text-align: center;
+      padding-left: 0;
+    }
+
+    // Notes count column — centered, narrow
+    .count-col {
+      text-align: center;
+      width: 4.5rem;
+      color: var(--gray);
+      font-variant-numeric: tabular-nums;
+    }
+
+    // Hide description column on small screens
+    @media (max-width: 600px) {
+      .desc-col {
+        display: none;
+      }
+    }
+  }
+
+  .sections-total {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin: 0.25rem 0 1rem 0;
+  }
+
+  .today-link-wrap {
+    margin: 0;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--lightgray);
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--secondary);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+
+      &:hover {
+        background-color: var(--light);
+        border-color: var(--gray);
+      }
+    }
+  }
+}

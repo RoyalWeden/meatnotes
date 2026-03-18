@@ -15,6 +15,10 @@ export const sharedPageComponents: SharedLayout = {
   ],
   afterBody: [
     Component.DailyNoteNav(),
+    Component.ConditionalRender({
+      component: Component.HomeSections(),
+      condition: (page) => page.fileData.slug === "index",
+    }),
     Component.BackToTop(),
     Component.ConditionalRender({
       component: Component.FullSearch(),
@@ -90,10 +94,22 @@ export const defaultContentPageLayout: PageLayout = {
   right: [
     Component.ConditionalRender({
       component: Component.Graph(),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "index",
     }),
     Component.DesktopOnly(Component.TableOfContents()),
     Component.Backlinks(),
+    Component.ConditionalRender({
+      component: Component.RecentNotes({
+        title: "Recently Updated",
+        limit: 5,
+        showTags: false,
+        filter: (f) =>
+          !f.slug?.startsWith("Daily/") &&
+          f.slug !== "index" &&
+          f.slug !== "Search",
+      }),
+      condition: (page) => page.fileData.slug === "index",
+    }),
   ],
 }
 

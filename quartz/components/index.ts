@@ -23,6 +23,7 @@ import Breadcrumbs from "./Breadcrumbs"
 import Comments from "./Comments"
 import Flex from "./Flex"
 import ConditionalRender from "./ConditionalRender"
+import HomeSections from "./HomeSections"
 export { default as DailyCalendar } from "./DailyCalendar"
 export { default as DailyNoteNav } from "./DailyNoteNav"
 export { default as CustomFooter } from "./CustomFooter"
@@ -56,4 +57,5 @@ export {
   Comments,
   Flex,
   ConditionalRender,
+  HomeSections,
 }

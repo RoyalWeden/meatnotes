@@ -43,10 +43,5 @@
     "name": "oct.related",
     "type": "list",
     "options": null
-  },
-  {
-    "name": "title",
-    "type": "string",
-    "options": null
   }
 ]

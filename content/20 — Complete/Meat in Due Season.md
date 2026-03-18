@@ -20,7 +20,7 @@
 
 - Love, Fear, Know God
 
-- Remember this in Tribulation
+- [[10 — In Progress/Remember this in Tribulation]]
 
 - Faith + Belief = Obedience
 

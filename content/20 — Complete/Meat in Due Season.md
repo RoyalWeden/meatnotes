@@ -127,7 +127,7 @@
 
   - Sons of Perdition
   - Abomination of Desolation
-  - Lie in Right Hand & Satan at Right Hand
+  - [[10 — In Progress/Lie in Right Hand & Satan at Right Hand]]
   - Bind the Strong Man
 
 - Ephraim

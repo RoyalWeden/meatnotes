@@ -18,6 +18,7 @@ type SearchFilter = "all" | "title" | "content" | "tags"
 let searchType: SearchType = "basic"
 let searchFilter: SearchFilter = "all"
 let currentSearchTerm: string = ""
+let phraseMode: boolean = false
 const encoder = (str: string): string[] => {
   const tokens: string[] = []
   let bufferStart = -1
@@ -90,6 +91,105 @@ const fetchContentCache: Map<FullSlug, Element[]> = new Map()
 const contextWindowWords = 30
 const numSearchResults = 8
 const numTagResults = 5
+
+// ─── Quote-based phrase extraction ───────────────────────────────────────────
+
+function extractPhrases(query: string): { phrases: string[]; searchTerm: string } {
+  const phrases: string[] = []
+  const remainder = query
+    .replace(/"([^"]+)"/g, (_, phrase) => {
+      phrases.push(phrase.trim().toLowerCase())
+      return " "
+    })
+    .replace(/\s+/g, " ")
+    .trim()
+  return { phrases, searchTerm: remainder || phrases.join(" ") }
+}
+
+// ─── Boolean query parser ─────────────────────────────────────────────────────
+
+type BoolToken = { type: "WORD" | "AND" | "OR" | "NOT" | "LPAREN" | "RPAREN"; value: string }
+
+type BoolQueryNode =
+  | { type: "term"; value: string }
+  | { type: "and"; left: BoolQueryNode; right: BoolQueryNode }
+  | { type: "or"; left: BoolQueryNode; right: BoolQueryNode }
+  | { type: "not"; operand: BoolQueryNode }
+
+function queryHasBooleanOps(q: string): boolean {
+  return /\bAND\b|\bOR\b|\bNOT\b|[()]/.test(q)
+}
+
+function tokenizeBoolQuery(q: string): BoolToken[] {
+  const raw = q.trim().match(/\(|\)|AND|OR|NOT|[^\s()]+/g) ?? []
+  return raw.map((tok) => {
+    if (tok === "AND") return { type: "AND", value: tok }
+    if (tok === "OR") return { type: "OR", value: tok }
+    if (tok === "NOT") return { type: "NOT", value: tok }
+    if (tok === "(") return { type: "LPAREN", value: tok }
+    if (tok === ")") return { type: "RPAREN", value: tok }
+    return { type: "WORD", value: tok }
+  })
+}
+
+function parseBoolQuery(q: string): BoolQueryNode {
+  const tokens = tokenizeBoolQuery(q)
+  let pos = 0
+  const peek = () => tokens[pos]
+  const consume = () => tokens[pos++]
+
+  function parseOr(): BoolQueryNode {
+    let left = parseAnd()
+    while (peek()?.type === "OR") {
+      consume()
+      const right = parseAnd()
+      left = { type: "or", left, right }
+    }
+    return left
+  }
+  function parseAnd(): BoolQueryNode {
+    let left = parseNot()
+    while (peek()?.type === "AND") {
+      consume()
+      const right = parseNot()
+      left = { type: "and", left, right }
+    }
+    return left
+  }
+  function parseNot(): BoolQueryNode {
+    if (peek()?.type === "NOT") {
+      consume()
+      return { type: "not", operand: parsePrimary() }
+    }
+    return parsePrimary()
+  }
+  function parsePrimary(): BoolQueryNode {
+    if (peek()?.type === "LPAREN") {
+      consume()
+      const node = parseOr()
+      if (peek()?.type === "RPAREN") consume()
+      return node
+    }
+    const words: string[] = []
+    while (peek()?.type === "WORD") words.push(consume().value)
+    if (words.length === 0) {
+      if (peek()) consume()
+      return { type: "term", value: "" }
+    }
+    return { type: "term", value: words.join(" ") }
+  }
+  return parseOr()
+}
+
+function boolSetIntersection(a: Set<number>, b: Set<number>): Set<number> {
+  return new Set([...a].filter((x) => b.has(x)))
+}
+function boolSetUnion(a: Set<number>, b: Set<number>): Set<number> {
+  return new Set([...a, ...b])
+}
+function boolSetDifference(a: Set<number>, b: Set<number>): Set<number> {
+  return new Set([...a].filter((x) => !b.has(x)))
+}
 
 // Natural language date query parser — returns a date range (start/end as YYYY-MM-DD) + display label
 interface DateRange {
@@ -278,6 +378,14 @@ const tokenizeTerm = (term: string) => {
   return tokens.sort((a, b) => b.length - a.length) // always highlight longest terms first
 }
 
+function stripBoolOps(query: string): string {
+  return query
+    .replace(/\b(AND|OR|NOT)\b/g, " ")
+    .replace(/[()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 function highlight(searchTerm: string, text: string, trim?: boolean) {
   const tokenizedTerms = tokenizeTerm(searchTerm)
   let tokenizedText = text.split(/\s+/).filter((t) => t !== "")
@@ -323,6 +431,28 @@ function highlight(searchTerm: string, text: string, trim?: boolean) {
   }`
 }
 
+function highlightPhrase(phrases: string[], text: string, trim?: boolean): string {
+  if (!phrases.length || !text) return text
+  let result = text
+  for (const phrase of phrases) {
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    result = result.replace(new RegExp(escaped, "gi"), `<span class="highlight">$&</span>`)
+  }
+  if (!trim) return result
+  // Find best context window around first highlight
+  const words = result.split(/\s+/)
+  let firstHlIdx = 0
+  for (let i = 0; i < words.length; i++) {
+    if (words[i].includes("highlight")) {
+      firstHlIdx = i
+      break
+    }
+  }
+  const start = Math.max(firstHlIdx - 10, 0)
+  const end = Math.min(start + 40, words.length)
+  return `${start > 0 ? "..." : ""}${words.slice(start, end).join(" ")}${end < words.length ? "..." : ""}`
+}
+
 function highlightHTML(searchTerm: string, el: HTMLElement) {
   const p = new DOMParser()
   const tokenizedTerms = tokenizeTerm(searchTerm)
@@ -361,6 +491,41 @@ function highlightHTML(searchTerm: string, el: HTMLElement) {
     highlightTextNodes(html.body, term)
   }
 
+  return html.body
+}
+
+function highlightHTMLPhrase(phrases: string[], el: HTMLElement) {
+  const p = new DOMParser()
+  const html = p.parseFromString(el.innerHTML, "text/html")
+  const createSpan = (text: string) => {
+    const span = document.createElement("span")
+    span.className = "highlight"
+    span.textContent = text
+    return span
+  }
+  const walk = (node: Node, phrase: string) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nodeText = node.nodeValue ?? ""
+      const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      const regex = new RegExp(escaped, "gi")
+      if (!regex.test(nodeText)) return
+      regex.lastIndex = 0
+      const spanContainer = document.createElement("span")
+      let lastIndex = 0
+      let match: RegExpExecArray | null
+      while ((match = regex.exec(nodeText)) !== null) {
+        spanContainer.appendChild(document.createTextNode(nodeText.slice(lastIndex, match.index)))
+        spanContainer.appendChild(createSpan(match[0]))
+        lastIndex = match.index + match[0].length
+      }
+      spanContainer.appendChild(document.createTextNode(nodeText.slice(lastIndex)))
+      node.parentNode?.replaceChild(spanContainer, node)
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      if ((node as HTMLElement).classList.contains("highlight")) return
+      Array.from(node.childNodes).forEach((child) => walk(child, phrase))
+    }
+  }
+  for (const phrase of phrases) walk(html.body, phrase)
   return html.body
 }
 
@@ -538,6 +703,16 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     })
   }
 
+  const phraseBtnEl = searchElement.querySelector(".phrase-btn") as HTMLButtonElement | null
+
+  function setPhraseMode(active: boolean) {
+    phraseMode = active
+    if (phraseBtnEl) {
+      phraseBtnEl.classList.toggle("active", active)
+      phraseBtnEl.setAttribute("aria-pressed", String(active))
+    }
+  }
+
   function hideSearch() {
     container.classList.remove("active")
     searchBar.value = "" // clear the input when we dismiss the search
@@ -549,6 +724,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchLayout.classList.remove("display-results")
     searchType = "basic" // reset search type after closing
     setFilter("all") // reset filter after closing
+    setPhraseMode(false) // reset phrase mode after closing
     stopPlaceholderCycle()
     searchButton.focus()
   }
@@ -572,8 +748,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     "try: today",
     "try: #faith",
     "try: last week",
-    "try: this year",
-    "try: recent",
+    'try: "exact phrase"',
+    "try: faith AND grace",
     "try: march 2026",
     "try: 3/10/26",
     "try: yesterday",
@@ -727,13 +903,16 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
   }
 
-  const formatForDisplay = (term: string, id: number) => {
+  const formatForDisplay = (term: string, id: number, hlPhrases?: string[]) => {
     const slug = idDataMap[id]
+    const plainTerm = stripBoolOps(term)
+    const doHighlight = (text: string, isTrim?: boolean) =>
+      hlPhrases ? highlightPhrase(hlPhrases, text, isTrim) : highlight(plainTerm, text, isTrim)
     return {
       id,
       slug,
-      title: searchType === "tags" ? data[slug].title : highlight(term, data[slug].title ?? ""),
-      content: highlight(term, data[slug].content ?? "", true),
+      title: searchType === "tags" ? data[slug].title : doHighlight(data[slug].title ?? ""),
+      content: doHighlight(data[slug].content ?? "", true),
       tags: highlightTags(term.substring(1), data[slug].tags),
     }
   }
@@ -795,6 +974,98 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     return itemTile
   }
 
+  // ─── Boolean evaluator (uses module-level index + local idDataMap) ───────────
+
+  async function evalBoolNode(node: BoolQueryNode, fields: string[]): Promise<Set<number>> {
+    if (node.type === "term") {
+      if (!node.value) return new Set()
+      const res = await index.searchAsync({ query: node.value, limit: 500, index: fields })
+      const ids = new Set<number>()
+      for (const r of res) for (const id of r.result) ids.add(id as number)
+      return ids
+    }
+    if (node.type === "and") {
+      return boolSetIntersection(
+        await evalBoolNode(node.left, fields),
+        await evalBoolNode(node.right, fields),
+      )
+    }
+    if (node.type === "or") {
+      return boolSetUnion(
+        await evalBoolNode(node.left, fields),
+        await evalBoolNode(node.right, fields),
+      )
+    }
+    if (node.type === "not") {
+      const all = new Set(idDataMap.map((_, i) => i))
+      const sub = await evalBoolNode(node.operand, fields)
+      return boolSetDifference(all, sub)
+    }
+    return new Set()
+  }
+
+  // ─── Smart suggestions (shown when 0 results for multi-word plain query) ─────
+
+  async function showSmartSuggestions(query: string, fields: string[]) {
+    const words = query.trim().split(/\s+/).filter((w) => w.length >= 3)
+    const stopwords = new Set(["the", "a", "an", "in", "of", "to", "for", "and", "or", "but", "is", "it"])
+    const seen = new Set<string>()
+    const groups: { label: string; items: Item[] }[] = []
+
+    async function fetchGroup(term: string): Promise<Item[]> {
+      const res = await index.searchAsync({ query: term, limit: numSearchResults, index: fields })
+      const ids = new Set<number>()
+      for (const r of res) for (const id of r.result) ids.add(id as number)
+      return [...ids]
+        .filter((id) => idDataMap[id] !== "Search")
+        .slice(0, 4)
+        .map((id) => formatForDisplay(term, id))
+    }
+
+    // Adjacent word pairs
+    for (let i = 0; i < words.length - 1; i++) {
+      const pair = `${words[i]} ${words[i + 1]}`
+      if (seen.has(pair)) continue
+      seen.add(pair)
+      const items = await fetchGroup(pair)
+      if (items.length > 0) groups.push({ label: `"${pair}"`, items })
+    }
+
+    // Individual words
+    for (const word of words) {
+      if (stopwords.has(word.toLowerCase()) || seen.has(word)) continue
+      seen.add(word)
+      const items = (await fetchGroup(word)).slice(0, 3)
+      if (items.length > 0) groups.push({ label: `"${word}"`, items })
+    }
+
+    if (groups.length === 0) return
+
+    const section = document.createElement("div")
+    section.className = "search-similar"
+
+    const heading = document.createElement("p")
+    heading.className = "search-similar-label"
+    heading.textContent = "💡 Similar results"
+    section.appendChild(heading)
+
+    for (const group of groups.slice(0, 3)) {
+      const groupEl = document.createElement("div")
+      groupEl.className = "search-similar-group"
+
+      const groupLabel = document.createElement("p")
+      groupLabel.className = "search-similar-group-label"
+      groupLabel.textContent = `Results for ${group.label}`
+      groupEl.appendChild(groupLabel)
+
+      for (const item of group.items) {
+        groupEl.appendChild(resultToHTML(item))
+      }
+      section.appendChild(groupEl)
+    }
+    results.appendChild(section)
+  }
+
   async function displayResults(finalResults: Item[], totalCount?: number, dateLabel?: string) {
     removeAllChildren(results)
 
@@ -819,7 +1090,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
 
     if (finalResults.length === 0) {
-      const noMatch = document.createElement("a")
+      const noMatch = document.createElement("div")
       noMatch.className = "result-card no-match"
       noMatch.innerHTML = `<h3>No results.</h3><p>Try another search term?</p>`
       results.append(noMatch)
@@ -873,9 +1144,19 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       }
     }
 
-    if (finalResults.length === 0 && preview) {
-      // no results, clear previous preview
-      removeAllChildren(preview)
+    if (finalResults.length === 0) {
+      if (preview) removeAllChildren(preview)
+      // Show smart suggestions for plain multi-word queries
+      const term = currentSearchTerm.trim()
+      const words = term.split(/\s+/).filter(Boolean)
+      if (words.length >= 2 && !queryHasBooleanOps(term) && !term.includes('"')) {
+        const filterFields =
+          searchFilter === "title" ? ["title"] :
+          searchFilter === "content" ? ["content"] :
+          searchFilter === "tags" ? ["tags"] :
+          ["title", "content"]
+        await showSmartSuggestions(term, filterFields)
+      }
     } else {
       // focus on first result-card (skip non-result elements at top)
       const firstCard = results.querySelector(".result-card") as HTMLElement | null
@@ -911,8 +1192,19 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
     const slug = el.id as FullSlug
+    const { phrases: quotedPhrases, searchTerm: effectiveTermPreview } = extractPhrases(currentSearchTerm)
+    const prevPhrases =
+      quotedPhrases.length > 0
+        ? quotedPhrases
+        : phraseMode
+          ? [effectiveTermPreview || currentSearchTerm]
+          : []
     const innerDiv = await fetchContent(slug).then((contents) =>
-      contents.flatMap((el) => [...highlightHTML(currentSearchTerm, el as HTMLElement).children]),
+      contents.flatMap((el) =>
+        prevPhrases.length > 0
+          ? [...highlightHTMLPhrase(prevPhrases, el as HTMLElement).children]
+          : [...highlightHTML(stripBoolOps(currentSearchTerm), el as HTMLElement).children],
+      ),
     )
     previewInner = document.createElement("div")
     previewInner.classList.add("preview-inner")
@@ -1016,30 +1308,85 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         searchFilter === "tags" ? ["tags"] :
         ["title", "content"]  // "all"
 
-      const expandedTerm = expandBibleBook(currentSearchTerm)
+      // Extract quoted phrases and get the effective search term (quotes stripped)
+      const { phrases: quotedPhrases, searchTerm: effectiveTerm } = extractPhrases(currentSearchTerm)
+      const hasQuotes = quotedPhrases.length > 0
+      // If quote auto-detected, turn off manual phrase mode (redundant)
+      if (hasQuotes && phraseMode) setPhraseMode(false)
+      // Combine: quoted phrases take priority; otherwise manual phraseMode adds the whole term as a phrase
+      const phrases = hasQuotes ? quotedPhrases : (phraseMode ? [effectiveTerm || currentSearchTerm] : [])
+      const termForSearch = effectiveTerm || currentSearchTerm
+
+      // Boolean query path (only when no quoted phrases)
+      if (!hasQuotes && queryHasBooleanOps(termForSearch) && searchFilter !== "tags") {
+        try {
+          const ast = parseBoolQuery(termForSearch)
+          const ids = await evalBoolNode(ast, filterFields)
+          const allIdsList = [...ids].filter((id) => idDataMap[id] !== "Search")
+          const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id))
+          await displayResults(finalResults, allIdsList.length)
+          return
+        } catch {
+          // fall through to plain search on parse error
+        }
+      }
+
+      // Bible book expansion (on the effective term, not including quoted phrases)
+      const expandedTerm = !hasQuotes ? expandBibleBook(termForSearch) : null
       if (expandedTerm && searchFilter !== "tags") {
-        // Search both the original term (abbr) and the expanded full name, merge results
         const [r1, r2] = await Promise.all([
-          index.searchAsync({ query: currentSearchTerm, limit: 500, index: filterFields }),
+          index.searchAsync({ query: termForSearch, limit: 500, index: filterFields }),
           index.searchAsync({ query: expandedTerm, limit: 500, index: filterFields }),
         ])
-        // Merge results from both queries
         const mergeField = (field: string): number[] => {
           const a = (r1.find((x) => x.field === field)?.result ?? []) as number[]
           const b = (r2.find((x) => x.field === field)?.result ?? []) as number[]
           return [...new Set([...a, ...b])]
         }
         const allIds = new Set(filterFields.flatMap((f) => mergeField(f)))
-        const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
-        const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
+        let allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
+        // Apply phrase filter if quotes or phrase mode active
+        if (phrases.length > 0) {
+          allIdsList = allIdsList.filter((id) => {
+            const fd = data[idDataMap[id]]
+            return phrases.every(
+              (p) => fd?.content?.toLowerCase().includes(p) || fd?.title?.toLowerCase().includes(p),
+            )
+          })
+        }
+        const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined))
         await displayResults(finalResults, allIdsList.length)
         return
       }
+
+      // Plain search using the effective term (quotes stripped)
       searchResults = await index.searchAsync({
-        query: currentSearchTerm,
+        query: termForSearch,
         limit: 500,
         index: filterFields,
       })
+
+      const getByField2 = (field: string): number[] => {
+        const r = searchResults.filter((x) => x.field === field)
+        return r.length === 0 ? [] : ([...r[0].result] as number[])
+      }
+      const allIds2: Set<number> = new Set([
+        ...(searchFilter !== "content" && searchFilter !== "tags" ? getByField2("title") : []),
+        ...(searchFilter !== "title" && searchFilter !== "tags" ? getByField2("content") : []),
+      ])
+      let allIdsList2 = [...allIds2].filter((id) => idDataMap[id] !== "Search")
+      // Apply phrase filter for quoted phrases or phrase mode
+      if (phrases.length > 0) {
+        allIdsList2 = allIdsList2.filter((id) => {
+          const fd = data[idDataMap[id]]
+          return phrases.every(
+            (p) => fd?.content?.toLowerCase().includes(p) || fd?.title?.toLowerCase().includes(p),
+          )
+        })
+      }
+      const finalResults2 = allIdsList2.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined))
+      await displayResults(finalResults2, allIdsList2.length)
+      return
     }
 
     const getByField = (field: string): number[] => {
@@ -1047,7 +1394,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       return results.length === 0 ? [] : ([...results[0].result] as number[])
     }
 
-    // order titles ahead of content (respect active filter)
+    // order titles ahead of content (respect active filter) — for tags search path
     const allIds: Set<number> = new Set([
       ...(searchType !== "tags" && searchFilter !== "content" && searchFilter !== "tags" ? getByField("title") : []),
       ...(searchType !== "tags" && searchFilter !== "title" && searchFilter !== "tags" ? getByField("content") : []),
@@ -1092,6 +1439,18 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     btn.addEventListener("click", filterHandler)
     window.addCleanup(() => btn.removeEventListener("click", filterHandler))
   })
+
+  // Phrase button click handler
+  if (phraseBtnEl) {
+    const phraseHandler = () => {
+      setPhraseMode(!phraseMode)
+      if (searchBar.value.trim()) {
+        searchBar.dispatchEvent(new Event("input"))
+      }
+    }
+    phraseBtnEl.addEventListener("click", phraseHandler)
+    window.addCleanup(() => phraseBtnEl.removeEventListener("click", phraseHandler))
+  }
 
   // Set platform-aware shortcut hint on search button
   const openHint = searchElement.querySelector(".search-open-hint") as HTMLElement | null

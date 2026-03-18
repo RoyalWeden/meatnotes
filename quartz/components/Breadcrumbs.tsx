@@ -77,6 +77,26 @@ export default ((opts?: Partial<BreadcrumbOptions>) => {
       crumbs.pop()
     }
 
+    // Daily note pages: show "Home ❯ dd/MM/yyyy" (skip the "Daily" folder crumb)
+    const dailySlugMatch = fileData.slug!.match(/^Daily\/(\d{4})-(\d{2})-(\d{2})$/)
+    if (dailySlugMatch && crumbs.length >= 2) {
+      const [, yr, mo, dy] = dailySlugMatch
+      const formattedDate = `${dy}/${mo}/${yr}`
+      // Keep only the Home crumb (index 0) — date is added as a static non-linked crumb
+      const homecrumb = crumbs[0]
+      return (
+        <nav class={classNames(displayClass, "breadcrumb-container")} aria-label="breadcrumbs">
+          <div class="breadcrumb-element">
+            <a href={homecrumb.path}>{homecrumb.displayName}</a>
+            <p>{` ${options.spacerSymbol} `}</p>
+          </div>
+          <div class="breadcrumb-element">
+            <a href="">{formattedDate}</a>
+          </div>
+        </nav>
+      )
+    }
+
     return (
       <nav class={classNames(displayClass, "breadcrumb-container")} aria-label="breadcrumbs">
         {crumbs.map((crumb, index) => (

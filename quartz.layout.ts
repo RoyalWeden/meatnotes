@@ -88,7 +88,10 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Explorer(explorerConfig),
   ],
   right: [
-    Component.Graph(),
+    Component.ConditionalRender({
+      component: Component.Graph(),
+      condition: (page) => page.fileData.slug !== "Search",
+    }),
     Component.DesktopOnly(Component.TableOfContents()),
     Component.Backlinks(),
   ],

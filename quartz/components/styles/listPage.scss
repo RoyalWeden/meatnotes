@@ -114,7 +114,7 @@ li.section-li {
 
 .page-listing:not([data-view]) .cards-grid,
 .page-listing[data-view="cards-sm"] .cards-grid {
-  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
 
   .card-icon      { width: 34px; height: 34px; }
   .card-title     { font-size: 0.82rem; }
@@ -124,11 +124,26 @@ li.section-li {
 // ── Card grid — spacious ──────────────────────────────────────────────────────
 
 .page-listing[data-view="cards-lg"] .cards-grid {
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 
   .card-icon  { width: 54px; height: 54px; }
   .card-title { font-size: 1.05rem; }
   .card-pill  { font-size: 0.68rem; }
+}
+
+// ── Desktop: larger minimum track so cards don't get too narrow ───────────────
+
+@media (min-width: 800px) {
+  .page-listing:not([data-view]) .cards-grid,
+  .page-listing[data-view="cards-sm"] .cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+
+    .card-title { font-size: 0.88rem; }
+  }
+
+  .page-listing[data-view="cards-lg"] .cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
 }
 
 // ── Base card grid ────────────────────────────────────────────────────────────
@@ -278,11 +293,11 @@ li.section-li {
   // On mobile, compact = 3 columns min, spacious = 2 columns min
   .page-listing:not([data-view]) .cards-grid,
   .page-listing[data-view="cards-sm"] .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   }
 
   .page-listing[data-view="cards-lg"] .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
   // Compact cards on mobile: shrink icon + footer so title has room to show
@@ -398,7 +413,7 @@ li.section-li {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.1rem;
+  padding: 0.2rem;
   color: var(--gray);
   border-radius: 4px;
   transition: color 0.15s ease, background-color 0.15s ease;

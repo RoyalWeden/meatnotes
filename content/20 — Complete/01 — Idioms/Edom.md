@@ -2,10 +2,11 @@
 description: Esau
 cssclasses:
   - idiom
-related_idioms: Esau, Bozrah
+related_idioms: Esau,Bozrah
 related_verses: Isaiah 63:1
 
 ---
+
 
 
 

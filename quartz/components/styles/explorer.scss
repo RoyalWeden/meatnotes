@@ -45,8 +45,8 @@
 
   & .fold {
     margin-left: 0.5rem;
-    transition: transform 0.3s ease;
-    opacity: 0.8;
+    color: var(--gray);
+    transition: color 0.15s ease, transform 0.3s ease;
   }
 
   @media all and ($mobile) {
@@ -108,6 +108,10 @@ button.desktop-explorer {
     font-size: 1rem;
     display: inline-block;
     margin: 0;
+  }
+
+  &:hover .fold {
+    color: var(--secondary);
   }
 }
 

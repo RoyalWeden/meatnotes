@@ -83,14 +83,14 @@ export default (() => {
           {grouped.map(({ label, prefix, pages }) => (
             <div class="notes-section-group">
               <h2 class="notes-section-heading">
-                <button class="section-collapse-btn" aria-label="Toggle section" title="Collapse section">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
-                </button>
                 <a href={resolveRelative(fileData.slug!, prefix as FullSlug)} class="internal">
                   {label}
                 </a>
+                <button class="section-collapse-btn" aria-label="Toggle section" title="Collapse section">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
                 <span class="notes-section-count">{pages.length}</span>
               </h2>
 

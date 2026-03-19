@@ -33,7 +33,40 @@ const IdiomFlashcard: QuartzComponent = ({ fileData, allFiles }: QuartzComponent
     }
   }
 
-  const hasChips = relatedIdioms.length > 0 || relatedVerses.length > 0
+  // Add reverse-referenced idioms: any idiom that lists this page as related
+  const currentTitle = ((fm.title as string | undefined) ?? fileData.slug?.split("/").pop() ?? "")
+    .trim()
+    .toLowerCase()
+  const reverseRefs: string[] = []
+  for (const f of allFiles) {
+    if (f.filePath?.includes("01 — Idioms") && f.slug !== fileData.slug) {
+      const fRelated = toStringArray(f.frontmatter?.related_idioms)
+      if (fRelated.some((r) => r.toLowerCase() === currentTitle)) {
+        const fTitle = (
+          (f.frontmatter?.title as string | undefined) ??
+          f.slug?.split("/").pop() ??
+          ""
+        ).trim()
+        if (fTitle && !relatedIdioms.some((r) => r.toLowerCase() === fTitle.toLowerCase())) {
+          reverseRefs.push(fTitle)
+        }
+      }
+    }
+  }
+  const allRelatedIdioms = [...relatedIdioms, ...reverseRefs]
+
+  const hasChips = allRelatedIdioms.length > 0 || relatedVerses.length > 0
+
+  // Pre-compute hrefs + metadata for related idioms (used by chips and auto-sections)
+  const relatedIdiomsData = allRelatedIdioms.map((r) => {
+    const rSlug = idiomSlugMap.get(r.toLowerCase())
+    const href = rSlug ? resolveRelative(fileData.slug!, rSlug as FullSlug) : ""
+    const rFile = rSlug ? allFiles.find((f) => f.slug === rSlug) : undefined
+    const rFm = (rFile?.frontmatter ?? {}) as Record<string, unknown>
+    const rMeaning = ((rFm.description as string | undefined) ?? "").trim()
+    const rVerses = toStringArray(rFm.related_verses).join("|")
+    return { name: r, href, meaning: rMeaning, verses: rVerses }
+  })
 
   // Pre-compute hrefs for related idioms (used by both chips and auto-sections)
   const relatedIdiomsData = relatedIdioms.map((r) => {
@@ -50,7 +83,9 @@ const IdiomFlashcard: QuartzComponent = ({ fileData, allFiles }: QuartzComponent
       <div
         class="idiom-auto-sections"
         style="display:none"
-        data-related-idioms={relatedIdiomsData.map((d) => `${d.name}\x1e${d.href}`).join("\x1f")}
+        data-related-idioms={relatedIdiomsData
+          .map((d) => `${d.name}\x1e${d.href}\x1e${d.meaning}\x1e${d.verses}`)
+          .join("\x1f")}
         data-related-verses={relatedVerses.join("\x1f")}
       />
       {meaning && (
@@ -61,10 +96,16 @@ const IdiomFlashcard: QuartzComponent = ({ fileData, allFiles }: QuartzComponent
       )}
       {hasChips && (
         <div class="idiom-flashcard-chips">
-          {relatedIdiomsData.map(({ name, href }) => {
+          {relatedIdiomsData.map(({ name, href, meaning, verses }) => {
             if (href) {
               return (
-                <a href={href} class="internal idiom-chip idiom-chip-related idiom-chip-link">
+                <a
+                  href={href}
+                  class="internal idiom-chip idiom-chip-related idiom-chip-link"
+                  data-no-popover="true"
+                  data-meaning={meaning}
+                  data-verses={verses}
+                >
                   {name}
                 </a>
               )
@@ -141,6 +182,24 @@ IdiomFlashcard.afterDOMLoaded = `
       h2.remove()
     })
 
+    // ── Remove duplicate h1 (page header already shows the title) ────────────
+    var h1 = article.querySelector('h1')
+    if (h1) h1.remove()
+
+    // ── Hide empty section cards ──────────────────────────────────────────────
+    Array.from(article.querySelectorAll('.idiom-section-card')).forEach(function (card) {
+      var titleEl = card.querySelector('.idiom-section-card-title')
+      var bodyEl  = card.querySelector('.idiom-section-card-body')
+      if (!titleEl || !bodyEl) return
+      var title = titleEl.textContent.trim().toLowerCase()
+      // Match "related strong's definitions" (handles smart apostrophe) and "related idioms"
+      if (!title.includes('strong') && title !== 'related idioms') return
+      var bodyText = bodyEl.textContent.trim()
+      if (!bodyText || bodyText.toLowerCase() === 'n/a' || bodyText.toLowerCase() === 'none') {
+        card.remove()
+      }
+    })
+
     // ── Auto-inject Related Verses & Related Idioms from frontmatter data ──────
     var dataEl = document.querySelector('.idiom-auto-sections')
     if (!dataEl) return
@@ -172,12 +231,17 @@ IdiomFlashcard.afterDOMLoaded = `
       iChips.className = 'idiom-flashcard-chips'
       idiomItems.forEach(function (item) {
         var parts = item.split(KV)
-        var name = parts[0]
-        var href = parts[1] || ''
+        var name    = parts[0]
+        var href    = parts[1] || ''
+        var meaning = parts[2] || ''
+        var verses  = parts[3] || ''
         if (href) {
           var a = document.createElement('a')
           a.href = href
           a.className = 'internal idiom-chip idiom-chip-related idiom-chip-link'
+          a.setAttribute('data-no-popover', 'true')
+          a.setAttribute('data-meaning', meaning)
+          a.setAttribute('data-verses', verses)
           a.textContent = name
           iChips.appendChild(a)
         } else {
@@ -221,10 +285,73 @@ IdiomFlashcard.afterDOMLoaded = `
     if (mobileToc) mobileToc.style.display = 'none'
   }
 
+  // ── Custom hover tooltip for linked related-idiom chips (desktop only) ───────
+  function initChipTooltips() {
+    if (!window.matchMedia('(pointer: fine)').matches) return
+    if (document.body.dataset.chipTipInit) return
+    document.body.dataset.chipTipInit = '1'
+
+    var tip = document.getElementById('idiom-chip-tip')
+    if (!tip) {
+      tip = document.createElement('div')
+      tip.id = 'idiom-chip-tip'
+      document.body.appendChild(tip)
+    }
+
+    function showTip(chip) {
+      var name      = chip.textContent.trim()
+      var meaning   = chip.getAttribute('data-meaning') || ''
+      var versesStr = chip.getAttribute('data-verses')  || ''
+
+      var html = '<div class="ict-name">' + name + '</div>'
+      if (meaning) html += '<div class="ict-meaning">' + meaning + '</div>'
+      if (versesStr) {
+        var chips = versesStr.split('|').filter(Boolean).map(function (v) {
+          return '<span class="idiom-chip idiom-chip-verse">' + v.trim() + '</span>'
+        }).join('')
+        html += '<div class="ict-verses">' + chips + '</div>'
+      }
+      html += '<div class="ict-cta">Click to Open</div>'
+
+      tip.innerHTML = html
+      tip.style.visibility = 'hidden'
+      tip.style.display    = 'block'
+
+      var rect = chip.getBoundingClientRect()
+      var tipW = tip.offsetWidth
+      var tipH = tip.offsetHeight
+      var x = rect.left + rect.width / 2 - tipW / 2 + window.scrollX
+      var y = rect.top - tipH - 10 + window.scrollY
+      if (x < 8) x = 8
+      if (x + tipW > window.innerWidth - 8) x = window.innerWidth - tipW - 8
+      if (y - window.scrollY < 8) y = rect.bottom + 10 + window.scrollY
+
+      tip.style.left       = x + 'px'
+      tip.style.top        = y + 'px'
+      tip.style.visibility = 'visible'
+      tip.style.opacity    = '1'
+    }
+
+    function hideTip() {
+      tip.style.opacity = '0'
+      setTimeout(function () { tip.style.display = 'none' }, 150)
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      var chip = e.target.closest && e.target.closest('.idiom-chip-link[data-no-popover]')
+      if (chip) showTip(chip)
+    })
+    document.addEventListener('mouseout', function (e) {
+      var chip = e.target.closest && e.target.closest('.idiom-chip-link[data-no-popover]')
+      if (chip) hideTip()
+    })
+  }
+
   function init() {
     initIdiomSections()
     addBackButton()
     hideMobileToc()
+    initChipTooltips()
   }
 
   init()

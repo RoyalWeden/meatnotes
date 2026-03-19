@@ -283,6 +283,26 @@ button.readermode {
     transform-origin: center;
   }
 
+  // Idiom button scales with scroll (same as search bar)
+  header .idiom-search-button {
+    height: calc(2.75rem - var(--header-shrink, 0) * 0.6875rem) !important;
+    // Collapse gap between icon and label as label disappears
+    gap: calc(0.35rem * (1 - var(--header-shrink, 0))) !important;
+
+    & > .idiom-btn-label {
+      opacity: calc(1 - var(--header-shrink, 0));
+      // Collapse label width so the button shrinks to icon-only when scrolled
+      max-width: calc(80px * (1 - var(--header-shrink, 0)));
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    & svg {
+      transform: scale(calc(1 - var(--header-shrink, 0) * 0.18));
+      transform-origin: center;
+    }
+  }
+
   // Keyboard shortcut hint inside the search button (⌘K / Ctrl+K) — only on hover
   .search-open-hint {
     margin-left: auto;

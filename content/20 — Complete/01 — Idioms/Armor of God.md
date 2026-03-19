@@ -2,10 +2,11 @@
 description: Qualities of the 144k army
 cssclasses:
   - idiom
-related_idioms: Who Shall Stand?
+related_idioms: Who Shall Stand
 related_verses: Ephesians 6:11-18
 
 ---
+
 
 
 

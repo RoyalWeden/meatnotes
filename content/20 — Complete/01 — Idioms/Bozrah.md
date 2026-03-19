@@ -3,9 +3,12 @@ description: Babylon
 cssclasses:
   - idiom
 related_idioms: Babylon, Edom, Esau, Ephraim
-related_verses: []
+related_verses: Isaiah 63:1
 
 ---
+
+
+
 
 # Bozrah
 

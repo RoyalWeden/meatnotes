@@ -1,5 +1,5 @@
 ---
-description: Covetousness
+description: The Antichrist
 cssclasses:
   - idiom
 related_idioms: []
@@ -7,11 +7,16 @@ related_verses: []
 
 ---
 
-# Briers & Thorns
+
+
+
+
+
+# The Assyrian
 
 ## Meaning
 
-Covetousness
+The Antichrist
 
 ## Related Strong’s Definitions
 

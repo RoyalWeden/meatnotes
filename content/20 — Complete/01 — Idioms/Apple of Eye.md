@@ -1,3 +1,10 @@
+---
+description: ""
+cssclasses: [idiom]
+related_idioms: []
+related_verses: []
+---
+
 # Apple of Eye
 
 ## Meaning
@@ -7,3 +14,5 @@
 ## Related Strong’s Definitions
 
 ## Related Idioms
+
+## Detailed Explanation

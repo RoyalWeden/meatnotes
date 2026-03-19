@@ -28,6 +28,10 @@ export const sharedPageComponents: SharedLayout = {
       component: Component.FullSearch(),
       condition: (page) => page.fileData.slug === "Search",
     }),
+    Component.ConditionalRender({
+      component: Component.IdiomIndex(),
+      condition: (page) => page.fileData.filePath?.includes("Bible Idioms") ?? false,
+    }),
   ],
   footer: Component.CustomFooter({
     links: {
@@ -82,6 +86,11 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ConditionalRender({
       component: Component.TagList(),
       condition: (page) => page.fileData.slug !== "Search",
+    }),
+    Component.ConditionalRender({
+      component: Component.IdiomFlashcard(),
+      condition: (page) =>
+        ((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("idiom"),
     }),
     Component.ConditionalRender({
       component: Component.MobileOnly(Component.TableOfContents()),

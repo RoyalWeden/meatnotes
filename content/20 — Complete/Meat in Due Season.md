@@ -182,6 +182,7 @@
 - Jezebel & Ahab
 
   - Rules for Women
+    - [[10 — In Progress/Biblical Marriage]]
   - Punishment to Women
 
 - Watchmen
@@ -306,7 +307,7 @@
 
 - Yeshua is not God
 
-  - John 1:1
+  - [[10 — In Progress/John 1∶1]]
 
 - Corner Stone & Rock of Offence & Stumbling Stone
 

@@ -1,0 +1,23 @@
+- 1 John 5:1-5
+- Genesis 1-3
+- Deuteronomy 4-8, 18, 29-32
+- Exodus 17-20
+- Ezekiel 2, 3, 33
+- Revelation 1-3, 10
+- Mark
+- John
+- Luke
+- Acts
+- James
+- 1 & 2 Peter
+- Jude
+- Matthew
+- Isaiah
+- Jeremiah
+- Psalms
+- Proverbs
+- Galatians
+- 1 & 2 Corinthians
+- Ephesians
+- Colossians
+- Romans

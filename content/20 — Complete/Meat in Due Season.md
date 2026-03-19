@@ -114,7 +114,7 @@
   - Salt & Salt on All Sacrifices
   - First Comforter
 
-- 6th Seal & Great Tribulation & The Seals & “The Rapture”
+- [[10 — In Progress/6th Seal & Great Tribulation & The Seals & “The Rapture”]]
 
   - Revelation 12 Sign
   - Parable of the Fig Tree

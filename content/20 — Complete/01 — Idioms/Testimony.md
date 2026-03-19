@@ -11,13 +11,7 @@ related_verses: ["Revelation 19:10"]
 
 Prophecy or the spirit of prophecy
 
-## Related Verses
-
-Revelation 19:10
-
 ## Related Strong’s Definitions
-
-## Related Idioms
 
 ## Detailed Explanation
 

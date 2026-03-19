@@ -5,6 +5,17 @@ import listPageStyle from "./styles/listPage.scss"
 import idiomStyle from "./styles/idiomIndex.scss"
 import { resolveRelative, FullSlug } from "../util/path"
 
+function toStringArray(val: unknown): string[] {
+  if (Array.isArray(val))
+    return (val as unknown[]).filter((s): s is string => typeof s === "string")
+  if (typeof val === "string" && val.trim())
+    return val
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  return []
+}
+
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 // Quote icon (Lucide) — perfect visual for idioms/phrases
@@ -29,7 +40,9 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
   for (const f of allFiles) {
     if (f.filePath?.includes("01 — Idioms") && f.slug) {
       const t = (
-        (f.frontmatter?.title as string | undefined) ?? f.slug.split("/").pop() ?? ""
+        (f.frontmatter?.title as string | undefined) ??
+        f.slug.split("/").pop() ??
+        ""
       ).trim()
       if (t) idiomSlugMap.set(t.toLowerCase(), f.slug)
     }
@@ -42,12 +55,8 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
         (f.frontmatter?.title as string | undefined) ?? f.slug?.split("/").pop() ?? ""
       const title = decodeURIComponent(rawTitle).trim()
       const meaning = ((f.frontmatter?.description as string | undefined) ?? "").trim()
-      const relatedIdioms: string[] = Array.isArray(f.frontmatter?.related_idioms)
-        ? (f.frontmatter!.related_idioms as string[])
-        : []
-      const relatedVerses: string[] = Array.isArray(f.frontmatter?.related_verses)
-        ? (f.frontmatter!.related_verses as string[])
-        : []
+      const relatedIdioms = toStringArray(f.frontmatter?.related_idioms)
+      const relatedVerses = toStringArray(f.frontmatter?.related_verses)
       return { title, meaning, slug: f.slug!, relatedIdioms, relatedVerses }
     })
     .filter((f) => f.title.length > 0)
@@ -142,7 +151,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
           <div
             class="notes-section-heading idiom-letter-heading"
             role="button"
-            tabindex="0"
+            tabindex={0}
             aria-expanded="false"
           >
             <svg
@@ -169,9 +178,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
             {idioms.slice(0, 3).map((idiom) => (
               <span class="idiom-preview-chip">{idiom.title}</span>
             ))}
-            {idioms.length > 3 && (
-              <span class="idiom-preview-chip">+{idioms.length - 3} more</span>
-            )}
+            {idioms.length > 3 && <span class="idiom-preview-chip">+{idioms.length - 3} more</span>}
           </div>
 
           {/* Cards + accordion list */}
@@ -201,16 +208,12 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
                             ) : (
                               <div class="flip-back-empty">— no meaning yet —</div>
                             )}
-                            {(idiom.relatedIdioms.length > 0 ||
-                              idiom.relatedVerses.length > 0) && (
+                            {(idiom.relatedIdioms.length > 0 || idiom.relatedVerses.length > 0) && (
                               <div class="flip-back-chips">
                                 {idiom.relatedIdioms.map((name) => {
                                   const rSlug = idiomSlugMap.get(name.toLowerCase())
                                   if (rSlug) {
-                                    const rHref = resolveRelative(
-                                      fileData.slug!,
-                                      rSlug as FullSlug,
-                                    )
+                                    const rHref = resolveRelative(fileData.slug!, rSlug as FullSlug)
                                     return (
                                       <a
                                         href={rHref}
@@ -220,9 +223,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
                                       </a>
                                     )
                                   }
-                                  return (
-                                    <span class="idiom-chip idiom-chip-disabled">{name}</span>
-                                  )
+                                  return <span class="idiom-chip idiom-chip-disabled">{name}</span>
                                 })}
                                 {idiom.relatedVerses.map((v) => (
                                   <span class="idiom-chip idiom-chip-verse">{v}</span>
@@ -246,11 +247,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
                   return (
                     <li class="idiom-accordion-item">
                       {/* Header: click navigates; hover expands body via CSS */}
-                      <a
-                        href={href}
-                        class="idiom-accordion-header"
-                        data-no-popover
-                      >
+                      <a href={href} class="idiom-accordion-header" data-no-popover>
                         <span class="idiom-acc-icon">
                           <QuoteIcon />
                         </span>
@@ -297,10 +294,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
                               {idiom.relatedIdioms.map((name) => {
                                 const rSlug = idiomSlugMap.get(name.toLowerCase())
                                 if (rSlug) {
-                                  const rHref = resolveRelative(
-                                    fileData.slug!,
-                                    rSlug as FullSlug,
-                                  )
+                                  const rHref = resolveRelative(fileData.slug!, rSlug as FullSlug)
                                   return (
                                     <a
                                       href={rHref}
@@ -310,9 +304,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
                                     </a>
                                   )
                                 }
-                                return (
-                                  <span class="idiom-chip idiom-chip-disabled">{name}</span>
-                                )
+                                return <span class="idiom-chip idiom-chip-disabled">{name}</span>
                               })}
                             </div>
                           </div>

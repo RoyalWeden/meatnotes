@@ -11,10 +11,6 @@ related_verses: []
 
 ## Meaning
 
-## Related Verses
-
 ## Related Strong’s Definitions
-
-## Related Idioms
 
 ## Detailed Explanation

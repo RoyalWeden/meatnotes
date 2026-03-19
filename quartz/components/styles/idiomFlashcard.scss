@@ -6,7 +6,9 @@
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
   background: color-mix(in srgb, var(--lightgray) 22%, transparent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04);
   border-left: 3px solid var(--secondary);
 }
 
@@ -47,11 +49,13 @@
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 500;
-  line-height: 1;
-  padding: 0.22rem 0.55rem;
+  line-height: 1 !important;
+  padding: 0.22rem 0.55rem !important;
   border-radius: 999px;
   border: 1px solid;
   white-space: nowrap;
+  vertical-align: middle;
+  box-sizing: content-box;
 }
 
 .idiom-chip-related {
@@ -68,9 +72,12 @@
 
 // Link chip — resolved related idiom
 .idiom-chip-link {
+  color: var(--secondary) !important;
   text-decoration: none !important;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
 
   &:hover {
     background: color-mix(in srgb, var(--secondary) 16%, transparent);
@@ -95,7 +102,9 @@
   border-radius: 9px;
   margin: 0.65rem 0;
   overflow: hidden;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 
   &:hover {
     border-color: color-mix(in srgb, var(--secondary) 30%, transparent);
@@ -136,14 +145,24 @@
 .idiom-section-card-body {
   padding: 0.75rem 1rem;
 
-  > *:first-child { margin-top: 0; }
-  > *:last-child  { margin-bottom: 0; }
+  > *:first-child {
+    margin-top: 0;
+  }
+  > *:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .idiom-section-card.collapsed {
-  .idiom-section-chevron          { transform: rotate(-90deg); }
-  .idiom-section-card-body        { display: none; }
-  .idiom-section-card-heading     { border-bottom: none; }
+  .idiom-section-chevron {
+    transform: rotate(-90deg);
+  }
+  .idiom-section-card-body {
+    display: none;
+  }
+  .idiom-section-card-heading {
+    border-bottom: none;
+  }
 }
 
 // ── Section headers on individual idiom pages ─────────────────────────────────
@@ -172,9 +191,14 @@ article.idiom h2 {
   border-radius: 7px;
   background: color-mix(in srgb, var(--secondary) 6%, transparent);
   text-decoration: none !important;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
 
-  svg { flex-shrink: 0; }
+  svg {
+    flex-shrink: 0;
+  }
 
   &:hover {
     background: color-mix(in srgb, var(--secondary) 12%, transparent);
@@ -185,13 +209,63 @@ article.idiom h2 {
 
 // ── Mobile ────────────────────────────────────────────────────────────────────
 
+// ── Idiom chip hover tooltip (desktop) ────────────────────────────────────────
+
+#idiom-chip-tip {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  min-width: 180px;
+  max-width: 260px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-left: 3px solid var(--secondary);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  .ict-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 0.35rem;
+  }
+
+  .ict-meaning {
+    font-size: 0.8rem;
+    color: var(--dark);
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .ict-verses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .ict-cta {
+    font-size: 0.68rem;
+    color: var(--gray);
+    text-align: center;
+    opacity: 0.7;
+    letter-spacing: 0.03em;
+  }
+}
+
 @media (max-width: 800px) {
   .idiom-flashcard {
     padding: 0.8rem 1rem;
   }
 
   .idiom-back-btn {
-    display: flex;   // block-level flex — naturally constrained to parent width
+    display: flex; // block-level flex — naturally constrained to parent width
     justify-content: center;
     margin-top: 1.5rem;
     box-sizing: border-box;

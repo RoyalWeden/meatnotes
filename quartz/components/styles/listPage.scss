@@ -1,5 +1,7 @@
 @use "../../styles/variables.scss" as *;
 
+// ── Original list-view styles ─────────────────────────────────────────────────
+
 ul.section-ul {
   list-style: none;
   margin-top: 2em;
@@ -30,11 +32,385 @@ li.section-li {
   }
 }
 
-// modifications in popover context
 .popover .section {
   grid-template-columns: fit-content(8em) 1fr !important;
 
   & > .tags {
     display: none;
   }
+}
+
+// ── Folder page header ────────────────────────────────────────────────────────
+
+.folder-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.folder-item-count {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--gray);
+}
+
+// ── Popover: show only the card grid, hide header ─────────────────────────────
+
+.popover .folder-page-header {
+  display: none;
+}
+
+// ── View toggle: 3 buttons (compact grid / spacious grid / list) ──────────────
+
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--lightgray);
+  border-radius: 8px;
+  padding: 3px;
+
+  .view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--gray);
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      color: var(--darkgray);
+    }
+
+    &.active {
+      background: var(--light);
+      color: var(--secondary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+    }
+  }
+}
+
+// ── Show / hide views ─────────────────────────────────────────────────────────
+
+// Default before JS runs: show compact cards
+// Descendant (not >) so nested section groups in All Notes page also respond
+.page-listing .view-list { display: none; }
+.page-listing .view-cards { display: block; }
+
+// Explicit states
+.page-listing[data-view^="cards"] .view-cards { display: block; }
+.page-listing[data-view^="cards"] .view-list  { display: none;  }
+.page-listing[data-view="list"]   .view-cards  { display: none;  }
+.page-listing[data-view="list"]   .view-list   { display: block; }
+
+// ── Card grid — compact (default) ─────────────────────────────────────────────
+
+.page-listing:not([data-view]) .cards-grid,
+.page-listing[data-view="cards-sm"] .cards-grid {
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+
+  .card-icon      { width: 34px; height: 34px; }
+  .card-title     { font-size: 0.82rem; }
+  .card-pill      { font-size: 0.6rem; }
+}
+
+// ── Card grid — spacious ──────────────────────────────────────────────────────
+
+.page-listing[data-view="cards-lg"] .cards-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+
+  .card-icon  { width: 54px; height: 54px; }
+  .card-title { font-size: 1.05rem; }
+  .card-pill  { font-size: 0.68rem; }
+}
+
+// ── Base card grid ────────────────────────────────────────────────────────────
+
+.cards-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+
+  @media all and ($mobile) {
+    gap: 0.5rem;
+  }
+}
+
+// ── Individual card ───────────────────────────────────────────────────────────
+
+.card-item {
+  .card-link {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    aspect-ratio: 1;
+    border: 1px solid var(--lightgray);
+    border-radius: 10px;
+    text-decoration: none !important;
+    color: inherit;
+    overflow: hidden;
+    // Animate smoothly on hover
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.18s ease;
+
+    // Desktop-only hover effects
+    @media (hover: hover) {
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06);
+        border-color: var(--secondary);
+
+        .card-icon  { transform: scale(1.15); }
+        .card-title { color: var(--secondary); }
+        .card-footer { border-top-color: color-mix(in srgb, var(--secondary) 30%, transparent); }
+      }
+
+      &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
+
+  // Content area: icon + title centered in the square
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.75rem 0.65rem 0.4rem;
+    min-height: 0;
+  }
+
+  .card-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 0.45rem;
+  }
+
+  .card-icon {
+    // base size — overridden per grid size above
+    width: 34px;
+    height: 34px;
+    color: var(--gray);
+    transition: transform 0.2s ease, color 0.18s ease;
+
+    &.folder-icon { color: var(--secondary); }
+  }
+
+  .card-title {
+    font-weight: 600;
+    // base size — overridden per grid size above
+    font-size: 0.82rem;
+    line-height: 1.3;
+    color: var(--dark);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    hyphens: auto;
+    width: 100%;
+    transition: color 0.15s ease;
+  }
+
+  // Footer bar: stacks pills vertically so both are always visible
+  .card-footer {
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18rem;
+    padding: 0.25rem 0.5rem;
+    border-top: 1px solid var(--lightgray);
+    background: color-mix(in srgb, var(--lightgray) 35%, transparent);
+    transition: border-top-color 0.18s ease;
+
+    // When no pills: invisible strip, just holds space for alignment
+    &.card-footer-empty {
+      border-top: none;
+      background: none;
+    }
+  }
+}
+
+// ── Pills — shared by card grid and list view ─────────────────────────────────
+
+.card-pill {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid var(--lightgray);
+
+  &.card-pill-count {
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    color: var(--secondary);
+    border-color: color-mix(in srgb, var(--secondary) 25%, transparent);
+  }
+
+  &.card-pill-date {
+    background: transparent;
+    color: var(--gray);
+  }
+}
+
+// ── Mobile overrides ──────────────────────────────────────────────────────────
+
+@media all and ($mobile) {
+  // On mobile, compact = 3 columns min, spacious = 2 columns min
+  .page-listing:not([data-view]) .cards-grid,
+  .page-listing[data-view="cards-sm"] .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+
+  .page-listing[data-view="cards-lg"] .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  // Compact cards on mobile: shrink icon + footer so title has room to show
+  // Pills switch to row layout so both count + date fit side-by-side in the footer
+  .page-listing:not([data-view]) .cards-grid,
+  .page-listing[data-view="cards-sm"] .cards-grid {
+    .card-icon      { width: 22px; height: 22px; }
+    .card-icon-wrap { margin-bottom: 0.2rem; }
+    .card-body      { padding: 0.4rem 0.4rem 0.15rem; }
+    .card-footer    { height: 26px; flex-direction: row; gap: 0.2rem; padding: 0 0.35rem; }
+    .card-title     { font-size: 0.7rem; -webkit-line-clamp: 2; }
+    .card-pill      { font-size: 0.55rem; padding: 0.15rem 0.3rem; }
+  }
+}
+
+// ── List view rows ─────────────────────────────────────────────────────────────
+
+.folder-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.folder-list-item {
+  .folder-list-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 9px;
+    text-decoration: none !important;
+    color: inherit;
+    background: color-mix(in srgb, var(--lightgray) 18%, transparent);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+
+    @media (hover: hover) {
+      &:hover {
+        background: color-mix(in srgb, var(--lightgray) 35%, transparent);
+        border-color: var(--secondary);
+        transform: translateX(4px);
+
+        .folder-list-title { color: var(--secondary); }
+      }
+    }
+  }
+
+  .folder-list-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+
+    // Smaller icons in the list view
+    .card-icon { width: 20px; height: 20px; }
+  }
+
+  .folder-list-title {
+    flex: 1;
+    font-weight: 500;
+    font-size: 0.84rem;
+    color: var(--dark);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+    min-width: 0;
+  }
+
+  .folder-list-pills {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+  }
+}
+
+// ── All Notes section groups ───────────────────────────────────────────────────
+
+.notes-section-group {
+  margin-bottom: 2rem;
+}
+
+.notes-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.85rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--secondary); }
+}
+
+.notes-section-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray);
+  background: color-mix(in srgb, var(--lightgray) 60%, transparent);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+// ── Section collapse toggle ────────────────────────────────────────────────────
+
+.section-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem;
+  color: var(--gray);
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  flex-shrink: 0;
+
+  svg { transition: transform 0.2s ease; }
+
+  &:hover { color: var(--secondary); background: color-mix(in srgb, var(--lightgray) 50%, transparent); }
+}
+
+.notes-section-group.collapsed {
+  .section-collapse-btn svg { transform: rotate(-90deg); }
+  .view-cards,
+  .view-list { display: none !important; }
 }

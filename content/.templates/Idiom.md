@@ -9,10 +9,6 @@ related_verses: [] # Note: quote verses with colons e.g. ["John 3:16"]
 
 ## Meaning
 
-## Related Verses
-
 ## Related Strong’s Definitions
-
-## Related Idioms
 
 ## Detailed Explanation

@@ -18,15 +18,7 @@ related_verses: Isaiah 63:1
 
 Esau
 
-## Related Verses
-
-Isaiah 63:1
-
 ## Related Strong’s Definitions
-
-## Related Idioms
-
-Esau, Bozrah
 
 ## Detailed Explanation
 

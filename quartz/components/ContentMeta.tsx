@@ -54,7 +54,7 @@ function formatCreated(date: Date): string {
 export default ((opts?: Partial<ContentMetaOptions>) => {
   const options: ContentMetaOptions = { ...defaultOptions, ...opts }
 
-  function ContentMetadata({ cfg, fileData, displayClass }: QuartzComponentProps) {
+  function ContentMetadata({ fileData, displayClass }: QuartzComponentProps) {
     const text = fileData.text
     if (!text) return null
 
@@ -65,17 +65,25 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
 
     if (created) {
       segments.push(
-        <span class="meta-created" data-date-iso={created.toISOString()} data-tooltip={formatExact(created)}>
+        <span
+          class="meta-created"
+          data-date-iso={created.toISOString()}
+          data-tooltip={formatExact(created)}
+        >
           {formatCreated(created)}
-        </span>
+        </span>,
       )
     }
 
     if (modified) {
       segments.push(
-        <span class="meta-modified" data-date-iso={modified.toISOString()} data-tooltip={formatExact(modified)}>
+        <span
+          class="meta-modified"
+          data-date-iso={modified.toISOString()}
+          data-tooltip={formatExact(modified)}
+        >
           updated {formatRelative(modified)}
-        </span>
+        </span>,
       )
     }
 
@@ -97,7 +105,9 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
     )
   }
 
-  ContentMetadata.css = style + `
+  ContentMetadata.css =
+    style +
+    `
     .meta-created, .meta-modified {
       cursor: help;
       border-bottom: 1px dotted var(--gray);

@@ -125,7 +125,7 @@
 
 - Antichrist
 
-  - Sons of Perdition
+  - [[10 — In Progress/Sons of Perdition]]
   - Abomination of Desolation
   - [[10 — In Progress/Lie in Right Hand & Satan at Right Hand]]
   - Bind the Strong Man

@@ -1,7 +1,9 @@
 ---
 pinned: false
+locked: true
 
 ---
+
 
 # Bible Cheat Codes
 

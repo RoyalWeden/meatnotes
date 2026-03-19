@@ -1,7 +1,19 @@
 .recent-notes {
-  & > h3 {
+  .recent-notes-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
     margin: 0.5rem 0 0.6rem 0;
-    font-size: 1rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+
+  &.collapsed {
+    .recent-ul { display: none; }
+    .recent-notes-collapse svg { transform: rotate(-90deg); }
   }
 
   & > ul.recent-ul {

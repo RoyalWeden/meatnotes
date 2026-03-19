@@ -30,11 +30,12 @@ ExplorerTopLinks.css = `
   gap: 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--darkgray);
+  color: var(--secondary);
   text-decoration: none !important;
-  padding: 0.35rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid transparent;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--secondary) 30%, transparent);
+  background: color-mix(in srgb, var(--secondary) 10%, transparent);
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   svg {
@@ -47,21 +48,26 @@ ExplorerTopLinks.css = `
 
 @media (hover: hover) {
   .explorer-top-link:hover {
-    background: color-mix(in srgb, var(--lightgray) 60%, transparent);
-    border-color: var(--lightgray);
+    background: color-mix(in srgb, var(--secondary) 18%, transparent);
+    border-color: color-mix(in srgb, var(--secondary) 50%, transparent);
     color: var(--secondary);
   }
 }
 
 /* Mobile drawer version */
 .explorer-top-links-mobile {
-  padding: 0.5rem 0.75rem 0.4rem;
+  padding: 0.5rem 0 0.5rem;
+  margin-right: 16px;
   border-bottom: 1px solid var(--lightgray);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
 }
 
 .explorer-top-links-mobile .explorer-top-link {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  width: 100%;
+  justify-content: center;
+  display: flex;
 }
 `
 

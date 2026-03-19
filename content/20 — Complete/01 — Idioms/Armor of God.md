@@ -1,5 +1,5 @@
 ---
-description: Someone that rebukes
+description: ''
 cssclasses:
   - idiom
 related_idioms: []
@@ -7,12 +7,7 @@ related_verses: []
 
 ---
 
-
-
-
-
-
-# Pure Heart
+# Armor of God
 
 ## Meaning
 

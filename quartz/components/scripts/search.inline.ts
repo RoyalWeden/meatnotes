@@ -15,10 +15,50 @@ interface Item {
 // Can be expanded with things like "term" in the future
 type SearchType = "basic" | "tags"
 type SearchFilter = "all" | "title" | "content" | "tags"
+type SearchScope = "all" | "idioms" | "capture" | "progress" | "complete"
+
+// Scroll lock: save position so opening the modal doesn't jump the page
+let _scrollLockY = 0
+function lockScroll() {
+  _scrollLockY = window.scrollY
+  const sw = window.innerWidth - document.documentElement.clientWidth
+  document.body.style.overflow = "hidden"
+  document.body.style.position = "fixed"
+  document.body.style.top = `-${_scrollLockY}px`
+  document.body.style.width = "100%"
+  if (sw > 0) document.body.style.paddingRight = `${sw}px`
+}
+function unlockScroll() {
+  document.body.style.overflow = ""
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.width = ""
+  document.body.style.paddingRight = ""
+  window.scrollTo(0, _scrollLockY)
+}
+
 let searchType: SearchType = "basic"
 let searchFilter: SearchFilter = "all"
+let activeScopes: Set<SearchScope> = new Set(["all"])
 let currentSearchTerm: string = ""
 let phraseMode: boolean = false
+
+// Slug-based folder scope matching
+const SCOPE_PATTERNS: Record<string, (slug: string) => boolean> = {
+  idioms:   (s) => s.toLowerCase().includes("idiom"),
+  capture:  (s) => s.startsWith("00-"),
+  progress: (s) => s.startsWith("10-"),
+  complete: (s) => s.startsWith("20-"),
+}
+
+function matchesScope(slug: string): boolean {
+  if (activeScopes.has("all")) return true
+  return [...activeScopes].some((scope) => SCOPE_PATTERNS[scope]?.(slug) ?? false)
+}
+
+function isIdiomSlug(slug: string): boolean {
+  return slug.includes("01-") && slug.toLowerCase().includes("idiom")
+}
 const encoder = (str: string): string[] => {
   const tokens: string[] = []
   let bufferStart = -1
@@ -854,8 +894,25 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
   }
 
+  function toggleScope(scope: SearchScope) {
+    if (scope === "all") {
+      activeScopes = new Set(["all"])
+    } else if (activeScopes.has(scope)) {
+      activeScopes.delete(scope)
+      if (activeScopes.size === 0) activeScopes.add("all")
+    } else {
+      activeScopes.delete("all")
+      activeScopes.add(scope)
+    }
+    const scopeBtns = searchElement.querySelectorAll<HTMLElement>(".scope-btn")
+    scopeBtns.forEach((btn) => {
+      btn.classList.toggle("active", activeScopes.has((btn.dataset.scope ?? "all") as SearchScope))
+    })
+  }
+
   function hideSearch() {
     container.classList.remove("active")
+    unlockScroll()
     searchBar.value = "" // clear the input when we dismiss the search
     if (sidebar) sidebar.style.zIndex = ""
     removeAllChildren(results)
@@ -866,6 +923,11 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchType = "basic" // reset search type after closing
     setFilter("all") // reset filter after closing
     setPhraseMode(false) // reset phrase mode after closing
+    activeScopes = new Set(["all"])
+    const scopeBtns = searchElement.querySelectorAll<HTMLElement>(".scope-btn")
+    scopeBtns.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.scope === "all")
+    })
     stopPlaceholderCycle()
     searchButton.focus()
   }
@@ -893,8 +955,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     'try: "exact phrase"',
     "try: faith AND grace",
     "try: march 2026",
-    "try: 3/10/26",
+    "try: in:idioms covenant",
     "try: yesterday",
+    "try: in:complete righteousness",
   ]
   let placeholderIdx = 0
   let placeholderInterval: ReturnType<typeof setInterval> | null = null
@@ -966,6 +1029,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   function showSearch(searchTypeNew: SearchType) {
     searchType = searchTypeNew
+    lockScroll()
     if (sidebar) sidebar.style.zIndex = "1"
     container.classList.add("active")
     searchBar.focus()
@@ -1083,13 +1147,25 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     const htmlTags = tags.length > 0 ? `<ul class="tags">${tags.join("")}</ul>` : ``
     const itemTile = document.createElement("a")
     itemTile.classList.add("result-card")
+    // Add idiom quick-answer class for individual idiom notes
+    if (isIdiomSlug(slug)) {
+      itemTile.classList.add("idiom-quick-answer")
+      const desc = (window as any).__idiomDescriptions?.[slug] ?? ""
+      itemTile.innerHTML = `
+        <span class="idiom-badge">Idiom</span>
+        <h3 class="card-title">${title}</h3>
+        ${desc ? `<p class="idiom-description">${desc}</p>` : ""}
+        ${htmlTags}
+      `
+    } else {
+      itemTile.innerHTML = `
+        <h3 class="card-title">${title}</h3>
+        ${htmlTags}
+        <p class="card-description">${content}</p>
+      `
+    }
     itemTile.id = slug
     itemTile.href = resolveUrl(slug).toString()
-    itemTile.innerHTML = `
-      <h3 class="card-title">${title}</h3>
-      ${htmlTags}
-      <p class="card-description">${content}</p>
-    `
     itemTile.addEventListener("click", (event) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
       saveRecentSearch(currentSearchTerm)
@@ -1253,7 +1329,12 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       noMatch.innerHTML = `<h3>No results.</h3><p>Try another search term?</p>`
       results.append(noMatch)
     } else {
-      results.append(...finalResults.map(resultToHTML))
+      // Idiom results bubble to top as "Quick Answer" cards
+      const sortedResults = [
+        ...finalResults.filter((r) => isIdiomSlug(r.slug)),
+        ...finalResults.filter((r) => !isIdiomSlug(r.slug)),
+      ]
+      results.append(...sortedResults.map(resultToHTML))
     }
 
     // "Did you mean" — fires when results are sparse (0–2) using edit-distance + phonetic matching
@@ -1350,6 +1431,88 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     return contents
   }
 
+  // Apply the same h2→collapsible-card transformation the idiom page JS does,
+  // so the preview panel looks like the actual idiom page.
+  function applyIdiomPreviewStyle(container: HTMLElement) {
+    container.querySelector("h1")?.remove()
+    const h2s = Array.from(container.querySelectorAll("h2"))
+    h2s.forEach((h2) => {
+      const title = h2.textContent?.trim() ?? ""
+      const body = document.createElement("div")
+      body.className = "idiom-section-card-body"
+      let node = h2.nextSibling
+      while (node && !(node.nodeType === 1 && (node as Element).tagName === "H2")) {
+        const next = node.nextSibling
+        body.appendChild(node)
+        node = next
+      }
+      const card = document.createElement("div")
+      card.className = "idiom-section-card"
+      card.innerHTML = `<div class="idiom-section-card-heading" style="cursor:default"><span class="idiom-section-card-title">${title}</span></div>`
+      card.appendChild(body)
+      h2.parentNode?.insertBefore(card, h2)
+      h2.remove()
+    })
+    // Hide empty Strong's / related-idioms cards (the auto-injected ones below replace them)
+    Array.from(container.querySelectorAll(".idiom-section-card")).forEach((card) => {
+      const t = card.querySelector(".idiom-section-card-title")?.textContent?.trim().toLowerCase() ?? ""
+      if (!t.includes("strong") && t !== "related idioms") return
+      const body = card.querySelector(".idiom-section-card-body")?.textContent?.trim() ?? ""
+      if (!body || body.toLowerCase() === "n/a" || body.toLowerCase() === "none") card.remove()
+    })
+
+    // Auto-inject Related Verses + Related Idioms from frontmatter data (mirroring afterDOMLoaded)
+    const dataEl = container.querySelector(".idiom-auto-sections") as HTMLElement | null
+    if (!dataEl) return
+    const SEP = "\x1f"
+    const KV = "\x1e"
+    const versesRaw = dataEl.dataset.relatedVerses ?? ""
+    const idiomsRaw = dataEl.dataset.relatedIdioms ?? ""
+
+    function makePreviewCard(title: string, chipsEl: HTMLElement): HTMLElement {
+      const card = document.createElement("div")
+      card.className = "idiom-section-card"
+      card.innerHTML = `<div class="idiom-section-card-heading" style="cursor:default"><span class="idiom-section-card-title">${title}</span></div>`
+      const body = document.createElement("div")
+      body.className = "idiom-section-card-body"
+      body.appendChild(chipsEl)
+      card.appendChild(body)
+      return card
+    }
+
+    if (versesRaw) {
+      const verses = versesRaw.split(SEP).filter(Boolean)
+      if (verses.length > 0) {
+        const chips = document.createElement("div")
+        chips.className = "idiom-flashcard-chips"
+        verses.forEach((v) => {
+          const span = document.createElement("span")
+          span.className = "idiom-chip idiom-chip-verse"
+          span.textContent = v
+          chips.appendChild(span)
+        })
+        container.appendChild(makePreviewCard("Related Verses", chips))
+      }
+    }
+
+    if (idiomsRaw) {
+      const items = idiomsRaw.split(SEP).filter(Boolean)
+      if (items.length > 0) {
+        const chips = document.createElement("div")
+        chips.className = "idiom-flashcard-chips"
+        items.forEach((item) => {
+          const parts = item.split(KV)
+          const name = parts[0]
+          const span = document.createElement("span")
+          span.className = "idiom-chip idiom-chip-related"
+          span.textContent = name
+          chips.appendChild(span)
+        })
+        container.appendChild(makePreviewCard("Related Idioms", chips))
+      }
+    }
+  }
+
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
     const slug = el.id as FullSlug
@@ -1371,6 +1534,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     previewInner = document.createElement("div")
     previewInner.classList.add("preview-inner")
     previewInner.append(...innerDiv)
+    if (isIdiomSlug(slug)) applyIdiomPreviewStyle(previewInner)
     preview.replaceChildren(previewInner)
 
     // scroll to longest
@@ -1383,6 +1547,33 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   async function onType(e: HTMLElementEventMap["input"]) {
     if (!searchLayout || !index) return
     currentSearchTerm = (e.target as HTMLInputElement).value
+
+    // Parse `in:scope` prefix from query and activate that scope pill
+    const inMatch = currentSearchTerm.match(/(?:^|\s)in:(\w+)/i)
+    if (inMatch) {
+      const scopeAlias = inMatch[1].toLowerCase()
+      const scopeMap: Record<string, SearchScope> = {
+        idioms: "idioms",
+        idiom: "idioms",
+        capture: "capture",
+        progress: "progress",
+        "in-progress": "progress",
+        complete: "complete",
+        completed: "complete",
+      }
+      const detectedScope = scopeMap[scopeAlias]
+      if (detectedScope) {
+        activeScopes = new Set([detectedScope])
+        const scopeBtns = searchElement.querySelectorAll<HTMLElement>(".scope-btn")
+        scopeBtns.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.scope === detectedScope)
+        })
+      }
+      // Strip the in: prefix from the actual search term
+      currentSearchTerm = currentSearchTerm.replace(/(?:^|\s)in:\w+/i, "").trim()
+      ;(e.target as HTMLInputElement).dataset.scopeStripped = "1"
+    }
+
     if (currentSearchTerm === "") {
       searchLayout.classList.remove("display-results")
       showRecentSearches()
@@ -1410,7 +1601,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
               const fileDate = toLocalDateStr(fileData.date as string | undefined)
               const slugDate = toSlugDateStr(slug)
               const inRange = (d: string) => d >= dateRange.start && d <= dateRange.end
-              return (inRange(fileDate) || inRange(slugDate)) && slug !== "Search"
+              return (inRange(fileDate) || inRange(slugDate)) && slug !== "Search" && matchesScope(slug)
             })
             .sort(([, a], [, b]) => {
               const aTs = new Date((a.date ?? 0) as string | number).getTime()
@@ -1504,7 +1695,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         try {
           const ast = parseBoolQuery(termForSearch)
           const ids = await evalBoolNode(ast, filterFields)
-          const allIdsList = [...ids].filter((id) => idDataMap[id] !== "Search")
+          const allIdsList = [...ids]
+            .filter((id) => idDataMap[id] !== "Search")
+            .filter((id) => matchesScope(idDataMap[id]))
           const finalResults = allIdsList
             .slice(0, numSearchResults)
             .map((id) => formatForDisplay(termForSearch, id))
@@ -1528,7 +1721,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           return [...new Set([...a, ...b])]
         }
         const allIds = new Set(filterFields.flatMap((f) => mergeField(f)))
-        let allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
+        let allIdsList = [...allIds]
+          .filter((id) => idDataMap[id] !== "Search")
+          .filter((id) => matchesScope(idDataMap[id]))
         // Apply phrase filter if quotes or phrase mode active
         if (phrases.length > 0) {
           allIdsList = allIdsList.filter((id) => {
@@ -1562,7 +1757,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         ...(searchFilter !== "content" && searchFilter !== "tags" ? getByField2("title") : []),
         ...(searchFilter !== "title" && searchFilter !== "tags" ? getByField2("content") : []),
       ])
-      let allIdsList2 = [...allIds2].filter((id) => idDataMap[id] !== "Search")
+      let allIdsList2 = [...allIds2]
+        .filter((id) => idDataMap[id] !== "Search")
+        .filter((id) => matchesScope(idDataMap[id]))
       // Apply phrase filter for quoted phrases or phrase mode
       if (phrases.length > 0) {
         allIdsList2 = allIdsList2.filter((id) => {
@@ -1594,7 +1791,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         : []),
       ...(searchType === "tags" || searchFilter === "tags" ? getByField("tags") : []),
     ])
-    const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
+    const allIdsList = [...allIds]
+      .filter((id) => idDataMap[id] !== "Search")
+      .filter((id) => matchesScope(idDataMap[id]))
     const totalCount = allIdsList.length
     const finalResults = allIdsList
       .slice(0, numSearchResults)
@@ -1648,6 +1847,20 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     window.addCleanup(() => phraseBtnEl.removeEventListener("click", phraseHandler))
   }
 
+  // Scope button click handlers
+  const scopeBtns = searchElement.querySelectorAll(".scope-btn")
+  scopeBtns.forEach((btn) => {
+    const scopeHandler = () => {
+      const scope = (btn as HTMLElement).dataset.scope as SearchScope
+      toggleScope(scope)
+      if (searchBar.value.trim()) {
+        searchBar.dispatchEvent(new Event("input"))
+      }
+    }
+    btn.addEventListener("click", scopeHandler)
+    window.addCleanup(() => btn.removeEventListener("click", scopeHandler))
+  })
+
   // Set platform-aware shortcut hint on search button
   const openHint = searchElement.querySelector(".search-open-hint") as HTMLElement | null
   if (openHint) {
@@ -1667,6 +1880,8 @@ async function fillDocument(data: ContentIndex) {
   if (indexPopulated) return
   let id = 0
   const promises: Array<Promise<unknown>> = []
+  // Pre-build idiom description lookup for quick-answer cards
+  ;(window as any).__idiomDescriptions = (window as any).__idiomDescriptions ?? {}
   for (const [slug, fileData] of Object.entries<ContentDetails>(data)) {
     promises.push(
       index.addAsync(id++, {
@@ -1682,6 +1897,10 @@ async function fillDocument(data: ContentIndex) {
     for (const raw of text.split(/\s+/)) {
       const word = raw.toLowerCase().replace(/[^a-z]/g, "")
       if (word.length >= 4) wordDictionary.add(word)
+    }
+    // Cache idiom descriptions for quick-answer display
+    if (isIdiomSlug(slug) && fileData.description) {
+      ;(window as any).__idiomDescriptions[slug] = fileData.description
     }
   }
 

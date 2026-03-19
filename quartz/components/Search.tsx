@@ -47,6 +47,14 @@ export default ((userOpts?: Partial<SearchOptions>) => {
               <button class="filter-btn" data-filter="tags">Tags</button>
               <button class="phrase-btn" id="search-phrase-btn" aria-pressed="false">Phrase</button>
             </div>
+            <div class="search-scope-row" role="group" aria-label="Scope filter">
+              <span class="scope-label">In:</span>
+              <button class="scope-btn active" data-scope="all">All</button>
+              <button class="scope-btn" data-scope="idioms">Idioms</button>
+              <button class="scope-btn" data-scope="capture">Capture</button>
+              <button class="scope-btn" data-scope="progress">In Progress</button>
+              <button class="scope-btn" data-scope="complete">Complete</button>
+            </div>
             <div class="search-layout" data-preview={opts.enablePreview}></div>
           </div>
         </div>

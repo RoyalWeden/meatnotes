@@ -1,24 +1,74 @@
 .recent-notes {
   & > h3 {
-    margin: 0.5rem 0 0 0;
+    margin: 0.5rem 0 0.6rem 0;
     font-size: 1rem;
   }
 
   & > ul.recent-ul {
     list-style: none;
-    margin-top: 1rem;
-    padding-left: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 
-    & > li {
-      margin: 1rem 0;
-      .section > .desc > h3 > a {
-        background-color: transparent;
-      }
-
-      .section > .meta {
-        margin: 0 0 0.5rem 0;
-        opacity: 0.6;
-      }
+    & > li.recent-li {
+      margin: 0;
     }
   }
+}
+
+// ── Card-row style for each recent note ───────────────────────────────────────
+
+a.recent-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 8px;
+  text-decoration: none !important;
+  color: inherit;
+  background: color-mix(in srgb, var(--lightgray) 18%, transparent);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background: color-mix(in srgb, var(--lightgray) 35%, transparent);
+      border-color: var(--secondary);
+
+      .recent-row-title { color: var(--secondary); }
+    }
+  }
+}
+
+.recent-row-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--gray);
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+.recent-row-title {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+  min-width: 0;
+}
+
+.recent-row-date {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--gray);
+  white-space: nowrap;
 }

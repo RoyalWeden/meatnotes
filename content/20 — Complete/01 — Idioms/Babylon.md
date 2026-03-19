@@ -24,14 +24,6 @@ This describes only America.
 
 *Think about Hollywood, which is from America, it is used to deceive all nations*
 
-## Related Verses
-
-Jeremiah 50-51, Isaiah 47-48, Revelation 17-18, Isaiah 63:1
-
 ## Related Strong’s Definitions
-
-## Related Idioms
-
-Bozrah, Edom, Esau, Ephraim
 
 ## Detailed Explanation

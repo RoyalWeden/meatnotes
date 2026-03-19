@@ -1,3 +1,10 @@
+---
+description: Prophecy or the spirit of prophecy
+cssclasses: [idiom]
+related_idioms: []
+related_verses: ["Revelation 19:10"]
+---
+
 # Testimony
 
 ## Meaning

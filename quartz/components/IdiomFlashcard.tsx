@@ -68,13 +68,6 @@ const IdiomFlashcard: QuartzComponent = ({ fileData, allFiles }: QuartzComponent
     return { name: r, href, meaning: rMeaning, verses: rVerses }
   })
 
-  // Pre-compute hrefs for related idioms (used by both chips and auto-sections)
-  const relatedIdiomsData = relatedIdioms.map((r) => {
-    const rSlug = idiomSlugMap.get(r.toLowerCase())
-    const href = rSlug ? resolveRelative(fileData.slug!, rSlug as FullSlug) : ""
-    return { name: r, href }
-  })
-
   if (!meaning && !hasChips) return null
 
   return (

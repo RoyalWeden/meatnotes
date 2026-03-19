@@ -175,6 +175,64 @@
         }
       }
 
+      & > .search-scope-row {
+        background: transparent !important;
+        box-shadow: none !important;
+        margin-bottom: 0.5em !important;
+        border-radius: 0 !important;
+        width: auto !important;
+        display: flex;
+        gap: 0.3em;
+        padding: 0 1em 0;
+        flex-wrap: wrap;
+        align-items: center;
+
+        & > .scope-label {
+          font-size: 0.68em;
+          color: var(--darkgray);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          margin-right: 0.1em;
+          white-space: nowrap;
+        }
+
+        & > .scope-btn {
+          display: inline-block;
+          padding: 0.1em 0.55em;
+          border: 1px solid var(--gray);
+          border-radius: 12px;
+          background: transparent;
+          font-family: inherit;
+          font-size: 0.68em;
+          line-height: 1.4;
+          color: var(--darkgray);
+          cursor: pointer;
+          transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+          white-space: nowrap;
+
+          &:hover {
+            background: var(--lightgray);
+            color: var(--darkgray);
+          }
+
+          &.active {
+            background: var(--secondary);
+            color: var(--light);
+            border-color: var(--secondary);
+          }
+        }
+
+        @media all and ($mobile) {
+          padding: 0 0.75em;
+          gap: 0.3em;
+
+          & > .scope-btn {
+            font-size: 0.76em;
+            padding: 0.15em 0.6em;
+          }
+        }
+      }
+
       & > .search-kbd-hints {
         display: flex;
         gap: 1.2em;
@@ -482,6 +540,39 @@
 
             & > p {
               margin-bottom: 0;
+            }
+          }
+
+          // Idiom quick-answer card
+          & .idiom-quick-answer {
+            border-left: 3px solid var(--secondary);
+            background: color-mix(in srgb, var(--secondary) 6%, var(--light));
+
+            &:hover,
+            &:focus,
+            &.focus {
+              background: color-mix(in srgb, var(--secondary) 15%, var(--light));
+            }
+
+            & .idiom-badge {
+              display: inline-block;
+              font-size: 0.65em;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+              color: var(--secondary);
+              background: color-mix(in srgb, var(--secondary) 12%, var(--light));
+              border: 1px solid color-mix(in srgb, var(--secondary) 30%, var(--lightgray));
+              border-radius: 4px;
+              padding: 0.1em 0.4em;
+              margin-bottom: 0.3em;
+            }
+
+            & .idiom-description {
+              font-size: 0.85em;
+              color: var(--gray);
+              margin: 0.15em 0 0;
+              font-style: italic;
             }
           }
 

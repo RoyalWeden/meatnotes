@@ -19,6 +19,10 @@ export const sharedPageComponents: SharedLayout = {
       component: Component.HomeSections(),
       condition: (page) => page.fileData.slug === "index",
     }),
+    Component.ConditionalRender({
+      component: Component.AllNotesContent(),
+      condition: (page) => page.fileData.slug === "All-Notes",
+    }),
     Component.BackToTop(),
     Component.ConditionalRender({
       component: Component.FullSearch(),
@@ -39,7 +43,13 @@ export const sharedPageComponents: SharedLayout = {
 const explorerConfig = {
   filterFn: (node: any) => {
     const cleaned = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
-    return !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) && cleaned !== "Daily" && cleaned !== "Search"
+    return (
+      !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) &&
+      cleaned !== "Daily" &&
+      cleaned !== "Search" &&
+      node.displayName !== "All-Notes" &&
+      node.displayName !== "All Notes"
+    )
   },
   mapFn: (node: any) => {
     node.displayName = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
@@ -89,6 +99,7 @@ export const defaultContentPageLayout: PageLayout = {
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),
+    Component.ExplorerTopLinks(),
     Component.Explorer(explorerConfig),
   ],
   right: [
@@ -125,7 +136,11 @@ export const defaultListPageLayout: PageLayout = {
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),
+    Component.ExplorerTopLinks(),
     Component.Explorer(explorerConfig),
   ],
-  right: [],
+  right: [
+    Component.Graph(),
+    Component.DesktopOnly(Component.FolderRecentNotes({ limit: 6 })),
+  ],
 }

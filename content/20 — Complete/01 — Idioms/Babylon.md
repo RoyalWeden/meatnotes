@@ -1,8 +1,8 @@
 ---
-description: Someone that rebukes
+description: America
 cssclasses:
   - idiom
-related_idioms: []
+related_idioms: Bozrah,Edom
 related_verses: []
 
 ---
@@ -12,7 +12,23 @@ related_verses: []
 
 
 
-# Pure Heart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Babylon
 
 ## Meaning
 

@@ -1,9 +1,15 @@
 ---
-description: Qualities of a weak, passive leader who tolerates Jezebel
-cssclasses: [idiom]
-related_idioms: [Jezebel]
+description: Qualities of a man that doesn't take authority of his household
+cssclasses:
+  - idiom
+related_idioms:
+  - Jezebel
 related_verses: []
+
 ---
+
+
+
 
 # Ahab
 

@@ -2,10 +2,14 @@
 description: The 10 commandments
 cssclasses:
   - idiom
-related_idioms: []
+related_idioms: Mercy,Finger of God
 related_verses: Deuteronomy 6:24-25
 
 ---
+
+
+
+
 
 # Righteousness
 

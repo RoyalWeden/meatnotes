@@ -8,6 +8,13 @@ import { GlobalConfiguration } from "../cfg"
 import { i18n } from "../i18n"
 import { classNames } from "../util/lang"
 
+const SidebarFileIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-7-7z"/>
+    <path d="M13 2v7h7" fill="none" stroke="var(--light)" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>
+)
+
 interface Options {
   title?: string
   limit: number
@@ -45,34 +52,17 @@ export default ((userOpts?: Partial<Options>) => {
 
             return (
               <li class="recent-li">
-                <div class="section">
-                  <div class="desc">
-                    <h3>
-                      <a href={resolveRelative(fileData.slug!, page.slug!)} class="internal">
-                        {title}
-                      </a>
-                    </h3>
-                  </div>
+                <a href={resolveRelative(fileData.slug!, page.slug!)} class="internal recent-row">
+                  <span class="recent-row-icon">
+                    <SidebarFileIcon />
+                  </span>
+                  <span class="recent-row-title">{title}</span>
                   {page.dates && (
-                    <p class="meta">
+                    <span class="recent-row-date">
                       <Date date={getDate(cfg, page)!} locale={cfg.locale} />
-                    </p>
+                    </span>
                   )}
-                  {opts.showTags && (
-                    <ul class="tags">
-                      {tags.map((tag) => (
-                        <li>
-                          <a
-                            class="internal tag-link"
-                            href={resolveRelative(fileData.slug!, `tags/${tag}` as FullSlug)}
-                          >
-                            {tag}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                </a>
               </li>
             )
           })}

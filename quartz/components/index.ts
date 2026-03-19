@@ -24,6 +24,9 @@ import Comments from "./Comments"
 import Flex from "./Flex"
 import ConditionalRender from "./ConditionalRender"
 import HomeSections from "./HomeSections"
+import FolderRecentNotes from "./FolderRecentNotes"
+import ExplorerTopLinks from "./ExplorerTopLinks"
+export { default as AllNotesContent } from "./pages/AllNotesContent"
 export { default as DailyCalendar } from "./DailyCalendar"
 export { default as DailyNoteNav } from "./DailyNoteNav"
 export { default as CustomFooter } from "./CustomFooter"
@@ -58,4 +61,6 @@ export {
   Flex,
   ConditionalRender,
   HomeSections,
+  FolderRecentNotes,
+  ExplorerTopLinks,
 }

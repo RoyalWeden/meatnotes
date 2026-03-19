@@ -2,6 +2,25 @@
 
 // put your custom CSS here!
 
+// ── Popover: hide navigation chrome + fix spacing ─────────────────────────────
+// Breadcrumbs and article title are only useful on the full page, not in hover previews
+.popover .breadcrumb-container { display: none; }
+.popover .article-title { display: none; }
+
+// Add breathing room at the top of popovers
+.popover .popover-hint {
+  padding-top: 0.75rem;
+}
+
+// Folder popovers: always use compact grid regardless of user's saved view
+.popover .cards-grid {
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
+}
+.popover .card-icon      { width: 26px !important; height: 26px !important; }
+.popover .card-title     { font-size: 0.76rem !important; }
+.popover .card-footer    { height: 32px !important; }
+.popover .card-pill      { font-size: 0.58rem !important; }
+
 // Fix code block text wrapping so Copy-Paste Rebukes are fully readable
 pre {
   white-space: pre-wrap !important;

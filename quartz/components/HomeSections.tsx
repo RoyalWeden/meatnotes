@@ -72,7 +72,10 @@ const HomeSections: QuartzComponent = ({ allFiles, fileData, displayClass }: Qua
           ))}
         </tbody>
       </table>
-      <p class="sections-total">{total} notes total</p>
+      <p class="sections-total">
+        {total} notes total &nbsp;·&nbsp;{" "}
+        <a href="/All-Notes" class="internal">Browse all notes →</a>
+      </p>
       <p class="today-link-wrap">
         <a id="today-daily-link" href="#" class="internal">📅 Today's Daily Note</a>
       </p>

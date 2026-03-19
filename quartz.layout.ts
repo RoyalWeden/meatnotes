@@ -8,6 +8,7 @@ export const sharedPageComponents: SharedLayout = {
     Component.DesktopOnly(Component.Flex({
       components: [
         { Component: Component.Search(), grow: true },
+        { Component: Component.IdiomSearch() },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
       ],
@@ -103,6 +104,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Flex({
       components: [
         { Component: Component.MobileOnly(Component.Search()), grow: true },
+        { Component: Component.MobileOnly(Component.IdiomSearch()) },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
       ],
@@ -131,6 +133,10 @@ export const defaultContentPageLayout: PageLayout = {
       }),
       condition: (page) => page.fileData.slug === "index" || page.fileData.slug === "All-Notes",
     }),
+    Component.ConditionalRender({
+      component: Component.RecentIdioms(),
+      condition: (page) => page.fileData.filePath?.includes("Bible Idioms") ?? false,
+    }),
   ],
 }
 
@@ -142,6 +148,7 @@ export const defaultListPageLayout: PageLayout = {
     Component.Flex({
       components: [
         { Component: Component.MobileOnly(Component.Search()), grow: true },
+        { Component: Component.MobileOnly(Component.IdiomSearch()) },
         { Component: Component.Darkmode() },
       ],
     }),

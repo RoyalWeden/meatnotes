@@ -117,7 +117,8 @@ export const defaultContentPageLayout: PageLayout = {
         filter: (f) =>
           !f.slug?.startsWith("Daily/") &&
           f.slug !== "index" &&
-          f.slug !== "Search",
+          f.slug !== "Search" &&
+          f.slug !== "All-Notes",
       }),
       condition: (page) => page.fileData.slug === "index" || page.fileData.slug === "All-Notes",
     }),

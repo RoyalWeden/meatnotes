@@ -214,38 +214,93 @@ function parseSingleDate(lower: string): DateRange | null {
     label,
   })
 
-  const monthNames = ["january","february","march","april","may","june","july","august","september","october","november","december"]
-  const monthShort = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
-  const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
+  const monthNames = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+  ]
+  const monthShort = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec",
+  ]
+  const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
   const allMonths = monthNames.join("|") + "|" + monthShort.join("|")
-  const getMonthIdx = (m: string) => { let i = monthNames.indexOf(m); if (i === -1) i = monthShort.indexOf(m); return i }
+  const getMonthIdx = (m: string) => {
+    let i = monthNames.indexOf(m)
+    if (i === -1) i = monthShort.indexOf(m)
+    return i
+  }
   const stripOrd = (s: string) => s.replace(/(st|nd|rd|th)$/, "")
 
   if (lower === "today") return single(today)
-  if (lower === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); return single(d) }
+  if (lower === "yesterday") {
+    const d = new Date(today)
+    d.setDate(d.getDate() - 1)
+    return single(d)
+  }
   if (lower === "recent" || lower === "new" || lower === "latest") {
-    const start = new Date(today); start.setDate(today.getDate() - 7)
+    const start = new Date(today)
+    start.setDate(today.getDate() - 7)
     return makeRange(start, today, "Last 7 days")
   }
 
   if (lower === "this week") {
-    const mon = new Date(today); mon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
-    return makeRange(mon, today, `${mon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${today.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`)
+    const mon = new Date(today)
+    mon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+    return makeRange(
+      mon,
+      today,
+      `${mon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${today.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`,
+    )
   }
   if (lower === "last week") {
-    const thisMon = new Date(today); thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
-    const lastMon = new Date(thisMon); lastMon.setDate(thisMon.getDate() - 7)
-    const lastSun = new Date(thisMon); lastSun.setDate(thisMon.getDate() - 1)
-    return makeRange(lastMon, lastSun, `${lastMon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${lastSun.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`)
+    const thisMon = new Date(today)
+    thisMon.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+    const lastMon = new Date(thisMon)
+    lastMon.setDate(thisMon.getDate() - 7)
+    const lastSun = new Date(thisMon)
+    lastSun.setDate(thisMon.getDate() - 1)
+    return makeRange(
+      lastMon,
+      lastSun,
+      `${lastMon.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${lastSun.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`,
+    )
   }
   if (lower === "this month") {
     const first = new Date(today.getFullYear(), today.getMonth(), 1)
-    return makeRange(first, today, today.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+    return makeRange(
+      first,
+      today,
+      today.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    )
   }
   if (lower === "last month") {
     const first = new Date(today.getFullYear(), today.getMonth() - 1, 1)
     const last = new Date(today.getFullYear(), today.getMonth(), 0)
-    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+    return makeRange(
+      first,
+      last,
+      first.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    )
   }
   if (lower === "this year") {
     const first = new Date(today.getFullYear(), 0, 1)
@@ -267,11 +322,13 @@ function parseSingleDate(lower: string): DateRange | null {
   }
 
   // Weekday: "monday", "last monday", "this monday"
-  const wdMatch = lower.match(/^(?:(?:last|this)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/)
+  const wdMatch = lower.match(
+    /^(?:(?:last|this)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/,
+  )
   if (wdMatch) {
     const target = dayNames.indexOf(wdMatch[1])
     const d = new Date(today)
-    const back = ((d.getDay() - target + 7) % 7) || 7
+    const back = (d.getDay() - target + 7) % 7 || 7
     d.setDate(d.getDate() - back)
     return single(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
   }
@@ -289,12 +346,14 @@ function parseSingleDate(lower: string): DateRange | null {
 
   // ISO: YYYY-MM-DD
   const isoMatch = lower.match(/^(\d{4})-(\d{2})-(\d{2})$/)
-  if (isoMatch) return single(new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3])))
+  if (isoMatch)
+    return single(new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3])))
 
   // US slash: M/D or M/D/YY or M/D/YYYY (e.g. 3/10, 3/10/26, 03/10/2026)
   const slashMatch = lower.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/)
   if (slashMatch) {
-    const m = parseInt(slashMatch[1]) - 1, d = parseInt(slashMatch[2])
+    const m = parseInt(slashMatch[1]) - 1,
+      d = parseInt(slashMatch[2])
     let yr = now.getFullYear()
     if (slashMatch[3]) {
       const rawYr = parseInt(slashMatch[3])
@@ -306,30 +365,52 @@ function parseSingleDate(lower: string): DateRange | null {
   // Month + year: "march 2026"
   const myMatch = lower.match(new RegExp(`^(${allMonths})\\s+(\\d{4})$`))
   if (myMatch) {
-    const mi = getMonthIdx(myMatch[1]), yr = parseInt(myMatch[2])
-    const first = new Date(yr, mi, 1), last = new Date(yr, mi + 1, 0)
-    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+    const mi = getMonthIdx(myMatch[1]),
+      yr = parseInt(myMatch[2])
+    const first = new Date(yr, mi, 1),
+      last = new Date(yr, mi + 1, 0)
+    return makeRange(
+      first,
+      last,
+      first.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    )
   }
 
   // Month alone: "march"
   const mAlone = lower.match(new RegExp(`^(${allMonths})$`))
   if (mAlone) {
-    const mi = getMonthIdx(mAlone[1]), yr = now.getFullYear()
-    const first = new Date(yr, mi, 1), last = new Date(yr, mi + 1, 0)
-    return makeRange(first, last, first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))
+    const mi = getMonthIdx(mAlone[1]),
+      yr = now.getFullYear()
+    const first = new Date(yr, mi, 1),
+      last = new Date(yr, mi + 1, 0)
+    return makeRange(
+      first,
+      last,
+      first.toLocaleDateString(undefined, { month: "long", year: "numeric" }),
+    )
   }
 
   // Month + day (with optional ordinal + year): "march 3rd", "march 3", "march 3rd, 2026"
-  const mdMatch = lower.match(new RegExp(`^(${allMonths})\\s+(\\d{1,2}(?:st|nd|rd|th)?)(?:[,\\s]+(\\d{4}))?$`))
+  const mdMatch = lower.match(
+    new RegExp(`^(${allMonths})\\s+(\\d{1,2}(?:st|nd|rd|th)?)(?:[,\\s]+(\\d{4}))?$`),
+  )
   if (mdMatch) {
-    const mi = getMonthIdx(mdMatch[1]), day = parseInt(stripOrd(mdMatch[2])), yr = mdMatch[3] ? parseInt(mdMatch[3]) : now.getFullYear()
+    const mi = getMonthIdx(mdMatch[1]),
+      day = parseInt(stripOrd(mdMatch[2])),
+      yr = mdMatch[3] ? parseInt(mdMatch[3]) : now.getFullYear()
     return single(new Date(yr, mi, day))
   }
 
   // Day + month (with optional "the", "of", ordinal): "3rd march", "3rd of march", "the 3rd of march"
-  const dmMatch = lower.match(new RegExp(`^(?:the\\s+)?(\\d{1,2}(?:st|nd|rd|th)?)(?:\\s+of)?\\s+(${allMonths})(?:\\s+(\\d{4}))?$`))
+  const dmMatch = lower.match(
+    new RegExp(
+      `^(?:the\\s+)?(\\d{1,2}(?:st|nd|rd|th)?)(?:\\s+of)?\\s+(${allMonths})(?:\\s+(\\d{4}))?$`,
+    ),
+  )
   if (dmMatch) {
-    const day = parseInt(stripOrd(dmMatch[1])), mi = getMonthIdx(dmMatch[2]), yr = dmMatch[3] ? parseInt(dmMatch[3]) : now.getFullYear()
+    const day = parseInt(stripOrd(dmMatch[1])),
+      mi = getMonthIdx(dmMatch[2]),
+      yr = dmMatch[3] ? parseInt(dmMatch[3]) : now.getFullYear()
     return single(new Date(yr, mi, day))
   }
 
@@ -346,11 +427,11 @@ function parseDateQuery(term: string): DateRange | null {
 
   // Try range expressions first (avoids ambiguity with single ISO dates containing hyphens)
   const rangePatterns: RegExp[] = [
-    /^from\s+(.+?)\s+to\s+(.+)$/,   // "from X to Y"
-    /^(.+?)\s+to\s+(.+)$/,           // "X to Y"
-    /^(.+?)\s+through\s+(.+)$/,      // "X through Y"
-    /^(.+?)\s+-\s+(.+)$/,            // "X - Y" (space-hyphen-space)
-    /^(.+?)\s+–\s+(.+)$/,            // "X – Y" (en dash)
+    /^from\s+(.+?)\s+to\s+(.+)$/, // "from X to Y"
+    /^(.+?)\s+to\s+(.+)$/, // "X to Y"
+    /^(.+?)\s+through\s+(.+)$/, // "X through Y"
+    /^(.+?)\s+-\s+(.+)$/, // "X - Y" (space-hyphen-space)
+    /^(.+?)\s+–\s+(.+)$/, // "X – Y" (en dash)
   ]
   for (const pattern of rangePatterns) {
     const match = stripped.match(pattern)
@@ -538,7 +619,9 @@ function saveRecentSearch(term: string) {
     const existing: string[] = JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]")
     const deduped = [term, ...existing.filter((t) => t !== term)].slice(0, MAX_RECENT_SEARCHES)
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(deduped))
-  } catch { /* ignore storage errors */ }
+  } catch {
+    /* ignore storage errors */
+  }
 }
 
 function loadRecentSearches(): string[] {
@@ -555,7 +638,8 @@ function loadRecentSearches(): string[] {
 const wordDictionary: Set<string> = new Set()
 
 function levenshtein(a: string, b: string): number {
-  const m = a.length, n = b.length
+  const m = a.length,
+    n = b.length
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
     Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
   )
@@ -574,11 +658,23 @@ function soundex(s: string): string {
   const lower = s.toLowerCase().replace(/[^a-z]/g, "")
   if (!lower) return "0000"
   const table: Record<string, string> = {
-    b: "1", f: "1", p: "1", v: "1",
-    c: "2", g: "2", j: "2", k: "2", q: "2", s: "2", x: "2", z: "2",
-    d: "3", t: "3",
+    b: "1",
+    f: "1",
+    p: "1",
+    v: "1",
+    c: "2",
+    g: "2",
+    j: "2",
+    k: "2",
+    q: "2",
+    s: "2",
+    x: "2",
+    z: "2",
+    d: "3",
+    t: "3",
     l: "4",
-    m: "5", n: "5",
+    m: "5",
+    n: "5",
     r: "6",
   }
   let code = lower[0].toUpperCase()
@@ -618,30 +714,75 @@ function findFuzzySuggestion(term: string): string | null {
 // ─── Bible book abbreviation expansion ────────────────────────────────────────
 
 const BIBLE_BOOKS: Record<string, string> = {
-  gen: "genesis", exod: "exodus", ex: "exodus", lev: "leviticus",
-  num: "numbers", deut: "deuteronomy", josh: "joshua", judg: "judges",
-  ruth: "ruth", "1sam": "1 samuel", "2sam": "2 samuel",
-  "1ki": "1 kings", "2ki": "2 kings",
-  "1chr": "1 chronicles", "2chr": "2 chronicles",
-  ezra: "ezra", neh: "nehemiah", esth: "esther", job: "job",
-  ps: "psalms", psa: "psalms", prov: "proverbs", eccl: "ecclesiastes",
-  song: "song of solomon", sos: "song of solomon",
-  isa: "isaiah", jer: "jeremiah", lam: "lamentations",
-  ezek: "ezekiel", dan: "daniel", hos: "hosea", joel: "joel",
-  amos: "amos", obad: "obadiah", jonah: "jonah", mic: "micah",
-  nah: "nahum", hab: "habakkuk", zeph: "zephaniah", hag: "haggai",
-  zech: "zechariah", mal: "malachi",
-  matt: "matthew", mk: "mark", lk: "luke", jn: "john",
-  acts: "acts", rom: "romans",
-  "1cor": "1 corinthians", "2cor": "2 corinthians",
-  gal: "galatians", eph: "ephesians", phil: "philippians",
+  gen: "genesis",
+  exod: "exodus",
+  ex: "exodus",
+  lev: "leviticus",
+  num: "numbers",
+  deut: "deuteronomy",
+  josh: "joshua",
+  judg: "judges",
+  ruth: "ruth",
+  "1sam": "1 samuel",
+  "2sam": "2 samuel",
+  "1ki": "1 kings",
+  "2ki": "2 kings",
+  "1chr": "1 chronicles",
+  "2chr": "2 chronicles",
+  ezra: "ezra",
+  neh: "nehemiah",
+  esth: "esther",
+  job: "job",
+  ps: "psalms",
+  psa: "psalms",
+  prov: "proverbs",
+  eccl: "ecclesiastes",
+  song: "song of solomon",
+  sos: "song of solomon",
+  isa: "isaiah",
+  jer: "jeremiah",
+  lam: "lamentations",
+  ezek: "ezekiel",
+  dan: "daniel",
+  hos: "hosea",
+  joel: "joel",
+  amos: "amos",
+  obad: "obadiah",
+  jonah: "jonah",
+  mic: "micah",
+  nah: "nahum",
+  hab: "habakkuk",
+  zeph: "zephaniah",
+  hag: "haggai",
+  zech: "zechariah",
+  mal: "malachi",
+  matt: "matthew",
+  mk: "mark",
+  lk: "luke",
+  jn: "john",
+  acts: "acts",
+  rom: "romans",
+  "1cor": "1 corinthians",
+  "2cor": "2 corinthians",
+  gal: "galatians",
+  eph: "ephesians",
+  phil: "philippians",
   col: "colossians",
-  "1thess": "1 thessalonians", "2thess": "2 thessalonians",
-  "1tim": "1 timothy", "2tim": "2 timothy",
-  tit: "titus", phlm: "philemon", heb: "hebrews", jas: "james",
-  "1pet": "1 peter", "2pet": "2 peter",
-  "1jn": "1 john", "2jn": "2 john", "3jn": "3 john",
-  jude: "jude", rev: "revelation",
+  "1thess": "1 thessalonians",
+  "2thess": "2 thessalonians",
+  "1tim": "1 timothy",
+  "2tim": "2 timothy",
+  tit: "titus",
+  phlm: "philemon",
+  heb: "hebrews",
+  jas: "james",
+  "1pet": "1 peter",
+  "2pet": "2 peter",
+  "1jn": "1 john",
+  "2jn": "2 john",
+  "3jn": "3 john",
+  jude: "jude",
+  rev: "revelation",
 }
 
 /**
@@ -730,18 +871,19 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   }
 
   // Keyboard hints bar — injected once below the search input
-  const kbdHints = searchElement.querySelector(".search-kbd-hints") ?? (() => {
-    const el = document.createElement("div")
-    el.className = "search-kbd-hints"
-    el.innerHTML = `
+  searchElement.querySelector(".search-kbd-hints") ??
+    (() => {
+      const el = document.createElement("div")
+      el.className = "search-kbd-hints"
+      el.innerHTML = `
       <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
       <span><kbd>Tab</kbd> next</span>
       <span><kbd>Enter</kbd> open</span>
       <span><kbd>Esc</kbd> close</span>
     `
-    searchBar.after(el)
-    return el
-  })()
+      searchBar.after(el)
+      return el
+    })()
 
   // Cycling placeholder hints
   const placeholderHints = [
@@ -1007,8 +1149,24 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   // ─── Smart suggestions (shown when 0 results for multi-word plain query) ─────
 
   async function showSmartSuggestions(query: string, fields: string[]) {
-    const words = query.trim().split(/\s+/).filter((w) => w.length >= 3)
-    const stopwords = new Set(["the", "a", "an", "in", "of", "to", "for", "and", "or", "but", "is", "it"])
+    const words = query
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length >= 3)
+    const stopwords = new Set([
+      "the",
+      "a",
+      "an",
+      "in",
+      "of",
+      "to",
+      "for",
+      "and",
+      "or",
+      "but",
+      "is",
+      "it",
+    ])
     const seen = new Set<string>()
     const groups: { label: string; items: Item[] }[] = []
 
@@ -1104,7 +1262,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       const suggestion = findFuzzySuggestion(term)
       if (suggestion && suggestion !== term.toLowerCase()) {
         const didYouMean = document.createElement("div")
-        didYouMean.className = "did-you-mean"  // no "result-card" — prevents keyboard nav from picking it up
+        didYouMean.className = "did-you-mean" // no "result-card" — prevents keyboard nav from picking it up
         didYouMean.innerHTML = `<p>Did you mean: <a class="dym-link" href="#" data-router-ignore>${suggestion}</a>?</p>`
         const link = didYouMean.querySelector(".dym-link") as HTMLElement
         const dymHandler = (e: Event) => {
@@ -1151,10 +1309,13 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       const words = term.split(/\s+/).filter(Boolean)
       if (words.length >= 2 && !queryHasBooleanOps(term) && !term.includes('"')) {
         const filterFields =
-          searchFilter === "title" ? ["title"] :
-          searchFilter === "content" ? ["content"] :
-          searchFilter === "tags" ? ["tags"] :
-          ["title", "content"]
+          searchFilter === "title"
+            ? ["title"]
+            : searchFilter === "content"
+              ? ["content"]
+              : searchFilter === "tags"
+                ? ["tags"]
+                : ["title", "content"]
         await showSmartSuggestions(term, filterFields)
       }
     } else {
@@ -1192,7 +1353,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
     const slug = el.id as FullSlug
-    const { phrases: quotedPhrases, searchTerm: effectiveTermPreview } = extractPhrases(currentSearchTerm)
+    const { phrases: quotedPhrases, searchTerm: effectiveTermPreview } =
+      extractPhrases(currentSearchTerm)
     const prevPhrases =
       quotedPhrases.length > 0
         ? quotedPhrases
@@ -1256,13 +1418,25 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
               return bTs - aTs
             })
           const totalCount = dateResults.length
-          const displayItems: Item[] = dateResults.slice(0, numSearchResults).map(([slug, fileData]) => {
-            const id = idDataMap.indexOf(slug as FullSlug)
-            const dateStr = fileData.date
-              ? new Date(fileData.date as string).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })
-              : ""
-            return { id, slug: slug as FullSlug, title: fileData.title ?? slug, content: dateStr ? `Modified: ${dateStr}` : "", tags: [] }
-          })
+          const displayItems: Item[] = dateResults
+            .slice(0, numSearchResults)
+            .map(([slug, fileData]) => {
+              const id = idDataMap.indexOf(slug as FullSlug)
+              const dateStr = fileData.date
+                ? new Date(fileData.date as string).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : ""
+              return {
+                id,
+                slug: slug as FullSlug,
+                title: fileData.title ?? slug,
+                content: dateStr ? `Modified: ${dateStr}` : "",
+                tags: [],
+              }
+            })
           await displayResults(displayItems, totalCount, dateRange.label)
           return
         }
@@ -1303,18 +1477,26 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     } else if (searchType === "basic") {
       // Determine which index fields to search based on active filter
       const filterFields: string[] =
-        searchFilter === "title" ? ["title"] :
-        searchFilter === "content" ? ["content"] :
-        searchFilter === "tags" ? ["tags"] :
-        ["title", "content"]  // "all"
+        searchFilter === "title"
+          ? ["title"]
+          : searchFilter === "content"
+            ? ["content"]
+            : searchFilter === "tags"
+              ? ["tags"]
+              : ["title", "content"] // "all"
 
       // Extract quoted phrases and get the effective search term (quotes stripped)
-      const { phrases: quotedPhrases, searchTerm: effectiveTerm } = extractPhrases(currentSearchTerm)
+      const { phrases: quotedPhrases, searchTerm: effectiveTerm } =
+        extractPhrases(currentSearchTerm)
       const hasQuotes = quotedPhrases.length > 0
       // If quote auto-detected, turn off manual phrase mode (redundant)
       if (hasQuotes && phraseMode) setPhraseMode(false)
       // Combine: quoted phrases take priority; otherwise manual phraseMode adds the whole term as a phrase
-      const phrases = hasQuotes ? quotedPhrases : (phraseMode ? [effectiveTerm || currentSearchTerm] : [])
+      const phrases = hasQuotes
+        ? quotedPhrases
+        : phraseMode
+          ? [effectiveTerm || currentSearchTerm]
+          : []
       const termForSearch = effectiveTerm || currentSearchTerm
 
       // Boolean query path (only when no quoted phrases)
@@ -1323,7 +1505,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           const ast = parseBoolQuery(termForSearch)
           const ids = await evalBoolNode(ast, filterFields)
           const allIdsList = [...ids].filter((id) => idDataMap[id] !== "Search")
-          const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id))
+          const finalResults = allIdsList
+            .slice(0, numSearchResults)
+            .map((id) => formatForDisplay(termForSearch, id))
           await displayResults(finalResults, allIdsList.length)
           return
         } catch {
@@ -1354,7 +1538,11 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
             )
           })
         }
-        const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined))
+        const finalResults = allIdsList
+          .slice(0, numSearchResults)
+          .map((id) =>
+            formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined),
+          )
         await displayResults(finalResults, allIdsList.length)
         return
       }
@@ -1384,7 +1572,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           )
         })
       }
-      const finalResults2 = allIdsList2.slice(0, numSearchResults).map((id) => formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined))
+      const finalResults2 = allIdsList2
+        .slice(0, numSearchResults)
+        .map((id) => formatForDisplay(termForSearch, id, phrases.length > 0 ? phrases : undefined))
       await displayResults(finalResults2, allIdsList2.length)
       return
     }
@@ -1396,13 +1586,19 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
     // order titles ahead of content (respect active filter) — for tags search path
     const allIds: Set<number> = new Set([
-      ...(searchType !== "tags" && searchFilter !== "content" && searchFilter !== "tags" ? getByField("title") : []),
-      ...(searchType !== "tags" && searchFilter !== "title" && searchFilter !== "tags" ? getByField("content") : []),
+      ...(searchType !== "tags" && searchFilter !== "content" && searchFilter !== "tags"
+        ? getByField("title")
+        : []),
+      ...(searchType !== "tags" && searchFilter !== "title" && searchFilter !== "tags"
+        ? getByField("content")
+        : []),
       ...(searchType === "tags" || searchFilter === "tags" ? getByField("tags") : []),
     ])
     const allIdsList = [...allIds].filter((id) => idDataMap[id] !== "Search")
     const totalCount = allIdsList.length
-    const finalResults = allIdsList.slice(0, numSearchResults).map((id) => formatForDisplay(currentSearchTerm, id))
+    const finalResults = allIdsList
+      .slice(0, numSearchResults)
+      .map((id) => formatForDisplay(currentSearchTerm, id))
     await displayResults(finalResults, totalCount)
   }
 

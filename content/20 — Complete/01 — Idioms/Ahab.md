@@ -22,12 +22,6 @@ Qualities:
 
 *Where an Ahab is, Jezebel is nearby*
 
-## Related Verses
-
 ## Related Strong’s Definitions
-
-## Related Idioms
-
-Jezebel
 
 ## Detailed Explanation

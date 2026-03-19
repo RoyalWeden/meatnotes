@@ -1,3 +1,10 @@
+---
+description: Qualities of a weak, passive leader who tolerates Jezebel
+cssclasses: [idiom]
+related_idioms: [Jezebel]
+related_verses: []
+---
+
 # Ahab
 
 ## Meaning
@@ -16,3 +23,5 @@ Qualities:
 ## Related Idioms
 
 Jezebel
+
+## Detailed Explanation

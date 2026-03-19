@@ -1,3 +1,10 @@
+---
+description: Idolatry
+cssclasses: [idiom]
+related_idioms: [Fornication]
+related_verses: [Ezekiel 16, "Ezekiel 23:27-30"]
+---
+
 # Adultery
 
 ## Meaning
@@ -17,3 +24,5 @@ n/a
 ## Related Idioms
 
 Fornication
+
+## Detailed Explanation

@@ -33,6 +33,8 @@ export { default as CustomFooter } from "./CustomFooter"
 export { default as ReadingProgress } from "./ReadingProgress"
 export { default as BackToTop } from "./BackToTop"
 export { default as FullSearch } from "./FullSearch"
+export { default as IdiomIndex } from "./IdiomIndex"
+export { default as IdiomFlashcard } from "./IdiomFlashcard"
 
 export {
   ArticleTitle,

@@ -24,7 +24,11 @@
 
       & > .fold {
         color: var(--gray);
-        transition: transform 0.3s ease;
+        transition: color 0.15s ease, transform 0.3s ease;
+      }
+
+      &:hover > .fold {
+        color: var(--secondary);
       }
     }
 

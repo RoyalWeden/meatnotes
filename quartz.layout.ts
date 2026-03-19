@@ -119,7 +119,7 @@ export const defaultContentPageLayout: PageLayout = {
           f.slug !== "index" &&
           f.slug !== "Search",
       }),
-      condition: (page) => page.fileData.slug === "index",
+      condition: (page) => page.fileData.slug === "index" || page.fileData.slug === "All-Notes",
     }),
   ],
 }

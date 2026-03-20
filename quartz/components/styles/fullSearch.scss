@@ -1,153 +1,555 @@
-.full-search {
-  margin: 1.5rem 0;
+@use "../../styles/variables.scss" as *;
 
-  .full-search-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+// Zero out the grid row-gap on the Search page so there's no visible gap
+// between the sticky nav bar and the FullSearch sticky bar.
+.page:has(.full-search) > #quartz-body {
+  row-gap: 0;
+}
+
+// ── Page-level title / description (above the sticky bar) ─────────────────
+.fs-page-header {
+  padding: 1.5rem 0 1rem;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem;
+    color: var(--dark);
   }
 
-  .full-search-input {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    font-size: 1rem;
+  p {
+    margin: 0;
+    color: var(--gray);
+    font-size: 0.95em;
+    line-height: 1.55;
+  }
+}
+
+.full-search {
+  margin-top: 0;
+
+  // ── Sticky search bar ──────────────────────────────────────────────────────
+
+  .fs-sticky-bar {
+    position: sticky;
+    // top:0 — the nav bar (.page-header, z-index:100) is also sticky at 0 and sits
+    // on top of this bar, so there is zero visible gap between them on any screen size.
+    top: 0;
+    z-index: 10;
+    // Background covers result cards scrolling behind this bar.
+    background: var(--light);
+    border-bottom: none;
+    box-shadow: none;
+    padding: 0.65rem 0 0.55rem;
+    margin: 0 0 1.25rem;
+
+  }
+
+  // ── Input row ─────────────────────────────────────────────────────────────
+
+  .fs-input-wrap {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    padding: 0.5em 0.9em;
+    border: 1.5px solid var(--lightgray);
+    border-radius: 10px;
+    background: var(--light);
+    cursor: text;
+    transition: border-color 0.15s ease;
+    margin-bottom: 0.6rem;
+
+    &:focus-within {
+      border-color: var(--secondary);
+    }
+
+    .fs-search-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      opacity: 0.45;
+      stroke: var(--darkgray);
+      stroke-width: 1.5px;
+    }
+
+    .full-search-input {
+      flex: 1;
+      min-width: 5em;
+      border: none;
+      background: transparent;
+      padding: 0.15em 0;
+      font-family: var(--bodyFont);
+      color: var(--dark);
+      font-size: 1.05em;
+      outline: none;
+
+      &::placeholder {
+        color: var(--gray);
+      }
+    }
+
+    // Folder filter chip inside the input row
+    .fs-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2em;
+      padding: 0.2em 0.3em 0.2em 0.55em;
+      background: color-mix(in srgb, var(--secondary) 12%, var(--light));
+      border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+      border-radius: 20px;
+      font-size: 0.82em;
+      color: var(--secondary);
+      white-space: nowrap;
+      max-width: 55%;
+      flex-shrink: 0;
+
+      .fs-chip-icon { font-size: 0.9em; flex-shrink: 0; }
+
+      .fs-chip-label {
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .fs-chip-clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.4em;
+        height: 1.4em;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        color: inherit;
+        font-size: 1em;
+        line-height: 1;
+        border-radius: 50%;
+        opacity: 0.65;
+        transition: opacity 0.15s ease, background 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+          opacity: 1;
+          background: color-mix(in srgb, var(--secondary) 20%, transparent);
+        }
+      }
+    }
+  }
+
+  // ── Filter buttons ─────────────────────────────────────────────────────────
+
+  .fs-filter-row {
+    display: flex;
+    gap: 0.4em;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+    padding-top: 0.1rem;
+
+    .fs-filter-spacer { flex: 1; }
+  }
+
+  .fs-filter-btn {
+    display: inline-block;
+    padding: 0.2em 0.7em;
     border: 1px solid var(--lightgray);
     border-radius: 5px;
     background: var(--light);
-    color: var(--dark);
-    box-sizing: border-box;
-    outline: none;
+    font-family: inherit;
+    font-size: 0.78em;
+    line-height: 1.4;
+    color: var(--darkgray);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-    &:focus {
+    &:hover { background: var(--lightgray); }
+
+    &.active {
+      background: var(--secondary);
+      color: var(--light);
       border-color: var(--secondary);
     }
   }
 
-  .full-search-options {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.8rem;
-  }
-
-  .full-search-filter {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.85rem;
-    color: var(--darkgray);
+  .fs-phrase-btn {
+    display: inline-block;
+    padding: 0.2em 0.7em;
+    border: 1px solid var(--lightgray);
+    border-left-width: 3px;
+    border-radius: 5px;
+    background: var(--light);
+    font-family: inherit;
+    font-size: 0.78em;
+    line-height: 1.4;
+    color: var(--gray);
     cursor: pointer;
-    user-select: none;
+    margin-left: 0.3em;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
-    input[type="checkbox"] {
-      appearance: auto;
-      -webkit-appearance: checkbox;
-      margin: 0;
-      margin-inline-start: 0;
-      transform: none;
-      width: auto;
-      height: auto;
-      flex-shrink: 0;
+    &:hover { background: var(--lightgray); color: var(--darkgray); }
+
+    &.active {
+      background: var(--secondary);
+      color: var(--light);
+      border-color: var(--secondary);
     }
   }
 
-  .full-search-sort {
-    margin-left: auto;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+  .fs-sort-select {
+    padding: 0.25em 0.55em;
+    font-size: 0.78em;
     border: 1px solid var(--lightgray);
-    border-radius: 4px;
+    border-radius: 5px;
     background: var(--light);
-    color: var(--dark);
+    color: var(--darkgray);
     cursor: pointer;
     outline: none;
+    font-family: inherit;
+
+    &:focus { border-color: var(--secondary); }
   }
 
-  .full-search-count {
-    font-size: 0.85rem;
+  // ── Scope pills ────────────────────────────────────────────────────────────
+
+  .fs-scope-row {
+    display: flex;
+    gap: 0.3em;
+    align-items: center;
+    flex-wrap: wrap;
+
+    &.fs-scope-filtered { display: none; }
+
+    .fs-scope-label {
+      font-size: 0.72em;
+      color: var(--darkgray);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 0.1em;
+      white-space: nowrap;
+    }
+  }
+
+  .fs-scope-btn {
+    display: inline-block;
+    padding: 0.12em 0.6em;
+    border: 1px solid var(--gray);
+    border-radius: 12px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.72em;
+    line-height: 1.4;
+    color: var(--darkgray);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+
+    &:hover { background: var(--lightgray); }
+
+    &.active {
+      background: var(--secondary);
+      color: var(--light);
+      border-color: var(--secondary);
+    }
+  }
+
+  // ── Count row ─────────────────────────────────────────────────────────────
+
+  .fs-count {
+    font-size: 0.82rem;
     color: var(--gray);
-    margin: 0.5rem 0 0.3rem;
+    margin-bottom: 0.75rem;
     min-height: 1.2em;
   }
+
+  // ── Section browser ────────────────────────────────────────────────────────
+
+  .fs-section-browser {
+    margin-bottom: 1.5rem;
+
+    .fs-section-browser-heading {
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin: 0 0 0.6rem;
+    }
+
+    .fs-section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.55rem;
+
+      @media all and ($mobile) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fs-section-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--lightgray);
+      border-radius: 10px;
+      background: var(--light);
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+      border-left: 3px solid transparent;
+
+      @media (hover: hover) {
+        &:hover {
+          border-left-color: var(--secondary);
+          background: color-mix(in srgb, var(--lightgray) 40%, transparent);
+          transform: translateX(3px);
+
+          .fs-section-name { color: var(--secondary); }
+        }
+      }
+
+      .fs-section-emoji {
+        font-size: 1.4em;
+        flex-shrink: 0;
+        line-height: 1.2;
+      }
+
+      .fs-section-info { flex: 1; min-width: 0; }
+
+      .fs-section-name {
+        font-size: 0.9em;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0 0 0.15em;
+        transition: color 0.15s ease;
+      }
+
+      .fs-section-desc {
+        font-size: 0.75em;
+        color: var(--gray);
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .fs-section-count {
+        font-size: 0.68em;
+        font-weight: 500;
+        color: var(--secondary);
+        background: color-mix(in srgb, var(--secondary) 10%, transparent);
+        border-radius: 999px;
+        padding: 0.15em 0.5em;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center;
+      }
+    }
+  }
+
+  // ── Results container ──────────────────────────────────────────────────────
 
   .full-search-results {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: 0;
   }
+
+  // ── See-all banner ─────────────────────────────────────────────────────────
+
+  .fs-see-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7em 1em;
+    background: color-mix(in srgb, var(--secondary) 8%, var(--light));
+    border: 1px solid color-mix(in srgb, var(--secondary) 25%, transparent);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 0.75rem;
+
+    &:hover { background: color-mix(in srgb, var(--secondary) 16%, var(--light)); }
+  }
+
+  // ── Individual result card ─────────────────────────────────────────────────
 
   .fs-result-card {
     display: block;
-    padding: 0.7rem 0.9rem;
-    border: 1px solid var(--lightgray);
-    border-radius: 5px;
+    padding: 0.75rem 0.9rem 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--lightgray);
+    border-left: 3px solid transparent;
     text-decoration: none;
     color: var(--dark);
     background: var(--light);
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition: background 0.15s ease, border-left-color 0.15s ease;
 
-    &:hover {
-      border-color: var(--secondary);
-      background: var(--lightgray);
+    &:first-child { border-top: 1px solid var(--lightgray); border-radius: 8px 8px 0 0; }
+    &:last-child { border-radius: 0 0 8px 8px; }
+    &:first-child:last-child { border-radius: 8px; border-top: 1px solid var(--lightgray); }
+
+    @media (hover: hover) {
+      &:hover {
+        background: color-mix(in srgb, var(--lightgray) 35%, transparent);
+        border-left-color: color-mix(in srgb, var(--secondary) 50%, transparent);
+        .fs-result-title { color: var(--secondary); }
+      }
+    }
+
+    .fs-result-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      margin-bottom: 0.2em;
+      flex-wrap: wrap;
     }
 
     .fs-result-title {
-      font-size: 1rem;
+      font-size: 0.97rem;
       font-weight: 600;
-      margin: 0 0 0.2rem;
-      color: var(--secondary);
+      color: var(--dark);
+      margin: 0;
+      transition: color 0.15s ease;
+      flex: 1;
+      min-width: 0;
+
+      mark {
+        background: color-mix(in srgb, var(--tertiary) 55%, rgba(255,255,255,0));
+        border-radius: 3px;
+        padding: 0 1px;
+      }
     }
 
-    .fs-result-meta {
-      font-size: 0.75rem;
+    .fs-result-date {
+      font-size: 0.72rem;
       color: var(--gray);
-      margin: 0 0 0.3rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .fs-result-breadcrumb {
+      font-size: 0.72rem;
+      color: var(--gray);
+      margin-bottom: 0.3em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      .fs-breadcrumb-sep { margin: 0 0.3em; opacity: 0.5; }
     }
 
     .fs-result-excerpt {
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       color: var(--darkgray);
-      margin: 0;
-      overflow: hidden;
+      margin: 0 0 0.3em;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.45;
+
+      mark {
+        background: color-mix(in srgb, var(--tertiary) 55%, rgba(255,255,255,0));
+        border-radius: 3px;
+        padding: 0 1px;
+      }
     }
 
     .fs-result-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.3rem;
-      margin-top: 0.3rem;
+      gap: 0.3em;
+      margin-top: 0.25em;
       list-style: none;
       padding: 0;
 
       li {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--secondary);
         background: color-mix(in srgb, var(--secondary) 10%, transparent);
-        padding: 0.1rem 0.4rem;
-        border-radius: 3px;
+        padding: 0.1em 0.4em;
+        border-radius: 4px;
+        border: 1px solid color-mix(in srgb, var(--secondary) 22%, transparent);
+
+        mark {
+          background: color-mix(in srgb, var(--tertiary) 55%, rgba(255,255,255,0));
+          border-radius: 2px;
+        }
       }
     }
   }
 
+  // ── Folder filter rows (sub-folder chips in results) ───────────────────────
+
+  .fs-folder-section-label {
+    font-size: 0.68em;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.5em 0 0.2em;
+    display: block;
+  }
+
+  .fs-folder-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    width: 100%;
+    padding: 0.45em 0.85em;
+    border: 1px solid var(--lightgray);
+    border-left: 3px solid color-mix(in srgb, var(--secondary) 30%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--secondary) 4%, var(--light));
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 0.88em;
+    font-weight: 500;
+    color: var(--secondary);
+    text-align: left;
+    margin-bottom: 0.35em;
+    transition: background 0.15s ease, border-left-color 0.15s ease;
+
+    &:hover, &:focus {
+      background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+      border-left-color: var(--secondary);
+      outline: none;
+    }
+  }
+
+  .fs-folder-divider {
+    height: 1px;
+    background: var(--lightgray);
+    margin: 0.4em 0 0.6em;
+  }
+
+  // ── No results ─────────────────────────────────────────────────────────────
+
   .fs-no-results {
     color: var(--gray);
     font-size: 0.95rem;
-    padding: 1rem 0 0.25rem;
+    padding: 1.5rem 0 0.5rem;
+    text-align: center;
   }
 
-  // Smart suggestions
+  // ── Smart suggestions ──────────────────────────────────────────────────────
+
   .fs-similar {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
     border: 1px solid var(--lightgray);
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
 
     summary {
-      padding: 0.6rem 0.9rem;
+      padding: 0.65rem 0.9rem;
       font-size: 0.9rem;
       font-weight: 600;
       color: var(--darkgray);
@@ -163,10 +565,6 @@
     .fs-similar-group {
       padding: 0.6rem 0.9rem;
       border-top: 1px solid var(--lightgray);
-
-      & + .fs-similar-group {
-        border-top: 1px solid var(--lightgray);
-      }
     }
 
     .fs-similar-label {
@@ -175,23 +573,21 @@
       margin: 0 0 0.5rem;
       font-style: italic;
     }
-
-    .fs-result-card {
-      margin-bottom: 0.4rem;
-
-      &:last-child { margin-bottom: 0; }
-    }
   }
 
-  // Phrase button — visually separated from the field filters
-  #fs-phrase-wrapper {
-    margin-left: 0.5rem;
-    padding-left: 0.7rem;
-    border-left: 1px solid var(--lightgray);
-    color: var(--gray);
+  // ── Date label ─────────────────────────────────────────────────────────────
 
-    input:checked + * {
-      color: var(--secondary);
-    }
+  .fs-date-label {
+    font-size: 0.82rem;
+    color: var(--gray);
+    margin: 0 0 0.5rem;
+    font-style: italic;
+  }
+
+  @media all and ($mobile) {
+    .fs-filter-row { gap: 0.3em; }
+    .fs-filter-btn, .fs-phrase-btn { font-size: 0.84em; padding: 0.25em 0.75em; }
+    .fs-sort-select { font-size: 0.84em; }
+    .fs-scope-btn { font-size: 0.8em; padding: 0.15em 0.6em; }
   }
 }

@@ -68,10 +68,13 @@ RebukePanel.afterDOMLoaded = `
         continue
       }
 
+      var isCodeBlock = (tag === 'FIGURE' || tag === 'PRE')
+
       if (!inSocialMedia) {
-        // Before Social Media: collect pre blocks as General
-        if (tag === 'PRE') {
-          generalBlocks.push(el.textContent.replace(/^\\s+|\\s+$/g, ''))
+        // Before Social Media: collect code blocks as General
+        if (isCodeBlock) {
+          var codeNode = el.querySelector('code') || el
+          generalBlocks.push(codeNode.textContent.replace(/^\\s+|\\s+$/g, ''))
           el.remove()
         }
         continue
@@ -80,7 +83,10 @@ RebukePanel.afterDOMLoaded = `
       // Inside Social Media section
       if (tag === 'H2') {
         if (currentSection) sections.push(currentSection)
-        currentSection = { name: el.textContent.trim(), limit: 0, blocks: [] }
+        // H2 textContent may include anchor SVG — grab only direct text nodes
+        var h2Name = ''
+        el.childNodes.forEach(function(cn) { if (cn.nodeType === 3) h2Name += cn.nodeValue })
+        currentSection = { name: (h2Name.trim() || el.textContent.trim()), limit: 0, blocks: [] }
         el.remove()
         continue
       }
@@ -106,8 +112,9 @@ RebukePanel.afterDOMLoaded = `
         continue
       }
 
-      if (tag === 'PRE' && currentSection) {
-        currentSection.blocks.push(el.textContent.replace(/^\\s+|\\s+$/g, ''))
+      if (isCodeBlock && currentSection) {
+        var codeNode2 = el.querySelector('code') || el
+        currentSection.blocks.push(codeNode2.textContent.replace(/^\\s+|\\s+$/g, ''))
         el.remove()
         continue
       }

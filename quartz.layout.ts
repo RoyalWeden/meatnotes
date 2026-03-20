@@ -100,7 +100,9 @@ export const defaultContentPageLayout: PageLayout = {
     }),
     Component.ConditionalRender({
       component: Component.MobileOnly(Component.TableOfContents()),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) =>
+        page.fileData.slug !== "Search" &&
+        !((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
     }),
   ],
   left: [
@@ -123,7 +125,11 @@ export const defaultContentPageLayout: PageLayout = {
       component: Component.Graph(),
       condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "index",
     }),
-    Component.DesktopOnly(Component.TableOfContents()),
+    Component.ConditionalRender({
+      component: Component.DesktopOnly(Component.TableOfContents()),
+      condition: (page) =>
+        !((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
+    }),
     Component.Backlinks(),
     Component.ConditionalRender({
       component: Component.RecentNotes({

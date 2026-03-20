@@ -156,17 +156,37 @@ const verseRegex = new RegExp(
   "gi",
 )
 
+// Matches chapter-only (e.g. "John 5") and chapter ranges (e.g. "John 5-9"),
+// but NOT verse refs already handled by verseRegex (no colon after chapter),
+// and NOT inside already-created markdown links (negative lookbehind for "[").
+const chapterRegex = new RegExp(
+  `(?<![\\w/>"'\\[])\\b(${bookPattern})\\s+(\\d+(?:-\\d+)?)(?![:\\d\\]])`,
+  "gi",
+)
+
 export const BibleLinks: QuartzTransformerPlugin = () => {
   return {
     name: "BibleLinks",
     textTransform(_ctx, src) {
-      const linkify = (text: string) =>
-        text.replace(verseRegex, (match, book, chapter, verse) => {
+      const linkify = (text: string) => {
+        // Pass 1: verse references (Book Chapter:Verse)
+        let result = text.replace(verseRegex, (match, book, chapter, verse) => {
           const bgBook = books[book.toLowerCase().trim()]
           if (!bgBook) return match
           const url = `https://www.biblegateway.com/passage/?search=${bgBook}+${chapter}%3A${verse}&version=KJV`
           return `[${match}](${url})`
         })
+        // Pass 2: chapter-only refs (Book Chapter or Book Chapter-Chapter)
+        // After pass 1, verse refs are already inside "[...](...)" so the
+        // lookbehind "(?<![...\[)" prevents re-matching inside those links.
+        result = result.replace(chapterRegex, (match, book, chapter) => {
+          const bgBook = books[book.toLowerCase().trim()]
+          if (!bgBook) return match
+          const url = `https://www.biblegateway.com/passage/?search=${bgBook}+${chapter}&version=KJV`
+          return `[${match}](${url})`
+        })
+        return result
+      }
 
       // Protect: YAML frontmatter block, fenced code blocks, inline code
       const protectedRe = /^---[\s\S]*?^---[ \t]*\n|`{3}[\s\S]*?`{3}|`[^`\n]*`/gm

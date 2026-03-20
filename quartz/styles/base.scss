@@ -9,10 +9,9 @@ html {
   text-size-adjust: none;
   overflow-x: clip;
   width: 100%;
-
-  @media all and ($mobile) {
-    scroll-padding-top: 4rem;
-  }
+  // JS sets --scroll-padding to the actual sticky header height; fall back to
+  // a generous value before JS runs so headings are never hidden on first click.
+  scroll-padding-top: var(--scroll-padding, 12rem);
 }
 
 body {

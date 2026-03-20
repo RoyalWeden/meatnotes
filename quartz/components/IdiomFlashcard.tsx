@@ -68,11 +68,22 @@ const booksMap: Record<string, string> = {
 }
 
 function verseToUrl(verse: string): string {
-  const m = verse.trim().match(/^(.+?)\s+(\d+):(\d+(?:-\d+)?)/)
-  if (!m) return ""
-  const bgBook = booksMap[m[1].toLowerCase().trim()]
-  if (!bgBook) return ""
-  return `https://www.biblegateway.com/passage/?search=${bgBook}+${m[2]}%3A${m[3]}&version=KJV`
+  const trimmed = verse.trim()
+  // Try "Book Chapter:Verse" first
+  const verseMatch = trimmed.match(/^(.+?)\s+(\d+):(\d+(?:-\d+)?)/)
+  if (verseMatch) {
+    const bgBook = booksMap[verseMatch[1].toLowerCase().trim()]
+    if (!bgBook) return ""
+    return `https://www.biblegateway.com/passage/?search=${bgBook}+${verseMatch[2]}%3A${verseMatch[3]}&version=KJV`
+  }
+  // Fall back to "Book Chapter" or "Book Chapter-Chapter" (whole chapter / chapter range)
+  const chapterMatch = trimmed.match(/^(.+?)\s+(\d+(?:-\d+)?)$/)
+  if (chapterMatch) {
+    const bgBook = booksMap[chapterMatch[1].toLowerCase().trim()]
+    if (!bgBook) return ""
+    return `https://www.biblegateway.com/passage/?search=${bgBook}+${chapterMatch[2]}&version=KJV`
+  }
+  return ""
 }
 
 function toStringArray(val: unknown): string[] {
@@ -250,11 +261,22 @@ IdiomFlashcard.afterDOMLoaded = `
   }
 
   function verseToUrl(v) {
-    var m = v.trim().match(/^(.+?)\\s+(\\d+):(\\d+(?:-\\d+)?)/)
-    if (!m) return ''
-    var bgBook = BOOKS[m[1].toLowerCase().trim()]
-    if (!bgBook) return ''
-    return 'https://www.biblegateway.com/passage/?search=' + bgBook + '+' + m[2] + '%3A' + m[3] + '&version=KJV'
+    var trimmed = v.trim()
+    // Try "Book Chapter:Verse" first
+    var vm = trimmed.match(/^(.+?)\\s+(\\d+):(\\d+(?:-\\d+)?)/)
+    if (vm) {
+      var bgBook = BOOKS[vm[1].toLowerCase().trim()]
+      if (!bgBook) return ''
+      return 'https://www.biblegateway.com/passage/?search=' + bgBook + '+' + vm[2] + '%3A' + vm[3] + '&version=KJV'
+    }
+    // Fall back to "Book Chapter" or "Book Chapter-Chapter"
+    var cm = trimmed.match(/^(.+?)\\s+(\\d+(?:-\\d+)?)$/)
+    if (cm) {
+      var bgBook2 = BOOKS[cm[1].toLowerCase().trim()]
+      if (!bgBook2) return ''
+      return 'https://www.biblegateway.com/passage/?search=' + bgBook2 + '+' + cm[2] + '&version=KJV'
+    }
+    return ''
   }
 
   function makeVerseChip(v) {

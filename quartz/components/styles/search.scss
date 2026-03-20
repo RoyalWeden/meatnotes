@@ -81,17 +81,85 @@
         margin-bottom: 2em;
       }
 
-      & > input {
+      // ── Search input row (chip + text input) ──────────────────────────────
+      & > .search-input-wrap {
         box-sizing: border-box;
-        padding: 0.5em 1em;
-        font-family: var(--bodyFont);
-        color: var(--dark);
-        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.35em;
+        padding: 0.45em 1em;
         border: 1px solid var(--lightgray);
         margin-bottom: 0.25em;
+        min-height: 3em;
+        cursor: text;
 
-        &:focus {
+        & > input.search-bar {
+          flex: 1;
+          min-width: 4em;
+          border: none;
+          background: transparent;
+          padding: 0.1em 0;
+          font-family: var(--bodyFont);
+          color: var(--dark);
+          font-size: 1.1em;
           outline: none;
+
+          &:focus {
+            outline: none;
+          }
+        }
+
+        // Active folder filter chip shown inside the input row
+        & > .search-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2em;
+          padding: 0.2em 0.3em 0.2em 0.55em;
+          background: color-mix(in srgb, var(--secondary) 12%, var(--light));
+          border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+          border-radius: 20px;
+          font-size: 0.82em;
+          color: var(--secondary);
+          white-space: nowrap;
+          max-width: 55%;
+          flex-shrink: 0;
+
+          .search-chip-icon {
+            font-size: 0.9em;
+            flex-shrink: 0;
+          }
+
+          .search-chip-label {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .search-chip-clear {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.4em;
+            height: 1.4em;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: inherit;
+            font-size: 1em;
+            line-height: 1;
+            border-radius: 50%;
+            opacity: 0.65;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            flex-shrink: 0;
+
+            &:hover {
+              opacity: 1;
+              background: color-mix(in srgb, var(--secondary) 20%, transparent);
+            }
+          }
         }
       }
 
@@ -233,6 +301,10 @@
         }
       }
 
+      .search-scope-row.scope-row-filtered {
+        display: none;
+      }
+
       & > .search-kbd-hints {
         display: flex;
         gap: 1.2em;
@@ -352,6 +424,76 @@
 
         & > .results-container {
           overflow-y: auto;
+
+          // ── Folder filter section ──────────────────────────────────────────
+
+          & .folder-filter-section-label {
+            font-size: 0.68em;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin: 0.5em 0 0.2em;
+            padding: 0 1em;
+          }
+
+          & .folder-filter-card {
+            display: flex;
+            // Use flex-start so card height grows with wrapped text naturally
+            align-items: flex-start;
+            gap: 0.4em;
+            width: 100%;
+            text-align: left;
+            background: color-mix(in srgb, var(--secondary) 4%, var(--light));
+            border-bottom: 1px solid var(--lightgray);
+            border-left: 3px solid transparent;
+            font-family: inherit;
+            cursor: pointer;
+            // Compact: tight vertical padding; card height grows if name wraps
+            padding: 0.28em 1em 0.28em 0.85em;
+            box-sizing: border-box;
+            transition: background 0.15s ease, border-left-color 0.15s ease;
+
+            &:hover {
+              background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+              border-left-color: color-mix(in srgb, var(--secondary) 50%, transparent);
+              outline: none;
+            }
+
+            // Clear visible focus ring for keyboard nav
+            &:focus,
+            &.focus {
+              background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+              border-left-color: var(--secondary);
+              outline: none;
+              box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--secondary) 35%, transparent);
+            }
+
+            .folder-filter-icon {
+              font-size: 0.82em;
+              flex-shrink: 0;
+              opacity: 0.8;
+            }
+
+            .folder-filter-name {
+              font-size: 0.84em;
+              font-weight: 600;
+              color: var(--secondary);
+              flex: 1;
+              min-width: 0;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+
+          & .folder-filter-divider {
+            height: 1px;
+            background: var(--lightgray);
+            margin: 0.4em 0 0;
+          }
+
+          // ── End folder filter section ─────────────────────────────────────
 
           & .see-all-results {
             display: flex;
@@ -487,8 +629,9 @@
             overflow: hidden;
             padding: 1em;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, border-left-color 0.15s ease;
             border-bottom: 1px solid var(--lightgray);
+            border-left: 3px solid transparent;
             width: 100%;
             display: block;
             box-sizing: border-box;
@@ -503,10 +646,16 @@
             outline: none;
             font-weight: inherit;
 
-            &:hover,
+            &:hover {
+              background: var(--lightgray);
+            }
+
+            // Visible keyboard focus indicator (left accent + inset shadow)
             &:focus,
             &.focus {
               background: var(--lightgray);
+              border-left-color: var(--secondary);
+              box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--secondary) 20%, transparent);
             }
 
             & > h3 {
@@ -516,6 +665,20 @@
             @media all and not ($mobile) {
               & > p.card-description {
                 display: none;
+              }
+            }
+
+            @media all and ($mobile) {
+              padding: 0.65em 0.85em;
+
+              & > p.card-description {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                font-size: 0.82em;
+                margin-top: 0.25em;
+                line-height: 1.4;
               }
             }
 
@@ -545,7 +708,8 @@
 
           // Idiom quick-answer card
           & .idiom-quick-answer {
-            border-left: 3px solid var(--secondary);
+            // Subtle tint only — full secondary border is reserved for .focus state
+            border-left-color: color-mix(in srgb, var(--secondary) 22%, transparent);
             background: color-mix(in srgb, var(--secondary) 6%, var(--light));
 
             &:hover,

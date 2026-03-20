@@ -16,6 +16,40 @@ interface FSItem {
   [key: string]: unknown
 }
 
+type SearchFilter = "all" | "title" | "content" | "tags"
+type SearchScope = "all" | "idioms" | "capture" | "progress" | "complete"
+
+// Module-level state (reset on each nav to the Search page)
+let fsSearchFilter: SearchFilter = "all"
+let fsActiveScopes: Set<SearchScope> = new Set(["all"])
+let fsPhraseMode: boolean = false
+let fsActiveFolderFilter: string | null = null
+
+const SCOPE_PATTERNS: Record<SearchScope, ((slug: string) => boolean) | undefined> = {
+  all: undefined,
+  idioms: (slug) => slug.startsWith("Idioms/"),
+  capture: (slug) => slug.startsWith("00-—-Capture/"),
+  progress: (slug) => slug.startsWith("10-—-In-Progress/"),
+  complete: (slug) => slug.startsWith("20-—-Complete/"),
+}
+
+function matchesScope(slug: string): boolean {
+  if (fsActiveFolderFilter !== null) {
+    return slug.startsWith(fsActiveFolderFilter + "/")
+  }
+  if (fsActiveScopes.has("all")) return true
+  return [...fsActiveScopes].some((scope) => SCOPE_PATTERNS[scope]?.(slug) ?? false)
+}
+
+// Derive a friendly display label from a folder slug path
+function friendlyFolderLabel(path: string): string {
+  return path
+    .split("/")
+    .map((seg) => seg.replace(/^\d+-—-/, "").replace(/-/g, " ").trim())
+    .filter(Boolean)
+    .join(" > ")
+}
+
 const encoder = (str: string): string[] => {
   const tokens: string[] = []
   let bufferStart = -1
@@ -177,7 +211,7 @@ function parseDateQuery(term: string): DateRange | null {
   return null
 }
 
-function highlight(term: string, text: string): string {
+function highlightText(term: string, text: string): string {
   if (!term || !text) return text
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   const regex = new RegExp(`(${escaped})`, "gi")
@@ -243,18 +277,16 @@ function parseBoolQuery(q: string): QueryNode {
 
   function parsePrimary(): QueryNode {
     if (peek()?.type === "LPAREN") {
-      consume() // (
+      consume()
       const node = parseOr()
-      if (peek()?.type === "RPAREN") consume() // )
+      if (peek()?.type === "RPAREN") consume()
       return node
     }
-    // Collect consecutive WORDs as a single term
     const words: string[] = []
     while (peek()?.type === "WORD") {
       words.push(consume().value)
     }
     if (words.length === 0) {
-      // Unexpected token — skip it and return an empty term
       if (peek()) consume()
       return { type: "term", value: "" }
     }
@@ -278,26 +310,107 @@ function setDifference(a: Set<number>, b: Set<number>): Set<number> {
   return new Set([...a].filter((x) => !b.has(x)))
 }
 
-// ─── Main search logic ───────────────────────────────────────────────────────
+// ─── Build breadcrumb from slug ──────────────────────────────────────────────
+
+function buildBreadcrumb(slug: string): string {
+  const parts = slug.split("/")
+  // Drop the last segment (the file name), keep only folder segments
+  const folders = parts.slice(0, -1)
+  if (folders.length === 0) return ""
+  return folders
+    .map((seg) => seg.replace(/^\d+-—-/, "").replace(/-/g, " ").trim())
+    .filter(Boolean)
+    .join(" > ")
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
 
 document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
   const currentSlug = e.detail.url
   if (currentSlug !== ("Search" as FullSlug)) return
 
+  // Reset state on each nav
+  fsSearchFilter = "all"
+  fsActiveScopes = new Set(["all"])
+  fsPhraseMode = false
+  fsActiveFolderFilter = null
+
   const data: ContentData = await fetchData
   const inputEl = document.getElementById("full-search-input") as HTMLInputElement | null
   const resultsEl = document.getElementById("full-search-results") as HTMLDivElement | null
-  const countEl = document.getElementById("full-search-count") as HTMLDivElement | null
+  const countEl = document.getElementById("fs-count") as HTMLDivElement | null
   const sortEl = document.getElementById("fs-sort") as HTMLSelectElement | null
-  const filterTitle = document.getElementById("fs-filter-title") as HTMLInputElement | null
-  const filterContent = document.getElementById("fs-filter-content") as HTMLInputElement | null
-  const filterTags = document.getElementById("fs-filter-tags") as HTMLInputElement | null
-  const filterPhrase = document.getElementById("fs-filter-phrase") as HTMLInputElement | null
-  const phraseWrapper = document.getElementById("fs-phrase-wrapper") as HTMLElement | null
+  const inputWrapEl = document.getElementById("fs-input-wrap") as HTMLElement | null
+  const scopeRowEl = document.getElementById("fs-scope-row") as HTMLElement | null
+  const phraseBtnEl = document.getElementById("fs-phrase-btn") as HTMLButtonElement | null
 
   if (!inputEl || !resultsEl) return
 
+  // On DESKTOP the nav bar is sticky (custom.scss), so the FS bar must sit flush
+  // below it and track its shrinking height via ResizeObserver + --header-shrink.
+  // We measure `.page-header > header` (the actual nav element) not `.page-header`
+  // (the full grid-row element, which is taller and would create a visible gap).
+  //
+  // On MOBILE `.sidebar.left` is sticky at top:0 and acts as the mobile nav bar
+  // (~77px tall). The FS bar must sit flush below it, so we measure its bottom
+  // and track changes with a ResizeObserver.
+  const fsBar = document.getElementById("fs-sticky-bar")
+  if (fsBar) {
+    const isDesktop = window.matchMedia("(min-width: 801px)").matches
+    if (isDesktop) {
+      const navEl =
+        (document.querySelector(".page-header > header") as HTMLElement | null) ??
+        (document.querySelector(".page-header") as HTMLElement | null)
+
+      const updateFsTop = () => {
+        // Nav is sticky at top:0 so getBoundingClientRect().bottom === current nav height
+        const bottom = navEl ? navEl.getBoundingClientRect().bottom : 0
+        fsBar.style.top = `${Math.max(0, bottom)}px`
+      }
+
+      requestAnimationFrame(updateFsTop)
+      if (navEl) {
+        const ro = new ResizeObserver(updateFsTop)
+        ro.observe(navEl)
+        window.addCleanup(() => ro.disconnect())
+      }
+    } else {
+      // Mobile: the left sidebar is sticky at top:0 and acts as the nav bar.
+      // We must sit flush below it, tracking its height via ResizeObserver.
+      const mobileNav = document.querySelector(".sidebar.left") as HTMLElement | null
+      const updateMobileTop = () => {
+        const bottom = mobileNav ? mobileNav.getBoundingClientRect().bottom : 0
+        fsBar.style.top = `${Math.max(0, bottom)}px`
+      }
+      requestAnimationFrame(updateMobileTop)
+      if (mobileNav) {
+        const ro = new ResizeObserver(updateMobileTop)
+        ro.observe(mobileNav)
+        window.addCleanup(() => ro.disconnect())
+      }
+    }
+  }
+
   const idDataMap = Object.keys(data) as FullSlug[]
+
+  // Build folder index from all slug ancestors
+  if (!(window as any).__fsFolderIndex) {
+    const folderPaths = new Set<string>()
+    for (const slug of idDataMap) {
+      if (slug === "Search") continue
+      const parts = slug.split("/")
+      for (let i = 1; i < parts.length; i++) {
+        folderPaths.add(parts.slice(0, i).join("/"))
+      }
+    }
+    ;(window as any).__fsFolderIndex = [...folderPaths].map((path) => ({
+      path,
+      label: friendlyFolderLabel(path),
+    }))
+  }
+
+  const folderIndex: Array<{ path: string; label: string }> = (window as any).__fsFolderIndex ?? []
+
   let indexPopulated = false
 
   const index = new FlexSearch.Document<FSItem>({
@@ -336,53 +449,213 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     return new URL(resolveRelative(currentSlug, slug), location.toString()).toString()
   }
 
-  // Build HTML for a list of result cards (reusable for main results + suggestions)
-  function buildCards(
-    items: Array<{ slug: FullSlug; fileData: ContentDetails; highlight?: string }>,
-    query: string,
-  ): string {
-    return items
-      .map(({ slug, fileData, highlight: hl }) => {
-        const url = resolveUrl(slug)
-        const title = hl ? highlight(query, fileData.title ?? slug) : (fileData.title ?? slug)
-        const dateStr = fileData.date
-          ? new Date(fileData.date).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : ""
-        const excerpt = hl ? highlight(query, (fileData.content ?? "").slice(0, 200)) : ""
-        const tagsHtml =
-          fileData.tags && fileData.tags.length > 0
-            ? `<ul class="fs-result-tags">${fileData.tags.map((t) => `<li>#${t}</li>`).join("")}</ul>`
-            : ""
-        return `
-          <a class="fs-result-card" href="${url}">
-            <h3 class="fs-result-title">${title}</h3>
-            ${dateStr ? `<p class="fs-result-meta">${dateStr}</p>` : ""}
-            ${excerpt ? `<p class="fs-result-excerpt">${excerpt}</p>` : ""}
-            ${tagsHtml}
-          </a>`
-      })
-      .join("")
+  // ── Folder filter chip management ────────────────────────────────────────
+
+  function setFolderFilter(path: string, label: string) {
+    fsActiveFolderFilter = path
+    // Remove any existing chip
+    inputWrapEl?.querySelector(".fs-chip")?.remove()
+    // Inject chip before the text input
+    if (inputWrapEl) {
+      const chip = document.createElement("span")
+      chip.className = "fs-chip"
+      chip.setAttribute("aria-label", `Filtering by folder: ${label}`)
+      chip.innerHTML = `<span class="fs-chip-icon">📁</span><span class="fs-chip-label">${label}</span><button class="fs-chip-clear" type="button" aria-label="Clear folder filter">×</button>`
+      inputWrapEl.insertBefore(chip, inputEl)
+      const clearBtn = chip.querySelector(".fs-chip-clear") as HTMLButtonElement
+      const clearBtnHandler = () => {
+        clearFolderFilter()
+        inputEl.dispatchEvent(new Event("input"))
+        inputEl.focus()
+      }
+      clearBtn.addEventListener("click", clearBtnHandler)
+      window.addCleanup(() => clearBtn.removeEventListener("click", clearBtnHandler))
+    }
+    // Hide scope row while folder filter is active
+    if (scopeRowEl) scopeRowEl.classList.add("fs-scope-filtered")
+    inputEl.placeholder = "Type to search or narrow…"
   }
 
-  // Search for a term across specified fields, returns item array
+  function clearFolderFilter() {
+    fsActiveFolderFilter = null
+    inputWrapEl?.querySelector(".fs-chip")?.remove()
+    inputEl.placeholder = "Search all notes…"
+    if (scopeRowEl) scopeRowEl.classList.remove("fs-scope-filtered")
+  }
+
+  // ── Filter + scope state management ────────────────────────────────────
+
+  function setFilter(filter: SearchFilter) {
+    fsSearchFilter = filter
+    const filterBtns = document.querySelectorAll<HTMLElement>(".fs-filter-btn")
+    filterBtns.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === filter)
+    })
+  }
+
+  function setPhraseMode(active: boolean) {
+    fsPhraseMode = active
+    if (phraseBtnEl) {
+      phraseBtnEl.classList.toggle("active", active)
+      phraseBtnEl.setAttribute("aria-pressed", String(active))
+    }
+  }
+
+  function toggleScope(scope: SearchScope) {
+    if (scope === "all") {
+      fsActiveScopes = new Set(["all"])
+    } else if (fsActiveScopes.has(scope)) {
+      fsActiveScopes.delete(scope)
+      if (fsActiveScopes.size === 0) fsActiveScopes.add("all")
+    } else {
+      fsActiveScopes.delete("all")
+      fsActiveScopes.add(scope)
+    }
+    const scopeBtns = document.querySelectorAll<HTMLElement>(".fs-scope-btn")
+    scopeBtns.forEach((btn) => {
+      btn.classList.toggle("active", fsActiveScopes.has((btn.dataset.scope ?? "all") as SearchScope))
+    })
+  }
+
+  // ── Section browser ──────────────────────────────────────────────────────
+
+  const SECTIONS = [
+    { emoji: "📥", label: "Capture",           path: "00-—-Capture",           desc: "Raw topics and sources" },
+    { emoji: "📖", label: "In Progress",        path: "10-—-In-Progress",        desc: "Studies currently being developed" },
+    { emoji: "✅", label: "Complete",           path: "20-—-Complete",           desc: "Finished, teachable study notes" },
+    { emoji: "✉️", label: "Copy-Paste Rebukes", path: "Copy-Paste-Rebukes",      desc: "Ready-to-use scripture rebukes" },
+  ]
+
+  function renderSectionBrowser() {
+    if (!resultsEl) return
+    const sectionCards = SECTIONS.map((sec) => {
+      const count = Object.keys(data).filter((s) => s.startsWith(sec.path + "/")).length
+      return `
+        <button class="fs-section-card" data-section-path="${sec.path}" data-section-label="${sec.label}">
+          <span class="fs-section-emoji">${sec.emoji}</span>
+          <span class="fs-section-info">
+            <span class="fs-section-name">${sec.label}</span>
+            <span class="fs-section-desc">${sec.desc}</span>
+          </span>
+          <span class="fs-section-count">${count}</span>
+        </button>`
+    }).join("")
+
+    resultsEl.innerHTML = `
+      <div class="fs-section-browser">
+        <p class="fs-section-browser-heading">Browse by section</p>
+        <div class="fs-section-grid">${sectionCards}</div>
+      </div>`
+
+    // Attach click handlers
+    resultsEl.querySelectorAll<HTMLButtonElement>(".fs-section-card").forEach((card) => {
+      const handler = () => {
+        const path = card.dataset.sectionPath!
+        const label = card.dataset.sectionLabel!
+        setFolderFilter(path, label)
+        inputEl.dispatchEvent(new Event("input"))
+        inputEl.focus()
+      }
+      card.addEventListener("click", handler)
+      window.addCleanup(() => card.removeEventListener("click", handler))
+    })
+  }
+
+  // ── Folder cards (subfolder drill-down) ──────────────────────────────────
+
+  function renderFolderCards(parentPath: string | null): string {
+    let matches: Array<{ path: string; label: string }>
+    if (parentPath !== null) {
+      // Show direct children of parentPath
+      const prefix = parentPath + "/"
+      matches = folderIndex.filter((f) => {
+        if (!f.path.startsWith(prefix)) return false
+        const remainder = f.path.slice(prefix.length)
+        return !remainder.includes("/") // direct children only
+      })
+    } else {
+      // Show top-level folders
+      matches = folderIndex.filter((f) => !f.path.includes("/"))
+    }
+    if (matches.length === 0) return ""
+    const label = parentPath ? "Narrow to subfolder" : "Filter by folder"
+    const cards = matches.map((folder) => `
+      <button class="fs-folder-card" data-folder-path="${folder.path}" data-folder-label="${folder.label}">
+        <span>📁</span>
+        <span>${folder.label}</span>
+      </button>`).join("")
+    return `
+      <span class="fs-folder-section-label">${label}</span>
+      ${cards}
+      <div class="fs-folder-divider"></div>`
+  }
+
+  function attachFolderCardHandlers(container: HTMLElement) {
+    container.querySelectorAll<HTMLButtonElement>(".fs-folder-card").forEach((card) => {
+      const handler = () => {
+        const path = card.dataset.folderPath!
+        const label = card.dataset.folderLabel!
+        setFolderFilter(path, label)
+        inputEl.dispatchEvent(new Event("input"))
+        inputEl.focus()
+      }
+      card.addEventListener("click", handler)
+      window.addCleanup(() => card.removeEventListener("click", handler))
+    })
+  }
+
+  // ── Result card HTML ─────────────────────────────────────────────────────
+
+  function buildResultCard(
+    slug: FullSlug,
+    fileData: ContentDetails,
+    query: string,
+    doHighlight: boolean,
+  ): string {
+    const url = resolveUrl(slug)
+    const title = doHighlight ? highlightText(query, fileData.title ?? slug) : (fileData.title ?? slug)
+    const dateStr = fileData.date
+      ? new Date(fileData.date).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : ""
+    const breadcrumb = buildBreadcrumb(slug)
+    const rawExcerpt = (fileData.content ?? "").slice(0, 300)
+    const excerpt = doHighlight ? highlightText(query, rawExcerpt) : ""
+    const tagsHtml =
+      fileData.tags && fileData.tags.length > 0
+        ? `<ul class="fs-result-tags">${fileData.tags.map((t) => `<li>${doHighlight ? highlightText(query, "#" + t) : "#" + t}</li>`).join("")}</ul>`
+        : ""
+
+    return `
+      <a class="fs-result-card" href="${url}">
+        <div class="fs-result-header">
+          <h3 class="fs-result-title">${title}</h3>
+          ${dateStr ? `<span class="fs-result-date">${dateStr}</span>` : ""}
+        </div>
+        ${breadcrumb ? `<div class="fs-result-breadcrumb">${breadcrumb}</div>` : ""}
+        ${excerpt ? `<p class="fs-result-excerpt">${excerpt}</p>` : ""}
+        ${tagsHtml}
+      </a>`
+  }
+
+  // Search for a term across fields, returns items
   async function searchFor(
     term: string,
     fields: string[],
-  ): Promise<Array<{ slug: FullSlug; fileData: ContentDetails; highlight: string }>> {
+  ): Promise<Array<{ slug: FullSlug; fileData: ContentDetails }>> {
     if (!term.trim() || fields.length === 0) return []
     const res = await index.searchAsync({ query: term, limit: 1000, index: fields })
     const ids = new Set<number>()
     for (const r of res) for (const id of r.result) ids.add(id as number)
     return [...ids]
-      .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], highlight: term }))
-      .filter((item) => item.slug !== "Search" && item.fileData != null)
+      .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]] }))
+      .filter((item) => item.slug !== "Search" && item.fileData != null && matchesScope(item.slug))
   }
 
-  // Evaluate a boolean query AST, returns Set of matching IDs
+  // Evaluate a boolean query AST
   async function evalBoolNode(node: QueryNode, fields: string[]): Promise<Set<number>> {
     if (node.type === "term") {
       if (!node.value) return new Set()
@@ -392,16 +665,10 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
       return ids
     }
     if (node.type === "and") {
-      return setIntersection(
-        await evalBoolNode(node.left, fields),
-        await evalBoolNode(node.right, fields),
-      )
+      return setIntersection(await evalBoolNode(node.left, fields), await evalBoolNode(node.right, fields))
     }
     if (node.type === "or") {
-      return setUnion(
-        await evalBoolNode(node.left, fields),
-        await evalBoolNode(node.right, fields),
-      )
+      return setUnion(await evalBoolNode(node.left, fields), await evalBoolNode(node.right, fields))
     }
     if (node.type === "not") {
       const all = new Set(idDataMap.map((_, i) => i))
@@ -411,15 +678,14 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     return new Set()
   }
 
-  // Smart suggestions: try adjacent word pairs, then individual words
+  // Smart suggestions
   async function getSmartSuggestions(
     words: string[],
     fields: string[],
-  ): Promise<Array<{ label: string; items: Array<{ slug: FullSlug; fileData: ContentDetails; highlight: string }> }>> {
+  ): Promise<Array<{ label: string; items: Array<{ slug: FullSlug; fileData: ContentDetails }> }>> {
     const seen = new Set<string>()
-    const results: Array<{ label: string; items: Array<{ slug: FullSlug; fileData: ContentDetails; highlight: string }> }> = []
+    const results: Array<{ label: string; items: Array<{ slug: FullSlug; fileData: ContentDetails }> }> = []
 
-    // Adjacent pairs
     for (let i = 0; i < words.length - 1; i++) {
       const pair = `${words[i]} ${words[i + 1]}`
       if (seen.has(pair)) continue
@@ -428,7 +694,6 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
       if (r.length > 0) results.push({ label: `"${pair}"`, items: r })
     }
 
-    // Individual words (skip stopwords / very short)
     const stopwords = new Set(["the", "a", "an", "in", "of", "to", "for", "and", "or", "but", "is", "it"])
     for (const word of words) {
       if (word.length < 3 || stopwords.has(word.toLowerCase())) continue
@@ -441,14 +706,18 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     return results.slice(0, 3)
   }
 
+  const MAX_RESULTS = 100
+
   function renderResults(
-    items: Array<{ slug: FullSlug; fileData: ContentDetails; highlight?: string }>,
+    items: Array<{ slug: FullSlug; fileData: ContentDetails; doHighlight?: boolean }>,
     query: string,
     dateLabel?: string,
     words?: string[],
     fields?: string[],
   ) {
+    if (!resultsEl) return
     resultsEl.innerHTML = ""
+
     if (items.length === 0) {
       const doSuggestions = async () => {
         const w = words ?? query.trim().split(/\s+/).filter(Boolean)
@@ -465,7 +734,7 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
                     (g) => `
                   <div class="fs-similar-group">
                     <p class="fs-similar-label">Results for ${g.label}</p>
-                    ${buildCards(g.items, g.label.replace(/"/g, ""))}
+                    ${g.items.map((item) => buildResultCard(item.slug, item.fileData, g.label.replace(/"/g, ""), true)).join("")}
                   </div>`,
                   )
                   .join("")}
@@ -480,34 +749,76 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
       doSuggestions()
       return
     }
+
+    const total = items.length
+    const displayed = items.slice(0, MAX_RESULTS)
+
     if (countEl) {
-      const count = `${items.length} result${items.length === 1 ? "" : "s"}`
+      const count = `${total} result${total === 1 ? "" : "s"}`
       countEl.textContent = dateLabel ? `📅 ${dateLabel} — ${count}` : count
     }
-    resultsEl.innerHTML = buildCards(items, query)
+
+    let html = ""
+    if (total > MAX_RESULTS) {
+      html += `<div class="fs-see-all">Showing ${MAX_RESULTS} of ${total} results — refine your search to see more</div>`
+    }
+    html += displayed
+      .map((item) => buildResultCard(item.slug, item.fileData, query, item.doHighlight ?? true))
+      .join("")
+    resultsEl.innerHTML = html
+  }
+
+  function getActiveFields(): string[] {
+    if (fsSearchFilter === "all") return ["title", "content", "tags"]
+    return [fsSearchFilter]
   }
 
   async function doSearch(query: string) {
-    if (!query.trim()) {
-      resultsEl.innerHTML = ""
-      if (countEl) countEl.textContent = ""
+    if (!resultsEl) return
+
+    const trimmed = query.trim()
+
+    // Empty query: show section browser or folder content
+    if (!trimmed) {
+      if (fsActiveFolderFilter !== null) {
+        // Show subfolder cards + all notes in this folder
+        const folderCards = renderFolderCards(fsActiveFolderFilter)
+        const folderItems = Object.entries(data)
+          .filter(([slug]) => slug !== "Search" && slug.startsWith(fsActiveFolderFilter + "/"))
+          .sort(([, a], [, b]) => {
+            const aTs = new Date(a.date ?? 0).getTime()
+            const bTs = new Date(b.date ?? 0).getTime()
+            return bTs - aTs
+          })
+          .map(([slug, fileData]) => ({ slug: slug as FullSlug, fileData, doHighlight: false }))
+
+        const total = folderItems.length
+        const displayed = folderItems.slice(0, MAX_RESULTS)
+
+        if (countEl) {
+          countEl.textContent = `${total} note${total === 1 ? "" : "s"} in folder`
+        }
+
+        let html = folderCards
+        if (total > MAX_RESULTS) {
+          html += `<div class="fs-see-all">Showing ${MAX_RESULTS} of ${total} notes — type to search within this folder</div>`
+        }
+        html += displayed.map((item) => buildResultCard(item.slug, item.fileData, "", false)).join("")
+        resultsEl.innerHTML = html
+        attachFolderCardHandlers(resultsEl)
+      } else {
+        if (countEl) countEl.textContent = ""
+        renderSectionBrowser()
+      }
       return
     }
 
     const sort = sortEl?.value ?? "relevance"
-    const useTitle = filterTitle?.checked ?? true
-    const useContent = filterContent?.checked ?? true
-    const useTags = filterTags?.checked ?? true
-
-    // Extract quoted phrases from the query
     const { phrases, searchTerm: effectiveTerm } = extractPhrases(query)
     const hasQuotes = phrases.length > 0
+    const usePhrase = !hasQuotes && fsPhraseMode
 
-    // Phrase checkbox: hide when quotes are active (auto-phrase mode), otherwise always visible
-    if (hasQuotes && filterPhrase) filterPhrase.checked = false
-    const usePhrase = !hasQuotes && (filterPhrase?.checked ?? false)
-
-    // Check for date query (use raw query so date phrases still parse)
+    // Date query
     const dateRange = parseDateQuery(query)
     if (dateRange) {
       const toLocalDateStr = (ts: string | Date | undefined): string => {
@@ -523,78 +834,91 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
         .filter(([slug, fd]) => {
           const fileDate = toLocalDateStr(fd.date as string | undefined)
           const slugDate = toSlugDateStr(slug)
-          return (inRange(fileDate) || inRange(slugDate)) && slug !== "Search"
+          return (inRange(fileDate) || inRange(slugDate)) && slug !== "Search" && matchesScope(slug)
         })
         .sort(([, a], [, b]) => {
           const aTs = new Date(a.date ?? 0).getTime()
           const bTs = new Date(b.date ?? 0).getTime()
           return sort === "date-asc" ? aTs - bTs : bTs - aTs
         })
-        .map(([slug, fileData]) => ({ slug: slug as FullSlug, fileData, highlight: undefined }))
+        .map(([slug, fileData]) => ({ slug: slug as FullSlug, fileData, doHighlight: false }))
       renderResults(dateMatches, query, dateRange.label)
       return
     }
 
     await populateIndex()
 
-    const searchFields: string[] = []
-    if (useTitle) searchFields.push("title")
-    if (useContent) searchFields.push("content")
-    if (useTags) searchFields.push("tags")
+    const searchFields = getActiveFields()
     if (searchFields.length === 0) {
       renderResults([], query)
       return
     }
 
-    // Boolean query path (only when no quoted phrases)
+    // Show folder cards for query >= 2 chars when no folder filter active
+    const folderCardsHtml =
+      fsActiveFolderFilter === null && effectiveTerm.length >= 2
+        ? (() => {
+            const lowerQuery = effectiveTerm.toLowerCase()
+            const topLevelMatches = folderIndex
+              .filter((f) => !f.path.includes("/") && f.label.toLowerCase().includes(lowerQuery))
+              .slice(0, 5)
+            if (topLevelMatches.length === 0) return ""
+            const cards = topLevelMatches.map((folder) => `
+              <button class="fs-folder-card" data-folder-path="${folder.path}" data-folder-label="${folder.label}">
+                <span>📁</span>
+                <span>${folder.label}</span>
+              </button>`).join("")
+            return `
+              <span class="fs-folder-section-label">Filter by folder</span>
+              ${cards}
+              <div class="fs-folder-divider"></div>`
+          })()
+        : fsActiveFolderFilter !== null
+          ? renderFolderCards(fsActiveFolderFilter)
+          : ""
+
+    // Boolean query path
     if (!hasQuotes && queryHasBooleanOps(effectiveTerm)) {
       try {
         const ast = parseBoolQuery(effectiveTerm)
         const ids = await evalBoolNode(ast, searchFields)
         let items = [...ids]
-          .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], highlight: undefined }))
-          .filter((item) => item.slug !== "Search" && item.fileData != null)
+          .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], doHighlight: false }))
+          .filter((item) => item.slug !== "Search" && item.fileData != null && matchesScope(item.slug))
 
-        if (sort === "date-desc" || sort === "date-asc") {
-          items.sort((a, b) => {
-            const aTs = new Date(a.fileData.date ?? 0).getTime()
-            const bTs = new Date(b.fileData.date ?? 0).getTime()
-            return sort === "date-asc" ? aTs - bTs : bTs - aTs
-          })
-        } else if (sort === "title") {
-          items.sort((a, b) => (a.fileData.title ?? "").localeCompare(b.fileData.title ?? ""))
+        applySortInPlace(items, sort)
+        if (folderCardsHtml) {
+          renderResultsWithFolderPrefix(items, query, folderCardsHtml)
+        } else {
+          renderResults(items, effectiveTerm)
         }
-
-        renderResults(items, effectiveTerm)
       } catch {
-        // Fall back to plain search on parse error
         const searchResults = await index.searchAsync({ query: effectiveTerm, limit: 1000, index: searchFields })
         const allIds = new Set<number>()
         for (const r of searchResults) for (const id of r.result) allIds.add(id as number)
-        const items = [...allIds]
-          .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], highlight: effectiveTerm }))
-          .filter((item) => item.slug !== "Search" && item.fileData != null)
-        renderResults(items, effectiveTerm)
+        let items = [...allIds]
+          .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], doHighlight: true }))
+          .filter((item) => item.slug !== "Search" && item.fileData != null && matchesScope(item.slug))
+        applySortInPlace(items, sort)
+        if (folderCardsHtml) {
+          renderResultsWithFolderPrefix(items, query, folderCardsHtml)
+        } else {
+          renderResults(items, effectiveTerm)
+        }
       }
       return
     }
 
-    // Plain search path — use effectiveTerm (quotes stripped) for FlexSearch
+    // Plain search path
     const searchResults = await index.searchAsync({ query: effectiveTerm, limit: 1000, index: searchFields })
-    const allIds: Set<number> = new Set()
-    for (const r of searchResults) {
-      for (const id of r.result) allIds.add(id as number)
-    }
+    const allIds = new Set<number>()
+    for (const r of searchResults) for (const id of r.result) allIds.add(id as number)
 
     let items = [...allIds]
-      .map((id) => ({
-        slug: idDataMap[id],
-        fileData: data[idDataMap[id]],
-        highlight: effectiveTerm,
-      }))
-      .filter((item) => item.slug !== "Search" && item.fileData != null)
+      .map((id) => ({ slug: idDataMap[id], fileData: data[idDataMap[id]], doHighlight: true }))
+      .filter((item) => item.slug !== "Search" && item.fileData != null && matchesScope(item.slug))
 
-    // Apply quoted phrase filter (auto-detect) or checkbox phrase filter
+    // Apply phrase filters
     if (hasQuotes) {
       items = items.filter((item) =>
         phrases.every(
@@ -612,6 +936,20 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
       )
     }
 
+    applySortInPlace(items, sort)
+
+    const words = effectiveTerm.trim().split(/\s+/).filter(Boolean)
+    if (folderCardsHtml) {
+      renderResultsWithFolderPrefix(items, effectiveTerm, folderCardsHtml, undefined, words, searchFields)
+    } else {
+      renderResults(items, effectiveTerm, undefined, words, searchFields)
+    }
+  }
+
+  function applySortInPlace(
+    items: Array<{ slug: FullSlug; fileData: ContentDetails; doHighlight?: boolean }>,
+    sort: string,
+  ) {
     if (sort === "date-desc" || sort === "date-asc") {
       items.sort((a, b) => {
         const aTs = new Date(a.fileData.date ?? 0).getTime()
@@ -621,35 +959,115 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     } else if (sort === "title") {
       items.sort((a, b) => (a.fileData.title ?? "").localeCompare(b.fileData.title ?? ""))
     }
-
-    const words = effectiveTerm.trim().split(/\s+/).filter(Boolean)
-    renderResults(items, effectiveTerm, undefined, words, searchFields)
   }
 
-  // Read initial query from URL
-  const urlParams = new URLSearchParams(location.search)
-  const initialQuery = urlParams.get("q") ?? ""
-  inputEl.value = initialQuery
+  function renderResultsWithFolderPrefix(
+    items: Array<{ slug: FullSlug; fileData: ContentDetails; doHighlight?: boolean }>,
+    query: string,
+    folderHtml: string,
+    dateLabel?: string,
+    words?: string[],
+    fields?: string[],
+  ) {
+    if (!resultsEl) return
+    resultsEl.innerHTML = ""
+
+    if (items.length === 0) {
+      // Still show folder cards even with no results
+      resultsEl.innerHTML = folderHtml + `<p class="fs-no-results">No matching notes found. Try a different search term.</p>`
+      attachFolderCardHandlers(resultsEl)
+      if (countEl) countEl.textContent = ""
+      return
+    }
+
+    const total = items.length
+    const displayed = items.slice(0, MAX_RESULTS)
+
+    if (countEl) {
+      const count = `${total} result${total === 1 ? "" : "s"}`
+      countEl.textContent = dateLabel ? `📅 ${dateLabel} — ${count}` : count
+    }
+
+    let html = folderHtml
+    if (total > MAX_RESULTS) {
+      html += `<div class="fs-see-all">Showing ${MAX_RESULTS} of ${total} results — refine your search to see more</div>`
+    }
+    html += displayed.map((item) => buildResultCard(item.slug, item.fileData, query, item.doHighlight ?? true)).join("")
+    resultsEl.innerHTML = html
+    attachFolderCardHandlers(resultsEl)
+  }
+
+  // ── Event listeners ────────────────────────────────────────────────────
 
   const onInput = () => doSearch(inputEl.value)
   inputEl.addEventListener("input", onInput)
   window.addCleanup(() => inputEl.removeEventListener("input", onInput))
 
+  // Backspace on empty input clears folder filter
+  const onKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Backspace" && inputEl.value === "" && fsActiveFolderFilter !== null) {
+      clearFolderFilter()
+      inputEl.dispatchEvent(new Event("input"))
+    }
+  }
+  inputEl.addEventListener("keydown", onKeydown)
+  window.addCleanup(() => inputEl.removeEventListener("keydown", onKeydown))
+
   const onSortChange = () => doSearch(inputEl.value)
   sortEl?.addEventListener("change", onSortChange)
   window.addCleanup(() => sortEl?.removeEventListener("change", onSortChange))
 
-  const onFilterChange = () => doSearch(inputEl.value)
-  filterTitle?.addEventListener("change", onFilterChange)
-  filterContent?.addEventListener("change", onFilterChange)
-  filterTags?.addEventListener("change", onFilterChange)
-  filterPhrase?.addEventListener("change", onFilterChange)
-  window.addCleanup(() => {
-    filterTitle?.removeEventListener("change", onFilterChange)
-    filterContent?.removeEventListener("change", onFilterChange)
-    filterTags?.removeEventListener("change", onFilterChange)
-    filterPhrase?.removeEventListener("change", onFilterChange)
+  // Filter buttons
+  document.querySelectorAll<HTMLButtonElement>(".fs-filter-btn").forEach((btn) => {
+    const handler = () => {
+      const f = (btn.dataset.filter ?? "all") as SearchFilter
+      setFilter(f)
+      doSearch(inputEl.value)
+    }
+    btn.addEventListener("click", handler)
+    window.addCleanup(() => btn.removeEventListener("click", handler))
   })
 
-  if (initialQuery) await doSearch(initialQuery)
+  // Phrase button
+  if (phraseBtnEl) {
+    const phraseHandler = () => {
+      setPhraseMode(!fsPhraseMode)
+      doSearch(inputEl.value)
+    }
+    phraseBtnEl.addEventListener("click", phraseHandler)
+    window.addCleanup(() => phraseBtnEl.removeEventListener("click", phraseHandler))
+  }
+
+  // Scope buttons
+  document.querySelectorAll<HTMLButtonElement>(".fs-scope-btn").forEach((btn) => {
+    const handler = () => {
+      const scope = (btn.dataset.scope ?? "all") as SearchScope
+      toggleScope(scope)
+      doSearch(inputEl.value)
+    }
+    btn.addEventListener("click", handler)
+    window.addCleanup(() => btn.removeEventListener("click", handler))
+  })
+
+  // Click on input wrap focuses the input
+  if (inputWrapEl) {
+    const wrapClickHandler = (e: MouseEvent) => {
+      if (e.target === inputWrapEl) inputEl.focus()
+    }
+    inputWrapEl.addEventListener("click", wrapClickHandler)
+    window.addCleanup(() => inputWrapEl.removeEventListener("click", wrapClickHandler))
+  }
+
+  // ── Initial load ─────────────────────────────────────────────────────────
+
+  const urlParams = new URLSearchParams(location.search)
+  const initialQuery = urlParams.get("q") ?? ""
+  inputEl.value = initialQuery
+
+  if (initialQuery) {
+    await doSearch(initialQuery)
+  } else {
+    // Show section browser on load
+    renderSectionBrowser()
+  }
 })

@@ -32,14 +32,16 @@ export default ((userOpts?: Partial<SearchOptions>) => {
         </button>
         <div class="search-container">
           <div class="search-space">
-            <input
-              autocomplete="off"
-              class="search-bar"
-              name="search"
-              type="text"
-              aria-label={searchPlaceholder}
-              placeholder={searchPlaceholder}
-            />
+            <div class="search-input-wrap">
+              <input
+                autocomplete="off"
+                class="search-bar"
+                name="search"
+                type="text"
+                aria-label={searchPlaceholder}
+                placeholder={searchPlaceholder}
+              />
+            </div>
             <div class="search-filter-btns" role="group" aria-label="Search filter">
               <button class="filter-btn active" data-filter="all">All</button>
               <button class="filter-btn" data-filter="title">Title</button>

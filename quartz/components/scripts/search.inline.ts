@@ -42,6 +42,7 @@ let searchFilter: SearchFilter = "all"
 let activeScopes: Set<SearchScope> = new Set(["all"])
 let currentSearchTerm: string = ""
 let phraseMode: boolean = false
+let activeFolderFilter: string | null = null
 
 // Slug-based folder scope matching
 const SCOPE_PATTERNS: Record<string, (slug: string) => boolean> = {
@@ -52,8 +53,20 @@ const SCOPE_PATTERNS: Record<string, (slug: string) => boolean> = {
 }
 
 function matchesScope(slug: string): boolean {
+  if (activeFolderFilter !== null) {
+    return slug.startsWith(activeFolderFilter + "/")
+  }
   if (activeScopes.has("all")) return true
   return [...activeScopes].some((scope) => SCOPE_PATTERNS[scope]?.(slug) ?? false)
+}
+
+// Derive a friendly display label from a folder slug path
+function friendlyFolderLabel(path: string): string {
+  return path
+    .split("/")
+    .map((seg) => seg.replace(/^\d+-—-/, "").replace(/-/g, " ").trim())
+    .filter(Boolean)
+    .join(" > ")
 }
 
 function isIdiomSlug(slug: string): boolean {
@@ -876,6 +889,42 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     appendLayout(preview)
   }
 
+  const inputWrap = searchElement.querySelector(".search-input-wrap") as HTMLElement | null
+  const scopeRow = searchElement.querySelector(".search-scope-row") as HTMLElement | null
+
+  function setFolderFilter(path: string, label: string) {
+    activeFolderFilter = path
+    // Remove any existing chip first
+    inputWrap?.querySelector(".search-chip")?.remove()
+    // Inject chip into the input wrap, before the search bar input
+    if (inputWrap) {
+      const chip = document.createElement("span")
+      chip.className = "search-chip"
+      chip.setAttribute("aria-label", `Filtering by folder: ${label}`)
+      chip.innerHTML = `<span class="search-chip-icon">📁</span><span class="search-chip-label">${label}</span><button class="search-chip-clear" type="button" aria-label="Clear folder filter">×</button>`
+      inputWrap.insertBefore(chip, searchBar)
+      const clearBtn = chip.querySelector(".search-chip-clear") as HTMLButtonElement
+      const clearBtnHandler = () => {
+        clearFolderFilter()
+        searchBar.dispatchEvent(new Event("input"))
+        searchBar.focus()
+      }
+      clearBtn.addEventListener("click", clearBtnHandler)
+      window.addCleanup(() => clearBtn.removeEventListener("click", clearBtnHandler))
+    }
+    // Dim scope row while folder filter is active
+    if (scopeRow) scopeRow.classList.add("scope-row-filtered")
+    // Update placeholder to guide the user
+    searchBar.placeholder = "Type to search or narrow…"
+  }
+
+  function clearFolderFilter() {
+    activeFolderFilter = null
+    inputWrap?.querySelector(".search-chip")?.remove()
+    searchBar.placeholder = defaultPlaceholder
+    if (scopeRow) scopeRow.classList.remove("scope-row-filtered")
+  }
+
   function setFilter(filter: SearchFilter) {
     searchFilter = filter
     const filterBtns = searchElement.querySelectorAll(".filter-btn")
@@ -915,6 +964,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     unlockScroll()
     searchBar.value = "" // clear the input when we dismiss the search
     if (sidebar) sidebar.style.zIndex = ""
+    // Restore the full-search page sticky bar
+    const fsBar = document.getElementById("fs-sticky-bar")
+    if (fsBar) fsBar.style.visibility = ""
     removeAllChildren(results)
     if (preview) {
       removeAllChildren(preview)
@@ -923,6 +975,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchType = "basic" // reset search type after closing
     setFilter("all") // reset filter after closing
     setPhraseMode(false) // reset phrase mode after closing
+    clearFolderFilter() // reset folder filter after closing
     activeScopes = new Set(["all"])
     const scopeBtns = searchElement.querySelectorAll<HTMLElement>(".scope-btn")
     scopeBtns.forEach((btn) => {
@@ -932,7 +985,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchButton.focus()
   }
 
-  // Keyboard hints bar — injected once below the search input
+  // Keyboard hints bar — injected once below the search input wrap
   searchElement.querySelector(".search-kbd-hints") ??
     (() => {
       const el = document.createElement("div")
@@ -943,41 +996,271 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       <span><kbd>Enter</kbd> open</span>
       <span><kbd>Esc</kbd> close</span>
     `
-      searchBar.after(el)
+      // Insert after the input wrap (not searchBar directly, which is now inside the wrap)
+      ;(inputWrap ?? searchBar).after(el)
       return el
     })()
 
+  // Backspace on empty input clears the active folder filter
+  const backspaceHandler = (e: KeyboardEvent) => {
+    if (e.key === "Backspace" && searchBar.value === "" && activeFolderFilter !== null) {
+      clearFolderFilter()
+      searchBar.dispatchEvent(new Event("input"))
+    }
+  }
+  searchBar.addEventListener("keydown", backspaceHandler)
+  window.addCleanup(() => searchBar.removeEventListener("keydown", backspaceHandler))
+
   // Cycling placeholder hints
   const placeholderHints = [
+    // ── Date queries ──────────────────────────────────────────────────────────
     "try: today",
-    "try: #faith",
-    "try: last week",
-    'try: "exact phrase"',
-    "try: faith AND grace",
-    "try: march 2026",
-    "try: in:idioms covenant",
     "try: yesterday",
+    "try: last week",
+    "try: this week",
+    "try: this month",
+    "try: last month",
+    "try: 3 days ago",
+    "try: 10 days ago",
+    "try: 2 weeks ago",
+    "try: last monday",
+    "try: last tuesday",
+    "try: last friday",
+    "try: march 2026",
+    "try: jan 2026",
+    "try: feb 2025",
+    "try: last year",
+
+    // ── Core topics ───────────────────────────────────────────────────────────
+    "try: sin",
+    "try: grace",
+    "try: covenant",
+    "try: faith",
+    "try: salvation",
+    "try: repentance",
+    "try: prayer",
+    "try: righteousness",
+    "try: baptism",
+    "try: resurrection",
+    "try: judgment",
+    "try: holy spirit",
+    "try: atonement",
+    "try: prophecy",
+    "try: sabbath",
+    "try: leaven",
+    "try: love",
+    "try: obedience",
+    "try: truth",
+    "try: light",
+    "try: darkness",
+    "try: law",
+    "try: gospel",
+    "try: parable",
+    "try: miracle",
+    "try: healing",
+    "try: wisdom",
+    "try: knowledge",
+    "try: understanding",
+    "try: power",
+    "try: authority",
+    "try: worship",
+    "try: fasting",
+    "try: humility",
+    "try: pride",
+    "try: patience",
+    "try: endurance",
+    "try: peace",
+    "try: wrath",
+    "try: mercy",
+    "try: forgiveness",
+    "try: idolatry",
+    "try: adultery",
+    "try: fornication",
+    "try: jealousy",
+    "try: sanctification",
+    "try: justification",
+    "try: glorification",
+    "try: election",
+    "try: creation",
+    "try: redemption",
+    "try: incarnation",
+    "try: crucifixion",
+    "try: ascension",
+    "try: tribulation",
+    "try: millennium",
+    "try: sacrifice",
+    "try: offering",
+    "try: shepherd",
+    "try: fire",
+    "try: sword",
+    "try: blood",
+    "try: flesh",
+    "try: spirit",
+    "try: bread",
+    "try: wine",
+    "try: water",
+    "try: temple",
+    "try: throne",
+    "try: crown",
+    "try: cross",
+    "try: servant",
+    "try: angels",
+    "try: demons",
+    "try: devil",
+    "try: eternal life",
+    "try: hell",
+    "try: heaven",
+    "try: kingdom",
+    "try: church",
+    "try: promise",
+    "try: inheritance",
+    "try: armor",
+    "try: suffering",
+    "try: persecution",
+    "try: lukewarm",
+    "try: lukewarm church",
+    "try: false prophet",
+    "try: fornication",
+    "try: disobedience",
+
+    // ── Scoped queries ─────────────────────────────────────────────────────────
+    "try: in:idioms",
+    "try: in:capture",
+    "try: in:complete",
+    "try: in:progress",
+    "try: in:idioms covenant",
+    "try: in:idioms leaven",
+    "try: in:idioms bread",
     "try: in:complete righteousness",
+    "try: in:complete faith",
+    "try: in:complete sin",
+    "try: in:complete covenant",
+    "try: in:capture prayer",
+    "try: in:progress grace",
+
+    // ── Tag queries ───────────────────────────────────────────────────────────
+    "try: #faith",
+    "try: #covenant",
+    "try: #prophecy",
+    "try: #grace",
+    "try: #repentance",
+    "try: #salvation",
+    "try: #holy-spirit",
+    "try: #obedience",
+    "try: #prayer",
+    "try: #sin",
+
+    // ── Boolean & exact phrase ─────────────────────────────────────────────────
+    "try: faith AND grace",
+    "try: sin AND judgment",
+    "try: faith OR works",
+    "try: sin NOT lawlessness",
+    "try: prayer AND fasting",
+    "try: love AND obedience",
+    "try: grace NOT works",
+    "try: pride NOT humility",
+    "try: sin AND death",
+    'try: "blood of Christ"',
+    'try: "Holy Spirit"',
+    'try: "fear of God"',
+    'try: "kingdom of God"',
+    'try: "kingdom of heaven"',
+    'try: "Son of God"',
+    'try: "Day of Judgment"',
+    'try: "bread of life"',
+    'try: "new covenant"',
+    'try: "word of God"',
+    'try: "true vine"',
+    'try: "fruit of the spirit"',
+    'try: "Lamb of God"',
+    'try: "eternal life"',
+    'try: "body of Christ"',
   ]
-  let placeholderIdx = 0
-  let placeholderInterval: ReturnType<typeof setInterval> | null = null
-  const defaultPlaceholder = searchBar.placeholder || "Search..."
+  // Typing animation state (replaces simple setInterval)
+  let typingTimer: ReturnType<typeof setTimeout> | null = null
+  let typingChars = ""   // current partial text shown
+  let typingTarget = ""  // full hint being typed
+  let shuffledHints: string[] = []
+  let shuffledIdx = 0
+  let isPlaceholderAnimActive = false  // whether the cycle should be running at all
+  const defaultPlaceholder = "Search for something"
+
+  function pickNextHint(): string {
+    if (shuffledIdx >= shuffledHints.length) {
+      // Re-shuffle with Fisher-Yates
+      shuffledHints = [...placeholderHints]
+      for (let i = shuffledHints.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[shuffledHints[i], shuffledHints[j]] = [shuffledHints[j], shuffledHints[i]]
+      }
+      shuffledIdx = 0
+    }
+    return shuffledHints[shuffledIdx++]
+  }
+
+  // Whether conditions allow the animation to visually update the placeholder
+  // Note: we intentionally allow animation even when the bar is focused — the
+  // placeholder is visible in an empty focused input, and removing this check
+  // is necessary because searchBar.focus() is called immediately on open.
+  function animAllowed(): boolean {
+    return (
+      searchBar.value === "" &&
+      activeFolderFilter === null &&
+      container.classList.contains("active")
+    )
+  }
+
+  function typeStep() {
+    if (!isPlaceholderAnimActive) return
+    if (!animAllowed()) {
+      // Bar is focused or user typed — wait and retry; don't kill the animation
+      typingTimer = setTimeout(typeStep, 250)
+      return
+    }
+    if (typingChars.length < typingTarget.length) {
+      typingChars += typingTarget[typingChars.length]
+      searchBar.placeholder = typingChars
+      typingTimer = setTimeout(typeStep, 65)
+    } else {
+      // Done typing — pause, then start deleting
+      typingTimer = setTimeout(deleteStep, 2200)
+    }
+  }
+
+  function deleteStep() {
+    if (!isPlaceholderAnimActive) return
+    if (!animAllowed()) {
+      typingTimer = setTimeout(deleteStep, 250)
+      return
+    }
+    if (typingChars.length > 0) {
+      typingChars = typingChars.slice(0, -1)
+      searchBar.placeholder = typingChars || "\u00A0" // non-breaking space prevents collapse
+      typingTimer = setTimeout(deleteStep, 28)
+    } else {
+      // Done deleting — short pause, then type next hint
+      typingTarget = pickNextHint()
+      typingTimer = setTimeout(typeStep, 600)
+    }
+  }
 
   function startPlaceholderCycle() {
-    if (placeholderInterval) return
-    placeholderInterval = setInterval(() => {
-      if (searchBar.value === "" && document.activeElement !== searchBar) {
-        placeholderIdx = (placeholderIdx + 1) % placeholderHints.length
-        searchBar.placeholder = placeholderHints[placeholderIdx]
-      }
-    }, 3000)
+    if (isPlaceholderAnimActive) return // already running
+    isPlaceholderAnimActive = true
+    searchBar.placeholder = defaultPlaceholder
+    typingChars = ""
+    typingTarget = pickNextHint()
+    // Initial pause before first hint starts typing
+    typingTimer = setTimeout(typeStep, 1800)
   }
 
   function stopPlaceholderCycle() {
-    if (placeholderInterval) {
-      clearInterval(placeholderInterval)
-      placeholderInterval = null
+    isPlaceholderAnimActive = false
+    if (typingTimer) {
+      clearTimeout(typingTimer)
+      typingTimer = null
     }
+    typingChars = ""
     searchBar.placeholder = defaultPlaceholder
   }
 
@@ -1032,6 +1315,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     lockScroll()
     if (sidebar) sidebar.style.zIndex = "1"
     container.classList.add("active")
+    // Hide the full-search page sticky bar so it doesn't show through the modal backdrop
+    const fsBar = document.getElementById("fs-sticky-bar")
+    if (fsBar) fsBar.style.visibility = "hidden"
     searchBar.focus()
     startPlaceholderCycle()
     // Show recent searches if input is empty
@@ -1081,30 +1367,28 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       }
     } else if (e.key === "ArrowUp" || (e.shiftKey && e.key === "Tab")) {
       e.preventDefault()
-      if (results.contains(document.activeElement)) {
-        // If an element in results-container already has focus, focus previous one
-        const currentResult = currentHover
-          ? currentHover
-          : (document.activeElement as HTMLInputElement | null)
-        const prevResult = currentResult?.previousElementSibling as HTMLInputElement | null
+      if (results.contains(document.activeElement) || currentHover !== null) {
+        // Use querySelectorAll to skip non-focusable elements (dividers, labels)
+        const allCards = [...results.querySelectorAll<HTMLInputElement>(".result-card")]
+        const currentResult = currentHover ?? (document.activeElement as HTMLInputElement | null)
+        const currentIdx = currentResult ? allCards.indexOf(currentResult) : allCards.length
+        const prevResult = allCards[currentIdx - 1] ?? null
         currentResult?.classList.remove("focus")
         prevResult?.focus()
-        if (prevResult) currentHover = prevResult
+        currentHover = prevResult
         await displayPreview(prevResult)
       }
     } else if (e.key === "ArrowDown" || e.key === "Tab") {
       e.preventDefault()
-      // The results should already been focused, so we need to find the next one.
-      // The activeElement is the search bar, so we need to find the first result and focus it.
       if (document.activeElement === searchBar || currentHover !== null) {
-        const firstResult = currentHover
-          ? currentHover
-          : (document.getElementsByClassName("result-card")[0] as HTMLInputElement | null)
-        const secondResult = firstResult?.nextElementSibling as HTMLInputElement | null
-        firstResult?.classList.remove("focus")
-        secondResult?.focus()
-        if (secondResult) currentHover = secondResult
-        await displayPreview(secondResult)
+        // Use querySelectorAll to skip non-focusable elements (dividers, labels)
+        const allCards = [...results.querySelectorAll<HTMLInputElement>(".result-card")]
+        const currentIdx = currentHover ? allCards.indexOf(currentHover) : -1
+        const nextCard = allCards[currentIdx + 1] ?? null
+        currentHover?.classList.remove("focus")
+        nextCard?.focus()
+        currentHover = nextCard
+        await displayPreview(nextCard)
       }
     }
   }
@@ -1181,6 +1465,11 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     async function onMouseEnter(ev: MouseEvent) {
       if (!ev.target) return
       const target = ev.target as HTMLInputElement
+      // Mouse takes over from keyboard — clear any keyboard-set .focus from other cards
+      if (currentHover && currentHover !== target) {
+        currentHover.classList.remove("focus")
+        currentHover = null
+      }
       await displayPreview(target)
     }
 
@@ -1300,8 +1589,86 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     results.appendChild(section)
   }
 
+  function buildFolderFilterCards(query: string): HTMLElement[] {
+    const folderIndex: Array<{ path: string; label: string }> = (window as any).__folderIndex ?? []
+    if (!folderIndex.length) return []
+
+    const q = query.toLowerCase().trim()
+    let matches: Array<{ path: string; label: string; displayLabel: string }>
+
+    if (activeFolderFilter !== null) {
+      // When a filter is active: show direct child sub-folders of the current filter.
+      // Show all children when no query, or filter by query when one is entered.
+      const prefix = activeFolderFilter + "/"
+      matches = folderIndex
+        .filter((f) => {
+          if (!f.path.startsWith(prefix)) return false
+          // Only direct children — no deeper nesting
+          const rest = f.path.slice(prefix.length)
+          if (rest.includes("/")) return false
+          if (q) {
+            return f.label.toLowerCase().includes(q) || f.path.toLowerCase().includes(q)
+          }
+          return true
+        })
+        .slice(0, 6)
+        .map((f) => ({
+          ...f,
+          // Show just the child segment name (last part) for clarity
+          displayLabel: f.label.split(" > ").pop() ?? f.label,
+        }))
+    } else {
+      // No active filter: show top-level folder matches when query is long enough
+      if (!q || q.length < 2) return []
+      matches = folderIndex
+        .filter((f) => f.label.toLowerCase().includes(q) || f.path.toLowerCase().includes(q))
+        .slice(0, 3)
+        .map((f) => ({ ...f, displayLabel: f.label }))
+    }
+
+    if (matches.length === 0) return []
+
+    const elements: HTMLElement[] = []
+
+    const sectionLabel = document.createElement("p")
+    sectionLabel.className = "folder-filter-section-label"
+    sectionLabel.textContent = activeFolderFilter ? "Narrow to subfolder" : "Filter by folder"
+    elements.push(sectionLabel)
+
+    for (const folder of matches) {
+      const card = document.createElement("button")
+      card.type = "button"
+      card.className = "result-card folder-filter-card"
+      card.innerHTML = `<span class="folder-filter-icon">📁</span><span class="folder-filter-name">${folder.displayLabel}</span>`
+      const handler = () => {
+        setFolderFilter(folder.path, folder.label)
+        searchBar.value = ""
+        currentSearchTerm = ""
+        searchBar.dispatchEvent(new Event("input"))
+        searchBar.focus()
+      }
+      card.addEventListener("click", handler)
+      window.addCleanup(() => card.removeEventListener("click", handler))
+      elements.push(card)
+    }
+
+    const divider = document.createElement("div")
+    divider.className = "folder-filter-divider"
+    divider.setAttribute("aria-hidden", "true")
+    elements.push(divider)
+
+    return elements
+  }
+
   async function displayResults(finalResults: Item[], totalCount?: number, dateLabel?: string) {
     removeAllChildren(results)
+
+    // Folder filter suggestions: always shown when filter is active (for sub-folder drilling),
+    // or when query is long enough for top-level folder matches
+    if (activeFolderFilter !== null || currentSearchTerm.trim().length >= 2) {
+      const folderElements = buildFolderFilterCards(currentSearchTerm)
+      folderElements.forEach((el) => results.appendChild(el))
+    }
 
     // "See all results" banner at the TOP so it's always visible without scrolling
     if (totalCount !== undefined && totalCount > finalResults.length) {
@@ -1515,6 +1882,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
+    // Folder filter cards don't have a slug — skip preview for them
+    if (el.classList.contains("folder-filter-card")) return
     const slug = el.id as FullSlug
     const { phrases: quotedPhrases, searchTerm: effectiveTermPreview } =
       extractPhrases(currentSearchTerm)
@@ -1535,6 +1904,18 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     previewInner.classList.add("preview-inner")
     previewInner.append(...innerDiv)
     if (isIdiomSlug(slug)) applyIdiomPreviewStyle(previewInner)
+
+    // If this is a rebuke page, wrap content in article.rebuke and build the tab UI
+    if (slug.startsWith("Copy-Paste-Rebukes/") && (window as any).__initRebukePanel) {
+      const article = document.createElement("article")
+      article.className = "rebuke"
+      while (previewInner.firstChild) article.appendChild(previewInner.firstChild)
+      const tabRoot = document.createElement("div")
+      previewInner.appendChild(tabRoot)
+      previewInner.appendChild(article)
+      ;(window as any).__initRebukePanel(article, tabRoot)
+    }
+
     preview.replaceChildren(previewInner)
 
     // scroll to longest
@@ -1575,8 +1956,25 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
 
     if (currentSearchTerm === "") {
-      searchLayout.classList.remove("display-results")
-      showRecentSearches()
+      if (activeFolderFilter !== null) {
+        // Folder filter active + empty query: show all notes in the folder
+        // (sub-folder chips appear at the top via displayResults → buildFolderFilterCards)
+        searchLayout.classList.add("display-results")
+        const folderItems: Item[] = idDataMap
+          .map((slug, i) => ({ slug, i }))
+          .filter(({ slug }) => slug !== "Search" && matchesScope(slug))
+          .map(({ slug, i }) => ({
+            id: i,
+            slug: slug as FullSlug,
+            title: data[slug].title ?? slug,
+            content: "",
+            tags: [],
+          }))
+        await displayResults(folderItems)
+      } else {
+        searchLayout.classList.remove("display-results")
+        showRecentSearches()
+      }
       return
     }
     searchLayout.classList.add("display-results")
@@ -1802,9 +2200,21 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   }
 
   function onSearchFocus() {
-    stopPlaceholderCycle()
-    // If input is cleared, show recent searches again
-    if (searchBar.value === "") {
+    // Reset the visible placeholder — cancel any in-flight timer first so a pending
+    // typeStep/deleteStep can't fire immediately after and override the reset,
+    // causing a visible flicker between the partial hint and "Search for something".
+    if (isPlaceholderAnimActive) {
+      if (typingTimer) { clearTimeout(typingTimer); typingTimer = null }
+      typingChars = ""
+      typingTarget = pickNextHint()
+      searchBar.placeholder = defaultPlaceholder
+      // Restart the cycle cleanly after the initial pause
+      typingTimer = setTimeout(typeStep, 1800)
+    }
+    // If input is cleared, show recent searches — but not when a folder filter is active
+    // (folder filter focus fires from searchBar.focus() after selecting a folder chip,
+    //  and would wipe the folder results that displayResults just rendered)
+    if (searchBar.value === "" && activeFolderFilter === null) {
       showRecentSearches()
     }
   }
@@ -1906,6 +2316,21 @@ async function fillDocument(data: ContentIndex) {
 
   await Promise.all(promises)
   indexPopulated = true
+
+  // Build folder index from all slug paths (run once)
+  if (!(window as any).__folderIndex) {
+    const folderPaths = new Set<string>()
+    for (const slug of Object.keys(data)) {
+      const parts = slug.split("/")
+      for (let i = 1; i < parts.length; i++) {
+        folderPaths.add(parts.slice(0, i).join("/"))
+      }
+    }
+    ;(window as any).__folderIndex = [...folderPaths].map((path) => ({
+      path,
+      label: friendlyFolderLabel(path),
+    }))
+  }
 }
 
 document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {

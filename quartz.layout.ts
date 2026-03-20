@@ -89,13 +89,20 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug !== "Search",
     }),
     Component.ConditionalRender({
+      component: Component.RebukePanel(),
+      condition: (page) =>
+        ((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
+    }),
+    Component.ConditionalRender({
       component: Component.IdiomFlashcard(),
       condition: (page) =>
         ((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("idiom"),
     }),
     Component.ConditionalRender({
       component: Component.MobileOnly(Component.TableOfContents()),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) =>
+        page.fileData.slug !== "Search" &&
+        !((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
     }),
   ],
   left: [
@@ -118,7 +125,11 @@ export const defaultContentPageLayout: PageLayout = {
       component: Component.Graph(),
       condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "index",
     }),
-    Component.DesktopOnly(Component.TableOfContents()),
+    Component.ConditionalRender({
+      component: Component.DesktopOnly(Component.TableOfContents()),
+      condition: (page) =>
+        !((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
+    }),
     Component.Backlinks(),
     Component.ConditionalRender({
       component: Component.RecentNotes({

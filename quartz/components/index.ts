@@ -35,6 +35,7 @@ export { default as BackToTop } from "./BackToTop"
 export { default as FullSearch } from "./FullSearch"
 export { default as IdiomIndex } from "./IdiomIndex"
 export { default as IdiomFlashcard } from "./IdiomFlashcard"
+export { default as RebukePanel } from "./RebukePanel"
 export { default as IdiomSearch } from "./IdiomSearch"
 export { default as RecentIdioms } from "./RecentIdioms"
 

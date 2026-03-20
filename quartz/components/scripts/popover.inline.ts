@@ -100,6 +100,14 @@ async function mouseEnterHandler(
       if (elts.length === 0) return
 
       elts.forEach((elt) => popoverInner.appendChild(elt))
+
+      // If this is a rebuke page, build the tab UI in the popover
+      const rebukeArticle = popoverInner.querySelector("article.rebuke")
+      if (rebukeArticle && (window as any).__initRebukePanel) {
+        const tabRoot = document.createElement("div")
+        popoverInner.insertBefore(tabRoot, rebukeArticle)
+        ;(window as any).__initRebukePanel(rebukeArticle, tabRoot)
+      }
   }
 
   if (!!document.getElementById(popoverId)) {

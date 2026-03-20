@@ -78,6 +78,11 @@ const HomeSections: QuartzComponent = ({ allFiles, fileData, displayClass }: Qua
       </p>
       <p class="today-link-wrap">
         <a id="today-daily-link" href="#" class="internal">📅 Today's Daily Note</a>
+        <span id="today-tooltip" class="today-tooltip">No daily note for today yet</span>
+        <span id="today-popup" class="today-popup" aria-hidden="true">
+          No daily note has been created for today yet.
+          <button id="today-popup-dismiss" class="today-popup-dismiss">Dismiss</button>
+        </span>
       </p>
     </div>
   )
@@ -87,14 +92,87 @@ HomeSections.css = style
 
 HomeSections.afterDOMLoaded = `
 (function() {
+  var isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+  function todaySlug() {
+    var d = new Date()
+    var pad = function(n) { return String(n).padStart(2, '0') }
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+  }
+
   function updateTodayLink() {
     var el = document.getElementById('today-daily-link')
     if (!el) return
-    var d = new Date()
-    var pad = function(n) { return String(n).padStart(2, '0') }
-    var slug = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+    var slug = todaySlug()
     el.href = '/Daily/' + slug
+
+    // Check if today's note exists in contentIndex
+    fetch('/static/contentIndex.json')
+      .then(function(r) { return r.json() })
+      .then(function(data) {
+        var exists = Object.prototype.hasOwnProperty.call(data, 'Daily/' + slug)
+        setupTodayButton(el, exists)
+      })
+      .catch(function() {
+        // If fetch fails, assume note doesn't exist
+        setupTodayButton(el, false)
+      })
   }
+
+  function setupTodayButton(el, exists) {
+    var tooltip = document.getElementById('today-tooltip')
+    var popup = document.getElementById('today-popup')
+    var dismiss = document.getElementById('today-popup-dismiss')
+
+    if (exists) {
+      el.removeAttribute('aria-disabled')
+      el.removeAttribute('data-today-check')
+      el.classList.remove('today-no-note')
+      if (tooltip) tooltip.style.display = 'none'
+      if (popup) popup.classList.remove('today-popup-visible')
+      return
+    }
+
+    if (!isTouch) {
+      // Desktop: disable the link and show tooltip on hover
+      el.setAttribute('aria-disabled', 'true')
+      el.classList.add('today-no-note')
+      if (tooltip) tooltip.style.display = 'block'
+      el.addEventListener('click', function(e) { e.preventDefault() })
+    } else {
+      // Mobile: intercept click and show popup instead of navigating
+      el.setAttribute('data-today-check', '1')
+    }
+  }
+
+  function initClickInterception() {
+    document.addEventListener('click', function(e) {
+      var el = document.getElementById('today-daily-link')
+      if (!el || !el.getAttribute('data-today-check')) return
+      if (!e.composedPath().includes(el)) return
+
+      // Only intercept if note doesn't exist (we set data-today-check only then)
+      e.preventDefault()
+      var popup = document.getElementById('today-popup')
+      if (popup) {
+        popup.classList.add('today-popup-visible')
+        popup.setAttribute('aria-hidden', 'false')
+      }
+    })
+
+    document.addEventListener('click', function(e) {
+      var dismiss = document.getElementById('today-popup-dismiss')
+      var popup = document.getElementById('today-popup')
+      if (dismiss && e.composedPath().includes(dismiss)) {
+        if (popup) {
+          popup.classList.remove('today-popup-visible')
+          popup.setAttribute('aria-hidden', 'true')
+        }
+      }
+    })
+  }
+
+  initClickInterception()
   updateTodayLink()
   document.addEventListener('nav', updateTodayLink)
 })()

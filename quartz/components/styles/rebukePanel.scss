@@ -222,44 +222,43 @@
 }
 
 // ── Popover / search-preview rendering for rebuke pages ───────────────────────
-// In popovers and search previews, the article's raw HTML is shown without JS.
-// We hide the markdown headings and style the code blocks as cards.
+// The JS init runs inside popovers and search previews, building the full tab UI.
+// The article.rebuke is emptied by the init, so we just need to hide it.
+// The tab UI itself uses the existing .rebuke-tab-strip / .rebuke-card styles.
 
 .popover article.rebuke,
-.search-result-content article.rebuke {
-  // Hide headings and italic limit labels
-  h1, h2, p { display: none; }
+.preview-inner article.rebuke {
+  display: none;
+}
 
-  // Style each code figure as a mini rebuke card
-  figure {
-    margin: 0 0 0.5rem;
-    border: 1px solid var(--lightgray);
-    border-radius: 8px;
-    overflow: hidden;
+// Scale down the tab UI slightly for the narrower preview context
+.popover .rebuke-tab-strip,
+.preview-inner .rebuke-tab-strip {
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
 
-    // Hide the copy-source button Quartz adds
-    button { display: none; }
+.popover .rebuke-tab,
+.preview-inner .rebuke-tab {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.55rem;
+}
 
-    pre {
-      margin: 0;
-      padding: 0.65rem 0.85rem;
-      background: transparent !important;
-      box-shadow: none !important;
-      border: none !important;
+.popover .rebuke-card,
+.preview-inner .rebuke-card {
+  font-size: 0.82rem;
+}
 
-      code {
-        font-size: 0.8rem;
-        line-height: 1.5;
-        color: var(--darkgray) !important;
-        background: transparent !important;
-        white-space: pre-wrap;
-        word-break: break-word;
-
-        // Strip syntax-highlight spans
-        span { color: inherit !important; background: transparent !important; }
-      }
-    }
-  }
+.popover .rebuke-card-text,
+.preview-inner .rebuke-card-text {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  // Limit preview card height
+  max-height: 6rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 
 // ── Mobile ────────────────────────────────────────────────────────────────────

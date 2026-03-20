@@ -79,7 +79,10 @@ export const defaultContentPageLayout: PageLayout = {
       component: Component.Breadcrumbs(),
       condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search",
     }),
-    Component.ArticleTitle(),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => page.fileData.slug !== "Search",
+    }),
     Component.ConditionalRender({
       component: Component.ContentMeta(),
       condition: (page) => page.fileData.slug !== "Search",

@@ -111,14 +111,23 @@
   }
 }
 
+// ── Card header: number + copy button ─────────────────────────────────────────
+
+.rebuke-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem 0.35rem 1rem;
+  background: color-mix(in srgb, var(--lightgray) 14%, transparent);
+  border-bottom: 1px solid var(--lightgray);
+}
+
 .rebuke-card-num {
-  display: inline-block;
   font-size: 0.65rem;
   font-weight: 700;
   color: var(--secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 0.45rem 1rem 0.2rem;
   opacity: 0.7;
 }
 
@@ -129,16 +138,16 @@
   color: var(--darkgray);
   white-space: pre-wrap;
   word-break: break-word;
-  padding: 0 1rem 0.8rem;
+  padding: 0.75rem 1rem;
 }
 
-// ── Card footer: char counter + copy button ───────────────────────────────────
+// ── Card footer: char counter only (copy button moved to header) ──────────────
 
 .rebuke-card-footer {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.55rem 0.85rem;
+  padding: 0.5rem 0.85rem;
   background: color-mix(in srgb, var(--lightgray) 20%, transparent);
   border-top: 1px solid var(--lightgray);
 }
@@ -209,6 +218,47 @@
     color: #4caf7d;
     border-color: color-mix(in srgb, #4caf7d 40%, transparent);
     background: color-mix(in srgb, #4caf7d 10%, transparent);
+  }
+}
+
+// ── Popover / search-preview rendering for rebuke pages ───────────────────────
+// In popovers and search previews, the article's raw HTML is shown without JS.
+// We hide the markdown headings and style the code blocks as cards.
+
+.popover article.rebuke,
+.search-result-content article.rebuke {
+  // Hide headings and italic limit labels
+  h1, h2, p { display: none; }
+
+  // Style each code figure as a mini rebuke card
+  figure {
+    margin: 0 0 0.5rem;
+    border: 1px solid var(--lightgray);
+    border-radius: 8px;
+    overflow: hidden;
+
+    // Hide the copy-source button Quartz adds
+    button { display: none; }
+
+    pre {
+      margin: 0;
+      padding: 0.65rem 0.85rem;
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+
+      code {
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: var(--darkgray) !important;
+        background: transparent !important;
+        white-space: pre-wrap;
+        word-break: break-word;
+
+        // Strip syntax-highlight spans
+        span { color: inherit !important; background: transparent !important; }
+      }
+    }
   }
 }
 

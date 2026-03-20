@@ -89,6 +89,11 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug !== "Search",
     }),
     Component.ConditionalRender({
+      component: Component.RebukePanel(),
+      condition: (page) =>
+        ((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
+    }),
+    Component.ConditionalRender({
       component: Component.IdiomFlashcard(),
       condition: (page) =>
         ((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("idiom"),

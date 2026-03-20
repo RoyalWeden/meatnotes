@@ -34,6 +34,26 @@ function setupToc() {
   }
 }
 
+// Keep scroll-padding-top in sync with the actual sticky header height so that
+// anchor links (TOC, heading links, etc.) don't scroll under the sticky bar.
+let rafPending = false
+function updateScrollPadding() {
+  const header = document.querySelector(".page-header") as HTMLElement | null
+  if (!header) return
+  const h = Math.ceil(header.getBoundingClientRect().height) + 8
+  document.documentElement.style.setProperty("--scroll-padding", `${h}px`)
+}
+
+function onScroll() {
+  if (!rafPending) {
+    rafPending = true
+    requestAnimationFrame(() => {
+      updateScrollPadding()
+      rafPending = false
+    })
+  }
+}
+
 document.addEventListener("nav", () => {
   setupToc()
 
@@ -41,4 +61,9 @@ document.addEventListener("nav", () => {
   observer.disconnect()
   const headers = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]")
   headers.forEach((header) => observer.observe(header))
+
+  // Measure header height for this page and keep it updated as header shrinks on scroll
+  updateScrollPadding()
+  window.addEventListener("scroll", onScroll, { passive: true })
+  window.addCleanup(() => window.removeEventListener("scroll", onScroll))
 })

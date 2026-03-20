@@ -70,6 +70,21 @@
   background: transparent;
 }
 
+.idiom-chip-verse-link {
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+
+  &:hover {
+    color: var(--secondary) !important;
+    border-color: color-mix(in srgb, var(--secondary) 40%, transparent);
+    background: color-mix(in srgb, var(--secondary) 8%, transparent);
+  }
+}
+
 // Link chip — resolved related idiom
 .idiom-chip-link {
   color: var(--secondary) !important;

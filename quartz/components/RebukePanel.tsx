@@ -15,7 +15,7 @@ const RebukePanel: QuartzComponent = () => {
           </svg>
         </span>
         <span class="rebuke-info-text">
-          Select a platform tab, then hit <strong>Copy</strong> on a rebuke to paste it directly into your social post. Bible verse references are linked to BibleGateway KJV.
+          Select a platform tab, then hit <strong>Copy</strong> on a rebuke to paste it directly into your social post.
         </span>
       </div>
       <div id="rebuke-tab-root" />
@@ -163,40 +163,7 @@ RebukePanel.afterDOMLoaded = `
         var card = document.createElement('div')
         card.className = 'rebuke-card'
 
-        var cardNum = document.createElement('div')
-        cardNum.className = 'rebuke-card-num'
-        cardNum.textContent = '#' + (bIdx + 1)
-        card.appendChild(cardNum)
-
-        var textEl = document.createElement('div')
-        textEl.className = 'rebuke-card-text'
-        textEl.textContent = text
-        card.appendChild(textEl)
-
-        var footer = document.createElement('div')
-        footer.className = 'rebuke-card-footer'
-
-        if (section.limit > 0) {
-          var charCount = text.length
-          var pct = Math.min(charCount / section.limit, 1)
-          var barClass = pct < 0.8 ? 'rebuke-bar-ok' : pct < 0.95 ? 'rebuke-bar-warn' : 'rebuke-bar-over'
-
-          var barWrap = document.createElement('div')
-          barWrap.className = 'rebuke-progress-wrap'
-
-          var bar = document.createElement('div')
-          bar.className = 'rebuke-progress-bar ' + barClass
-          bar.style.width = Math.round(pct * 100) + '%'
-          barWrap.appendChild(bar)
-
-          var countLabel = document.createElement('span')
-          countLabel.className = 'rebuke-char-count'
-          countLabel.textContent = charCount.toLocaleString() + ' / ' + section.limit.toLocaleString() + ' chars'
-
-          footer.appendChild(barWrap)
-          footer.appendChild(countLabel)
-        }
-
+        // ── Card header: number + copy button ───────────────────────────────
         var copyBtn = document.createElement('button')
         copyBtn.className = 'rebuke-copy-btn'
         copyBtn.setAttribute('type', 'button')
@@ -212,7 +179,6 @@ RebukePanel.afterDOMLoaded = `
               }, 2000)
             })
           } else {
-            // Fallback
             var ta = document.createElement('textarea')
             ta.value = text
             ta.style.position = 'fixed'
@@ -230,8 +196,46 @@ RebukePanel.afterDOMLoaded = `
           }
         })
 
-        footer.appendChild(copyBtn)
-        card.appendChild(footer)
+        var cardHeader = document.createElement('div')
+        cardHeader.className = 'rebuke-card-header'
+        var cardNum = document.createElement('span')
+        cardNum.className = 'rebuke-card-num'
+        cardNum.textContent = '#' + (bIdx + 1)
+        cardHeader.appendChild(cardNum)
+        cardHeader.appendChild(copyBtn)
+        card.appendChild(cardHeader)
+
+        // ── Card body: rebuke text ───────────────────────────────────────────
+        var textEl = document.createElement('div')
+        textEl.className = 'rebuke-card-text'
+        textEl.textContent = text
+        card.appendChild(textEl)
+
+        // ── Card footer: char counter (only when limit is known) ─────────────
+        if (section.limit > 0) {
+          var charCount = text.length
+          var pct = Math.min(charCount / section.limit, 1)
+          var barClass = pct < 0.8 ? 'rebuke-bar-ok' : pct < 0.95 ? 'rebuke-bar-warn' : 'rebuke-bar-over'
+
+          var footer = document.createElement('div')
+          footer.className = 'rebuke-card-footer'
+
+          var barWrap = document.createElement('div')
+          barWrap.className = 'rebuke-progress-wrap'
+          var bar = document.createElement('div')
+          bar.className = 'rebuke-progress-bar ' + barClass
+          bar.style.width = Math.round(pct * 100) + '%'
+          barWrap.appendChild(bar)
+
+          var countLabel = document.createElement('span')
+          countLabel.className = 'rebuke-char-count'
+          countLabel.textContent = charCount.toLocaleString() + ' / ' + section.limit.toLocaleString() + ' chars'
+
+          footer.appendChild(barWrap)
+          footer.appendChild(countLabel)
+          card.appendChild(footer)
+        }
+
         panel.appendChild(card)
       })
 

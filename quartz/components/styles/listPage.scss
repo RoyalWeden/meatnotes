@@ -114,7 +114,7 @@ li.section-li {
 
 .page-listing:not([data-view]) .cards-grid,
 .page-listing[data-view="cards-sm"] .cards-grid {
-  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
 
   .card-icon      { width: 34px; height: 34px; }
   .card-title     { font-size: 0.82rem; }
@@ -124,25 +124,41 @@ li.section-li {
 // ── Card grid — spacious ──────────────────────────────────────────────────────
 
 .page-listing[data-view="cards-lg"] .cards-grid {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
 
   .card-icon  { width: 54px; height: 54px; }
   .card-title { font-size: 1.05rem; }
   .card-pill  { font-size: 0.68rem; }
 }
 
-// ── Desktop: larger minimum track so cards don't get too narrow ───────────────
+// ── Desktop: fixed column counts ──────────────────────────────────────────────
+// Tablet-narrow (800–999px): keep 3 compact / 2 spacious (same as default, no override needed)
 
-@media (min-width: 800px) {
+// Tablet-wide + desktop-narrow (1000–1499px): 4 compact / 3 spacious
+@media (min-width: 1000px) and (max-width: 1499px) {
   .page-listing:not([data-view]) .cards-grid,
   .page-listing[data-view="cards-sm"] .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+
+    .card-title { font-size: 0.85rem; }
+  }
+
+  .page-listing[data-view="cards-lg"] .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Desktop-wide (≥ 1500px): 5 compact / 3 spacious
+@media (min-width: 1500px) {
+  .page-listing:not([data-view]) .cards-grid,
+  .page-listing[data-view="cards-sm"] .cards-grid {
+    grid-template-columns: repeat(5, 1fr);
 
     .card-title { font-size: 0.88rem; }
   }
 
   .page-listing[data-view="cards-lg"] .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -161,6 +177,9 @@ li.section-li {
 // ── Individual card ───────────────────────────────────────────────────────────
 
 .card-item {
+  // Prevent grid blowout: don't let card content set a wider minimum column size
+  min-width: 0;
+
   .card-link {
     display: flex;
     flex-direction: column;
@@ -290,14 +309,14 @@ li.section-li {
 // ── Mobile overrides ──────────────────────────────────────────────────────────
 
 @media all and ($mobile) {
-  // On mobile, compact = 3 columns min, spacious = 2 columns min
+  // On mobile, compact = 3 fixed columns, spacious = 2 fixed columns
   .page-listing:not([data-view]) .cards-grid,
   .page-listing[data-view="cards-sm"] .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .page-listing[data-view="cards-lg"] .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
 
   // Compact cards on mobile: shrink icon + footer so title has room to show

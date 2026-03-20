@@ -297,7 +297,7 @@
   - Ephraim Envies Judah
   - Where to Do the Feasts
     - Paul Returning to Jerusalem for the Feast
-  - Reproach Was a Burden
+  - [[10 — In Progress/Reproach Was a Burden]]
 
 - Removing the Bound
 

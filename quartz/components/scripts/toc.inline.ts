@@ -44,7 +44,7 @@ function updateScrollPadding() {
   document.documentElement.style.setProperty("--scroll-padding", `${h}px`)
 }
 
-function onScroll() {
+function onScrollOrResize() {
   if (!rafPending) {
     rafPending = true
     requestAnimationFrame(() => {
@@ -62,8 +62,13 @@ document.addEventListener("nav", () => {
   const headers = document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]")
   headers.forEach((header) => observer.observe(header))
 
-  // Measure header height for this page and keep it updated as header shrinks on scroll
+  // Measure header height and keep it updated as the header shrinks on scroll
+  // or reflows on resize (different screen sizes change the header height).
   updateScrollPadding()
-  window.addEventListener("scroll", onScroll, { passive: true })
-  window.addCleanup(() => window.removeEventListener("scroll", onScroll))
+  window.addEventListener("scroll", onScrollOrResize, { passive: true })
+  window.addEventListener("resize", onScrollOrResize, { passive: true })
+  window.addCleanup(() => {
+    window.removeEventListener("scroll", onScrollOrResize)
+    window.removeEventListener("resize", onScrollOrResize)
+  })
 })

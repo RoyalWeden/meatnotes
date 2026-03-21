@@ -34,13 +34,32 @@ function setupToc() {
   }
 }
 
-// Keep scroll-padding-top in sync with the actual sticky header height so that
-// anchor links (TOC, heading links, etc.) don't scroll under the sticky bar.
+// Keep scroll-padding-top in sync with whatever is actually sticking at the top
+// of the viewport right now. We scan all sticky/fixed elements and take the
+// maximum bottom edge of those that are actively sticking (rect.top ≈ CSS top).
+// This is fully dynamic — no hard-coded breakpoints or pixel values — so it
+// works correctly on any screen size, browser, or device.
 let rafPending = false
 function updateScrollPadding() {
-  const header = document.querySelector(".page-header") as HTMLElement | null
-  if (!header) return
-  const h = Math.ceil(header.getBoundingClientRect().height) + 8
+  let maxBottom = 0
+  for (const el of document.querySelectorAll<HTMLElement>("header, nav, div, aside")) {
+    const style = getComputedStyle(el)
+    if (style.position !== "sticky" && style.position !== "fixed") continue
+    const topCss = parseFloat(style.top)
+    // Skip elements not anchored near the top (e.g. bottom-fixed buttons)
+    if (isNaN(topCss) || topCss > 300) continue
+    const rect = el.getBoundingClientRect()
+    if (rect.height === 0) continue
+    // Exclude elements translated off-screen (e.g. a closed mobile menu drawer
+    // that slides in from the left — its rect.right is 0 or negative).
+    if (rect.right <= 0 || rect.left >= window.innerWidth) continue
+    // An element is actively sticking when its rendered top equals its CSS top.
+    // Allow 2px tolerance for subpixel/browser rounding differences.
+    if (rect.top <= topCss + 2) {
+      maxBottom = Math.max(maxBottom, rect.bottom)
+    }
+  }
+  const h = Math.ceil(maxBottom) + 8
   document.documentElement.style.setProperty("--scroll-padding", `${h}px`)
 }
 

@@ -108,7 +108,7 @@ async function _navigate(url: URL, isBack: boolean = false) {
   if (!isBack) {
     if (url.hash) {
       const el = document.getElementById(decodeURIComponent(url.hash.substring(1)))
-      el?.scrollIntoView()
+      if (el) scrollToAnchor(el)
     } else {
       window.scrollTo({ top: 0 })
     }
@@ -145,6 +145,44 @@ async function navigate(url: URL, isBack: boolean = false) {
 
 window.spaNavigate = navigate
 
+// Scroll to an anchor element accounting for whatever sticky/fixed elements
+// will actually be covering the top of the viewport at the target scroll position.
+// We can't rely on CSS scroll-padding-top here because WebKit ignores it when
+// overflow-x: clip is set on the root (a known browser bug).
+function stickyTopAt(targetScrollY: number): number {
+  let maxBottom = 0
+  for (const el of document.querySelectorAll<HTMLElement>("header, nav, div, aside")) {
+    const style = getComputedStyle(el)
+    if (style.position !== "sticky" && style.position !== "fixed") continue
+    const topCss = parseFloat(style.top)
+    if (isNaN(topCss) || topCss > 300) continue
+    const rect = el.getBoundingClientRect()
+    if (rect.height === 0) continue
+    // Skip elements translated off-screen (e.g. a closed slide-in mobile menu)
+    if (rect.right <= 0 || rect.left >= window.innerWidth) continue
+    if (style.position === "fixed") {
+      if (rect.top <= topCss + 2) maxBottom = Math.max(maxBottom, rect.bottom)
+    } else {
+      // Sticky: this element sticks once scrollY >= its document top minus topCss
+      const elementDocTop = rect.top + window.scrollY
+      if (targetScrollY >= elementDocTop - topCss) {
+        maxBottom = Math.max(maxBottom, topCss + rect.height)
+      }
+    }
+  }
+  return Math.ceil(maxBottom) + 8
+}
+
+function scrollToAnchor(el: HTMLElement): void {
+  const elDocTop = el.getBoundingClientRect().top + window.scrollY
+  // Two passes: first estimate gives us a rough target; second pass picks up
+  // any additional sticky elements that only kick in at that scroll depth.
+  const sp1 = stickyTopAt(elDocTop)
+  const sp2 = stickyTopAt(Math.max(0, elDocTop - sp1))
+  const finalScrollY = Math.max(0, elDocTop - sp2)
+  window.scrollTo({ top: finalScrollY, behavior: "smooth" })
+}
+
 function createRouter() {
   if (typeof window !== "undefined") {
     window.addEventListener("click", async (event) => {
@@ -155,7 +193,7 @@ function createRouter() {
 
       if (isSamePage(url) && url.hash) {
         const el = document.getElementById(decodeURIComponent(url.hash.substring(1)))
-        el?.scrollIntoView()
+        if (el) scrollToAnchor(el)
         history.pushState({}, "", url)
         return
       }

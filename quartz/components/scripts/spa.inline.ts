@@ -149,7 +149,10 @@ window.spaNavigate = navigate
 // will actually be covering the top of the viewport at the target scroll position.
 // We can't rely on CSS scroll-padding-top here because WebKit ignores it when
 // overflow-x: clip is set on the root (a known browser bug).
-function stickyTopAt(targetScrollY: number): number {
+// Returns the pixel height that sticky/fixed bars will occupy at the top of the
+// viewport when the page is scrolled to targetScrollY, using currentScrollY to
+// determine which elements are already sticking vs. not yet sticking.
+function stickyTopAt(targetScrollY: number, currentScrollY: number): number {
   let maxBottom = 0
   for (const el of document.querySelectorAll<HTMLElement>("header, nav, div, aside")) {
     const style = getComputedStyle(el)
@@ -166,13 +169,27 @@ function stickyTopAt(targetScrollY: number): number {
     // this one check correctly excludes sidebars on every screen size.
     const center = window.innerWidth / 2
     if (rect.left >= center || rect.right <= center) continue
+
     if (style.position === "fixed") {
+      // Fixed elements are always at the top.
       if (rect.top <= topCss + 2) maxBottom = Math.max(maxBottom, rect.bottom)
     } else {
-      // Sticky: this element sticks once scrollY >= its document top minus topCss
-      const elementDocTop = rect.top + window.scrollY
-      if (targetScrollY >= elementDocTop - topCss) {
-        maxBottom = Math.max(maxBottom, topCss + rect.height)
+      const isSticking = rect.top <= topCss + 2
+      if (isSticking) {
+        // Element is already sticking. On WebKit, offsetTop of a sticky element
+        // returns its VISUAL position (= scrollY), not its natural layout position,
+        // so we can't use offsetTop to know whether it will still stick after an
+        // upward scroll. Instead we rely on the fact that all our sticky header
+        // bars have no sticky-container boundary — they stick for the entire page
+        // — so they will still be sticking at any non-zero targetScrollY.
+        if (targetScrollY > 0) maxBottom = Math.max(maxBottom, topCss + rect.height)
+      } else {
+        // Element is NOT yet sticking. Its current rect.top reflects its natural
+        // layout position (since it's not pinned), so we can safely compute:
+        const naturalDocTop = rect.top + currentScrollY
+        if (targetScrollY >= naturalDocTop - topCss) {
+          maxBottom = Math.max(maxBottom, topCss + rect.height)
+        }
       }
     }
   }
@@ -180,11 +197,11 @@ function stickyTopAt(targetScrollY: number): number {
 }
 
 function scrollToAnchor(el: HTMLElement): void {
-  const elDocTop = el.getBoundingClientRect().top + window.scrollY
-  // Two passes: first estimate gives us a rough target; second pass picks up
-  // any additional sticky elements that only kick in at that scroll depth.
-  const sp1 = stickyTopAt(elDocTop)
-  const sp2 = stickyTopAt(Math.max(0, elDocTop - sp1))
+  const currentScrollY = window.scrollY
+  const elDocTop = el.getBoundingClientRect().top + currentScrollY
+  // Two passes: first estimate → refine with elements that kick in at that depth.
+  const sp1 = stickyTopAt(elDocTop, currentScrollY)
+  const sp2 = stickyTopAt(Math.max(0, elDocTop - sp1), currentScrollY)
   const finalScrollY = Math.max(0, elDocTop - sp2)
   window.scrollTo({ top: finalScrollY, behavior: "smooth" })
 }

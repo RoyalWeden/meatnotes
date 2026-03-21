@@ -53,6 +53,12 @@ function updateScrollPadding() {
     // Exclude elements translated off-screen (e.g. a closed mobile menu drawer
     // that slides in from the left — its rect.right is 0 or negative).
     if (rect.right <= 0 || rect.left >= window.innerWidth) continue
+    // Exclude side panels (left/right sidebars). Sidebars hug the viewport edges
+    // and never cross the horizontal center. Sticky bars we care about (page
+    // header, mobile top bar, alphabet nav) all span through the center, so
+    // this one check correctly excludes sidebars on every screen size.
+    const center = window.innerWidth / 2
+    if (rect.left >= center || rect.right <= center) continue
     // An element is actively sticking when its rendered top equals its CSS top.
     // Allow 2px tolerance for subpixel/browser rounding differences.
     if (rect.top <= topCss + 2) {

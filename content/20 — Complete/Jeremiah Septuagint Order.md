@@ -262,7 +262,7 @@ locked: true
   }
 
   function aLink(href, label) {
-    return '\u003ca href="' + href + '" target="_blank" rel="noopener"\u003e' + label + ' \u2197\u003c/a\u003e';
+    return '\u003ca href=\u0022' + href + '\u0022 target=\u0022_blank\u0022 rel=\u0022noopener\u0022\u003e' + label + ' \u2197\u003c/a\u003e';
   }
 
   // ── Parse verse input: "14" or "14-17" or "14–17" ────────────────────────
@@ -441,9 +441,9 @@ locked: true
     out.className = 'jer-output';
     noteEl.textContent = '';
 
-    var S = '\u003cspan class="jer-wanting-note"\u003e';
+    var S = '\u003cspan class=\u0022jer-wanting-note\u0022\u003e';
     var ES = '\u003c/span\u003e';
-    var SEP = '\u003cspan class="jer-out-sep"\u003e / \u003c/span\u003e';
+    var SEP = '\u003cspan class=\u0022jer-out-sep\u0022\u003e / \u003c/span\u003e';
 
     if (isNaN(chVal)) {
       out.innerHTML = S + 'Enter a chapter to convert' + ES;

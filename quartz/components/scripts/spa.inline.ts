@@ -108,7 +108,7 @@ async function _navigate(url: URL, isBack: boolean = false) {
   if (!isBack) {
     if (url.hash) {
       const el = document.getElementById(decodeURIComponent(url.hash.substring(1)))
-      el?.scrollIntoView()
+      if (el) scrollToAnchor(el)
     } else {
       window.scrollTo({ top: 0 })
     }
@@ -145,6 +145,67 @@ async function navigate(url: URL, isBack: boolean = false) {
 
 window.spaNavigate = navigate
 
+// Scroll to an anchor element accounting for whatever sticky/fixed elements
+// will actually be covering the top of the viewport at the target scroll position.
+// We can't rely on CSS scroll-padding-top here because WebKit ignores it when
+// overflow-x: clip is set on the root (a known browser bug).
+// Returns the pixel height that sticky/fixed bars will occupy at the top of the
+// viewport when the page is scrolled to targetScrollY, using currentScrollY to
+// determine which elements are already sticking vs. not yet sticking.
+function stickyTopAt(targetScrollY: number, currentScrollY: number): number {
+  let maxBottom = 0
+  for (const el of document.querySelectorAll<HTMLElement>("header, nav, div, aside")) {
+    const style = getComputedStyle(el)
+    if (style.position !== "sticky" && style.position !== "fixed") continue
+    const topCss = parseFloat(style.top)
+    if (isNaN(topCss) || topCss > 300) continue
+    const rect = el.getBoundingClientRect()
+    if (rect.height === 0) continue
+    // Skip elements translated off-screen (e.g. a closed slide-in mobile menu)
+    if (rect.right <= 0 || rect.left >= window.innerWidth) continue
+    // Skip side panels (left/right sidebars). Sidebars hug the viewport edges
+    // and never cross the horizontal center. Sticky bars we care about (page
+    // header, mobile top bar, alphabet nav) all span through the center, so
+    // this one check correctly excludes sidebars on every screen size.
+    const center = window.innerWidth / 2
+    if (rect.left >= center || rect.right <= center) continue
+
+    if (style.position === "fixed") {
+      // Fixed elements are always at the top.
+      if (rect.top <= topCss + 2) maxBottom = Math.max(maxBottom, rect.bottom)
+    } else {
+      const isSticking = rect.top <= topCss + 2
+      if (isSticking) {
+        // Element is already sticking. On WebKit, offsetTop of a sticky element
+        // returns its VISUAL position (= scrollY), not its natural layout position,
+        // so we can't use offsetTop to know whether it will still stick after an
+        // upward scroll. Instead we rely on the fact that all our sticky header
+        // bars have no sticky-container boundary — they stick for the entire page
+        // — so they will still be sticking at any non-zero targetScrollY.
+        if (targetScrollY > 0) maxBottom = Math.max(maxBottom, topCss + rect.height)
+      } else {
+        // Element is NOT yet sticking. Its current rect.top reflects its natural
+        // layout position (since it's not pinned), so we can safely compute:
+        const naturalDocTop = rect.top + currentScrollY
+        if (targetScrollY >= naturalDocTop - topCss) {
+          maxBottom = Math.max(maxBottom, topCss + rect.height)
+        }
+      }
+    }
+  }
+  return Math.ceil(maxBottom) + 8
+}
+
+function scrollToAnchor(el: HTMLElement): void {
+  const currentScrollY = window.scrollY
+  const elDocTop = el.getBoundingClientRect().top + currentScrollY
+  // Two passes: first estimate → refine with elements that kick in at that depth.
+  const sp1 = stickyTopAt(elDocTop, currentScrollY)
+  const sp2 = stickyTopAt(Math.max(0, elDocTop - sp1), currentScrollY)
+  const finalScrollY = Math.max(0, elDocTop - sp2)
+  window.scrollTo({ top: finalScrollY, behavior: "smooth" })
+}
+
 function createRouter() {
   if (typeof window !== "undefined") {
     window.addEventListener("click", async (event) => {
@@ -155,7 +216,7 @@ function createRouter() {
 
       if (isSamePage(url) && url.hash) {
         const el = document.getElementById(decodeURIComponent(url.hash.substring(1)))
-        el?.scrollIntoView()
+        if (el) scrollToAnchor(el)
         history.pushState({}, "", url)
         return
       }

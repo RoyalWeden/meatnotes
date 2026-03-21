@@ -371,3 +371,40 @@ button.readermode {
   margin: 0 0 0.3rem;
   padding: 0 0.3rem;
 }
+
+// ── LXX "wanting" verses — passages absent from the Septuagint ───────────────
+.lxx-wanting {
+  cursor: help;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+  color: var(--secondary);
+}
+
+#lxx-wanting-tip {
+  display: none;
+  position: absolute;
+  z-index: 9999;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 8px;
+  padding: 10px 14px;
+  max-width: 280px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  font-size: 0.85rem;
+  line-height: 1.5;
+
+  p {
+    margin: 0 0 6px;
+    color: var(--darkgray);
+  }
+
+  a {
+    color: var(--secondary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -6,7 +6,7 @@
 
 # Backstory
 
-[[Daily/2026-01-09]]: Mark was talking the previous day about there being an uptick of christians saying “Jesus is God” — Jeremy confirms. the next day this is revealed with 2 Thessalonians 2 — which is essentially what the christians quote saying “Jesus is God” — that the christians are the group talked about as “the son of perdition”
+[[Daily/2026-01-09]] : Mark was talking the previous day about there being an uptick of christians saying “Jesus is God” — Jeremy confirms. the next day this is revealed with 2 Thessalonians 2 — which is essentially what the christians quote saying “Jesus is God” — that the christians are the group talked about as “the son of perdition”
 
 # Content
 
@@ -52,7 +52,13 @@ The children of Satan will be revealed by making their works manifest and exposi
 >
 > 13 But all things that are reproved are made ***~MANIFEST~*** by the light: for whatsoever doth make manifest is light.
 
-> Isaiah 57:4 (LXX) Wherein have ye been rioting? and against whom have ye opened your mouth, and against whom have ye loosed your tongue? are ye not ***~children of perdition~***? a lawless seed?
+> Isaiah 57:3-5 (LXX)
+>
+> 3 But draw ye near hither, ye lawless children, the seed of adulterers and the harlot.
+>
+> 4 Wherein have ye been rioting? and against whom have ye opened your mouth, and against whom have ye loosed your tongue? are ye not ***~children of perdition~***? a lawless seed?
+>
+> 5 who call upon idols under the leafy trees, slaying your children in the valleys among the rocks?
 
 > Isaiah 57:4 Against whom do ye sport yourselves? against whom make ye a wide mouth, and draw out the tongue? are ye not ***~children of transgression~***, a seed of falsehood.
 
@@ -140,7 +146,19 @@ look at all the verses where it says “him”, “he”, and “that one” in 
 
 > Ezekiel 28:2 Son of man, say unto the prince of Tyrus, Thus saith the Lord God; Because thine heart is lifted up, and thou hast said, I am a God, I sit in the seat of God, in the midst of the seas; yet thou art a man, and not God, though thou set thine heart as the heart of God:
 
-Satan stands at the Christian’s right hand ([[10 — In Progress/Lie in Right Hand & Satan at Right Hand]])
+Satan stands at the Christian’s right hand ( [[10 — In Progress/Lie in Right Hand & Satan at Right Hand]] )
+
+# other verses
+
+> Daniel 8:13 Then I heard one saint speaking, and another saint said unto that certain saint which spake, How long shall be the vision concerning the daily sacrifice, and the transgression of desolation, to give both the sanctuary and the host to be trodden under foot?
+
+transgression = abomination
+
+> Sirach 16:8-9
+>
+> 8 Neither spared he the place where Lot sojourned, but abhorred them for their pride.
+>
+> 9 He pitied not the ***~people of perdition~***, who were taken away in their sins:
 
 ## **Hymn 14 (formerly 10)**
 

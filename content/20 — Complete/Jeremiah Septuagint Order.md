@@ -1,6 +1,9 @@
 ---
 title: Jeremiah Septuagint Order
+locked: true
+
 ---
+
 
 <style>
 .jer-page { font-family: var(--bodyFont); max-width: 680px; margin: 0 auto; }

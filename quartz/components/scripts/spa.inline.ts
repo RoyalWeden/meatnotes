@@ -160,6 +160,12 @@ function stickyTopAt(targetScrollY: number): number {
     if (rect.height === 0) continue
     // Skip elements translated off-screen (e.g. a closed slide-in mobile menu)
     if (rect.right <= 0 || rect.left >= window.innerWidth) continue
+    // Skip side panels (left/right sidebars). Sidebars hug the viewport edges
+    // and never cross the horizontal center. Sticky bars we care about (page
+    // header, mobile top bar, alphabet nav) all span through the center, so
+    // this one check correctly excludes sidebars on every screen size.
+    const center = window.innerWidth / 2
+    if (rect.left >= center || rect.right <= center) continue
     if (style.position === "fixed") {
       if (rect.top <= topCss + 2) maxBottom = Math.max(maxBottom, rect.bottom)
     } else {

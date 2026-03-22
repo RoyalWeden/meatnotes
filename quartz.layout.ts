@@ -33,6 +33,10 @@ export const sharedPageComponents: SharedLayout = {
       component: Component.IdiomIndex(),
       condition: (page) => page.fileData.filePath?.includes("Bible Idioms") ?? false,
     }),
+    Component.ConditionalRender({
+      component: Component.PdfLibrary(),
+      condition: (page) => page.fileData.slug === "Books-and-PDFs",
+    }),
   ],
   footer: Component.CustomFooter({
     links: {
@@ -53,7 +57,9 @@ const explorerConfig = {
       cleaned !== "Daily" &&
       cleaned !== "Search" &&
       node.displayName !== "All-Notes" &&
-      node.displayName !== "All Notes"
+      node.displayName !== "All Notes" &&
+      node.displayName !== "Books-and-PDFs" &&
+      node.displayName !== "Books & PDFs"
     )
   },
   mapFn: (node: any) => {

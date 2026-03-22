@@ -2,10 +2,23 @@
 description: America
 cssclasses:
   - idiom
-related_idioms: Bozrah,Edom,Esau,Ephraim
-related_verses: Jeremiah 50-51,Isaiah 47-48,Revelation 17-18
+related_idioms:
+  - Bozrah
+  - Edom
+  - Esau
+  - Ephraim
+  - Chaldeans
+related_verses:
+  - Jeremiah 50-51
+  - Isaiah 47-48
+  - Revelation 17-18
+  - Daniel 1
 
 ---
+
+
+
+
 
 # Babylon
 

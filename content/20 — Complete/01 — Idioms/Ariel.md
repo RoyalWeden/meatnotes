@@ -2,10 +2,15 @@
 description: Jerusalem / Judah
 cssclasses:
   - idiom
-related_idioms: Jerusalem, David, Chaldenas
+related_idioms:
+  - Jerusalem
+  - David
+  - Chaldeans
 related_verses: Isaiah 29:1-4,Zechariah 14:1-2
 
 ---
+
+
 
 
 # Ariel

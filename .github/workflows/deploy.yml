@@ -31,6 +31,12 @@ jobs:
           restore-keys: lfs-
       - name: Pull LFS objects
         run: git lfs pull
+      - name: Restore Quartz font cache
+        uses: actions/cache@v4
+        with:
+          path: .quartz-cache/fonts
+          key: quartz-fonts-${{ hashFiles('quartz.config.ts') }}
+          restore-keys: quartz-fonts-
       - uses: actions/setup-node@v4
         with:
           node-version: 22

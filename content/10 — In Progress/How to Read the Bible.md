@@ -31,7 +31,7 @@ The purpose of Yeshua telling you to go learn what this means is because he alre
 >
 > 7 But they like men have transgressed the covenant: there have they dealt treacherously against me.
 
-The reason he quotes Hosea 6 is to tell you that God no longer desires people to keep the sacrificial law, but instead he calls everyone to keep the 10 commandments. Yeshua came to fulfill the sacrifical law that was only added to the law of God through Israel’s disobedience. When we continue to study this same way, we can learn what mercy means.
+The reason he quotes Hosea 6 is to tell you that God no longer desires people to keep the sacrificial law, but instead he calls everyone to keep the 10 commandments. Yeshua came to fulfill the sacrifical law that was only added to the law of God through Israel’s disobedience. When we continue to study this same way, we can learn what mercy means. ([[20 — Complete/01 — Idioms/Mercy]])
 
 > Exodus 20:6 And shewing ***~mercy~*** unto thousands of them that ***~love me, and keep my commandments~***.
 
@@ -127,7 +127,7 @@ Think of a newborn baby, will you give it meat once it is born or will you give 
 >
 > 2 Of the doctrine of baptisms, and of laying on of hands, and of resurrection of the dead, and of eternal judgment.
 
-Now you can see how Paul defines the “milk” as the principles of Yeshua’s doctrine, put simply, repentance.
+Now you can see how Paul defines the “milk” as the principles of Yeshua’s doctrine, put simply, repentance. (Paul speaks more about “milk” in 1 Corinthians 3)
 
 Since we understand what “milk” is, let’s jump back to what Isaiah said.
 
@@ -193,11 +193,53 @@ The second part about reading the bible is what we have been doing — reading l
 
 When we read Matthew 9:13, then went to Hosea 6:6-7, that was an example of doing this.
 
+This is how the word of God was preserved even though there is a lying pen of the scribes (Jeremiah 8:8).
+
 ---
 
 Reading “precept upon precept” and “line upon line” is the “stammering lip and another tongue” that God refers to. Those that read his word this way will learn about his true sabbath rest and the refreshing of the covenant.
 
-There is another group of people that are being spoken to in this way (Isaiah 28:13), but they stumble at the word beca
+There is another group of people that are being spoken to in this way (Isaiah 28:13), but they stumble at the word because they chose not to listen to the watchmen that were showing them what is written in the bible according to “stammering lip”. Therefore, they are taken into great tribulation.
+
+# Daniel Tells You How He Read
+
+> Daniel 9:1-2
+>
+> 1 In the first year of Darius the son of Ahasuerus, of the seed of the Medes, which was made king over the realm of the Chaldeans;
+>
+> 2 In the first year of his reign ***~I Daniel understood by books the number of the years, whereof the word of the Lord came to Jeremiah the prophet~***, that he would accomplish seventy years in the desolations of Jerusalem.
+
+The only way Daniel would understand this is by reading “line upon line.”
+
+> Jeremiah 25:9-13
+>
+> 9 Behold, I will send and take all the families of the north, saith the Lord, and Nebuchadrezzar the king of Babylon, my servant, and will bring them against this land, and against the inhabitants thereof, and against all these nations round about, and will utterly destroy them, and make them an astonishment, and an hissing, and perpetual desolations.
+>
+> 10 Moreover I will take from them the voice of mirth, and the voice of gladness, the voice of the bridegroom, and the voice of the bride, the sound of the millstones, and the light of the candle.
+>
+> 11 And this whole land shall be a desolation, and an astonishment; and these nations shall serve the king of Babylon seventy years.
+>
+> 12 And it shall come to pass, when seventy years are accomplished, that I will punish the king of Babylon, and that nation, saith the Lord, for their iniquity, and the land of the Chaldeans, and will make it perpetual desolations.
+>
+> 13 And I will bring upon that land all my words which I have pronounced against it, even all that is written in this book, which Jeremiah hath prophesied against all the nations.
+
+# Enter Into the Work of the Prophets
+
+> John 4:34-38
+>
+> 34 Yeshua saith unto them, My meat is to do the will of him that sent me, and to finish his work.
+>
+> 35 Say not ye, There are yet four months, and then cometh harvest? behold, I say unto you, Lift up your eyes, and look on the fields; for they are white already to harvest.
+>
+> 36 And he that reapeth receiveth wages, and gathereth fruit unto life eternal: that both he that soweth and he that reapeth may rejoice together.
+>
+> 37 And herein is that saying true, One soweth, and another reapeth.
+>
+> 38 I sent you to reap that whereon ye bestowed no labour: other men laboured, and ye are entered into their labours.
+
+Yeshua plainly says that the “work” is to do the will of God, then he goes on to talk about a harvest. From that, we know Yeshua is talking about working a harvest and making sure to plant seeds. This goes with another parable - the parable of the seedsower - but you can briefly understand this as telling people the truth of the word.
+
+When Yeshua says that someone else sowed and you are to enter into the labor/work that they did, who would be the pill the did the work (the will of God)
 
 # Why He Spoke in Parables
 
@@ -215,6 +257,10 @@ There is another group of people that are being spoken to in this way (Isaiah 28
 >
 > 15 For this people's heart is waxed gross, and their ears are dull of hearing, and their eyes they have closed; lest at any time they should see with their eyes and hear with their ears, and should understand with their heart, and should be converted, and I should heal them.
 >
-> 16 But blessed are your eyes, for they see: and your ears, for they hear.
+> 16 But ***~blessed~*** are your eyes, for they see: and your ears, for they hear.
 >
 > 17 For verily I say unto you, That many prophets and righteous men have desired to see those things which ye see, and have not seen them; and to hear those things which ye hear, and have not heard them.
+
+“Blessed” is a title of the 144k — the watchmen. Those that God chooses to reveal his word to can become this blessed if they endure. The only way that you will be able to endure when God speaks to you is to give out what he has given to you. That is why Yeshua said this:
+
+> Matthew 10:8 Heal the sick, cleanse the lepers, raise the dead, cast out devils: ***~freely ye have received, freely give.~***

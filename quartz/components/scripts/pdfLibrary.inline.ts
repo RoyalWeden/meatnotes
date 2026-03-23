@@ -46,6 +46,9 @@ interface PdfIndex {
   groups: PdfGroupEntry[]
 }
 
+type SortMode = "az" | "za" | "recent"
+type ViewMode = "compact" | "spacious" | "list"
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + " B"
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB"
@@ -53,7 +56,6 @@ function formatFileSize(bytes: number): string {
 }
 
 function renderRecentPdfs(grid: HTMLElement) {
-  // Remove existing recent section
   grid.parentElement?.querySelector(".pdf-recent-section")?.remove()
 
   try {
@@ -94,17 +96,26 @@ function initPdfLibrary() {
   const countEl = document.getElementById("pdf-count")
   const emptyState = document.getElementById("pdf-empty-state")
   const tagBar = document.getElementById("pdf-tag-bar")
+  const sortBtn = document.getElementById("pdf-sort-btn")
+  const sortLabel = document.getElementById("pdf-sort-label")
+  const pdfPage = document.querySelector<HTMLElement>(".pdf-library-page")
 
   if (!grid || !filterInput) return
-
-  // Prevent duplicate initialization
   if (grid.dataset.initialized === "true") return
   grid.dataset.initialized = "true"
 
   let allCards: HTMLElement[] = []
-  let activeTag: string | null = null
+  const activeTags = new Set<string>()
+  let sortMode: SortMode = (localStorage.getItem("pdf-sort") as SortMode) || "az"
+  const viewMode: ViewMode = (localStorage.getItem("pdf-view") as ViewMode) || "compact"
 
-  // Render recent PDFs section
+  // Apply saved view mode immediately
+  applyViewMode(viewMode)
+
+  // Restore sort label
+  const sortLabels: Record<SortMode, string> = { az: "A→Z", za: "Z→A", recent: "Recent" }
+  if (sortLabel) sortLabel.textContent = sortLabels[sortMode]
+
   renderRecentPdfs(grid)
 
   function updateCount(visible: number, total: number) {
@@ -113,13 +124,52 @@ function initPdfLibrary() {
     }
   }
 
+  function applyViewMode(mode: ViewMode) {
+    if (!pdfPage) return
+    pdfPage.setAttribute("data-pdf-view", mode)
+    document.querySelectorAll(".pdf-view-btn").forEach((btn) => {
+      btn.classList.toggle("pdf-view-btn-active", (btn as HTMLElement).dataset.view === mode)
+    })
+    localStorage.setItem("pdf-view", mode)
+  }
+
+  function applySortMode(mode: SortMode) {
+    sortMode = mode
+    localStorage.setItem("pdf-sort", mode)
+    if (sortLabel) sortLabel.textContent = sortLabels[mode]
+
+    const recentSlugs: string[] = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("pdf-recent") || "[]").map((r: any) => r.slug || r.url || "")
+      } catch { return [] }
+    })()
+
+    const sorted = [...allCards].sort((a, b) => {
+      const ta = (a.dataset.title || "").toLowerCase()
+      const tb = (b.dataset.title || "").toLowerCase()
+      if (mode === "za") return tb.localeCompare(ta)
+      if (mode === "recent") {
+        const ai = recentSlugs.indexOf(a.dataset.slug || a.dataset.url || "")
+        const bi = recentSlugs.indexOf(b.dataset.slug || b.dataset.url || "")
+        if (ai === -1 && bi === -1) return ta.localeCompare(tb)
+        if (ai === -1) return 1
+        if (bi === -1) return -1
+        return ai - bi
+      }
+      return ta.localeCompare(tb)
+    })
+
+    for (const card of sorted) grid.appendChild(card)
+    applyFilters()
+  }
+
   function applyFilters() {
     const query = filterInput!.value.toLowerCase().trim()
     let visible = 0
     for (const card of allCards) {
       const title = (card.dataset.title || "").toLowerCase()
       const tags = (card.dataset.tags || "").split(",").filter(Boolean)
-      const matchesTag = !activeTag || tags.includes(activeTag)
+      const matchesTag = activeTags.size === 0 || tags.some((t) => activeTags.has(t))
       const matchesSearch = !query || title.includes(query)
       const show = matchesTag && matchesSearch
       card.classList.toggle("hidden", !show)
@@ -141,13 +191,12 @@ function initPdfLibrary() {
 
     tagBar.style.display = "flex"
 
-    // "All" chip
     const allChip = document.createElement("button")
     allChip.type = "button"
     allChip.className = "pdf-tag-chip pdf-tag-chip-active"
     allChip.textContent = "All"
     allChip.addEventListener("click", () => {
-      activeTag = null
+      activeTags.clear()
       tagBar.querySelectorAll(".pdf-tag-chip").forEach((c) => c.classList.remove("pdf-tag-chip-active"))
       allChip.classList.add("pdf-tag-chip-active")
       applyFilters()
@@ -160,29 +209,50 @@ function initPdfLibrary() {
       chip.className = "pdf-tag-chip"
       chip.textContent = tag
       chip.addEventListener("click", () => {
-        activeTag = tag
-        tagBar.querySelectorAll(".pdf-tag-chip").forEach((c) => c.classList.remove("pdf-tag-chip-active"))
-        chip.classList.add("pdf-tag-chip-active")
+        if (activeTags.has(tag)) {
+          activeTags.delete(tag)
+          chip.classList.remove("pdf-tag-chip-active")
+        } else {
+          activeTags.add(tag)
+          chip.classList.add("pdf-tag-chip-active")
+        }
+        allChip.classList.toggle("pdf-tag-chip-active", activeTags.size === 0)
         applyFilters()
       })
       tagBar.appendChild(chip)
     }
   }
 
+  // View toggle buttons
+  document.querySelectorAll<HTMLElement>(".pdf-view-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.dataset.view as ViewMode
+      if (mode) applyViewMode(mode)
+    })
+  })
+
+  // Sort button (cycles az → za → recent → az)
+  const sortCycle: SortMode[] = ["az", "za", "recent"]
+  sortBtn?.addEventListener("click", () => {
+    const next = sortCycle[(sortCycle.indexOf(sortMode) + 1) % sortCycle.length]
+    applySortMode(next)
+  })
+
+  // Text search
+  filterInput.addEventListener("input", applyFilters)
+
   // Fetch PDF index
   fetch("/static/pdfIndex.json")
     .then((r) => r.json())
     .then((index: PdfIndex) => {
-      // Build local PDF cards
+      // Local PDF cards
       for (const entry of index.local) {
         if (entry.hidden) continue
-
         const card = document.createElement("div")
         card.className = "pdf-card pdf-card-local"
         card.dataset.title = entry.title
         card.dataset.slug = entry.slug
         card.dataset.tags = (entry.tags ?? []).join(",")
-
         card.innerHTML = `
           <div class="pdf-card-thumb">
             <img src="/${entry.thumbnail}" alt="" loading="lazy" />
@@ -191,36 +261,30 @@ function initPdfLibrary() {
           </div>
           <div class="pdf-card-info">
             <h3 class="pdf-card-title">${pdfLibEscapeHtml(entry.title)}</h3>
+            <span class="pdf-card-meta">${entry.pageCount ? entry.pageCount + " pages · " : ""}${formatFileSize(entry.fileSize)}</span>
           </div>
         `
-
         card.addEventListener("click", () => {
-          if (window.__openPdfViewer) {
-            window.__openPdfViewer("/" + entry.slug, { title: entry.title })
-          }
+          if (window.__openPdfViewer) window.__openPdfViewer("/" + entry.slug, { title: entry.title })
         })
-
         grid.appendChild(card)
       }
 
-      // Build external PDF cards
+      // External PDF cards
       for (const entry of index.external) {
         if (entry.hidden) continue
-
         const card = document.createElement("div")
         card.className = "pdf-card pdf-card-external"
         card.dataset.title = entry.title
         card.dataset.url = entry.url
         card.dataset.tags = (entry.tags ?? []).join(",")
-
         card.innerHTML = `
           <div class="pdf-card-thumb">
             <div class="pdf-card-thumb-placeholder">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
+                <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
               </svg>
             </div>
             <span class="pdf-card-badge pdf-card-badge-external">External</span>
@@ -228,9 +292,9 @@ function initPdfLibrary() {
           <div class="pdf-card-info">
             <h3 class="pdf-card-title">${pdfLibEscapeHtml(entry.title)}</h3>
             ${entry.description ? `<p class="pdf-card-desc">${pdfLibEscapeHtml(entry.description)}</p>` : ""}
+            <span class="pdf-card-meta">External PDF</span>
           </div>
         `
-
         card.addEventListener("click", () => {
           if (entry.url.toLowerCase().endsWith(".pdf") && window.__openPdfViewer) {
             window.__openPdfViewer(entry.url, { title: entry.title })
@@ -238,18 +302,16 @@ function initPdfLibrary() {
             window.open(entry.url, "_blank")
           }
         })
-
         grid.appendChild(card)
       }
 
-      // Build web link cards
+      // Web link cards
       for (const entry of index.links ?? []) {
         const card = document.createElement("div")
         card.className = "pdf-card pdf-card-link"
         card.dataset.title = entry.title
         card.dataset.url = entry.url
         card.dataset.tags = (entry.tags ?? []).join(",")
-
         card.innerHTML = `
           <div class="pdf-card-thumb">
             <div class="pdf-card-thumb-placeholder">
@@ -263,59 +325,35 @@ function initPdfLibrary() {
           <div class="pdf-card-info">
             <h3 class="pdf-card-title">${pdfLibEscapeHtml(entry.title)}</h3>
             ${entry.description ? `<p class="pdf-card-desc">${pdfLibEscapeHtml(entry.description)}</p>` : ""}
+            <span class="pdf-card-meta">Web link</span>
           </div>
         `
-
-        card.addEventListener("click", () => {
-          window.open(entry.url, "_blank")
-        })
-
+        card.addEventListener("click", () => window.open(entry.url, "_blank"))
         grid.appendChild(card)
       }
 
-      // Build grouped PDF cards
+      // Group cards
       if (index.groups && index.groups.length > 0) {
         for (const group of index.groups) {
           if (!group.items || group.items.length === 0) continue
-
           const card = document.createElement("div")
           card.className = "pdf-card pdf-card-group"
           card.dataset.title = group.name
           card.dataset.tags = (group.tags ?? []).join(",")
 
-          // Find thumbnail: prefer first local item, then try first external .pdf URL
           const firstLocal = group.items.find((i) => i.slug)
           const localEntry = firstLocal ? index.local.find((e) => e.slug === firstLocal.slug) : null
           const firstExternalPdf = !localEntry
             ? group.items.find((i) => i.url && i.url.toLowerCase().endsWith(".pdf"))
             : null
 
-          let thumbHtml: string
-          if (localEntry) {
-            thumbHtml = `<div class="pdf-card-thumb">
-              <img src="/${localEntry.thumbnail}" alt="" loading="lazy" />
-              <span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span>
-            </div>`
-          } else if (firstExternalPdf) {
-            thumbHtml = `<div class="pdf-card-thumb">
-              <div class="pdf-card-thumb-placeholder">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                </svg>
-              </div>
-              <span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span>
-            </div>`
-          } else {
-            thumbHtml = `<div class="pdf-card-thumb pdf-card-thumb-placeholder">
-              <span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span>
-            </div>`
-          }
+          const thumbHtml = localEntry
+            ? `<div class="pdf-card-thumb"><img src="/${localEntry.thumbnail}" alt="" loading="lazy" /><span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span></div>`
+            : firstExternalPdf
+              ? `<div class="pdf-card-thumb"><div class="pdf-card-thumb-placeholder"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span></div>`
+              : `<div class="pdf-card-thumb pdf-card-thumb-placeholder"><span class="pdf-card-badge pdf-card-badge-versions">${group.items.length} versions</span></div>`
 
-          card.innerHTML = `
-            ${thumbHtml}
+          card.innerHTML = `${thumbHtml}
             <div class="pdf-card-info">
               <h3 class="pdf-card-title">${pdfLibEscapeHtml(group.name)}</h3>
               <select class="pdf-group-select" onclick="event.stopPropagation()">
@@ -324,8 +362,8 @@ function initPdfLibrary() {
                   return `<option value="${i}">${pdfLibEscapeHtml(label ?? "")}</option>`
                 }).join("")}
               </select>
-            </div>
-          `
+              <span class="pdf-card-meta">${group.items.length} versions</span>
+            </div>`
 
           card.addEventListener("click", () => {
             const select = card.querySelector(".pdf-group-select") as HTMLSelectElement
@@ -342,39 +380,30 @@ function initPdfLibrary() {
               }
             }
           })
-
           grid.appendChild(card)
         }
       }
 
-      // Collect all cards and set up filtering
+      // Hide search preview placeholder now that grid is populated
+      const previewPlaceholder = document.getElementById("pdf-search-preview")
+      if (previewPlaceholder) previewPlaceholder.style.display = "none"
+
+      // Collect cards, apply saved sort, build chips
       allCards = Array.from(grid.querySelectorAll<HTMLElement>(".pdf-card"))
+      applySortMode(sortMode)
+      buildTagChips()
       updateCount(allCards.length, allCards.length)
 
-      // Build tag chips
-      buildTagChips()
-
-      // Wire text search (applyFilters handles both tag + text)
-      filterInput.addEventListener("input", applyFilters)
-
-      // Check URL params for auto-open
-      checkUrlForPdfOpen(index)
-    })
-    .catch((err) => {
-      console.warn("[PdfLibrary] Failed to load PDF index:", err)
-    })
-
-  function checkUrlForPdfOpen(index: PdfIndex) {
-    const params = new URLSearchParams(window.location.search)
-    const pdfSlug = params.get("pdf")
-    if (pdfSlug && window.__openPdfViewer) {
-      const pageNum = parseInt(params.get("page") || "1", 10)
-      const entry = index.local.find((e) => e.slug === pdfSlug)
-      if (entry) {
-        window.__openPdfViewer("/" + entry.slug, { page: pageNum })
+      // URL auto-open
+      const params = new URLSearchParams(window.location.search)
+      const pdfSlug = params.get("pdf")
+      if (pdfSlug && window.__openPdfViewer) {
+        const pageNum = parseInt(params.get("page") || "1", 10)
+        const entry = index.local.find((e) => e.slug === pdfSlug)
+        if (entry) window.__openPdfViewer("/" + entry.slug, { page: pageNum })
       }
-    }
-  }
+    })
+    .catch((err) => console.warn("[PdfLibrary] Failed to load PDF index:", err))
 }
 
 function pdfLibEscapeHtml(str: string): string {

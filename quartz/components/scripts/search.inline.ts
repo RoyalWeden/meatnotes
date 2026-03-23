@@ -44,6 +44,7 @@ let currentSearchTerm: string = ""
 let phraseMode: boolean = false
 let activeFolderFilter: string | null = null
 let pdfFilterActive: boolean = false
+let linkFilterActive: boolean = false
 
 // Slug-based folder scope matching
 const SCOPE_PATTERNS: Record<string, (slug: string) => boolean> = {
@@ -159,6 +160,7 @@ interface PdfSearchEntry {
 interface PdfSearchIndex {
   local: PdfSearchEntry[]
   external: Array<{ title: string; url: string; description?: string; isExternal: true }>
+  links: Array<{ title: string; url: string; description?: string; isLink: true }>
 }
 let pdfSearchIndex: PdfSearchIndex | null = null
 const pdfSearchIndexPromise: Promise<PdfSearchIndex | null> = fetch("/static/pdfIndex.json")
@@ -950,6 +952,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   function clearFolderFilter() {
     activeFolderFilter = null
     pdfFilterActive = false
+    linkFilterActive = false
     inputWrap?.querySelector(".search-chip")?.remove()
     searchBar.placeholder = defaultPlaceholder
     if (scopeRow) scopeRow.classList.remove("scope-row-filtered")
@@ -976,6 +979,30 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
     if (scopeRow) scopeRow.classList.add("scope-row-filtered")
     searchBar.placeholder = "Search PDFs by title…"
+  }
+
+  function setLinkFilter() {
+    linkFilterActive = true
+    pdfFilterActive = false
+    activeFolderFilter = null
+    inputWrap?.querySelector(".search-chip")?.remove()
+    if (inputWrap) {
+      const chip = document.createElement("span")
+      chip.className = "search-chip"
+      chip.setAttribute("aria-label", "Filtering: Web Links")
+      chip.innerHTML = `<span class="search-chip-icon">🔗</span><span class="search-chip-label">Web Links</span><button class="search-chip-clear" type="button" aria-label="Clear link filter">×</button>`
+      inputWrap.insertBefore(chip, searchBar)
+      const clearBtn = chip.querySelector(".search-chip-clear") as HTMLButtonElement
+      const clearBtnHandler = () => {
+        clearFolderFilter()
+        searchBar.dispatchEvent(new Event("input"))
+        searchBar.focus()
+      }
+      clearBtn.addEventListener("click", clearBtnHandler)
+      window.addCleanup(() => clearBtn.removeEventListener("click", clearBtnHandler))
+    }
+    if (scopeRow) scopeRow.classList.add("scope-row-filtered")
+    searchBar.placeholder = "Search links by title…"
   }
 
   function setFilter(filter: SearchFilter) {
@@ -1056,7 +1083,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   // Backspace on empty input clears the active folder filter
   const backspaceHandler = (e: KeyboardEvent) => {
-    if (e.key === "Backspace" && searchBar.value === "" && (activeFolderFilter !== null || pdfFilterActive)) {
+    if (e.key === "Backspace" && searchBar.value === "" && (activeFolderFilter !== null || pdfFilterActive || linkFilterActive)) {
       clearFolderFilter()
       searchBar.dispatchEvent(new Event("input"))
     }
@@ -1175,6 +1202,16 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     "try: false prophet",
     "try: fornication",
     "try: disobedience",
+
+    // ── Books & PDFs / Links ───────────────────────────────────────────────────
+    "try: pdf",
+    "try: pdfs",
+    "try: books",
+    "try: link",
+    "try: links",
+    "try: Dead Sea Scrolls",
+    "try: Book of Enoch",
+    "try: Book of Jubilees",
 
     // ── Scoped queries ─────────────────────────────────────────────────────────
     "try: in:idioms",
@@ -1413,6 +1450,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         await displayPreview(active)
         active.click()
       } else {
+        // When PDF/link filter is active, Enter without a focused card does nothing —
+        // user must arrow-navigate to a specific item first
+        if (pdfFilterActive || linkFilterActive) return
         const anchor = document.getElementsByClassName("result-card")[0] as HTMLInputElement | null
         if (!anchor || anchor.classList.contains("no-match")) return
         await displayPreview(anchor)
@@ -1649,6 +1689,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     const q = query.toLowerCase().trim()
     const pdfKeywords = ["book", "books", "pdf", "pdfs"]
     const pdfKeywordMatch = q && pdfKeywords.some((kw) => kw.includes(q) || q.includes(kw))
+    const linkKeywords = ["link", "links", "web"]
+    const linkKeywordMatch = q && linkKeywords.some((kw) => kw.includes(q) || q.includes(kw))
     let matches: Array<{ path: string; label: string; displayLabel: string }>
 
     if (activeFolderFilter !== null) {
@@ -1681,7 +1723,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         .map((f) => ({ ...f, displayLabel: f.label }))
     }
 
-    if (matches.length === 0 && !pdfKeywordMatch) return []
+    if (matches.length === 0 && !pdfKeywordMatch && !linkKeywordMatch) return []
 
     const elements: HTMLElement[] = []
 
@@ -1706,6 +1748,24 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       pdfCard.addEventListener("click", pdfHandler)
       window.addCleanup(() => pdfCard.removeEventListener("click", pdfHandler))
       elements.push(pdfCard)
+    }
+
+    // Add "Web Links" card when query matches link keywords
+    if (linkKeywordMatch && !activeFolderFilter) {
+      const linkCard = document.createElement("button")
+      linkCard.type = "button"
+      linkCard.className = "result-card folder-filter-card"
+      linkCard.innerHTML = `<span class="folder-filter-icon">🔗</span><span class="folder-filter-name">Web Links</span>`
+      const linkHandler = () => {
+        setLinkFilter()
+        searchBar.value = ""
+        currentSearchTerm = ""
+        searchBar.dispatchEvent(new Event("input"))
+        searchBar.focus()
+      }
+      linkCard.addEventListener("click", linkHandler)
+      window.addCleanup(() => linkCard.removeEventListener("click", linkHandler))
+      elements.push(linkCard)
     }
 
     for (const folder of matches) {
@@ -1743,17 +1803,87 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       folderElements.forEach((el) => results.appendChild(el))
     }
 
+    const PDF_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`
+    const LINK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+
+    function makePdfCard(pdf: PdfSearchEntry | { title: string; url: string; description?: string; isExternal: true }): HTMLElement {
+      const card = document.createElement("div")
+      card.className = "result-card pdf-result-card"
+      card.tabIndex = 0
+      if ((pdf as any).isExternal) {
+        const ext = pdf as { title: string; url: string; description?: string }
+        card.dataset.pdfType = "external"
+        card.dataset.pdfTitle = ext.title
+        card.dataset.pdfUrl = ext.url
+        card.dataset.pdfDesc = ext.description || ""
+        card.innerHTML = `
+          <div class="pdf-result-info">
+            <h3 class="card-title"><span class="pdf-inline-icon">${PDF_ICON}</span>${pdfSearchEscapeHtml(ext.title)}</h3>
+            <p class="card-description"><span class="pdf-result-badge">External</span>${ext.description ? " " + pdfSearchEscapeHtml(ext.description) : ""}</p>
+          </div>
+        `
+        const handler = () => { window.open(ext.url, "_blank"); hideSearch() }
+        card.addEventListener("click", handler)
+        card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler() } })
+      } else {
+        const local = pdf as PdfSearchEntry
+        const fmtSize = (b: number) => b < 1048576 ? (b/1024).toFixed(1) + " KB" : (b/1048576).toFixed(1) + " MB"
+        card.dataset.pdfType = "local"
+        card.dataset.pdfTitle = local.title
+        card.dataset.pdfSlug = local.slug
+        card.dataset.pdfThumb = local.thumbnail ? "/" + local.thumbnail : ""
+        card.dataset.pdfPages = String(local.pageCount)
+        card.dataset.pdfSize = fmtSize(local.fileSize)
+        card.innerHTML = `
+          <div class="pdf-result-thumb">${local.thumbnail ? `<img src="/${local.thumbnail}" alt="" loading="lazy" />` : PDF_ICON}</div>
+          <div class="pdf-result-info">
+            <h3 class="card-title">${pdfSearchEscapeHtml(local.title)}</h3>
+            <p class="card-description">${local.pageCount} pages</p>
+          </div>
+        `
+        const handler = () => {
+          hideSearch()
+          if (window.__openPdfViewer) {
+            window.__openPdfViewer("/" + local.slug)
+          } else {
+            window.location.href = `/Books-and-PDFs?pdf=${encodeURIComponent(local.slug)}`
+          }
+        }
+        card.addEventListener("click", handler)
+        card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler() } })
+      }
+      return card
+    }
+
+    function makeLinkCard(entry: { title: string; url: string; description?: string }): HTMLElement {
+      const card = document.createElement("div")
+      card.className = "result-card pdf-result-card"
+      card.tabIndex = 0
+      card.dataset.pdfType = "link"
+      card.dataset.pdfTitle = entry.title
+      card.dataset.pdfUrl = entry.url
+      card.dataset.pdfDesc = entry.description || ""
+      card.innerHTML = `
+        <div class="pdf-result-info">
+          <h3 class="card-title"><span class="pdf-inline-icon">${LINK_ICON}</span>${pdfSearchEscapeHtml(entry.title)}</h3>
+          ${entry.description ? `<p class="card-description">${pdfSearchEscapeHtml(entry.description)}</p>` : ""}
+        </div>
+      `
+      const handler = () => { window.open(entry.url, "_blank"); hideSearch() }
+      card.addEventListener("click", handler)
+      card.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler() } })
+      return card
+    }
+
     // PDF search results — match by title (shown at top, before regular results)
     // When PDF filter is active, show all PDFs (filtered by title if query present)
     if (pdfFilterActive && pdfSearchIndex) {
       const q = currentSearchTerm.toLowerCase().trim()
       const allPdfs = [
-        ...pdfSearchIndex.local.map((e) => ({ ...e, isExternal: false })),
-        ...pdfSearchIndex.external.map((e) => ({ ...e, isExternal: true })),
+        ...pdfSearchIndex.local.map((e) => ({ ...e, isExternal: false as const })),
+        ...pdfSearchIndex.external.map((e) => ({ ...e, isExternal: true as const })),
       ]
-      const matchingPdfs = q
-        ? allPdfs.filter((e) => e.title.toLowerCase().includes(q))
-        : allPdfs
+      const matchingPdfs = q ? allPdfs.filter((e) => e.title.toLowerCase().includes(q)) : allPdfs
 
       const pdfSection = document.createElement("div")
       pdfSection.className = "pdf-search-section"
@@ -1761,38 +1891,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <span>Books & PDFs (${matchingPdfs.length})</span>
       </div>`
-      for (const pdf of matchingPdfs) {
-        const card = document.createElement("div")
-        card.className = "result-card pdf-result-card"
-        if (pdf.isExternal) {
-          card.innerHTML = `
-            <h3 class="card-title">${pdfSearchEscapeHtml(pdf.title)}</h3>
-            <p class="card-description"><span class="pdf-result-badge">External</span>${(pdf as any).description ? " " + pdfSearchEscapeHtml((pdf as any).description) : ""}</p>
-          `
-          card.addEventListener("click", () => {
-            window.open((pdf as any).url, "_blank")
-            hideSearch()
-          })
-        } else {
-          const local = pdf as any
-          card.innerHTML = `
-            <div class="pdf-result-thumb"><img src="/${local.thumbnail}" alt="" loading="lazy" /></div>
-            <div class="pdf-result-info">
-              <h3 class="card-title">${pdfSearchEscapeHtml(local.title)}</h3>
-              <p class="card-description">${local.pageCount} pages</p>
-            </div>
-          `
-          card.addEventListener("click", () => {
-            hideSearch()
-            if (window.__openPdfViewer) {
-              window.__openPdfViewer("/" + local.slug)
-            } else {
-              window.location.href = `/Books-and-PDFs?pdf=${encodeURIComponent(local.slug)}`
-            }
-          })
-        }
-        pdfSection.appendChild(card)
-      }
+      for (const pdf of matchingPdfs) pdfSection.appendChild(makePdfCard(pdf as any))
       results.append(pdfSection)
 
       if (matchingPdfs.length === 0) {
@@ -1802,6 +1901,30 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         results.append(noMatch)
       }
       return // Don't show regular results when PDF filter is active
+    }
+
+    // Link filter active: show all web links
+    if (linkFilterActive && pdfSearchIndex) {
+      const q = currentSearchTerm.toLowerCase().trim()
+      const allLinks = pdfSearchIndex.links ?? []
+      const matchingLinks = q ? allLinks.filter((e) => e.title.toLowerCase().includes(q)) : allLinks
+
+      const linkSection = document.createElement("div")
+      linkSection.className = "pdf-search-section"
+      linkSection.innerHTML = `<div class="pdf-search-section-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span>Web Links (${matchingLinks.length})</span>
+      </div>`
+      for (const entry of matchingLinks) linkSection.appendChild(makeLinkCard(entry))
+      results.append(linkSection)
+
+      if (matchingLinks.length === 0) {
+        const noMatch = document.createElement("div")
+        noMatch.className = "result-card no-match"
+        noMatch.innerHTML = `<h3>No links found.</h3><p>Try another search term?</p>`
+        results.append(noMatch)
+      }
+      return // Don't show regular results when link filter is active
     }
 
     if (currentSearchTerm.trim().length >= 2 && pdfSearchIndex) {
@@ -1817,39 +1940,20 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <span>PDFs (${matchingPdfs.length})</span>
         </div>`
-        for (const pdf of matchingPdfs.slice(0, 5)) {
-          const card = document.createElement("div")
-          card.className = "result-card pdf-result-card"
-          if (pdf.isExternal) {
-            card.innerHTML = `
-              <h3 class="card-title">${pdfSearchEscapeHtml(pdf.title)}</h3>
-              <p class="card-description"><span class="pdf-result-badge">External</span>${(pdf as any).description ? " " + pdfSearchEscapeHtml((pdf as any).description) : ""}</p>
-            `
-            card.addEventListener("click", () => {
-              window.open((pdf as any).url, "_blank")
-              hideSearch()
-            })
-          } else {
-            const local = pdf as PdfSearchEntry
-            card.innerHTML = `
-              <div class="pdf-result-thumb"><img src="/${local.thumbnail}" alt="" loading="lazy" /></div>
-              <div class="pdf-result-info">
-                <h3 class="card-title">${pdfSearchEscapeHtml(local.title)}</h3>
-                <p class="card-description">${local.pageCount} pages</p>
-              </div>
-            `
-            card.addEventListener("click", () => {
-              hideSearch()
-              if (window.__openPdfViewer) {
-                window.__openPdfViewer("/" + local.slug)
-              } else {
-                window.location.href = `/Books-and-PDFs?pdf=${encodeURIComponent(local.slug)}`
-              }
-            })
-          }
-          pdfSection.appendChild(card)
-        }
+        for (const pdf of matchingPdfs.slice(0, 5)) pdfSection.appendChild(makePdfCard(pdf as any))
         results.append(pdfSection)
+      }
+
+      const matchingLinks = (pdfSearchIndex.links ?? []).filter((e) => e.title.toLowerCase().includes(q))
+      if (matchingLinks.length > 0) {
+        const linkSection = document.createElement("div")
+        linkSection.className = "pdf-search-section"
+        linkSection.innerHTML = `<div class="pdf-search-section-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span>Links (${matchingLinks.length})</span>
+        </div>`
+        for (const entry of matchingLinks.slice(0, 5)) linkSection.appendChild(makeLinkCard(entry))
+        results.append(linkSection)
       }
     }
 
@@ -2063,10 +2167,54 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     }
   }
 
+  const PDF_PREVIEW_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`
+  const LINK_PREVIEW_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+
   async function displayPreview(el: HTMLElement | null) {
     if (!searchLayout || !enablePreview || !el || !preview) return
     // Folder filter cards don't have a slug — skip preview for them
     if (el.classList.contains("folder-filter-card")) return
+
+    // Custom preview for PDF/link search result cards
+    if (el.classList.contains("pdf-result-card")) {
+      const type = el.dataset.pdfType
+      const title = pdfSearchEscapeHtml(el.dataset.pdfTitle || "")
+      previewInner = document.createElement("div")
+      previewInner.classList.add("preview-inner", "pdf-preview-panel")
+      if (type === "local") {
+        const thumb = el.dataset.pdfThumb || ""
+        const pages = el.dataset.pdfPages || ""
+        const size = el.dataset.pdfSize || ""
+        previewInner.innerHTML = thumb
+          ? `<div class="pdf-preview-cover-wrap"><img src="${thumb}" alt="" /></div>`
+          : `<div class="pdf-preview-icon-wrap">${PDF_PREVIEW_ICON}</div>`
+        previewInner.innerHTML += `
+          <h3 class="pdf-preview-title">${title}</h3>
+          <p class="pdf-preview-meta">${[pages ? pages + " pages" : "", size].filter(Boolean).join(" · ")}</p>
+          <p class="pdf-preview-action">Opens in PDF viewer</p>`
+      } else if (type === "external") {
+        const desc = el.dataset.pdfDesc ? `<p class="pdf-preview-desc">${pdfSearchEscapeHtml(el.dataset.pdfDesc)}</p>` : ""
+        previewInner.innerHTML = `
+          <div class="pdf-preview-icon-wrap">${PDF_PREVIEW_ICON}</div>
+          <h3 class="pdf-preview-title">${title}</h3>
+          <span class="pdf-result-badge pdf-preview-badge">External PDF</span>
+          ${desc}
+          <p class="pdf-preview-action">Opens in PDF viewer</p>`
+      } else {
+        const desc = el.dataset.pdfDesc ? `<p class="pdf-preview-desc">${pdfSearchEscapeHtml(el.dataset.pdfDesc)}</p>` : ""
+        const url = el.dataset.pdfUrl || ""
+        const domain = url ? (() => { try { return new URL(url).hostname } catch { return url } })() : ""
+        previewInner.innerHTML = `
+          <div class="pdf-preview-icon-wrap">${LINK_PREVIEW_ICON}</div>
+          <h3 class="pdf-preview-title">${title}</h3>
+          ${desc}
+          ${domain ? `<p class="pdf-preview-url">${pdfSearchEscapeHtml(domain)}</p>` : ""}
+          <p class="pdf-preview-action">Opens in new tab</p>`
+      }
+      preview.replaceChildren(previewInner)
+      return
+    }
+
     const slug = el.id as FullSlug
     const { phrases: quotedPhrases, searchTerm: effectiveTermPreview } =
       extractPhrases(currentSearchTerm)
@@ -2087,6 +2235,44 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     previewInner.classList.add("preview-inner")
     previewInner.append(...innerDiv)
     if (isIdiomSlug(slug)) applyIdiomPreviewStyle(previewInner)
+
+    // PDF library preview: strip code blocks and non-functional filter UI,
+    // then inject a live summary from the already-loaded index
+    if (slug === "Books-and-PDFs" || previewInner.querySelector(".pdf-library-page")) {
+      previewInner.querySelectorAll("pre").forEach((el) => el.remove())
+      ;[".pdf-filter-bar", ".pdf-tag-bar", ".pdf-cards-grid", ".pdf-empty-state", "#pdf-viewer-modal"]
+        .forEach((sel) => previewInner.querySelectorAll(sel).forEach((el) => el.remove()))
+
+      if (pdfSearchIndex) {
+        const localCount = pdfSearchIndex.local.length
+        const extCount = pdfSearchIndex.external.length
+        const linkCount = (pdfSearchIndex.links ?? []).length
+        const parts: string[] = []
+        if (localCount) parts.push(`${localCount} local PDF${localCount !== 1 ? "s" : ""}`)
+        if (extCount) parts.push(`${extCount} external`)
+        if (linkCount) parts.push(`${linkCount} web link${linkCount !== 1 ? "s" : ""}`)
+
+        const summary = document.createElement("div")
+        summary.className = "pdf-preview-summary"
+        summary.innerHTML = parts.map(p => `<span class="pdf-preview-summary-chip">${p}</span>`).join("")
+
+        // Thumbnail strip for local PDFs
+        const thumbs = pdfSearchIndex.local.filter(e => e.thumbnail).slice(0, 4)
+        if (thumbs.length > 0) {
+          const strip = document.createElement("div")
+          strip.className = "pdf-preview-thumb-strip"
+          for (const e of thumbs) {
+            const img = document.createElement("img")
+            img.src = "/" + e.thumbnail
+            img.alt = e.title
+            strip.appendChild(img)
+          }
+          summary.prepend(strip)
+        }
+
+        previewInner.querySelector(".pdf-search-preview")?.after(summary)
+      }
+    }
 
     // If this is a rebuke page, wrap content in article.rebuke and build the tab UI
     if (slug.startsWith("Copy-Paste-Rebukes/") && (window as any).__initRebukePanel) {
@@ -2154,8 +2340,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
             tags: [],
           }))
         await displayResults(folderItems)
-      } else if (pdfFilterActive) {
-        // PDF filter active + empty query: show all PDFs
+      } else if (pdfFilterActive || linkFilterActive) {
+        // PDF or link filter active + empty query: show all entries
         searchLayout.classList.add("display-results")
         await displayResults([])
       } else {

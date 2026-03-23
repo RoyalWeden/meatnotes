@@ -15,7 +15,7 @@
 
 # Yeshua Tells You How to Read the Bible
 
-> Matthew 9:13
+> Matthew 9:11-13
 >
 > 11 And when the Pharisees saw it, they said unto his disciples, Why eateth your Master with publicans and sinners?
 >

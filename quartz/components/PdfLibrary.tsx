@@ -5,12 +5,7 @@ import pdfLibraryScript from "./scripts/pdfLibrary.inline.ts"
 import pdfViewerScript from "./scripts/pdfViewer.inline.ts"
 
 export default (() => {
-  const PdfLibrary: QuartzComponent = ({ fileData }: QuartzComponentProps) => {
-    // Get external PDFs from frontmatter
-    const externalPdfs = (fileData.frontmatter?.externalPdfs as
-      | Array<{ title: string; url: string; description?: string }>
-      | undefined) ?? []
-
+  const PdfLibrary: QuartzComponent = (_props: QuartzComponentProps) => {
     return (
       <div class="popover-hint pdf-library-page">
         {/* Filter bar */}
@@ -30,33 +25,11 @@ export default (() => {
           <span class="pdf-count" id="pdf-count"></span>
         </div>
 
-        {/* Card grid - local PDFs will be injected by client-side script */}
-        <div class="pdf-cards-grid" id="pdf-cards-grid">
-          {/* External PDF cards rendered server-side */}
-          {externalPdfs.map((pdf) => (
-            <div
-              class="pdf-card pdf-card-external"
-              data-title={pdf.title}
-              data-url={pdf.url}
-            >
-              <div class="pdf-card-thumb">
-                <div class="pdf-card-thumb-placeholder">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                  </svg>
-                </div>
-                <span class="pdf-card-badge pdf-card-badge-external">External</span>
-              </div>
-              <div class="pdf-card-info">
-                <h3 class="pdf-card-title">{pdf.title}</h3>
-                {pdf.description && <p class="pdf-card-desc">{pdf.description}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Tag chip bar — hidden until JS populates chips */}
+        <div class="pdf-tag-bar" id="pdf-tag-bar" style={{ display: "none" }}></div>
+
+        {/* Card grid — all cards injected by client-side script */}
+        <div class="pdf-cards-grid" id="pdf-cards-grid"></div>
 
         {/* Empty state */}
         <div class="pdf-empty-state" id="pdf-empty-state" style={{ display: "none" }}>

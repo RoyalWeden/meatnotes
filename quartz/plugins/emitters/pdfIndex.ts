@@ -14,6 +14,8 @@ export interface PdfIndexEntry {
   fileSize: number
   thumbnail: string
   isExternal: false
+  hidden?: boolean
+  tags?: string[]
 }
 
 export interface ExternalPdfEntry {
@@ -21,22 +23,136 @@ export interface ExternalPdfEntry {
   url: string
   description?: string
   isExternal: true
+  hidden?: boolean
+  tags?: string[]
+}
+
+export interface WebLinkEntry {
+  title: string
+  url: string
+  description?: string
+  isLink: true
+  tags?: string[]
 }
 
 export interface PdfGroupEntry {
   name: string
-  items: Array<{ slug?: string; url?: string; label?: string }>
+  tags?: string[]
+  items: Array<{ slug?: string; url?: string; label?: string; hidden?: boolean }>
 }
 
 export type PdfIndex = {
   local: PdfIndexEntry[]
   external: ExternalPdfEntry[]
+  links: WebLinkEntry[]
   groups: PdfGroupEntry[]
 }
 
+// ─── Code block parsers ───────────────────────────────────────────────────────
+
+function extractCodeBlocks(md: string, lang: string): string[] {
+  const re = new RegExp("```" + lang + "\\n([\\s\\S]*?)```", "g")
+  const out: string[] = []
+  let m: RegExpExecArray | null
+  while ((m = re.exec(md)) !== null) out.push(m[1])
+  return out
+}
+
+function parseTags(val: string): string[] {
+  return val.split(",").map((t) => t.trim()).filter(Boolean)
+}
+
+function parseKV(block: string): Record<string, string> {
+  const obj: Record<string, string> = {}
+  for (const line of block.trim().split("\n")) {
+    const i = line.indexOf(":")
+    if (i < 1) continue
+    obj[line.slice(0, i).trim()] = line.slice(i + 1).trim()
+  }
+  return obj
+}
+
+function parseExternalPdfBlocks(md: string): ExternalPdfEntry[] {
+  return extractCodeBlocks(md, "pdf-external")
+    .map((b) => {
+      const kv = parseKV(b)
+      return {
+        title: kv.title || "",
+        url: kv.url || "",
+        description: kv.description,
+        tags: kv.tags ? parseTags(kv.tags) : undefined,
+        isExternal: true as const,
+      }
+    })
+    .filter((e) => e.url)
+}
+
+function parseWebLinkBlocks(md: string): WebLinkEntry[] {
+  return extractCodeBlocks(md, "pdf-link")
+    .map((b) => {
+      const kv = parseKV(b)
+      return {
+        title: kv.title || "",
+        url: kv.url || "",
+        description: kv.description,
+        tags: kv.tags ? parseTags(kv.tags) : undefined,
+        isLink: true as const,
+      }
+    })
+    .filter((e) => e.url)
+}
+
+function parsePdfLocalBlocks(md: string): Map<string, { tags?: string[] }> {
+  const map = new Map<string, { tags?: string[] }>()
+  for (const b of extractCodeBlocks(md, "pdf-local")) {
+    const kv = parseKV(b)
+    if (kv.slug) {
+      map.set(kv.slug.replace(/ /g, "-"), {
+        tags: kv.tags ? parseTags(kv.tags) : undefined,
+      })
+    }
+  }
+  return map
+}
+
+function parsePdfGroupBlocks(md: string): PdfGroupEntry[] {
+  return extractCodeBlocks(md, "pdf-group")
+    .map((b) => {
+      let name = ""
+      let tags: string[] | undefined
+      const items: PdfGroupEntry["items"] = []
+      for (const line of b.trim().split("\n")) {
+        const t = line.trim()
+        if (t.startsWith("name:")) {
+          name = t.slice(5).trim()
+        } else if (t.startsWith("tags:")) {
+          tags = parseTags(t.slice(5).trim())
+        } else if (t.startsWith("-")) {
+          const parts = t.slice(1).split("|").map((p) => p.trim())
+          const ref = parts[0] ?? ""
+          const label = parts[1] || undefined
+          const hidden = parts.slice(2).some((p) => p.toLowerCase() === "hidden")
+          const item: PdfGroupEntry["items"][0] = {}
+          if (label) item.label = label
+          if (hidden) item.hidden = true
+          if (ref.startsWith("http")) {
+            item.url = ref
+          } else {
+            item.slug = ref.replace(/ /g, "-")
+          }
+          if (item.url || item.slug) items.push(item)
+        }
+      }
+      return { name, items, ...(tags ? { tags } : {}) }
+    })
+    .filter((g) => g.name && g.items.length > 0)
+}
+
+// ─── Emitter ──────────────────────────────────────────────────────────────────
+
 export const PdfIndex: QuartzEmitterPlugin = () => ({
   name: "PdfIndex",
-  async *emit(ctx, content) {
+  async *emit(ctx, _content) {
     const cfg = ctx.cfg.configuration
     const contentDir = ctx.argv.directory
     const outputDir = ctx.argv.output
@@ -44,30 +160,35 @@ export const PdfIndex: QuartzEmitterPlugin = () => ({
     // Find all PDF files in content directory
     const pdfFiles = await glob("**/*.pdf", contentDir, cfg.ignorePatterns)
 
-    // Find the Books-and-PDFs page for external PDF definitions and groups
-    let externalPdfs: ExternalPdfEntry[] = []
-    let pdfGroups: PdfGroupEntry[] = []
-    for (const [_tree, file] of content) {
-      if (file.data.slug === "Books-and-PDFs") {
-        const rawExternal = file.data.frontmatter?.externalPdfs as
-          | Array<{ title: string; url: string; description?: string }>
-          | undefined
-        if (rawExternal) {
-          externalPdfs = rawExternal.map((e) => ({
-            title: e.title,
-            url: e.url,
-            description: e.description,
-            isExternal: true as const,
-          }))
+    // Read Books-and-PDFs.md body and parse code blocks
+    const booksFilePath = path.join(contentDir, "Books-and-PDFs.md")
+    let rawMd = ""
+    try {
+      rawMd = fs.readFileSync(booksFilePath, "utf-8")
+    } catch {
+      // file not found — use empty defaults
+    }
+
+    const externalPdfs = parseExternalPdfBlocks(rawMd)
+    const webLinks = parseWebLinkBlocks(rawMd)
+    const pdfGroups = parsePdfGroupBlocks(rawMd)
+    const localMeta = parsePdfLocalBlocks(rawMd)
+
+    // Build hidden sets from group items
+    const hiddenSlugs = new Set<string>()
+    const hiddenUrls = new Set<string>()
+    for (const g of pdfGroups) {
+      for (const item of g.items) {
+        if (item.hidden) {
+          if (item.slug) hiddenSlugs.add(item.slug)
+          if (item.url) hiddenUrls.add(item.url)
         }
-        const rawGroups = file.data.frontmatter?.pdfGroups as
-          | Array<{ name: string; items: Array<{ slug?: string; url?: string; label?: string }> }>
-          | undefined
-        if (rawGroups && Array.isArray(rawGroups)) {
-          pdfGroups = rawGroups
-        }
-        break
       }
+    }
+
+    // Mark hidden on external entries
+    for (const e of externalPdfs) {
+      if (hiddenUrls.has(e.url)) e.hidden = true
     }
 
     // Generate thumbnails and collect metadata
@@ -125,6 +246,9 @@ export const PdfIndex: QuartzEmitterPlugin = () => ({
         console.warn(`[PdfIndex] Failed to process ${filename}:`, e.stderr || e.message)
       }
 
+      // Apply metadata from pdf-local blocks
+      const meta = localMeta.get(slug)
+
       localEntries.push({
         slug,
         title,
@@ -133,6 +257,8 @@ export const PdfIndex: QuartzEmitterPlugin = () => ({
         fileSize: stats.size,
         thumbnail: `static/pdf-thumbs/${thumbSlug}.jpg`,
         isExternal: false as const,
+        ...(hiddenSlugs.has(slug) ? { hidden: true } : {}),
+        ...(meta?.tags ? { tags: meta.tags } : {}),
       })
     }
 
@@ -140,6 +266,7 @@ export const PdfIndex: QuartzEmitterPlugin = () => ({
     const indexContent: PdfIndex = {
       local: localEntries,
       external: externalPdfs,
+      links: webLinks,
       groups: pdfGroups,
     }
 

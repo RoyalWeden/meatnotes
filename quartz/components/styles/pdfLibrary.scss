@@ -4,6 +4,19 @@ $mobile: "max-width: 800px";
   width: 100%;
 }
 
+/* Hide the markdown body (setup guide + config blocks) on the website.
+   The content is visible in Octarine but not meant for the rendered page. */
+.center:has(.pdf-library-page) > article,
+.center:has(.pdf-library-page) > hr {
+  display: none;
+}
+
+/* Hide TOC (generated from hidden callout headings) and content meta on this page */
+#quartz-body:has(.pdf-library-page) .toc,
+#quartz-body:has(.pdf-library-page) .content-meta {
+  display: none;
+}
+
 /* Filter bar */
 .pdf-filter-bar {
   display: flex;
@@ -241,6 +254,50 @@ $mobile: "max-width: 800px";
   background: color-mix(in srgb, var(--lightgray) 50%, transparent);
 }
 
+/* Tag chip bar */
+.pdf-tag-bar {
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.pdf-tag-chip {
+  font-size: 0.78rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--lightgray);
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    border-color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 8%, transparent);
+  }
+}
+
+.pdf-tag-chip-active {
+  background: color-mix(in srgb, var(--secondary) 15%, transparent);
+  border-color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Link card badge */
+.pdf-card-badge-link {
+  background: color-mix(in srgb, var(--tertiary) 15%, transparent);
+  color: var(--tertiary);
+}
+
+/* Search preview placeholder — visible in static HTML (search popover), hidden by JS on actual page */
+.pdf-search-preview {
+  padding: 0.5rem 0 1rem;
+  color: var(--gray);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 /* Recent PDFs */
 .pdf-recent-section {
   margin-bottom: 1.25rem;
@@ -288,4 +345,143 @@ $mobile: "max-width: 800px";
   svg {
     flex-shrink: 0;
   }
+}
+
+/* Toolbar right (sort + view toggle + count) */
+.pdf-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.pdf-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: var(--light);
+  color: var(--darkgray);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 6%, transparent);
+  }
+
+  svg {
+    flex-shrink: 0;
+    color: var(--gray);
+  }
+}
+
+.pdf-view-toggle {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pdf-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.45rem;
+  border: none;
+  background: var(--light);
+  color: var(--gray);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:not(:last-child) {
+    border-right: 1px solid var(--lightgray);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--secondary) 8%, transparent);
+    color: var(--secondary);
+  }
+}
+
+.pdf-view-btn-active {
+  background: color-mix(in srgb, var(--secondary) 12%, transparent);
+  color: var(--secondary);
+}
+
+/* Spacious view: 2-column grid */
+[data-pdf-view="spacious"] .pdf-cards-grid {
+  grid-template-columns: repeat(2, 1fr);
+
+  @media all and ($mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* List view */
+[data-pdf-view="list"] .pdf-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+[data-pdf-view="list"] .pdf-card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  border-radius: 8px;
+
+  &:hover {
+    transform: none;
+  }
+
+  .pdf-card-thumb {
+    width: 60px;
+    min-width: 60px;
+    aspect-ratio: unset;
+    height: auto;
+    border-radius: 0;
+    flex-shrink: 0;
+
+    .pdf-card-badge-pages,
+    .pdf-card-badge-size {
+      display: none;
+    }
+  }
+
+  .pdf-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    min-width: 0;
+  }
+
+  .pdf-card-title {
+    -webkit-line-clamp: 1;
+    font-size: 0.85rem;
+  }
+
+  .pdf-card-desc {
+    -webkit-line-clamp: 1;
+  }
+}
+
+/* Meta line (page count + size) — shown in list view */
+.pdf-card-meta {
+  display: none;
+  font-size: 0.7rem;
+  color: var(--gray);
+  margin-top: 0.2rem;
+}
+
+[data-pdf-view="list"] .pdf-card-meta {
+  display: block;
 }

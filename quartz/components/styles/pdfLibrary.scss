@@ -241,6 +241,42 @@ $mobile: "max-width: 800px";
   background: color-mix(in srgb, var(--lightgray) 50%, transparent);
 }
 
+/* Tag chip bar */
+.pdf-tag-bar {
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.pdf-tag-chip {
+  font-size: 0.78rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--lightgray);
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    border-color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 8%, transparent);
+  }
+}
+
+.pdf-tag-chip-active {
+  background: color-mix(in srgb, var(--secondary) 15%, transparent);
+  border-color: var(--secondary);
+  font-weight: 600;
+}
+
+/* Link card badge */
+.pdf-card-badge-link {
+  background: color-mix(in srgb, var(--tertiary) 15%, transparent);
+  color: var(--tertiary);
+}
+
 /* Recent PDFs */
 .pdf-recent-section {
   margin-bottom: 1.25rem;

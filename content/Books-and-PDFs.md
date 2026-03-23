@@ -118,8 +118,8 @@ tags: Early Church
 ```pdf-group
 name: Dead Sea Scrolls
 tags: Dead Sea Scrolls
-- .files/Dead-Sea-Scrolls.pdf | Local Label | hidden
-- .files/The-Dead-Sea-Scrolls---Revised-Edition---A-New-Translation.pdf | Local Label | hidden
+- .files/Dead-Sea-Scrolls.pdf | Geza Vermes | hidden
+- .files/The-Dead-Sea-Scrolls---Revised-Edition---A-New-Translation.pdf | Other | hidden
 ```
 
 ```plaintext

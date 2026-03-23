@@ -5,14 +5,9 @@ import pdfLibraryScript from "./scripts/pdfLibrary.inline.ts"
 import pdfViewerScript from "./scripts/pdfViewer.inline.ts"
 
 export default (() => {
-  const PdfLibrary: QuartzComponent = ({ fileData }: QuartzComponentProps) => {
-    // Get external PDFs from frontmatter
-    const externalPdfs = (fileData.frontmatter?.externalPdfs as
-      | Array<{ title: string; url: string; description?: string }>
-      | undefined) ?? []
-
+  const PdfLibrary: QuartzComponent = (_props: QuartzComponentProps) => {
     return (
-      <div class="popover-hint pdf-library-page">
+      <div class="popover-hint pdf-library-page" data-pdf-view="compact">
         {/* Filter bar */}
         <div class="pdf-filter-bar">
           <div class="pdf-filter-input-wrap">
@@ -27,36 +22,52 @@ export default (() => {
               aria-label="Filter PDFs by title"
             />
           </div>
-          <span class="pdf-count" id="pdf-count"></span>
+
+          {/* Sort + view controls */}
+          <div class="pdf-toolbar-right">
+            <button class="pdf-sort-btn" id="pdf-sort-btn" title="Sort order" aria-label="Sort order">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="15" y2="12" /><line x1="3" y1="18" x2="9" y2="18" />
+              </svg>
+              <span id="pdf-sort-label">A→Z</span>
+            </button>
+
+            <div class="pdf-view-toggle">
+              {/* Compact grid */}
+              <button class="pdf-view-btn pdf-view-btn-active" data-view="compact" title="Compact grid" aria-label="Compact grid">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+                </svg>
+              </button>
+              {/* Spacious grid */}
+              <button class="pdf-view-btn" data-view="spacious" title="Spacious grid" aria-label="Spacious grid">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="9" height="9" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+                </svg>
+              </button>
+              {/* List view */}
+              <button class="pdf-view-btn" data-view="list" title="List view" aria-label="List view">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                  <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <span class="pdf-count" id="pdf-count"></span>
+          </div>
         </div>
 
-        {/* Card grid - local PDFs will be injected by client-side script */}
-        <div class="pdf-cards-grid" id="pdf-cards-grid">
-          {/* External PDF cards rendered server-side */}
-          {externalPdfs.map((pdf) => (
-            <div
-              class="pdf-card pdf-card-external"
-              data-title={pdf.title}
-              data-url={pdf.url}
-            >
-              <div class="pdf-card-thumb">
-                <div class="pdf-card-thumb-placeholder">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                  </svg>
-                </div>
-                <span class="pdf-card-badge pdf-card-badge-external">External</span>
-              </div>
-              <div class="pdf-card-info">
-                <h3 class="pdf-card-title">{pdf.title}</h3>
-                {pdf.description && <p class="pdf-card-desc">{pdf.description}</p>}
-              </div>
-            </div>
-          ))}
+        {/* Tag chip bar — hidden until JS populates chips */}
+        <div class="pdf-tag-bar" id="pdf-tag-bar" style={{ display: "none" }}></div>
+
+        {/* Search preview placeholder — shown in search preview (static HTML), hidden by JS once grid loads */}
+        <div class="pdf-search-preview" id="pdf-search-preview">
+          <p>Your Books &amp; PDFs library — browse and open local PDFs, external documents, and web links. Filter by tag or search by title.</p>
         </div>
+
+        {/* Card grid — all cards injected by client-side script */}
+        <div class="pdf-cards-grid" id="pdf-cards-grid"></div>
 
         {/* Empty state */}
         <div class="pdf-empty-state" id="pdf-empty-state" style={{ display: "none" }}>

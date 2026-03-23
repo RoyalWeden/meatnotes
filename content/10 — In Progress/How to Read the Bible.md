@@ -23,7 +23,7 @@ Mark:
 
 Does anyone in the Christian Church go read what he meant?
 
-The purpose of Yeshua telling you to go learn what this means is because he already knows that everyone initial assumption of what it means is wrong. He didn’t ask a question, he commanded you to go learn. So what is he quoting?
+The purpose of Yeshua telling you to go learn what this means is because he already knows that everyone’s initial assumption of what it means is wrong. He didn’t ask a question, he commanded you to go learn. So what is he quoting?
 
 > Hosea 6:6-7
 >
@@ -146,6 +146,58 @@ Since we understand what “milk” is, let’s jump back to what Isaiah said.
 We can now understand that verse 9 means God will give more understanding in his word once we repent and get more understanding in the basics. In verse 10, he tells us how to actually read the Bible, which, in fact, we have already been doing.
 
 ## Precept Upon Precept
+
+> Isaiah 28:10 For ***~precept must be upon precept, precept upon precept~***; line upon line, line upon line; here a little, and there a little:
+
+> precept ([H6673](https://www.blueletterbible.org/lexicon/h6673/kjv/wlc/0-1/))
+>
+> צַו tsav, tsav; or צָו tsâv; from [H6680](https://www.blueletterbible.org/lexicon/H6680/kjv/wlc/); an injunction:—commandment, precept.
+
+Really, Isaiah is saying “commandment upon commandment.” That means that to understand the FULL instruction of something, you have to add each commandment of God together to know what he requires of you. Let’s take the sabbath for a simple example.
+
+The first precept is for you to keep the sabbath holy.
+
+> Exodus 20:8 Remember the sabbath day, to keep it holy.
+
+The next precept is for you to make sure that those within your household (if you own the household) are not working as well, and you wouldn’t cause others to work.
+
+> Exodus 20:10 But the seventh day is the sabbath of the Lord thy God: in it thou shalt not do any work, thou, nor thy son, nor thy daughter, thy manservant, nor thy maidservant, nor thy cattle, nor thy stranger that is within thy gates:
+
+We could keep adding each precept of the sabbath together to understand God’s full instruction of keeping the sabbath.
+
+Now, an example that many are in error about — the feasts.
+
+Many people in the “so-called” Torah movenement read verses like this:
+
+> Exodus 12:14 And this day shall be unto you for a memorial; and ye shall keep it a feast to the Lord throughout your generations; ye shall keep it a feast by an ordinance for ever.
+
+They will read this verse and say, “See, it says right there to keep the feasts forever, that’s why we must keep them now,” but what is the next precept?
+
+> Deuteornomy 12:5 But ***~unto the place which the Lord your God shall choose out of all your tribes to put his name there~***, even unto his habitation shall ye seek, and thither thou shalt come:
+
+> Deuteronomy 12:13-14
+>
+> 13 Take heed to thyself that thou offer not thy burnt offerings in every place that thou seest:
+>
+> 14 But ***~in the place which the Lord shall choose in one of thy tribes~***, there thou shalt offer thy burnt offerings, and there thou shalt do all that I command thee.
+
+> 1 Kings 11:36 And unto his son will I give one tribe, that David my servant may have a light alway before me in ***~Jerusalem, the city which I have chosen me to put my name there~***.
+
+So, the next precept is to only do the feasts in Jerusalem. Another precept in Deuteronomy 12 is to remove all the idols from the land. Once you read prophecy, you realize that God doesn’t require the feasts anymore, but will reestablish them in the new kingdom.
+
+## Line Upon Line
+
+> Isaiah 28:10 For precept must be upon precept, precept upon precept; ***~line upon line, line upon line; here a little, and there a little~***:
+
+The second part about reading the bible is what we have been doing — reading line upon line. That means you will be flipping through chapters pretty often to understand what someone is saying. You could say that God wrote his word in Idioms ([[20 — Complete/Bible Idioms]]).
+
+When we read Matthew 9:13, then went to Hosea 6:6-7, that was an example of doing this.
+
+---
+
+Reading “precept upon precept” and “line upon line” is the “stammering lip and another tongue” that God refers to. Those that read his word this way will learn about his true sabbath rest and the refreshing of the covenant.
+
+There is another group of people that are being spoken to in this way (Isaiah 28:13), but they stumble at the word beca
 
 # Why He Spoke in Parables
 

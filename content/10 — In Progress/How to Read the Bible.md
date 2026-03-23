@@ -1,13 +1,15 @@
-# Videos
+> [!INFO]
+> Videos
+>
+> - Mark: [How to read the bible for beginners 🍼](https://youtu.be/Z1IER1Lrye8)
+> - Ricky: [You DON’T know how to read the Bible !](https://https://www.youtube.com/watch?v=OPNVmE8daEI)
+> - Kata: [How to read the Bible?](https://www.youtube.com/watch?v=YV6I_6idmeE)
 
-Mark:
-
-- [How to read the bible for beginners 🍼](https://youtu.be/Z1IER1Lrye8)
-
-# Questions to ask:
+# Questions to Ask While Reading the Bible
 
 - “What is he quoting?”
 - “Why is he quoting it?”
+- “Who else is quoting it?”
 
 ---
 
@@ -199,7 +201,13 @@ This is how the word of God was preserved even though there is a lying pen of th
 
 Reading “precept upon precept” and “line upon line” is the “stammering lip and another tongue” that God refers to. Those that read his word this way will learn about his true sabbath rest and the refreshing of the covenant.
 
-There is another group of people that are being spoken to in this way (Isaiah 28:13), but they stumble at the word because they chose not to listen to the watchmen that were showing them what is written in the bible according to “stammering lip”. Therefore, they are taken into great tribulation.
+There is another group of people that are being spoken to in this way (Isaiah 28:13), but they stumble at the word because they chose not to listen to the watchmen that were showing them what is written in the bible according to “stammering lip”. Therefore, they are taken into great tribulation. You might be tempted to think, “Would God really punish me for getting a precept of his instruction?” Let’s see:
+
+> Hosea 4:6 My people are destroyed for lack of knowledge: because thou hast rejected knowledge, I will also reject thee, that thou shalt be no priest to me: seeing thou hast forgotten ***~the law~*** of thy God, I will also forget thy children.
+
+> law ([H8451](https://www.blueletterbible.org/lexicon/h8451/kjv/wlc/0-1/))
+>
+> תּוֹרָה tôwrâh, to-raw'; or תֹּרָה tôrâh; from [H3384](https://www.blueletterbible.org/lexicon/H3384/kjv/wlc/); ***~a precept~*** or statute, especially the Decalogue or Pentateuch:—law.
 
 # Daniel Tells You How He Read
 
@@ -239,7 +247,7 @@ The only way Daniel would understand this is by reading “line upon line.”
 
 Yeshua plainly says that the “work” is to do the will of God, then he goes on to talk about a harvest. From that, we know Yeshua is talking about working a harvest and making sure to plant seeds. This goes with another parable - the parable of the seedsower - but you can briefly understand this as telling people the truth of the word.
 
-When Yeshua says that someone else sowed and you are to enter into the labor/work that they did, who would be the pill the did the work (the will of God)
+When Yeshua says that someone else sowed and you are to enter into the labor/work that they did, who would be the people that did the work (the will of God)? It would be the prophets. How would you enter into the work that they did? By preaching what they prophesied would happen. The only way to do this is by receiving the spirit of truth — the same spirit that they received. Each of the prophets will give you different pieces of information, so it is up to you to be diligent enough to search out what is being said.
 
 # Why He Spoke in Parables
 
@@ -264,3 +272,5 @@ When Yeshua says that someone else sowed and you are to enter into the labor/wor
 “Blessed” is a title of the 144k — the watchmen. Those that God chooses to reveal his word to can become this blessed if they endure. The only way that you will be able to endure when God speaks to you is to give out what he has given to you. That is why Yeshua said this:
 
 > Matthew 10:8 Heal the sick, cleanse the lepers, raise the dead, cast out devils: ***~freely ye have received, freely give.~***
+
+So. when you understand the parables — which are written so that you read “line upon line” — you must give out freely what God showed you.

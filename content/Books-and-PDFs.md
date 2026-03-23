@@ -96,6 +96,11 @@ tags: Holidays, Christmas
 ```
 
 ```plaintext
-slug: .files/Apocylpse of El.pdf
-tags: 
+slug: .files/Apocylpse-of-Elijah.pdf
+tags: Apocrypha
+```
+
+```plaintext
+slug: .files/The-Septuagint-with-Apocrypha---Greek-and-English.pdf
+tags:
 ```

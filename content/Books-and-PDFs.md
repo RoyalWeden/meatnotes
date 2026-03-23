@@ -59,7 +59,7 @@ title: Books & PDFs
 
 ```pdf-local
 slug: .files/Dead-Sea-Scrolls.pdf
-tags: 
+tags: Dead Sea Scrolls
 ```
 
 ```pdf-local
@@ -103,4 +103,36 @@ tags: Apocrypha
 ```plaintext
 slug: .files/The-Septuagint-with-Apocrypha---Greek-and-English.pdf
 tags:
+```
+
+```plaintext
+slug: .files/The-Complete-Targums.pdf
+tags:
+```
+
+```plaintext
+slug: .files/Recognitions-of-Clement.pdf
+tags: Early Church
+```
+
+```pdf-group
+name: Dead Sea Scrolls
+tags: Dead Sea Scrolls
+- .files/Dead-Sea-Scrolls.pdf | Local Label | hidden
+- .files/The-Dead-Sea-Scrolls---Revised-Edition---A-New-Translation.pdf | Local Label | hidden
+```
+
+```plaintext
+slug: .files/Shepherd-of-Hermas.pdf
+tags: Early Church
+```
+
+```plaintext
+slug: .files/Testament-of-the-Twelve-Patriarchs.pdf
+tags: Apocrypha
+```
+
+```plaintext
+slug: .files/Acta-Pilati—Testimony.pdf
+tags: Early Church
 ```

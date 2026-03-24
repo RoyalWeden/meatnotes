@@ -147,65 +147,82 @@ Ezekiel
 Hosea
 
 - Hos 1:4-6 → Deut 32:26 *(same thing)*
+- Hos 1:10 → Deut 32:21 *(tells you who those people are)*
+- Hos 2:7 → Deut 32:13 *(unsure connection)*
+- Hos 2:8 → Deut 32:38 *(same thing)*
+- Hos 2:9 → Deut 32:20 *(same thing)*
+- Hos 4:6 → Deut 32:28
+- Hos 4:14 → Deut 32:35
+- Hos 4:18 → Deut 32:32-33
+- Hos 4:19 → Deut 32:11 (unclear connection)
+- Hos 5:7 → Deut 32:9
+- Hos 5:14 → Deut 32:20
+- Hos 6:1 → Deut 32:39
+- Hos 6:4 → Deut 32:2
+- Hos 7:5 → Deut 32:42
+- Hos 7:9 → Deut 32:25
+- Hos 8:1 → Deut 32:11
+- Hos 8:5 → Deut 32:21-22
+- Hos 8:14 → Deut 32:18
+- Hos 9:9 → Deut 32:5, Deut 32:17
+- Hos 9:12 → Deut 32:20, Deut 32:25 (LXX)
+- Hos 11:3 → Deut 32:10-12
+- Hos 11:8-9 → Deut 32:36
+- Hos 12:2 → Deut 32:13
+- Hos 12:8 → Deut 32:15
+- Hos 13:3 → Deut 32:2
+- Hos 13:4 → Deut 32:39
+- Hos 13:5 → Deut 32:10
+- Hos 13:6 → Deut 32:13-15
+- Hos 13:10 → Deut 32:37-38
+- Hos 13:12 → Deut 32:34
+- Hos 14:5-7 → Deut 32:2
+- Hos 14:9 → Deut 32:4, Deut 32:29
 
-  Hos 1:10 → Deut 32:21 *(tells you who those people are)*
+Joel
 
-  Hos 2:7 → Deut 32:13 *(unsure connection)*
+- Joel 2:1-11 → Deut 32:22-25
+- Joel 2:14 → Deut 32:36
+- Joel 3:2-4 → Deut 32:35-36
 
-  Hos 2:8 → Deut 32:38 *(same thing)*
+Amos
 
-  Hos 2:9 → Deut 32:20 *(same thing)*
+- Amo 2:4-6 → Deut 32:15-18
+- Amo 7:3-6 → Deut 32:36
 
-  Hos 4:6 → Deut 32:28
+Obadiah
 
-  Hos 4:14 → Deut 32:35
+- Oba 1:3-4 → Deut 32:13
 
-  Hos 4:18 → Deut 32:32-33
+Micah
 
-  Hos 4:19 → Deut 32:11 (unclear connection)
+- Mic 1:2 → Deut 32:1
+- Mic 1:5-7 → Deut 32:16-17
 
-  Hos 5:7 → Deut 32:9
+Nahum
 
-  Hos 5:14 → Deut 32:20
+- Nah 1:2-6 → Deut 32:35-41
 
-  Hos 6:1 → Deut 32:39
+Habakkuk
 
-  Hos 6:4 → Deut 32:2
+- Hab 3:3-13 → Deut 32:22-43
 
-  Hos 7:5 → Deut 32:42
+Zephaniah
 
-  Hos 7:9 → Deut 32:25
+- Zep 1:2-3 → Deut 32:22-25
 
-  Hos 8:1 → Deut 32:11
+Haggai
 
-  Hos 8:5 → Deut 32:21-22
+- Hag 2:6-7 → Deut 32:21
 
-  Hos 8:14 → Deut 32:18
+Zechariah
 
-  Hos 9:9 → Deut 32:5, Deut 32:17
+- Zec 2:8 → Deut 32:9-10
+- Zec 8:14-17 → Deut 32:21 *(As I have sworn in my wrath, in Deut 32, and will not go back on it, so will I execute judgment on Judah/Jerusalem/Judea, so if you can understand this then fulfill the royal law)*
+- Zec 10:1 → Deut 32:2
+- Zec 14:16 → Deut 32:43
 
-  Hos 9:12 → Deut 32:20, Deut 32:25 (LXX)
+Malachi
 
-  Hos 11:3 → Deut 32:10-12
-
-  Hos 11:8-9 → Deut 32:36
-
-  Hos 12:2 → Deut 32:13
-
-  Hos 12:8 → Deut 32:15
-
-  Hos 13:3 → Deut 32:2
-
-  Hos 13:4 → Deut 32:39
-
-  Hos 13:5 → Deut 32:10
-
-  Hos 13:6 → Deut 32:13-15
-
-  Hos 13:10 → Deut 32:37-38
-
-  Hos 13:12 → Deut 32:34
-
-  Hos 14:5-7 → Deut 32:2
-
-  Hos 14:9 → Deut 32:4, Deut 32:29
+- Mal 2:1-9 → Deut 32:2-5
+- Mal 3:10 → Deut 32:2

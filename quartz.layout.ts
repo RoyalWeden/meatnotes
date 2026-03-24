@@ -25,6 +25,7 @@ export const sharedPageComponents: SharedLayout = {
       condition: (page) => page.fileData.slug === "All-Notes",
     }),
     Component.BackToTop(),
+    Component.ShortlinkButton(),
     Component.ConditionalRender({
       component: Component.FullSearch(),
       condition: (page) => page.fileData.slug === "Search",

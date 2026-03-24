@@ -39,6 +39,7 @@ export { default as RebukePanel } from "./RebukePanel"
 export { default as IdiomSearch } from "./IdiomSearch"
 export { default as RecentIdioms } from "./RecentIdioms"
 export { default as PdfLibrary } from "./PdfLibrary"
+export { default as ShortlinkButton } from "./ShortlinkButton"
 
 export {
   ArticleTitle,

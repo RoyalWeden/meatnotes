@@ -229,16 +229,17 @@
 
 - Dumb Dog Watchmen
 
-- All the Parables
+- All the [[20 — Complete/Parables]]
 
-  - What It Means to be Converted
-  - The Most Important Parable
-  - Briers & Thorns
+  - [[10 — In Progress/The Seed Sower]]
+    - What It Means to be Converted
+    - The Most Important Parable
+    - Briers & Thorns
+    - Why Did Yeshua Speak in Parables
   - Samaritan Woman
   - Unjust Steward
     - Wiser Than the Children of Light
     - Prodigal Son = Unjust Steward
-  - Why Did Yeshua Speak in Parables
 
 - Refreshing & Good Tidings & Gospel
 

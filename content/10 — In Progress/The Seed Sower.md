@@ -51,6 +51,26 @@ There are four groups of people/grounds:
 
 Now Yeshua quotes Isaiah 6 telling you that if you are converted, you will be revealed the mysteries of the kingdom.
 
+> Isaiah 6:9-10
+>
+> 9 And he said, Go, and tell this people, ***~Hear ye indeed, but understand not; and see ye indeed, but perceive not~***.
+>
+> 10 Make the heart of this people fat, and make their ears heavy, and shut their eyes; lest they see with their eyes, and hear with their ears, and understand with their heart, and convert, and be healed.
+
+> Isaiah 42:16-21
+>
+> 16 And I will bring the blind by a way that they knew not; I will lead them in paths that they have not known: I will make darkness light before them, and crooked things straight. These things will I do unto them, and not forsake them.
+>
+> 17 They shall be turned back, they shall be greatly ashamed, that trust in graven images, that say to the molten images, Ye are our gods.
+>
+> 18 ***~Hear, ye deaf; and look, ye blind, that ye may see~***.
+>
+> 19 Who is blind, but my servant? or deaf, as my messenger that I sent? who is blind as he that is perfect, and blind as the Lord's servant?
+>
+> 20 ***~Seeing many things, but thou observest not; opening the ears, but he heareth not~***.
+>
+> 21 The Lord is well pleased for his righteousness' sake; he will magnify the law, and make it honourable.
+
 ---
 
 They never asked for the parable to be explained, Yeshua just explains the parable to them.

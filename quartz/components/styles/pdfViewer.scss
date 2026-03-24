@@ -677,6 +677,7 @@ $mobile: "max-width: 800px";
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
               height 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   pointer-events: none;               /* No interaction when closed */
+  will-change: transform;             /* Promote to compositor layer to avoid ghost artifacts */
 
   @media all and ($mobile) {
     &.open {
@@ -686,7 +687,27 @@ $mobile: "max-width: 800px";
 
     &.dragging {
       transition: none;               /* Kill transition during drag to prevent jank */
+      user-select: none;
+      -webkit-user-select: none;
     }
+  }
+}
+
+.pdf-bottom-sheet-drag-zone {
+  width: 100%;
+  padding: 14px 0 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
   }
 }
 
@@ -695,8 +716,8 @@ $mobile: "max-width: 800px";
   height: 4px;
   border-radius: 2px;
   background: var(--gray);
-  margin: 8px auto;
-  cursor: pointer;
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
 /* Bottom sheet actions row */

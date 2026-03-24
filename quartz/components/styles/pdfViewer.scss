@@ -661,25 +661,31 @@ $mobile: "max-width: 800px";
 
 /* Bottom sheet (mobile) */
 .pdf-bottom-sheet {
-  display: none;
+  display: flex;                      /* Always flex — visibility via translateY only */
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60vh;
+  height: var(--sheet-height, 60vh); /* Dynamic height via CSS custom property */
   background: var(--light);
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
   z-index: 1050;
   flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
+  transform: translateY(100%);        /* Closed = off-screen */
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+              height 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;               /* No interaction when closed */
 
   @media all and ($mobile) {
     &.open {
-      display: flex;
       transform: translateY(0);
+      pointer-events: all;
+    }
+
+    &.dragging {
+      transition: none;               /* Kill transition during drag to prevent jank */
     }
   }
 }

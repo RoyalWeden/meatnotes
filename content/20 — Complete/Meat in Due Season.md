@@ -1,6 +1,6 @@
 # Topic List
 
-- [[10 — In Progress/How to Read the Bible]]
+- [[20 — Complete/How to Read the Bible]]
 
   - [[20 — Complete/Bible Idioms]]
     - Pray = Judge

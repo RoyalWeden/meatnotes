@@ -2,7 +2,7 @@
 
 From this list, tell me how well you could teach each of these topics with relevant scriptures. If it takes more than a minute to think about, that's too long. Write next to each either “Yes” (you can teach it with the relevant scriptures), “Sorta” (you partly understand it or need a refresher of the scriptures), “No” (you have no idea what this means or refers to).
 
-- [[10 — In Progress/How to Read the Bible]]
+- [[20 — Complete/How to Read the Bible]]
 
   - [[20 — Complete/Bible Idioms]]
     - Pray = Judge

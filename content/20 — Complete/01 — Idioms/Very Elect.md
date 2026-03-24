@@ -1,5 +1,5 @@
 ---
-description: ''
+description: Jacob
 cssclasses:
   - idiom
 related_idioms:
@@ -7,18 +7,16 @@ related_idioms:
   - 144k
   - Jacob
   - Elect
-related_verses: []
+related_verses:
+  - Matthew 24:24
 
 ---
-
-
-
 
 # Very Elect
 
 ## Meaning
 
-The 144k
+The 144k, Jacob
 
 ## Related Strong’s Definitions
 

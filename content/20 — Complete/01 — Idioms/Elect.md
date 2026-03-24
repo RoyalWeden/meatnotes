@@ -1,5 +1,5 @@
 ---
-description: ''
+description: Israel
 cssclasses:
   - idiom
 related_idioms:
@@ -7,6 +7,7 @@ related_idioms:
 related_verses: []
 
 ---
+
 
 
 # Elect

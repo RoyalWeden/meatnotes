@@ -6,7 +6,7 @@
 | New Cloth on an Old Coat | Matthew 9:16 | Mark 2:21 | Luke 5:36 |
 | New Wine in Old Wineskins | Matthew 9:17 | Mark 2:22 | Luke 5:37-39 |
 | The Two Debtors |  |  | Luke 7:40-43 |
-| The Sower | Matthew 13:1-23 | Mark 4:1-20 | Luke 8:4-15 |
+| [[10 — In Progress/The Seed Sower]] | Matthew 13:1-23 | Mark 4:1-20 | Luke 8:4-15 |
 | The Good Samaritan |  |  | Luke 10:25-27 |
 | The Friend at Midnight |  |  | Luke 11:5-13 |
 | Growing Seed |  | Mark 4:26-29 |  |

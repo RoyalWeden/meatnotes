@@ -16,8 +16,12 @@ related_verses:
   - Ezekiel 28:24
   - Micah 7:4
   - Hebrews 6:8
+  - Matthew 13
+  - Genesis 3:18
 
 ---
+
+
 
 # Brier
 

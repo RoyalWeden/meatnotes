@@ -5,7 +5,8 @@
       "name": "quartz-dev",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["quartz", "build", "--serve"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": true
     }
   ]
 }

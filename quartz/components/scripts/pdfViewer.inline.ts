@@ -207,7 +207,9 @@ function createModal(): HTMLElement {
     </div>
     ${mobile ? `
     <div class="pdf-bottom-sheet" id="pdf-bottom-sheet">
-      <div class="pdf-bottom-sheet-handle"></div>
+      <div class="pdf-bottom-sheet-drag-zone">
+        <div class="pdf-bottom-sheet-handle"></div>
+      </div>
       <div class="pdf-bottom-sheet-actions">
         <button class="pdf-bs-action pdf-bs-copy-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1066,8 +1068,8 @@ function escapeAttr(str: string): string {
 }
 
 function setupBottomSheetDrag(sheet: HTMLElement): void {
-  const handle = sheet.querySelector(".pdf-bottom-sheet-handle") as HTMLElement | null
-  if (!handle) return
+  const dragZone = sheet.querySelector(".pdf-bottom-sheet-drag-zone") as HTMLElement | null
+  if (!dragZone) return
 
   const SNAP_POINTS = [35, 60, 92]  // vh
   const DISMISS_VELOCITY = 0.5      // px/ms — positive = moving downward
@@ -1095,17 +1097,20 @@ function setupBottomSheetDrag(sheet: HTMLElement): void {
     snapTo(best)
   }
 
-  handle.addEventListener("touchstart", (e: TouchEvent) => {
+  dragZone.addEventListener("touchstart", (e: TouchEvent) => {
+    e.preventDefault()  // Prevent native drag ghost image and default touch behavior
     dragStartY = e.touches[0].clientY
     lastY = dragStartY
     lastTime = performance.now()
     velocity = 0
     dragStartHeightPx = sheet.getBoundingClientRect().height
     sheet.classList.add("dragging")
-  }, { passive: true })
+    document.body.style.userSelect = "none"
+    ;(document.body.style as CSSStyleDeclaration & { webkitUserSelect: string }).webkitUserSelect = "none"
+  }, { passive: false })
 
-  handle.addEventListener("touchmove", (e: TouchEvent) => {
-    e.preventDefault()  // Prevent page scroll during drag (requires passive: false)
+  dragZone.addEventListener("touchmove", (e: TouchEvent) => {
+    e.preventDefault()  // Prevent page scroll during drag
     const now = performance.now()
     const y = e.touches[0].clientY
     const dt = now - lastTime
@@ -1119,8 +1124,10 @@ function setupBottomSheetDrag(sheet: HTMLElement): void {
     sheet.style.setProperty("--sheet-height", `${newVH}vh`)
   }, { passive: false })
 
-  handle.addEventListener("touchend", () => {
+  dragZone.addEventListener("touchend", () => {
     sheet.classList.remove("dragging")
+    document.body.style.userSelect = ""
+    ;(document.body.style as CSSStyleDeclaration & { webkitUserSelect: string }).webkitUserSelect = ""
     const currentVH = sheet.getBoundingClientRect().height / (window.innerHeight / 100)
     if (velocity > DISMISS_VELOCITY || currentVH < DISMISS_HEIGHT_VH) {
       dismiss()

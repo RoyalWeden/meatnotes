@@ -1065,6 +1065,71 @@ function escapeAttr(str: string): string {
   return str.replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+function setupBottomSheetDrag(sheet: HTMLElement): void {
+  const handle = sheet.querySelector(".pdf-bottom-sheet-handle") as HTMLElement | null
+  if (!handle) return
+
+  const SNAP_POINTS = [35, 60, 92]  // vh
+  const DISMISS_VELOCITY = 0.5      // px/ms — positive = moving downward
+  const DISMISS_HEIGHT_VH = 20      // vh threshold: dismiss on release below this
+
+  let dragStartY = 0
+  let dragStartHeightPx = 0
+  let lastY = 0
+  let lastTime = 0
+  let velocity = 0
+
+  function snapTo(vh: number): void {
+    sheet.style.setProperty("--sheet-height", `${vh}vh`)
+  }
+
+  function dismiss(): void {
+    sheet.classList.remove("open")
+    snapTo(60)  // reset to default for next open
+  }
+
+  function snapToNearest(currentVH: number): void {
+    const best = SNAP_POINTS.reduce((a, b) =>
+      Math.abs(b - currentVH) < Math.abs(a - currentVH) ? b : a
+    )
+    snapTo(best)
+  }
+
+  handle.addEventListener("touchstart", (e: TouchEvent) => {
+    dragStartY = e.touches[0].clientY
+    lastY = dragStartY
+    lastTime = performance.now()
+    velocity = 0
+    dragStartHeightPx = sheet.getBoundingClientRect().height
+    sheet.classList.add("dragging")
+  }, { passive: true })
+
+  handle.addEventListener("touchmove", (e: TouchEvent) => {
+    e.preventDefault()  // Prevent page scroll during drag (requires passive: false)
+    const now = performance.now()
+    const y = e.touches[0].clientY
+    const dt = now - lastTime
+    if (dt > 0) velocity = (y - lastY) / dt  // positive = dragging down
+    lastY = y
+    lastTime = now
+
+    const dy = y - dragStartY  // positive = finger moved down = sheet gets smaller
+    const vhPerPx = window.innerHeight / 100
+    const newVH = Math.max(10, Math.min(95, (dragStartHeightPx - dy) / vhPerPx))
+    sheet.style.setProperty("--sheet-height", `${newVH}vh`)
+  }, { passive: false })
+
+  handle.addEventListener("touchend", () => {
+    sheet.classList.remove("dragging")
+    const currentVH = sheet.getBoundingClientRect().height / (window.innerHeight / 100)
+    if (velocity > DISMISS_VELOCITY || currentVH < DISMISS_HEIGHT_VH) {
+      dismiss()
+    } else {
+      snapToNearest(currentVH)
+    }
+  }, { passive: true })
+}
+
 function wireUpEvents(modal: HTMLElement) {
   // Close
   modal.querySelector(".pdf-close")?.addEventListener("click", closePdfViewer)
@@ -1316,7 +1381,9 @@ function wireUpEvents(modal: HTMLElement) {
   const mobileMenuBtn = modal.querySelector(".pdf-mobile-menu-btn")
   if (mobileMenuBtn && bottomSheet) {
     mobileMenuBtn.addEventListener("click", () => {
-      bottomSheet.classList.toggle("open")
+      // Always reset to 60vh default snap point when opening via hamburger
+      bottomSheet.style.setProperty("--sheet-height", "60vh")
+      bottomSheet.classList.add("open")
     })
 
     const handle = bottomSheet.querySelector(".pdf-bottom-sheet-handle")
@@ -1325,6 +1392,11 @@ function wireUpEvents(modal: HTMLElement) {
         bottomSheet.classList.remove("open")
       })
     }
+  }
+
+  // Drag-to-resize & swipe-to-dismiss on mobile bottom sheet
+  if (bottomSheet) {
+    setupBottomSheetDrag(bottomSheet)
   }
 
   // Mobile share button opens bottom sheet
@@ -1514,6 +1586,7 @@ function handleKeyboard(e: KeyboardEvent) {
 
           if (isMobile()) {
             const bottomSheet = document.getElementById("pdf-bottom-sheet")
+            if (bottomSheet) bottomSheet.style.setProperty("--sheet-height", "60vh")
             bottomSheet?.classList.add("open")
             const mobileInput = bottomSheet?.querySelector(".pdf-search-input") as HTMLInputElement
             mobileInput?.focus()
@@ -1654,6 +1727,7 @@ function closePdfViewer() {
   }
 
   isViewerOpen = false
+  document.body.classList.remove("pdf-viewer-open")
   unlockScroll()
 
   // Clean up URL
@@ -1700,6 +1774,7 @@ window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number;
   const modal = createModal()
   lockScroll()
   isViewerOpen = true
+  document.body.classList.add("pdf-viewer-open")
 
   // Set title
   const titleEl = modal.querySelector(".pdf-toolbar-title")

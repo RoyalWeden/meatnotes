@@ -1768,7 +1768,7 @@ function closePdfViewer() {
   currentMatchIndex = -1
 }
 
-window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number; title?: string }) {
+window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number; title?: string; version?: number }) {
   currentPdfUrl = pdfUrl
   currentPageNum = opts?.page || 1
 
@@ -1813,7 +1813,8 @@ window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number;
 
   try {
     const lib = await loadPdfJs()
-    const doc = await lib.getDocument(pdfUrl).promise
+    const loadUrl = opts?.version ? `${pdfUrl}?v=${opts.version}` : pdfUrl
+    const doc = await lib.getDocument(loadUrl).promise
     currentDoc = doc
     totalPages = doc.numPages
     updatePageIndicator()

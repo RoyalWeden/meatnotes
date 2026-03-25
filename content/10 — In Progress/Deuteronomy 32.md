@@ -226,3 +226,5 @@ Malachi
 
 - Mal 2:1-9 → Deut 32:2-5
 - Mal 3:10 → Deut 32:2
+
+## New Testament

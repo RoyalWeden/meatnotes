@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    __openPdfViewer?: (pdfUrl: string, opts?: { page?: number; title?: string }) => void
+    __openPdfViewer?: (pdfUrl: string, opts?: { page?: number; title?: string; version?: number }) => void
   }
 }
 
@@ -10,6 +10,7 @@ interface PdfIndexEntry {
   filename: string
   pageCount: number
   fileSize: number
+  lastModified: number
   thumbnail: string
   isExternal: false
   hidden?: boolean
@@ -79,7 +80,7 @@ function renderRecentPdfs(grid: HTMLElement) {
         <span>${pdfLibEscapeHtml(item.title)}</span>`
       chip.addEventListener("click", () => {
         if (window.__openPdfViewer) {
-          window.__openPdfViewer("/" + item.slug, { title: item.title })
+          window.__openPdfViewer("/" + item.slug, { title: item.title, version: item.lastModified })
         }
       })
       row.appendChild(chip)
@@ -265,7 +266,7 @@ function initPdfLibrary() {
           </div>
         `
         card.addEventListener("click", () => {
-          if (window.__openPdfViewer) window.__openPdfViewer("/" + entry.slug, { title: entry.title })
+          if (window.__openPdfViewer) window.__openPdfViewer("/" + entry.slug, { title: entry.title, version: entry.lastModified })
         })
         grid.appendChild(card)
       }

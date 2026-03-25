@@ -12,6 +12,7 @@ export interface PdfIndexEntry {
   filename: string
   pageCount: number
   fileSize: number
+  lastModified: number
   thumbnail: string
   isExternal: false
   hidden?: boolean
@@ -255,6 +256,7 @@ export const PdfIndex: QuartzEmitterPlugin = () => ({
         filename,
         pageCount,
         fileSize: stats.size,
+        lastModified: Math.floor(stats.mtimeMs),
         thumbnail: `static/pdf-thumbs/${thumbSlug}.jpg`,
         isExternal: false as const,
         ...(hiddenSlugs.has(slug) ? { hidden: true } : {}),

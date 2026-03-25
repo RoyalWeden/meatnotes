@@ -13,7 +13,7 @@
 | The Rich Fool |  |  | Luke 12:13-21 |
 | The Watchful Servants |  | Mark 13:35-37 | Luke 12:35-40 |
 | Unfruitful Fig Tree |  |  | Luke 13:6-9 |
-| The Weeds | Matthew 13:24-30, 36-43 |  |  |
+| The Wheat and Tares | Matthew 13:24-30, 36-43 |  |  |
 | The Seed | Matthew 13:31-32 | Mark 4:26-30 | Luke 13:18-19 |
 | Yeast | Matthew 13:33 |  | Luke 13:20-21 |
 | The Concealed Treasure | Matthew 13:44 |  |  |

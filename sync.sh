@@ -44,15 +44,23 @@ if ! ping -c1 -W2 github.com &>/dev/null; then
 fi
 
 # ── Write sync timestamp ────────────────────────────────────────
-date -u +"%Y-%m-%dT%H:%M:%SZ" > "$PROJECT/content/.last-sync"
+# Use tee (subprocess) instead of shell > redirect — launchd bash can't
+# use > to write iCloud Drive paths directly, but subprocesses can.
+if date -u +"%Y-%m-%dT%H:%M:%SZ" | tee "$PROJECT/content/.last-sync" > /dev/null 2>>"$LOG_FILE"; then
+  log "Wrote .last-sync timestamp"
+else
+  log "WARN: Could not write .last-sync"
+fi
 
 # ── Git LFS ────────────────────────────────────────────────────
 # PDFs are tracked via LFS (.gitattributes: *.pdf filter=lfs).
 # quartz sync does git pull which triggers LFS filters, but we
 # explicitly pull LFS objects first to match the CI pipeline behavior.
+log "Running git lfs pull..."
 git lfs pull >> "$LOG_FILE" 2>&1 || log "WARN: git lfs pull had issues (non-fatal)"
 
 # ── Run sync ───────────────────────────────────────────────────
+log "Running quartz sync..."
 if npx quartz sync >> "$LOG_FILE" 2>&1; then
   log "Sync completed successfully"
 else

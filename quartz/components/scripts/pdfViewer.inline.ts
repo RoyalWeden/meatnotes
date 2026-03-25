@@ -1268,12 +1268,30 @@ function wireUpEvents(modal: HTMLElement) {
   modal.querySelector(".pdf-zoom-in")?.addEventListener("click", () => zoom(0.1))
   modal.querySelector(".pdf-zoom-out")?.addEventListener("click", () => zoom(-0.1))
 
-  // Download with progress
+  // Download
   const downloadBtn = modal.querySelector(".pdf-download") as HTMLButtonElement | null
   downloadBtn?.addEventListener("click", async () => {
     if (downloadBtn.disabled) return
     downloadBtn.disabled = true
     const originalHTML = downloadBtn.innerHTML
+
+    const title = modal.querySelector(".pdf-title")?.textContent?.trim()
+    const urlFilename = decodeURIComponent(currentPdfUrl.split("/").pop() || "document.pdf")
+    const filename = title ? title.replace(/[/\\?%*:|"<>]/g, "-") + ".pdf" : urlFilename
+
+    // ── Local (same-origin) PDF — direct <a download>, no buffering ──
+    if (currentPdfUrl.startsWith("/")) {
+      const a = document.createElement("a")
+      a.href = currentPdfUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      downloadBtn.disabled = false
+      return
+    }
+
+    // ── External PDF — fetch+blob (required for cross-origin) ──
     downloadBtn.textContent = "0%"
     downloadBtn.style.fontSize = "0.65rem"
     downloadBtn.style.minWidth = "32px"
@@ -1287,7 +1305,7 @@ function wireUpEvents(modal: HTMLElement) {
         // Fallback: no streaming support or unknown size
         downloadBtn.textContent = "..."
         const blob = await response.blob()
-        triggerDownload(blob)
+        triggerBlobDownload(blob)
         return
       }
 
@@ -1300,12 +1318,10 @@ function wireUpEvents(modal: HTMLElement) {
         if (done) break
         chunks.push(value)
         received += value.length
-        const pct = Math.round((received / total) * 100)
-        downloadBtn.textContent = pct + "%"
+        downloadBtn.textContent = Math.round((received / total) * 100) + "%"
       }
 
-      const blob = new Blob(chunks, { type: "application/pdf" })
-      triggerDownload(blob)
+      triggerBlobDownload(new Blob(chunks, { type: "application/pdf" }))
     } catch {
       window.open(currentPdfUrl, "_blank")
     } finally {
@@ -1315,14 +1331,11 @@ function wireUpEvents(modal: HTMLElement) {
       downloadBtn.disabled = false
     }
 
-    function triggerDownload(blob: Blob) {
+    function triggerBlobDownload(blob: Blob) {
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      // Smart filename: use PDF title if available, otherwise extract from URL
-      const urlFilename = decodeURIComponent(currentPdfUrl.split("/").pop() || "document.pdf")
-      const title = modal.querySelector(".pdf-title")?.textContent?.trim()
-      a.download = title ? title.replace(/[/\\?%*:|"<>]/g, "-") + ".pdf" : urlFilename
+      a.download = filename
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)

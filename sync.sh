@@ -44,12 +44,15 @@ if ! ping -c1 -W2 github.com &>/dev/null; then
 fi
 
 # ── Write sync timestamp ────────────────────────────────────────
-# Use tee (subprocess) instead of shell > redirect — launchd bash can't
-# use > to write iCloud Drive paths directly, but subprocesses can.
-if date -u +"%Y-%m-%dT%H:%M:%SZ" | tee "$PROJECT/content/.last-sync" > /dev/null 2>>"$LOG_FILE"; then
-  log "Wrote .last-sync timestamp"
+# launchd bash can't use shell > redirects to write iCloud Drive paths.
+# Use node (which can access the iCloud repo) to write the timestamp.
+# If this also fails the user should grant Full Disk Access to /bin/bash
+# in System Settings → Privacy & Security → Full Disk Access.
+TS="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+if node --eval "require('fs').writeFileSync(process.argv[1],'$TS')" "$PROJECT/content/.last-sync" 2>>"$LOG_FILE"; then
+  log "Wrote .last-sync timestamp ($TS)"
 else
-  log "WARN: Could not write .last-sync"
+  log "WARN: Could not write .last-sync — grant Full Disk Access to /bin/bash in System Settings"
 fi
 
 # ── Git LFS ────────────────────────────────────────────────────

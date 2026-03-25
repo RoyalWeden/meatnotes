@@ -228,3 +228,95 @@ Malachi
 - Mal 3:10 → Deut 32:2
 
 ## New Testament
+
+Matthew
+
+- Mat 3:1-12 → Deut 32:1-2, Deut 32:5, Deut 32:35
+- Mat 7:13-14 → Deut 32:29
+- Mat 15:7-9 → Deut 32:5
+- Mat 21:42 → Deut 32:18
+
+Luke
+
+- Luk 3:7-9 → Deut 32:5
+- Luk 3:16-17 → Deut 32:35
+- Luk 4:1-13 → Deut 32:1-2
+- Luk 10:21-22 → Deut 32:3
+- Luk 12:19-20 → Deut 32:15
+- Luk 13:34 → Deut 32:11
+- Luk 13:35 → Deut 32:20
+
+John
+
+- Joh 6:31-51 → Deut 32:13
+- Joh 7:8 → Deut 32:20
+- Joh 7:16 → Deut 32:2
+- Joh 7:37-39 → Deut 32:2
+
+Acts
+
+- Act 2:17-18 → Deut 32:2
+- Act 2:21 → Deut 32:3
+- Act 2:25-28 → Deut 32:2
+- Act 2:34-35 → Deut 32:43
+- Act 2:40 → Deut 32:5
+- Act 7:37-43 → Deut 32:5-6, Deut 32:20-21, Deut 32:26-27
+- Act 13:41 → Deut 32:20
+
+Romans
+
+- Rom 1:21-23 → Deut 32:6, Deut 32:20
+- Rom 1:28-32 → Deut 32:18
+- Rom 8:19-22 → Deut 32:43
+- Rom 9:33 → Deut 32:18
+- Rom 10:14-15 → Deut 32:1-3
+- Rom 10:19-21 → Deut 32:21
+- Rom 12:19 → Deut 32:35
+- Rom 15:9-12 → Deut 32:43
+
+1 Corinthians
+
+- 1Co 10:1-13 → Deut 32:10-13, Deut 32:16-20
+- 1Co 10:22 → Deut 32:16
+
+2 Corinthians
+
+- 2Co 3:17 → Deut 32:2
+
+Ephesians
+
+- Eph 4:30 → Deut 32:19
+
+1 Timothy
+
+- 1Ti 6:15-16 → Deut 32:39
+
+2 Timothy
+
+- 2Ti 3:16 → Deut 32:1-2
+
+Philemon
+
+- Phi 2:15 → Deut 32:5
+
+Hebrews
+
+- Heb 10:30 → Deut 32:35
+
+1 Peter
+
+- 1Pe 2:6-8 → Deut 32:18-21
+
+2 Peter
+
+- 2Pe 2:9 → Deut 32:36
+
+Revelation
+
+- Rev 10:5-7 → Deut 32:40-41
+- Rev 12:12 → Deut 32:43 (LXX)
+- Rev 15:3-4 → Deut 32:43
+- Rev 16:5-7 → Deut 32:4
+- Rev 18:20 → Deut 32:43 (LXX)
+- Rev 19:1-2 → Deut 32:43
+- Rev 21:17 → Deut 32:9

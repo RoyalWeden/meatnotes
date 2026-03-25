@@ -20,6 +20,11 @@ touch "$LOCK_FILE"
 # ── Logging ────────────────────────────────────────────────────
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"; }
 
+# ── Log rotation (keep last 2000 lines) ────────────────────────
+if [ -f "$LOG_FILE" ] && [ "$(wc -l < "$LOG_FILE")" -gt 2000 ]; then
+  tail -n 2000 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+fi
+
 log "Sync started"
 
 # ── Pre-flight checks ──────────────────────────────────────────
@@ -31,6 +36,15 @@ fi
 
 # ── Change directory ───────────────────────────────────────────
 cd "$PROJECT" || { log "ERROR: Failed to cd to $PROJECT"; exit 1; }
+
+# ── Network check ──────────────────────────────────────────────
+if ! ping -c1 -W2 github.com &>/dev/null; then
+  log "No internet connection, skipping sync"
+  exit 0
+fi
+
+# ── Write sync timestamp ────────────────────────────────────────
+date -u +"%Y-%m-%dT%H:%M:%SZ" > "$PROJECT/content/.last-sync"
 
 # ── Git LFS ────────────────────────────────────────────────────
 # PDFs are tracked via LFS (.gitattributes: *.pdf filter=lfs).

@@ -17,7 +17,7 @@ const config: QuartzConfig = {
     },
     locale: "en-US",
     baseUrl: "sitgmeat.com",
-    ignorePatterns: ["private", "templates", ".obsidian", ".git", ".gitignore", ".templates"],
+    ignorePatterns: ["private", "templates", ".obsidian", ".git", ".gitignore", ".templates", ".last-sync"],
     defaultDateType: "modified",
     theme: {
       fontOrigin: "googleFonts",
@@ -59,6 +59,7 @@ const config: QuartzConfig = {
       Plugin.CreatedModifiedDate({
         priority: ["frontmatter", "git", "filesystem"],
       }),
+      Plugin.SyncStamp(),
       Plugin.SyntaxHighlighting({
         theme: {
           light: "github-light",

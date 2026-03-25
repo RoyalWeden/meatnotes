@@ -63,6 +63,11 @@ tags: Dead Sea Scrolls
 ```
 
 ```pdf-local
+slug: .files/Epistle-of-Barnabas.pdf
+tags: Early Church
+```
+
+```pdf-local
 slug: .files/Ascension-of-Isaiah.pdf
 tags: Apocrypha
 ```

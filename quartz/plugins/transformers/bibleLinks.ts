@@ -247,6 +247,19 @@ const lxxBooks: Record<string, string> = {
   sir: "SIR",
   baruch: "BAR",
   bar: "BAR",
+  "letter of jeremiah": "LJE",
+  "epistle of jeremiah": "LJE",
+  "let jer": "LJE",
+  "additions to esther": "ADE",
+  "rest of esther": "ADE",
+  "add esth": "ADE",
+  "prayer of azariah": "S3Y",
+  "song of three holy children": "S3Y",
+  "song of the three": "S3Y",
+  susanna: "SUS",
+  sus: "SUS",
+  "bel and the dragon": "BEL",
+  bel: "BEL",
   "1 maccabees": "1MA",
   "1 macc": "1MA",
   "1macc": "1MA",
@@ -266,6 +279,53 @@ const lxxBooks: Record<string, string> = {
   "2 esdras": "2ES",
   "2esdras": "2ES",
 }
+
+// KJV Apocrypha book slug mapping for kingjamesbibleonline.org
+// Only standard KJV Apocrypha books (3 & 4 Maccabees excluded — not standard KJV)
+const kjbApocryphaBooks: Record<string, string> = {
+  tobit: "Tobit",
+  tob: "Tobit",
+  judith: "Judith",
+  jdt: "Judith",
+  "wisdom of solomon": "Wisdom-of-Solomon",
+  wisdom: "Wisdom-of-Solomon",
+  wis: "Wisdom-of-Solomon",
+  sirach: "Ecclesiasticus",
+  ecclesiasticus: "Ecclesiasticus",
+  sir: "Ecclesiasticus",
+  baruch: "Baruch",
+  bar: "Baruch",
+  "letter of jeremiah": "Letter-of-Jeremiah",
+  "epistle of jeremiah": "Letter-of-Jeremiah",
+  "let jer": "Letter-of-Jeremiah",
+  "additions to esther": "Additions-to-Esther",
+  "rest of esther": "Additions-to-Esther",
+  "add esth": "Additions-to-Esther",
+  "prayer of azariah": "Prayer-of-Azariah",
+  "song of three holy children": "Prayer-of-Azariah",
+  "song of the three": "Prayer-of-Azariah",
+  susanna: "Susanna",
+  sus: "Susanna",
+  "bel and the dragon": "Bel-and-the-Dragon",
+  bel: "Bel-and-the-Dragon",
+  "1 maccabees": "1-Maccabees",
+  "1 macc": "1-Maccabees",
+  "1macc": "1-Maccabees",
+  "2 maccabees": "2-Maccabees",
+  "2 macc": "2-Maccabees",
+  "2macc": "2-Maccabees",
+  "prayer of manasseh": "Prayer-of-Manasseh",
+  manasseh: "Prayer-of-Manasseh",
+  "1 esdras": "1-Esdras",
+  "1esdras": "1-Esdras",
+  "2 esdras": "2-Esdras",
+  "2esdras": "2-Esdras",
+}
+
+const kjbApocryphaBookPattern = Object.keys(kjbApocryphaBooks)
+  .sort((a, b) => b.length - a.length)
+  .map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  .join("|")
 
 const bookPattern = Object.keys(books)
   .sort((a, b) => b.length - a.length)
@@ -318,6 +378,28 @@ const lxxChapterRegex = new RegExp(
   `(?<![\\w/>"'\\[])\\b(${lxxBookPattern})[ \\t]+(\\d+(?:-\\d+)?)[ \\t]+\\(LXX\\)(?![:\\d\\]])`,
   "gi",
 )
+
+// KJB Online apocrypha regexes — match apocrypha books WITHOUT (LXX) suffix
+// These run after LXX passes so (LXX)-tagged refs are already linked and protected
+const kjbApocryphaVerseRegex = new RegExp(
+  `(?<![\\w/>"'\\[])\\b(${kjbApocryphaBookPattern})[ \\t]+(\\d+):(\\d+(?:-\\d+)?)(?!\\])`,
+  "gi",
+)
+
+const kjbApocryphaChapterRegex = new RegExp(
+  `(?<![\\w/>"'\\[])\\b(${kjbApocryphaBookPattern})[ \\t]+(\\d+(?:-\\d+)?)(?![:\\d\\]])`,
+  "gi",
+)
+
+function kjbApocryphaUrl(slug: string, chapter: string, verse?: string): string {
+  const base = "https://www.kingjamesbibleonline.org"
+  if (!verse) return `${base}/${slug}-${chapter}/`
+  if (verse.includes("-")) {
+    const [start, end] = verse.split("-")
+    return `${base}/${slug}-${chapter}-${start}_${chapter}-${end}/`
+  }
+  return `${base}/${slug}-${chapter}-${verse}/`
+}
 
 // Jubilees regexes
 const jubileesVerseRegex =
@@ -464,6 +546,21 @@ export const BibleLinks: QuartzTransformerPlugin = () => {
           const chapterPadded = lxxCh.toString().padStart(2, "0")
           const url = `https://ebible.org/eng-Brenton/${code}${chapterPadded}.htm`
           return `[${match}](${url})`
+        })
+
+        // Pass 2.5a: Apocrypha verse refs without (LXX) — link to kingjamesbibleonline.org
+        result = result.replace(kjbApocryphaVerseRegex, (match, book, chapter, verse) => {
+          const slug = kjbApocryphaBooks[book.toLowerCase().trim()]
+          if (!slug) return match
+          return `[${match}](${kjbApocryphaUrl(slug, chapter, verse)})`
+        })
+
+        // Pass 2.5b: Apocrypha chapter-only refs without (LXX) — link to kingjamesbibleonline.org
+        result = result.replace(kjbApocryphaChapterRegex, (match, book, chapter) => {
+          const slug = kjbApocryphaBooks[book.toLowerCase().trim()]
+          if (!slug) return match
+          const firstChapter = chapter.includes("-") ? chapter.split("-")[0] : chapter
+          return `[${match}](${kjbApocryphaUrl(slug, firstChapter)})`
         })
 
         // Pass 3: Jubilees verse refs

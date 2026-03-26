@@ -833,7 +833,9 @@ function scrollToPage(pageNum: number) {
   if (!scrollEl || !container) return
 
   renderPage(pageNum) // Ensure page is rendered
-  scrollEl.scrollTo({ top: container.offsetTop, behavior: "smooth" })
+  const containerTop = container.getBoundingClientRect().top
+  const scrollElTop = scrollEl.getBoundingClientRect().top
+  scrollEl.scrollTo({ top: scrollEl.scrollTop + containerTop - scrollElTop, behavior: "smooth" })
 }
 
 // In-PDF search

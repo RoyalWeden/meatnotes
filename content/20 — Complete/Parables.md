@@ -7,13 +7,13 @@
 | New Wine in Old Wineskins | Matthew 9:17 | Mark 2:22 | Luke 5:37-39 |
 | The Two Debtors |  |  | Luke 7:40-43 |
 | [[10 — In Progress/The Seed Sower]] | Matthew 13:1-23 | Mark 4:1-20 | Luke 8:4-15 |
-| The Good Samaritan |  |  | Luke 10:25-27 |
+| The Good Samaritan |  |  | Luke 10:25-37 |
 | The Friend at Midnight |  |  | Luke 11:5-13 |
 | Growing Seed |  | Mark 4:26-29 |  |
 | The Rich Fool |  |  | Luke 12:13-21 |
 | The Watchful Servants |  | Mark 13:35-37 | Luke 12:35-40 |
 | Unfruitful Fig Tree |  |  | Luke 13:6-9 |
-| The Wheat and Tares | Matthew 13:24-30, 36-43 | Mark 4:26-29 |  |
+| The Wheat and Tares | Matthew 13:24-30, 36-43 |  |  |
 | The Seed | Matthew 13:31-32 | Mark 4:30-32 | Luke 13:18-19 |
 | Yeast | Matthew 13:33 |  | Luke 13:20-21 |
 | The Concealed Treasure | Matthew 13:44 |  |  |

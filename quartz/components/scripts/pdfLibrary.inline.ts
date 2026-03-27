@@ -60,7 +60,7 @@ function renderRecentPdfs(grid: HTMLElement) {
   grid.parentElement?.querySelector(".pdf-recent-section")?.remove()
 
   try {
-    const recent: Array<{ slug: string; title: string; timestamp: number }> = JSON.parse(
+    const recent: Array<{ slug: string; title: string; timestamp: number; lastModified?: number }> = JSON.parse(
       localStorage.getItem("pdf-recent") || "[]"
     )
     if (recent.length === 0) return
@@ -243,7 +243,7 @@ function initPdfLibrary() {
   filterInput.addEventListener("input", applyFilters)
 
   // Fetch PDF index
-  fetch("/static/pdfIndex.json")
+  fetch("/static/pdfIndex.json", { cache: "no-cache" })
     .then((r) => r.json())
     .then((index: PdfIndex) => {
       // Local PDF cards

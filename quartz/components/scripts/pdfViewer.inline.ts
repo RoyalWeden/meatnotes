@@ -2014,11 +2014,11 @@ window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number;
   // Save to recent PDFs
   try {
     const recentKey = "pdf-recent"
-    const recent: Array<{ slug: string; title: string; timestamp: number }> = JSON.parse(localStorage.getItem(recentKey) || "[]")
+    const recent: Array<{ slug: string; title: string; timestamp: number; lastModified?: number }> = JSON.parse(localStorage.getItem(recentKey) || "[]")
     const slug = pdfUrl.replace(/^\//, "")
     const title = opts?.title || formatFileTitle(pdfUrl)
     const filtered = recent.filter((r) => r.slug !== slug)
-    filtered.unshift({ slug, title, timestamp: Date.now() })
+    filtered.unshift({ slug, title, timestamp: Date.now(), lastModified: opts?.version })
     localStorage.setItem(recentKey, JSON.stringify(filtered.slice(0, 5)))
   } catch {}
   currentScale = 1.5

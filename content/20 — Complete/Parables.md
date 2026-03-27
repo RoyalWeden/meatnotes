@@ -20,8 +20,8 @@
 | The Pearl | Matthew 13:45-46 |  |  |
 | The Casting of the Net into the Sea | Matthew 13:47-50 |  |  |
 | Owner of a House | Matthew 13:52 |  |  |
-| The Lost Sheep | Matthew 18:12-14 |  | Luke 15:3-5 |
-| The Unforgiving Servant | Matthew 18:23-35 |  |  |
+| The Lost Sheep | Matthew 18:10-14 |  | Luke 15:3-7 |
+| The Unforgiving Servant | Matthew 18:21-35 |  |  |
 | The Vineyard Workers | Matthew 20:1-16 |  |  |
 | Lowest Seat at the Feast |  |  | Luke 14:7-14 |
 | The Great Feast |  |  | Luke 14:16-24 |

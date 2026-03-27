@@ -1,0 +1,24 @@
+{
+  "name": "bible-notes-sync",
+  "version": "1.0.0",
+  "description": "Bible Notes Sync — macOS menu bar app",
+  "author": "roywe",
+  "main": "main.js",
+  "scripts": {
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^32.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.roywe.bible-notes-sync",
+    "productName": "Bible Notes Sync",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [{ "target": "dir", "arch": ["arm64"] }]
+    },
+    "directories": { "output": "dist" },
+    "files": ["main.js"]
+  }
+}

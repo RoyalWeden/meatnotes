@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quartz Sync</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #32d74b;
+      --yellow: #ffd60a;
+      --red:    #ff453a;
+      --orange: #ff9f0a;
+      --grey:   #8e8e93;
+      --accent: var(--green);
+      --card-bg-a: #0d1f0d;
+      --card-bg-b: #0a150a;
+    }
+
+    html, body {
+      height: 100%;
+      background: transparent;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* ── Outer shell ── */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: rgba(20, 20, 22, 0.92);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* ── Drag region + traffic lights spacer ── */
+    .titlebar {
+      -webkit-app-region: drag;
+      height: 28px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding-left: 80px; /* space for traffic lights */
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* ── Status card ── */
+    .card {
+      margin: 0 12px 12px;
+      border-radius: 10px;
+      padding: 16px 18px 14px;
+      background: linear-gradient(135deg, var(--card-bg-a), var(--card-bg-b));
+      border: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.5s ease;
+      flex-shrink: 0;
+    }
+
+    /* Thin progress bar across top of card (shown while syncing) */
+    .card-progress {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .card-progress.visible { opacity: 1; }
+    .card-progress-bar {
+      position: absolute;
+      top: 0; left: 0;
+      height: 2px;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: progress-slide 1.4s ease-in-out infinite;
+    }
+    @keyframes progress-slide {
+      0%   { transform: translateX(-200%); }
+      100% { transform: translateX(600%); }
+    }
+
+    /* Glow blob behind status */
+    .card-glow {
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.06;
+      top: -40px; right: -20px;
+      filter: blur(30px);
+      pointer-events: none;
+      transition: background 0.5s ease;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* Pulsing / spinning status dot */
+    .status-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      animation: pulse-dot 2.4s ease-in-out infinite;
+      transition: background 0.4s ease;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%       { opacity: 0.55; transform: scale(0.8); }
+    }
+    .status-dot.syncing {
+      animation: spin-dot 0.9s linear infinite;
+    }
+    @keyframes spin-dot {
+      to { transform: rotate(360deg); border-radius: 30%; }
+    }
+
+    .status-label {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #fff;
+    }
+
+    .card-times {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 12px;
+      display: flex;
+      gap: 16px;
+    }
+    .card-times span { display: flex; align-items: center; gap: 4px; }
+    .card-times .accent { color: var(--accent); font-weight: 600; }
+
+    /* Countdown arc */
+    .card-countdown {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .arc-wrap { position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+    .arc-svg { width: 36px; height: 36px; transform: rotate(-90deg); }
+    .arc-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 3; }
+    .arc-fill  { fill: none; stroke: var(--accent); stroke-width: 3;
+                 stroke-linecap: round; stroke-dasharray: 88; stroke-dashoffset: 88;
+                 transition: stroke-dashoffset 1s linear, stroke 0.4s ease; }
+    .arc-label {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 700; color: var(--accent);
+      transform: rotate(90deg);
+    }
+    .countdown-text { font-size: 12px; color: rgba(255,255,255,0.55); }
+    .countdown-text strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+
+    /* Action buttons */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 7px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.35; cursor: default; }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
+
+    /* ── Log list ── */
+    .log-header {
+      padding: 0 16px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.25);
+      flex-shrink: 0;
+    }
+
+    .entries {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 8px;
+    }
+    .entries::-webkit-scrollbar { width: 4px; }
+    .entries::-webkit-scrollbar-track { background: transparent; }
+    .entries::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    .entry {
+      padding: 9px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.12s;
+    }
+    .entry:hover { background: rgba(255,255,255,0.04); }
+    .entry.new { animation: slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .entry-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .entry-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
+    .entry-summary {
+      flex: 1;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .entry.success .entry-summary { color: #e0e0e0; }
+    .entry.error   .entry-summary { color: #ff6b63; }
+    .entry.skipped .entry-summary { color: #666; }
+
+    .entry-time {
+      font-size: 11px;
+      color: #555;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* GitHub hover button */
+    .gh-btn {
+      -webkit-app-region: no-drag;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+      line-height: 1;
+    }
+    .entry:hover .gh-btn { opacity: 1; }
+    .gh-btn:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+
+    /* Expand toggle */
+    .expand-btn {
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s, transform 0.2s;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #555;
+      font-size: 10px;
+      padding: 2px;
+      -webkit-app-region: no-drag;
+    }
+    .entry:hover .expand-btn { opacity: 1; }
+    .entry.expanded .expand-btn { transform: rotate(180deg); opacity: 1; }
+
+    .entry-detail {
+      display: none;
+      margin-top: 7px;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 6px;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .entry.expanded .entry-detail { display: block; }
+    .detail-error { color: #ff6b63; }
+    .detail-warn  { color: #ffd60a; }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+      color: #444;
+      font-size: 13px;
+    }
+    .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- Drag titlebar -->
+    <div class="titlebar">Quartz Sync</div>
+
+    <!-- Status card -->
+    <div class="card" id="card">
+      <div class="card-glow" id="cardGlow"></div>
+      <div class="card-progress" id="cardProgress">
+        <div class="card-progress-bar"></div>
+      </div>
+
+      <div class="card-top">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-label" id="statusLabel">Loading…</span>
+      </div>
+
+      <div class="card-times" id="cardTimes">
+        <span>Last sync: <span class="accent" id="lastSyncTime">—</span></span>
+      </div>
+
+      <div class="card-countdown" id="cardCountdown">
+        <div class="arc-wrap">
+          <svg class="arc-svg" viewBox="0 0 36 36">
+            <circle class="arc-track" cx="18" cy="18" r="14"/>
+            <circle class="arc-fill"  cx="18" cy="18" r="14" id="arcFill"/>
+          </svg>
+          <div class="arc-label" id="arcLabel">—</div>
+        </div>
+        <div class="countdown-text" id="countdownText">Calculating…</div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-primary" id="syncBtn" onclick="triggerSync()">▶ Sync Now</button>
+        <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+      </div>
+    </div>
+
+    <!-- Log list -->
+    <div class="log-header">Sync History</div>
+    <div class="entries" id="entries"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🔄</div>
+      No sync entries yet.
+    </div>
+  </div>
+
+  <script>
+    const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
+
+    // ── State ──────────────────────────────────────────────────────────────
+    let status = {
+      isSyncing: false, isWaiting: false, isPaused: false,
+      lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
+    };
+    let entries = [];
+    let countdownTimer = null;
+    let nextSyncAt = null;
+    let knownTopId = null; // detect new entries
+
+    // ── Card state machine ─────────────────────────────────────────────────
+    const STATES = {
+      syncing: { label: 'SYNCING…',       color: 'var(--yellow)', bg: ['#1f1f00','#141400'], dotClass: 'syncing',  progress: true  },
+      error:   { label: 'SYNC ERROR',     color: 'var(--red)',    bg: ['#1f0d0d','#140808'], dotClass: '',         progress: false },
+      waiting: { label: 'WAITING FOR PDF',color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',         progress: false },
+      paused:  { label: 'PAUSED',         color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',         progress: false },
+      synced:  { label: 'SYNCED',         color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',         progress: false },
+    };
+
+    function getStateName(s) {
+      if (s.isSyncing)    return 'syncing';
+      if (s.lastSyncError) return 'error';
+      if (s.isWaiting)    return 'waiting';
+      if (s.isPaused)     return 'paused';
+      return 'synced';
+    }
+
+    function updateCard(s) {
+      status = s;
+      const st = STATES[getStateName(s)];
+
+      // CSS vars
+      document.documentElement.style.setProperty('--accent', st.color);
+
+      // Card gradient
+      document.getElementById('card').style.background =
+        `linear-gradient(135deg, ${st.bg[0]}, ${st.bg[1]})`;
+
+      // Glow
+      document.getElementById('cardGlow').style.background = st.color;
+
+      // Dot
+      const dot = document.getElementById('statusDot');
+      dot.style.background = st.color;
+      dot.className = 'status-dot' + (st.dotClass ? ' ' + st.dotClass : '');
+
+      // Label
+      document.getElementById('statusLabel').textContent = st.label;
+
+      // Progress bar
+      const prog = document.getElementById('cardProgress');
+      prog.className = 'card-progress' + (st.progress ? ' visible' : '');
+
+      // Times
+      const lastSync = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
+      document.getElementById('lastSyncTime').textContent =
+        lastSync ? lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
+
+      // Buttons
+      document.getElementById('syncBtn').disabled = s.isSyncing || s.isWaiting;
+      const pauseBtn = document.getElementById('pauseBtn');
+      pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
+      pauseBtn.disabled = s.isSyncing;
+
+      // Countdown
+      const countdown = document.getElementById('cardCountdown');
+      if (s.isSyncing || s.isWaiting) {
+        countdown.style.display = 'none';
+      } else if (s.isPaused) {
+        countdown.style.display = 'flex';
+        document.getElementById('countdownText').innerHTML = '<strong>Auto-sync is paused</strong>';
+        setArc(0);
+        document.getElementById('arcLabel').textContent = '—';
+      } else {
+        countdown.style.display = 'flex';
+        if (lastSync && s.intervalSeconds) {
+          nextSyncAt = lastSync.getTime() + s.intervalSeconds * 1000;
+          startCountdown(s.intervalSeconds);
+        }
+      }
+    }
+
+    // ── Countdown arc ──────────────────────────────────────────────────────
+    const ARC_CIRCUMFERENCE = 88; // 2π×14 ≈ 87.96
+
+    function setArc(fraction) {
+      // fraction = 0 (empty) → 1 (full)
+      const offset = ARC_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, fraction)));
+      document.getElementById('arcFill').style.strokeDashoffset = offset;
+    }
+
+    function formatCountdown(totalSecs) {
+      if (totalSecs <= 0) return 'syncing soon';
+      const m = Math.floor(totalSecs / 60);
+      const s = Math.floor(totalSecs % 60);
+      if (m >= 60) return `${Math.floor(m/60)}h ${m%60}m`;
+      if (m > 0)   return `<strong>${m}m ${String(s).padStart(2,'0')}s</strong> until next sync`;
+      return `<strong>${s}s</strong> until next sync`;
+    }
+
+    function startCountdown(totalInterval) {
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        const remaining = Math.max(0, (nextSyncAt - Date.now()) / 1000);
+        const fraction = remaining / totalInterval;
+        setArc(fraction);
+        document.getElementById('arcLabel').textContent =
+          remaining > 60 ? `${Math.ceil(remaining/60)}m` : `${Math.ceil(remaining)}s`;
+        document.getElementById('countdownText').innerHTML = formatCountdown(remaining);
+      }, 1000);
+    }
+
+    // ── GitHub URL builder ─────────────────────────────────────────────────
+    function githubUrl(entry) {
+      if (entry.commitSha) return `${GITHUB_REPO}/commit/${entry.commitSha}`;
+      return `${GITHUB_REPO}/commits/main`;
+    }
+
+    // ── Render entries ─────────────────────────────────────────────────────
+    function statusIcon(s) {
+      return s === 'success' ? '✅' : s === 'error' ? '❌' : '⚪';
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      const today = new Date();
+      const sameDay = d.toDateString() === today.toDateString();
+      if (sameDay) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' })
+        + '  ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderEntries(newEntries, animate) {
+      const container = document.getElementById('entries');
+      const empty = document.getElementById('emptyState');
+
+      if (!newEntries || newEntries.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      const newTopId = newEntries[0].timestamp;
+      const isReallyNew = animate && knownTopId && newTopId !== knownTopId;
+
+      container.innerHTML = newEntries.map((e, i) => {
+        const isNew = isReallyNew && i === 0;
+        const hasDetail = e.errorLines && e.errorLines.length > 0;
+        const ghUrl = githubUrl(e);
+
+        const detailHtml = hasDetail
+          ? e.errorLines.map(l =>
+              `<span class="${l.startsWith('WARN') ? 'detail-warn' : 'detail-error'}">${escHtml(l)}</span>`
+            ).join('\n')
+          : '';
+
+        return `
+        <div class="entry ${e.status}${isNew ? ' new' : ''}" onclick="toggleExpand(this)">
+          <div class="entry-row">
+            <span class="entry-icon">${statusIcon(e.status)}</span>
+            <span class="entry-summary">${escHtml(e.detail)}</span>
+            <span class="entry-time">${formatDate(e.timestamp)}</span>
+            ${hasDetail ? '<button class="expand-btn" title="Expand">▼</button>' : ''}
+            <button class="gh-btn" title="View on GitHub"
+              onclick="event.stopPropagation(); openGitHub('${escHtml(ghUrl)}')"
+            >⎋ <span style="font-size:10px">GitHub</span></button>
+          </div>
+          ${hasDetail ? `<div class="entry-detail">${detailHtml}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      knownTopId = newTopId;
+      entries = newEntries;
+    }
+
+    function toggleExpand(el) {
+      el.classList.toggle('expanded');
+    }
+
+    // ── Actions ────────────────────────────────────────────────────────────
+    function triggerSync() {
+      if (window.syncAPI) window.syncAPI.triggerSync();
+    }
+
+    function togglePause() {
+      if (window.syncAPI) window.syncAPI.togglePause();
+    }
+
+    function openGitHub(url) {
+      if (window.syncAPI) window.syncAPI.openGitHub(url);
+      else window.open(url, '_blank');
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    async function init() {
+      if (!window.syncAPI) {
+        // Browser preview mode — inject mock data
+        injectMock();
+        return;
+      }
+
+      const [initialEntries, initialStatus] = await Promise.all([
+        window.syncAPI.getLogEntries(),
+        window.syncAPI.getSyncStatus(),
+      ]);
+
+      renderEntries(initialEntries, false);
+      updateCard(initialStatus);
+
+      window.syncAPI.onLogUpdate((e) => renderEntries(e, true));
+      window.syncAPI.onSyncStatus((s) => updateCard(s));
+    }
+
+    // Mock for browser preview
+    function injectMock() {
+      const now = Date.now();
+      const mockEntries = [
+        { timestamp: new Date(now - 2*60000).toISOString(),   status: 'success', detail: 'Synced', errorLines: [], commitSha: 'a1b2c3d' },
+        { timestamp: new Date(now - 32*60000).toISOString(),  status: 'success', detail: 'Synced', errorLines: [], commitSha: 'e4f5a6b' },
+        { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped — no internet', errorLines: [], commitSha: null },
+        { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null },
+        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f' },
+      ];
+      const mockStatus = {
+        isSyncing: false, isWaiting: false, isPaused: false,
+        lastSyncError: false,
+        lastSyncTime: new Date(now - 2*60000).toISOString(),
+        intervalSeconds: 1800,
+      };
+      renderEntries(mockEntries, false);
+      updateCard(mockStatus);
+      nextSyncAt = now - 2*60000 + 1800*1000;
+      startCountdown(1800);
+    }
+
+    init();
+  </script>
+</body>
+</html>

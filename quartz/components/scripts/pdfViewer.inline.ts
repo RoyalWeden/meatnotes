@@ -905,18 +905,37 @@ async function loadAnnotations(container: HTMLElement) {
 
   const annotationItems: Array<{ pageNum: number; content: string; color?: number[]; subtype: string; highlightedText: string }> = []
 
-  container.innerHTML = `<div class="pdf-sidebar-loading">Scanning annotations... (0/${totalPages})</div>`
+  container.innerHTML = `
+    <div class="pdf-annot-loading">
+      <div class="pdf-annot-loading-text">Scanning annotations…</div>
+      <div class="pdf-annot-progress-wrap">
+        <div class="pdf-annot-progress-bar" style="width:0%"></div>
+      </div>
+      <div class="pdf-annot-loading-sub">0 / ${totalPages} pages</div>
+      <div class="pdf-annot-loading-eta"></div>
+    </div>
+  `
+  const startTime = Date.now()
 
   for (let i = 1; i <= totalPages; i++) {
     // Abort if the document changed (viewer was closed/reopened)
     if (currentDoc !== doc) return
 
-    // Update progress every 10 pages
-    if (i % 10 === 0) {
-      const loadingEl = container.querySelector(".pdf-sidebar-loading")
-      if (loadingEl) loadingEl.textContent = `Scanning annotations... (${i}/${totalPages})`
-      // Yield to let UI update
-      await new Promise(r => setTimeout(r, 0))
+    // Update progress bar every page (DOM update is cheap; getPage is the async bottleneck)
+    {
+      const pct = ((i - 1) / totalPages) * 100
+      const elapsed = Date.now() - startTime
+      const barEl = container.querySelector<HTMLElement>(".pdf-annot-progress-bar")
+      const subEl = container.querySelector(".pdf-annot-loading-sub")
+      const etaEl = container.querySelector(".pdf-annot-loading-eta")
+      if (barEl) barEl.style.width = `${pct}%`
+      if (subEl) subEl.textContent = `${i - 1} / ${totalPages} pages`
+      if (etaEl && i > 3 && elapsed > 200) {
+        const msPerPage = elapsed / (i - 1)
+        const remainingMs = msPerPage * (totalPages - i + 1)
+        const etaSecs = Math.ceil(remainingMs / 1000)
+        etaEl.textContent = etaSecs > 1 ? `~${etaSecs}s remaining` : ""
+      }
     }
 
     try {

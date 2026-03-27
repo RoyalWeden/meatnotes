@@ -403,18 +403,21 @@ $mobile: "max-width: 800px";
 
   .pdf-annot-copy {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 4px;
+    right: 4px;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     color: var(--gray);
     opacity: 0;
     transition: opacity 0.15s;
-    padding: 2px 4px;
+    padding: 5px 7px;
     line-height: 1;
-    border-radius: 3px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       color: var(--dark);
@@ -424,6 +427,12 @@ $mobile: "max-width: 800px";
 
   &:hover .pdf-annot-copy {
     opacity: 1;
+  }
+
+  @media (hover: none) {
+    .pdf-annot-copy {
+      opacity: 1;
+    }
   }
 }
 
@@ -435,6 +444,48 @@ $mobile: "max-width: 800px";
   padding: 1px 5px;
   vertical-align: middle;
   font-weight: normal;
+}
+
+/* Annotation scan progress */
+.pdf-annot-loading {
+  padding: 1.25rem 1rem;
+  text-align: center;
+}
+
+.pdf-annot-loading-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--darkgray);
+  margin-bottom: 0.6rem;
+}
+
+.pdf-annot-progress-wrap {
+  height: 5px;
+  background: var(--lightgray);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.pdf-annot-progress-bar {
+  height: 100%;
+  background: var(--secondary);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.25s linear;
+}
+
+.pdf-annot-loading-sub {
+  font-size: 0.7rem;
+  color: var(--gray);
+}
+
+.pdf-annot-loading-eta {
+  font-size: 0.7rem;
+  color: var(--secondary);
+  margin-top: 0.25rem;
+  min-height: 1.1em;
+  font-weight: 500;
 }
 
 .pdf-annot-note a {

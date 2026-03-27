@@ -667,7 +667,7 @@ async function extractTextAtRect(pageProxy: any, rect: number[]): Promise<string
     const minY = Math.min(ay1, ay2)
     const maxY = Math.max(ay1, ay2)
 
-    // Collect text items that overlap the annotation rect (using full bounding box)
+    // Collect text items that overlap the annotation rect
     const overlapping: Array<{ str: string; x: number; y: number; w: number }> = []
     for (const item of textContent.items) {
       if (!item.str || !item.transform) continue
@@ -682,12 +682,47 @@ async function extractTextAtRect(pageProxy: any, rect: number[]): Promise<string
       const itemBottom = ty
       const itemTop = ty + th
 
-      // Check bounding box overlap (with small tolerance)
-      const tol = 2
-      if (itemRight > minX - tol && itemLeft < maxX + tol &&
-          itemTop > minY - tol && itemBottom < maxY + tol) {
-        overlapping.push({ str: item.str, x: tx, y: ty, w: tw })
+      // Require at least 2 units of Y overlap — filters items that merely graze the rect boundary
+      // (uses < 2 not <= 1 because PDF coordinates are floats; a 1-unit touch might be 1.3 etc.)
+      const yOverlap = Math.min(itemTop, maxY) - Math.max(itemBottom, minY)
+      if (yOverlap < 2) continue
+
+      // Require actual X overlap
+      const xOverlapLeft = Math.max(itemLeft, minX)
+      const xOverlapRight = Math.min(itemRight, maxX)
+      if (xOverlapRight <= xOverlapLeft) continue
+
+      // Filter out items with negligible X overlap (items just grazing the rect edge).
+      // Use min(tw, quadWidth) so a short highlight on a wide line item (e.g. first word of
+      // a wrapped line) isn't incorrectly rejected by an item-width-relative threshold.
+      const xOverlapWidth = xOverlapRight - xOverlapLeft
+      const quadWidth = maxX - minX
+      if (tw > 10 && xOverlapWidth < Math.min(tw, quadWidth) * 0.05) continue
+
+      // Filter out standalone digit-only items (footnote superscripts like "1", "23")
+      if (/^\d{1,3}$/.test(item.str.trim())) continue
+
+      // Word-center filtering: include only words whose estimated X center falls within [minX, maxX]
+      // This is more robust than character-level clipping for variable-width fonts.
+      let str = item.str
+      if (tw > 1 && (itemLeft < minX - 2 || itemRight > maxX + 2)) {
+        const totalLen = str.length || 1
+        const words = str.split(" ")
+        let charPos = 0
+        const included: string[] = []
+        for (const word of words) {
+          if (word.length > 0) {
+            const wordStart = itemLeft + (charPos / totalLen) * tw
+            const wordEnd   = itemLeft + ((charPos + word.length) / totalLen) * tw
+            const wordCenter = (wordStart + wordEnd) / 2
+            const inside = wordCenter >= minX && wordCenter <= maxX
+            if (inside) included.push(word)
+          }
+          charPos += word.length + 1  // +1 for the space separator
+        }
+        str = included.join(" ").trim()
       }
+      if (str) overlapping.push({ str, x: xOverlapLeft, y: ty, w: xOverlapWidth })
     }
 
     // Sort by Y descending (top to bottom in PDF coords), then X ascending (left to right)
@@ -701,6 +736,167 @@ async function extractTextAtRect(pageProxy: any, rect: number[]): Promise<string
   } catch {
     return ""
   }
+}
+
+// Canonical Bible book → BibleGateway URL slug
+const PDF_BIBLE_BOOKS: Record<string, string> = {
+  genesis:"Genesis",gen:"Genesis",exodus:"Exodus",exod:"Exodus",exo:"Exodus",
+  leviticus:"Leviticus",lev:"Leviticus",numbers:"Numbers",num:"Numbers",
+  deuteronomy:"Deuteronomy",deut:"Deuteronomy",deu:"Deuteronomy",
+  joshua:"Joshua",josh:"Joshua",judges:"Judges",judg:"Judges",ruth:"Ruth",
+  "1 samuel":"1+Samuel","1 sam":"1+Samuel","1sam":"1+Samuel",
+  "2 samuel":"2+Samuel","2 sam":"2+Samuel","2sam":"2+Samuel",
+  "1 kings":"1+Kings","1kings":"1+Kings","2 kings":"2+Kings","2kings":"2+Kings",
+  "1 chronicles":"1+Chronicles","1 chron":"1+Chronicles","1chron":"1+Chronicles",
+  "2 chronicles":"2+Chronicles","2 chron":"2+Chronicles","2chron":"2+Chronicles",
+  ezra:"Ezra",nehemiah:"Nehemiah",neh:"Nehemiah",job:"Job",
+  psalm:"Psalms",psalms:"Psalms",ps:"Psalms",psa:"Psalms",
+  proverbs:"Proverbs",prov:"Proverbs",pro:"Proverbs",
+  ecclesiastes:"Ecclesiastes",eccl:"Ecclesiastes",ecc:"Ecclesiastes",
+  "song of solomon":"Song+of+Solomon",song:"Song+of+Solomon",
+  isaiah:"Isaiah",isa:"Isaiah",jeremiah:"Jeremiah",jer:"Jeremiah",
+  lamentations:"Lamentations",lam:"Lamentations",ezekiel:"Ezekiel",ezek:"Ezekiel",
+  daniel:"Daniel",dan:"Daniel",hosea:"Hosea",hos:"Hosea",joel:"Joel",amos:"Amos",
+  obadiah:"Obadiah",obad:"Obadiah",jonah:"Jonah",jon:"Jonah",micah:"Micah",mic:"Micah",
+  nahum:"Nahum",nah:"Nahum",habakkuk:"Habakkuk",hab:"Habakkuk",
+  zephaniah:"Zephaniah",zeph:"Zephaniah",haggai:"Haggai",hag:"Haggai",
+  zechariah:"Zechariah",zech:"Zechariah",malachi:"Malachi",mal:"Malachi",
+  matthew:"Matthew",matt:"Matthew",mat:"Matthew",mark:"Mark",luke:"Luke",john:"John",
+  acts:"Acts",romans:"Romans",rom:"Romans",
+  "1 corinthians":"1+Corinthians","1 cor":"1+Corinthians","1cor":"1+Corinthians",
+  "2 corinthians":"2+Corinthians","2 cor":"2+Corinthians","2cor":"2+Corinthians",
+  galatians:"Galatians",gal:"Galatians",ephesians:"Ephesians",eph:"Ephesians",
+  philippians:"Philippians",phil:"Philippians",colossians:"Colossians",col:"Colossians",
+  "1 thessalonians":"1+Thessalonians","1 thess":"1+Thessalonians","1thess":"1+Thessalonians",
+  "2 thessalonians":"2+Thessalonians","2 thess":"2+Thessalonians","2thess":"2+Thessalonians",
+  "1 timothy":"1+Timothy","1 tim":"1+Timothy","1tim":"1+Timothy",
+  "2 timothy":"2+Timothy","2 tim":"2+Timothy","2tim":"2+Timothy",
+  titus:"Titus",tit:"Titus",philemon:"Philemon",phlm:"Philemon",
+  hebrews:"Hebrews",heb:"Hebrews",james:"James",jas:"James",
+  "1 peter":"1+Peter","1 pet":"1+Peter","1pet":"1+Peter",
+  "2 peter":"2+Peter","2 pet":"2+Peter","2pet":"2+Peter",
+  "1 john":"1+John","1john":"1+John","2 john":"2+John","2john":"2+John",
+  "3 john":"3+John","3john":"3+John",jude:"Jude",revelation:"Revelation",rev:"Revelation",
+}
+
+// Apocrypha / Deuterocanonical → kingjamesbibleonline.org slug
+const PDF_APOCRYPHA_BOOKS: Record<string, string> = {
+  tobit:"Tobit",tob:"Tobit",
+  judith:"Judith",jdt:"Judith",
+  "wisdom of solomon":"Wisdom-of-Solomon",wisdom:"Wisdom-of-Solomon",wis:"Wisdom-of-Solomon",
+  sirach:"Ecclesiasticus",ecclesiasticus:"Ecclesiasticus",sir:"Ecclesiasticus",
+  baruch:"Baruch",bar:"Baruch",
+  "letter of jeremiah":"Letter-of-Jeremiah","epistle of jeremiah":"Letter-of-Jeremiah","let jer":"Letter-of-Jeremiah",
+  "additions to esther":"Additions-to-Esther","rest of esther":"Additions-to-Esther","add esth":"Additions-to-Esther",
+  "prayer of azariah":"Prayer-of-Azariah","song of three holy children":"Prayer-of-Azariah","song of the three":"Prayer-of-Azariah",
+  susanna:"Susanna",sus:"Susanna",
+  "bel and the dragon":"Bel-and-the-Dragon",bel:"Bel-and-the-Dragon",
+  "1 maccabees":"1-Maccabees","1 macc":"1-Maccabees","1macc":"1-Maccabees",
+  "2 maccabees":"2-Maccabees","2 macc":"2-Maccabees","2macc":"2-Maccabees",
+  "3 maccabees":"3-Maccabees","3 macc":"3-Maccabees","3macc":"3-Maccabees",
+  "4 maccabees":"4-Maccabees","4 macc":"4-Maccabees","4macc":"4-Maccabees",
+  "prayer of manasseh":"Prayer-of-Manasseh",manasseh:"Prayer-of-Manasseh",
+  "1 esdras":"1-Esdras","1esdras":"1-Esdras",
+  "2 esdras":"2-Esdras","2esdras":"2-Esdras",
+}
+
+function pdfApocrUrl(slug: string, chapter: string, verse?: string): string {
+  const base = "https://www.kingjamesbibleonline.org"
+  if (!verse) return `${base}/${slug}-${chapter}/`
+  if (verse.includes("-")) {
+    const [s, e] = verse.split("-")
+    return `${base}/${slug}-${chapter}-${s}_${chapter}-${e}/`
+  }
+  return `${base}/${slug}-${chapter}-${verse}/`
+}
+
+function pdfEnochPageNum(ch: number): string {
+  if (ch === 91) return "095"
+  if (ch === 92) return "094"
+  if (ch >= 94) return (ch + 4).toString().padStart(3, "0")
+  return (ch + 3).toString().padStart(3, "0")
+}
+
+// Build sorted regex pattern string from a lookup's keys (longest first to avoid partial matches)
+function buildPattern(lookup: Record<string, string>): string {
+  return Object.keys(lookup)
+    .sort((a, b) => b.length - a.length)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|")
+}
+
+// Convert scripture/apocrypha/pseudepigrapha references in note text into hyperlinks.
+// Handles: canonical 66 books (BibleGateway), Apocrypha (kingjamesbibleonline.org),
+// Jubilees (pseudepigrapha.com), Enoch / 1 Enoch (sacred-texts.com).
+// Non-ref text is HTML-escaped; matched refs become <a> tags.
+function linkifyRefs(text: string): string {
+  interface Span { start: number; end: number; display: string; url: string }
+  const spans: Span[] = []
+  const WORD_END = /[\s,;.\/\)]/
+
+  function collect(re: RegExp, urlFn: (m: RegExpExecArray) => string | null) {
+    re.lastIndex = 0
+    let m: RegExpExecArray | null
+    while ((m = re.exec(text)) !== null) {
+      const url = urlFn(m)
+      if (url) spans.push({ start: m.index, end: m.index + m[0].length, display: m[0], url })
+    }
+  }
+
+  // Enoch / 1 Enoch → sacred-texts.com
+  collect(
+    /\b(?:1[ \t]+)?Enoch[ \t]+(\d+)(?::(\d+)(?:-\d+)?)?(?=[\s,;.\/\)]|$)/gi,
+    (m) => {
+      const pg = pdfEnochPageNum(parseInt(m[1]))
+      return `https://sacred-texts.com/bib/boe/boe${pg}.htm${m[2] ? `#:~:text=${m[2]}.` : ""}`
+    }
+  )
+
+  // Jubilees → pseudepigrapha.com
+  collect(
+    /\bJubilees[ \t]+(\d+)(?::(\d+)(?:-\d+)?)?(?=[\s,;.\/\)]|$)/gi,
+    (m) => `https://www.pseudepigrapha.com/jubilees/${m[1]}.htm${m[2] ? `#:~:text=${m[2]}.` : ""}`
+  )
+
+  // Apocrypha → kingjamesbibleonline.org
+  const apocrPat = buildPattern(PDF_APOCRYPHA_BOOKS)
+  collect(
+    new RegExp(`\\b(${apocrPat})[ \\t]+(\\d+)(?::(\\d+(?:-\\d+)?))?(?=[\\s,;.\\/\\)]|$)`, "gi"),
+    (m) => {
+      const slug = PDF_APOCRYPHA_BOOKS[m[1].toLowerCase().replace(/\s+/g, " ").trim()]
+      return slug ? pdfApocrUrl(slug, m[2], m[3]) : null
+    }
+  )
+
+  // Canonical 66 books → BibleGateway (KJV)
+  const refRe = /\b((?:[123])[ \t]+)?([a-z]+(?:[ \t]+of[ \t]+[a-z]+)?)[ \t]+(\d+)(?::(\d+)(?:-\d+)?)?(?=[\s,;.\/\)]|$)/gi
+  collect(refRe, (m) => {
+    const prefix = (m[1] ?? "").toLowerCase().replace(/\s+/g, " ").trim()
+    const bookRaw = m[2].toLowerCase().replace(/\s+/g, " ").trim()
+    const key = prefix ? `${prefix} ${bookRaw}` : bookRaw
+    const slug = PDF_BIBLE_BOOKS[key]
+    if (!slug) return null
+    const search = m[4] ? `${slug}+${m[3]}:${m[4]}` : `${slug}+${m[3]}`
+    return `https://www.biblegateway.com/passage/?search=${search}&version=KJV`
+  })
+
+  // Sort by start position, drop overlapping spans (keep first / earliest match)
+  spans.sort((a, b) => a.start - b.start)
+  const deduped: Span[] = []
+  let cursor = 0
+  for (const s of spans) {
+    if (s.start >= cursor) { deduped.push(s); cursor = s.end }
+  }
+
+  // Build output HTML
+  let result = "", lastIdx = 0
+  for (const s of deduped) {
+    result += pdfViewerEscapeHtml(text.slice(lastIdx, s.start))
+    result += `<a href="${s.url}" target="_blank" rel="noopener">${pdfViewerEscapeHtml(s.display)}</a>`
+    lastIdx = s.end
+  }
+  result += pdfViewerEscapeHtml(text.slice(lastIdx))
+  return result
 }
 
 async function loadAnnotations(container: HTMLElement) {
@@ -768,11 +964,6 @@ async function loadAnnotations(container: HTMLElement) {
             }
           }
 
-          // Fallback: use contents as highlighted text if extraction failed
-          if (textMarkupTypes.includes(annot.subtype) && !highlightedText && contentStr) {
-            highlightedText = contentStr
-          }
-
           annotationItems.push({
             pageNum: i,
             content,
@@ -803,25 +994,52 @@ async function loadAnnotations(container: HTMLElement) {
       currentGroup = item.pageNum
     }
 
-    const colorStyle = item.color
+    const borderStyle = item.color
       ? `border-left: 3px solid rgb(${item.color.join(",")})`
       : ""
+    const quoteBg = item.color
+      ? `background:rgba(${item.color.join(",")},0.13)`
+      : ""
 
-    html += `<div class="pdf-annot-item" data-page="${item.pageNum}" style="${colorStyle}">
-      <span class="pdf-annot-type">${item.subtype}</span>
-      ${item.highlightedText ? `<span class="pdf-annot-highlighted">"${pdfViewerEscapeHtml(item.highlightedText)}"</span>` : ""}
-      <span class="pdf-annot-text">${pdfViewerEscapeHtml(item.content)}</span>
+    html += `<div class="pdf-annot-item" data-page="${item.pageNum}" style="${borderStyle}">
+      <button class="pdf-annot-copy" title="Copy" data-quote="${pdfViewerEscapeHtml(item.highlightedText)}" data-note="${pdfViewerEscapeHtml(item.content)}">⎘</button>
+      ${item.highlightedText ? `<div class="pdf-annot-quote" style="${quoteBg}">${pdfViewerEscapeHtml(item.highlightedText)}</div>` : ""}
+      ${item.content ? `<div class="pdf-annot-note">&#8627; ${linkifyRefs(item.content)}</div>` : ""}
     </div>`
   }
 
   html += "</div></div>"
   container.innerHTML = html
 
-  // Wire up clicks
+  // Update Notes tab with annotation count
+  const count = annotationItems.length
+  container.closest(".pdf-viewer-modal, #pdf-bottom-sheet")
+    ?.querySelectorAll<HTMLElement>(".pdf-sidebar-tab")
+    .forEach((tab) => {
+      if (tab.textContent?.trim() === "Notes") {
+        tab.innerHTML = `Notes <span class="pdf-tab-count">${count}</span>`
+      }
+    })
+
+  // Wire up jump-to-page clicks
   container.querySelectorAll<HTMLElement>(".pdf-annot-item").forEach((el) => {
     el.addEventListener("click", () => {
       const pageNum = parseInt(el.dataset.page || "1", 10)
       scrollToPage(pageNum)
+    })
+  })
+
+  // Wire up copy-to-clipboard buttons
+  container.querySelectorAll<HTMLElement>(".pdf-annot-copy").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation()
+      const quote = btn.dataset.quote || ""
+      const note = btn.dataset.note || ""
+      const text = [quote && `"${quote}"`, note && `↳ ${note}`].filter(Boolean).join("\n")
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "✓"
+        setTimeout(() => { btn.textContent = "⎘" }, 1500)
+      })
     })
   })
 }
@@ -1816,7 +2034,12 @@ window.__openPdfViewer = async function (pdfUrl: string, opts?: { page?: number;
   try {
     const lib = await loadPdfJs()
     const loadUrl = opts?.version ? `${pdfUrl}?v=${opts.version}` : pdfUrl
-    const doc = await lib.getDocument(loadUrl).promise
+    const doc = await lib.getDocument({
+      url: loadUrl,
+      rangeChunkSize: 65536,
+      disableAutoFetch: true,
+      disableStream: false,
+    }).promise
     currentDoc = doc
     totalPages = doc.numPages
     updatePageIndicator()

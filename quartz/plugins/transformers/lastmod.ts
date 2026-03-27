@@ -1,4 +1,5 @@
 import fs from "fs"
+import { execSync } from "child_process"
 import { Repository } from "@napi-rs/simple-git"
 import { QuartzTransformerPlugin } from "../types"
 import path from "path"
@@ -15,7 +16,9 @@ const defaultOptions: Options = {
 // YYYY-MM-DD
 const iso8601DateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
 
-function coerceDate(fp: string, d: any): Date {
+function coerceDate(fp: string, d: any): Date | undefined {
+  if (d === undefined || d === null) return undefined
+
   // check ISO8601 date-only format
   // we treat this one as local midnight as the normal
   // js date ctor treats YYYY-MM-DD as UTC midnight
@@ -25,16 +28,17 @@ function coerceDate(fp: string, d: any): Date {
 
   const dt = new Date(d)
   const invalidDate = isNaN(dt.getTime()) || dt.getTime() === 0
-  if (invalidDate && d !== undefined) {
+  if (invalidDate) {
     console.log(
       styleText(
         "yellow",
         `\nWarning: found invalid date "${d}" in \`${fp}\`. Supported formats: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_time_string_format`,
       ),
     )
+    return undefined
   }
 
-  return invalidDate ? new Date() : dt
+  return dt
 }
 
 type MaybeDate = undefined | string | number
@@ -71,7 +75,7 @@ export const CreatedModifiedDate: QuartzTransformerPlugin<Partial<Options>> = (u
             for (const source of opts.priority) {
               if (source === "filesystem") {
                 const st = await fs.promises.stat(fullFp)
-                created ||= st.birthtimeMs
+                // Note: st.birthtimeMs is NOT used for created — it reflects clone/deploy time, not original creation
                 modified ||= st.mtimeMs
               } else if (source === "frontmatter" && file.data.frontmatter) {
                 created ||= file.data.frontmatter.created as MaybeDate
@@ -81,6 +85,18 @@ export const CreatedModifiedDate: QuartzTransformerPlugin<Partial<Options>> = (u
                 try {
                   const relativePath = path.relative(repositoryWorkdir, fullFp)
                   modified ||= await repo.getFileLatestModifiedDateAsync(relativePath)
+                  if (!created) {
+                    try {
+                      const out = execSync(
+                        `git -C ${JSON.stringify(repositoryWorkdir)} log --diff-filter=A --follow --format=%at -- ${JSON.stringify(relativePath)}`,
+                        { encoding: "utf-8", stdio: ["pipe", "pipe", "ignore"] },
+                      ).trim()
+                      if (out) {
+                        const ts = parseInt(out.split("\n").at(-1)!, 10)
+                        if (!isNaN(ts) && ts > 0) created = ts * 1000
+                      }
+                    } catch { /* file not yet tracked by git */ }
+                  }
                 } catch {
                   console.log(
                     styleText(
@@ -107,9 +123,9 @@ export const CreatedModifiedDate: QuartzTransformerPlugin<Partial<Options>> = (u
 declare module "vfile" {
   interface DataMap {
     dates: {
-      created: Date
-      modified: Date
-      published: Date
+      created: Date | undefined
+      modified: Date | undefined
+      published: Date | undefined
     }
   }
 }

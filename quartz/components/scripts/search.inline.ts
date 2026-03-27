@@ -2602,6 +2602,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   window.addCleanup(() => searchBar.removeEventListener("focus", onSearchFocus))
 
   registerEscapeHandler(container, hideSearch)
+  window.addCleanup(() => stopPlaceholderCycle())
 
   // Filter button click handlers
   const filterBtns = searchElement.querySelectorAll(".filter-btn")

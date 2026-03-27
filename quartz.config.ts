@@ -59,7 +59,6 @@ const config: QuartzConfig = {
       Plugin.CreatedModifiedDate({
         priority: ["frontmatter", "git", "filesystem"],
       }),
-      Plugin.SyncStamp(),
       Plugin.SyntaxHighlighting({
         theme: {
           light: "github-light",

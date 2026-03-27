@@ -3,20 +3,31 @@ const { app, Tray, Menu, Notification, BrowserWindow, ipcMain, dialog, nativeIma
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 
-const { makeCircleIcon } = require('./icon-generator');
+const { makeBookIcon } = require('./icon-generator');
 const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
 const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict } = require('./pdf-detector');
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const LAST_SYNC_FILE = path.join(
-  '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible',
-  'content/.last-sync'
-);
+const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible';
+const LAST_SYNC_FILE = path.join(REPO_DIR, 'content/.last-sync');
 const SYNC_SCRIPT = path.join(os.homedir(), '.local/bin/quartz-sync.sh');
 const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
+const SETTINGS_FILE = path.join(os.homedir(), 'Library/Application Support/bible-notes-sync/settings.json');
+
+// ── Settings persistence ───────────────────────────────────────────────────
+function loadSettings() {
+  try { return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); }
+  catch { return { notifyLevel: 'errors' }; }
+}
+
+function saveSettings(s) {
+  const dir = path.dirname(SETTINGS_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(s, null, 2), 'utf8');
+}
 
 // ── Icon colours (macOS system palette) ───────────────────────────────────
 const COLORS = {
@@ -29,7 +40,7 @@ const COLORS = {
 
 function makeIcon(color) {
   const [r, g, b] = COLORS[color] || COLORS.grey;
-  const buf = makeCircleIcon(r, g, b, 32);
+  const buf = makeBookIcon(r, g, b, 32);
   return nativeImage.createFromBuffer(buf, { scaleFactor: 2 });
 }
 
@@ -46,6 +57,9 @@ let spinnerFrame = 0;
 let isSyncing = false;
 let isWaiting = false;
 let lastSyncError = false;
+let lastNotesChanged = 0;
+let notesChangedTimer = null;
+let syncOutputOffset = 0;
 
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
@@ -116,10 +130,11 @@ function refreshTrayAppearance() {
   if (isSyncing) return;
   const paused = !isAgentLoaded();
   const timeLabel = formatTime(getLastSyncTime());
+  const notesLabel = lastNotesChanged > 0 ? `↑${lastNotesChanged}` : timeLabel;
   if (isWaiting)          setTrayState('orange', timeLabel);
   else if (paused)        setTrayState('grey',   '⏸');
   else if (lastSyncError) setTrayState('red',    timeLabel);
-  else                    setTrayState('green',  timeLabel);
+  else                    setTrayState('green',  notesLabel);
 }
 
 function startSpinner() {
@@ -139,11 +154,26 @@ function stopSpinner() {
   refreshTrayAppearance();
 }
 
-// ── fs.watch for instant log refresh ──────────────────────────────────────
+// ── fs.watch for instant log refresh + live output streaming ───────────────
 function startLogWatcher() {
   if (logWatcher) return;
   try {
     logWatcher = fs.watch(LOG_FILE, { persistent: false }, () => {
+      // Stream new log content to window while sync is running
+      if (isSyncing && logWindow && !logWindow.isDestroyed()) {
+        try {
+          const size = fs.statSync(LOG_FILE).size;
+          if (size > syncOutputOffset) {
+            const buf = Buffer.alloc(size - syncOutputOffset);
+            const fd = fs.openSync(LOG_FILE, 'r');
+            fs.readSync(fd, buf, 0, buf.length, syncOutputOffset);
+            fs.closeSync(fd);
+            syncOutputOffset = size;
+            logWindow.webContents.send('sync-output', buf.toString('utf8'));
+          }
+        } catch {}
+      }
+
       if (logWindow && !logWindow.isDestroyed()) {
         logWindow.webContents.send('log-updated', getAllEntries());
         logWindow.webContents.send('sync-status', buildStatusPayload());
@@ -233,6 +263,10 @@ function rebuildMenu() {
 // ── Sync execution ─────────────────────────────────────────────────────────
 function runSync() {
   if (isSyncing) return;
+
+  // Track log file position for live output streaming
+  try { syncOutputOffset = fs.statSync(LOG_FILE).size; } catch { syncOutputOffset = 0; }
+
   startSpinner();
   lastSyncError = false;
   rebuildMenu();
@@ -246,7 +280,33 @@ function runSync() {
     syncProcess = null;
     stopSpinner();
     lastSyncError = code !== 0;
-    if (code !== 0) notify('Quartz Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
+
+    const nl = loadSettings().notifyLevel;
+    if (code !== 0) {
+      if (nl !== 'never') notify('Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
+    } else {
+      if (nl === 'all') notify('Bible Notes Sync', 'Sync completed successfully.');
+      // Count changed notes for tray badge
+      try {
+        const entries = getAllEntries();
+        const sha = entries[0]?.commitSha;
+        if (sha) {
+          const out = execSync(
+            `git -C "${REPO_DIR}" diff-tree --no-commit-id -r --name-only ${sha} -- content/ 2>/dev/null`,
+            { timeout: 3000 }
+          ).toString().trim();
+          lastNotesChanged = out ? out.split('\n').filter(Boolean).length : 0;
+          if (lastNotesChanged > 0) {
+            clearTimeout(notesChangedTimer);
+            notesChangedTimer = setTimeout(() => {
+              lastNotesChanged = 0;
+              refreshTrayAppearance();
+            }, 5 * 60_000);
+          }
+        }
+      } catch {}
+    }
+
     rebuildMenu();
     refreshTrayAppearance();
     pushStatusToWindow();
@@ -259,7 +319,7 @@ function runSync() {
     syncProcess = null;
     stopSpinner();
     lastSyncError = true;
-    notify('Quartz Sync Error', err.message);
+    if (loadSettings().notifyLevel !== 'never') notify('Quartz Sync Error', err.message);
     rebuildMenu();
     refreshTrayAppearance();
     pushStatusToWindow();
@@ -288,7 +348,9 @@ function startWaitingForPDFClose() {
   refreshTrayAppearance();
   rebuildMenu();
   pushStatusToWindow();
-  notify('Quartz Sync', 'Watching for the PDF to close — sync will run automatically.');
+  if (loadSettings().notifyLevel !== 'never') {
+    notify('Quartz Sync', 'Watching for the PDF to close — sync will run automatically.');
+  }
 
   pdfPollTimer = setInterval(() => {
     if (!hasPDFConflict()) {
@@ -298,7 +360,9 @@ function startWaitingForPDFClose() {
       refreshTrayAppearance();
       rebuildMenu();
       runSync();
-      notify('Quartz Sync', 'PDF closed — syncing now.');
+      if (loadSettings().notifyLevel !== 'never') {
+        notify('Quartz Sync', 'PDF closed — syncing now.');
+      }
     }
   }, 5000);
 }
@@ -382,9 +446,13 @@ function openLogWindow() {
     return;
   }
 
+  const savedBounds = loadSettings().windowBounds;
+
   logWindow = new BrowserWindow({
-    width: 720,
-    height: 580,
+    x: savedBounds?.x,
+    y: savedBounds?.y,
+    width: savedBounds?.width || 720,
+    height: savedBounds?.height || 580,
     minWidth: 520,
     minHeight: 400,
     frame: false,
@@ -400,6 +468,11 @@ function openLogWindow() {
 
   logWindow.loadFile(path.join(__dirname, 'log-window.html'));
   logWindow.setMenu(null);
+
+  logWindow.on('close', () => {
+    const bounds = logWindow.getBounds();
+    saveSettings({ ...loadSettings(), windowBounds: bounds });
+  });
   logWindow.on('closed', () => { logWindow = null; });
 }
 
@@ -411,6 +484,13 @@ ipcMain.on('toggle-pause',         () => handlePauseResume());
 ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-github',          (_e, url) => shell.openExternal(url));
 
+ipcMain.handle('get-settings', () => ({
+  ...loadSettings(),
+  loginItem: app.getLoginItemSettings().openAtLogin,
+}));
+ipcMain.on('save-settings',  (_e, s) => saveSettings(s));
+ipcMain.on('set-login-item', (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
+
 // ── App init ───────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   if (app.dock) app.dock.hide();
@@ -421,7 +501,7 @@ app.whenReady().then(() => {
   }
 
   tray = new Tray(makeIcon('green'));
-  tray.setToolTip('Quartz Sync');
+  tray.setToolTip('Bible Notes Sync');
   tray.on('click', () => tray.popUpContextMenu());
 
   refreshTrayAppearance();
@@ -438,6 +518,7 @@ app.on('before-quit', () => {
   clearInterval(menuRefreshTimer);
   clearInterval(pdfPollTimer);
   clearInterval(spinnerTimer);
+  clearTimeout(notesChangedTimer);
   stopLogWatcher();
   if (syncProcess) syncProcess.kill();
 });

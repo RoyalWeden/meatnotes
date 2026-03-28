@@ -5,7 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const { spawn, execSync } = require('child_process');
 
-const { makeCircleIcon, makeAppIcon } = require('./icon-generator');
+const { makeCircleIcon } = require('./icon-generator');
 const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
 const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict } = require('./pdf-detector');

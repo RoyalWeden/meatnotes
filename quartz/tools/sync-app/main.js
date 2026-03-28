@@ -44,6 +44,12 @@ function makeIcon(color) {
   return nativeImage.createFromBuffer(buf, { scaleFactor: 2 });
 }
 
+const ICON_CACHE = {};
+function getCachedIcon(color) {
+  if (!ICON_CACHE[color]) ICON_CACHE[color] = makeIcon(color);
+  return ICON_CACHE[color];
+}
+
 // ── State ──────────────────────────────────────────────────────────────────
 let tray = null;
 let logWindow = null;
@@ -64,6 +70,7 @@ let syncOutputOffset = 0;
 let nextSyncTimer = null;
 let nextSyncAt = null;      // ms timestamp — when next sync fires
 let syncStartedAt = null;   // ms timestamp — when current sync began
+let menuRebuildDebounceTimer = null;
 
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
@@ -135,7 +142,7 @@ function notify(title, body, opts = {}) {
 // ── Icon / title management ────────────────────────────────────────────────
 function setTrayState(color, label) {
   if (!tray) return;
-  tray.setImage(makeIcon(color));
+  tray.setImage(getCachedIcon(color));
   tray.setTitle(label ? ` ${label}` : '');
 }
 
@@ -155,7 +162,7 @@ function startSpinner() {
   spinnerTimer = setInterval(() => {
     if (!tray) return;
     spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES.length;
-    tray.setImage(makeIcon('yellow'));
+    tray.setImage(getCachedIcon('yellow'));
     tray.setTitle(` ${SPINNER_FRAMES[spinnerFrame]}`);
   }, 200);
 }
@@ -211,8 +218,11 @@ function startLogWatcher() {
         logWindow.webContents.send('log-updated', getAllEntries());
         logWindow.webContents.send('sync-status', buildStatusPayload());
       }
-      rebuildMenu();
-      refreshTrayAppearance();
+      clearTimeout(menuRebuildDebounceTimer);
+      menuRebuildDebounceTimer = setTimeout(() => {
+        rebuildMenu();
+        refreshTrayAppearance();
+      }, 400);
     });
   } catch {
     // Log file may not exist yet — no watcher needed
@@ -598,7 +608,12 @@ app.whenReady().then(() => {
   }
 
   // Rebuild menu every 10s for countdown
-  menuRefreshTimer = setInterval(() => { rebuildMenu(); refreshTrayAppearance(); }, 10_000);
+  menuRefreshTimer = setInterval(() => {
+    if (!isSyncing) {
+      rebuildMenu();
+      refreshTrayAppearance();
+    }
+  }, 10_000);
 });
 
 app.on('window-all-closed', (e) => e.preventDefault());
@@ -609,6 +624,7 @@ app.on('before-quit', () => {
   clearInterval(pdfPollTimer);
   clearInterval(spinnerTimer);
   clearTimeout(notesChangedTimer);
+  clearTimeout(menuRebuildDebounceTimer);
   stopLogWatcher();
   if (syncProcess) syncProcess.kill();
 });

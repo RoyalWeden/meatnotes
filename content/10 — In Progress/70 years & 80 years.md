@@ -19,3 +19,5 @@ This is the curse from Adam.
 > 19 ***~In the sweat of thy face shalt thou eat bread~***, till thou return unto the ground; for out of it wast thou taken: for dust thou art, and unto dust shalt thou return.
 
 > Jubilees 23:15 Then they shall say: 'The days of the forefathers were many (even), unto a thousand years, and were good; but behold, the days of our life, if a man has lived many, are three score years and ten, and, if he is strong, four score years, and those evil, and there is no peace in the days of this evil generation.'
+
+> Jubilees 4:30 And he lacked seventy years of one thousand years; for one thousand years are as one day in the testimony of the heavens and therefore was it written concerning the tree of knowledge: 'On the day that ye eat thereof ye shall die.' For this reason he did not complete the years of this day; for he died during it.

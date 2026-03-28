@@ -13,6 +13,7 @@
       --red:    #ff453a;
       --orange: #ff9f0a;
       --grey:   #8e8e93;
+      --blue:   #0a84ff;
       --accent: var(--green);
       --accent-rgb: 50, 215, 75;
       --card-bg-a: #0d1f0d;
@@ -40,6 +41,16 @@
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.08);
       position: relative;
+      transition: box-shadow 0.4s ease;
+    }
+
+    /* PDF waiting glow on the whole shell */
+    .shell.pdf-waiting {
+      animation: pdf-shell-pulse 2s ease-in-out infinite;
+    }
+    @keyframes pdf-shell-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 transparent, inset 0 0 0 1px rgba(255,149,0,0.0); }
+      50%       { box-shadow: 0 0 20px 4px rgba(255,149,0,0.18), inset 0 0 0 1px rgba(255,149,0,0.3); }
     }
 
     /* ── Drag region + traffic lights spacer ── */
@@ -178,6 +189,42 @@
     .card-times .elapsed-span { display: none; }
     .card-times .elapsed-span.visible { display: flex; }
 
+    /* ── PDF waiting banner ── */
+    .pdf-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 7px 10px;
+      background: rgba(255,149,10,0.1);
+      border: 1px solid rgba(255,149,10,0.25);
+      border-radius: 7px;
+      font-size: 11px;
+      color: var(--orange);
+      -webkit-app-region: no-drag;
+    }
+    .pdf-banner.visible { display: flex; }
+    .pdf-banner-icon { font-size: 14px; flex-shrink: 0; animation: pdf-eye-blink 2.5s ease-in-out infinite; }
+    @keyframes pdf-eye-blink {
+      0%, 85%, 100% { opacity: 1; }
+      90%            { opacity: 0.1; }
+    }
+    .pdf-banner-text { flex: 1; line-height: 1.3; }
+    .pdf-banner-file { font-weight: 600; color: rgba(255,149,10,0.9); }
+    .pdf-force-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(255,149,10,0.2);
+      border: 1px solid rgba(255,149,10,0.35);
+      color: var(--orange);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .pdf-force-btn:hover { background: rgba(255,149,10,0.35); }
+
     /* ── Sync step pills ── */
     .sync-steps {
       display: none;
@@ -244,6 +291,7 @@
       display: flex;
       gap: 8px;
       -webkit-app-region: no-drag;
+      align-items: center;
     }
     .btn {
       padding: 6px 14px;
@@ -265,6 +313,24 @@
     }
     .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
     .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+    /* Pencil/note icon button */
+    .btn-note {
+      padding: 6px 9px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.5);
+      transition: background 0.15s, color 0.15s, transform 0.1s;
+      -webkit-app-region: no-drag;
+    }
+    .btn-note:hover:not(:disabled) { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
+    .btn-note.active { color: var(--accent); background: rgba(var(--accent-rgb),0.12); border-color: rgba(var(--accent-rgb),0.3); }
+    .btn-note:active { transform: scale(0.94); }
+    .btn-note:disabled { opacity: 0.3; cursor: default; }
 
     /* ── Commit message row ── */
     .commit-msg-row {
@@ -427,7 +493,7 @@
     /* Commit + files meta under summary */
     .entry-meta {
       margin-top: 3px;
-      padding-left: 23px; /* align with summary text */
+      padding-left: 23px;
       display: flex;
       flex-direction: column;
       gap: 1px;
@@ -543,7 +609,7 @@
     .settings-panel {
       position: fixed;
       top: 0; right: 0;
-      width: 268px;
+      width: 280px;
       height: 100%;
       background: rgba(22, 22, 26, 0.97);
       backdrop-filter: blur(28px) saturate(1.5);
@@ -752,10 +818,62 @@
       transform: translateX(14px);
       background: #fff;
     }
+
+    /* Quiet hours time input row */
+    .quiet-hours-times {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px 9px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      -webkit-app-region: no-drag;
+    }
+    .quiet-hours-times.visible { display: flex; }
+    .quiet-hours-times label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      flex-shrink: 0;
+    }
+    .quiet-time-input {
+      width: 70px;
+      padding: 4px 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .quiet-time-input:focus { border-color: var(--green); }
+    .quiet-time-sep {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── Confetti overlay ── */
+    .confetti-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+    .confetti-particle {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+    }
+    @keyframes confetti-fall {
+      0%   { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
+    }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <div class="shell" id="shell">
     <!-- Drag titlebar -->
     <div class="titlebar">
       Quartz Sync
@@ -782,6 +900,15 @@
         <span class="elapsed-span" id="elapsedSpan">Syncing… <span class="accent" id="syncElapsed">0s</span></span>
       </div>
 
+      <!-- PDF waiting banner -->
+      <div class="pdf-banner" id="pdfBanner">
+        <span class="pdf-banner-icon">👁</span>
+        <span class="pdf-banner-text">
+          Watching for <span class="pdf-banner-file" id="pdfBannerFile">PDF</span> to close…
+        </span>
+        <button class="pdf-force-btn" onclick="forceSyncNow()">Force Sync</button>
+      </div>
+
       <div class="sync-steps" id="syncSteps"></div>
 
       <div class="card-countdown" id="cardCountdown">
@@ -796,13 +923,14 @@
 
       <div class="card-actions">
         <button class="btn btn-primary" id="syncBtn" onclick="clickSyncNow()">▶ Sync Now</button>
+        <button class="btn-note" id="noteBtn" onclick="clickCommitNote()" title="Add a commit note">✎</button>
         <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
       </div>
       <div class="commit-msg-row" id="commitMsgRow">
         <input class="commit-msg-input" id="commitMsgInput" type="text"
-               placeholder="Add a note… (optional)" maxlength="80"
-               onkeydown="if(event.key==='Enter')doSync(); if(event.key==='Escape')hideCommitMsg();">
-        <button class="btn btn-primary btn-sm" onclick="doSync()">→ Go</button>
+               placeholder="Commit note… (optional, Enter to sync)" maxlength="80"
+               onkeydown="if(event.key==='Enter')doSyncWithNote(); if(event.key==='Escape')hideCommitMsg();">
+        <button class="btn btn-primary btn-sm" onclick="doSyncWithNote()">→ Go</button>
         <button class="btn btn-secondary btn-sm" onclick="hideCommitMsg()">✕</button>
       </div>
     </div>
@@ -888,6 +1016,26 @@
         </div>
       </div>
 
+      <!-- Quiet Hours -->
+      <div class="settings-section">
+        <div class="settings-section-title">Quiet Hours</div>
+        <div class="settings-rows">
+          <div class="settings-row">
+            <span class="settings-row-label">Enable Quiet Hours</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="quietHoursToggle" onchange="applyQuietHours()">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="quiet-hours-times" id="quietHoursTimes">
+            <label>From</label>
+            <input type="time" class="quiet-time-input" id="quietStart" value="22:00" onchange="applyQuietHours()">
+            <span class="quiet-time-sep">to</span>
+            <input type="time" class="quiet-time-input" id="quietEnd" value="07:00" onchange="applyQuietHours()">
+          </div>
+        </div>
+      </div>
+
       <!-- General -->
       <div class="settings-section">
         <div class="settings-section-title">General</div>
@@ -915,13 +1063,15 @@
       'var(--orange)': '255, 149, 0',
       'var(--grey)':   '142, 142, 147',
       'var(--green)':  '50, 215, 75',
+      'var(--blue)':   '10, 132, 255',
     };
 
     // ── State ──────────────────────────────────────────────────────────────
     let status = {
-      isSyncing: false, isWaiting: false, isPaused: false,
+      isSyncing: false, isWaiting: false, isPaused: false, isQuietHours: false,
       lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
       nextSyncAt: null, syncStartedAt: null, syncStreak: 0,
+      streakMilestone: null, openPDFs: [],
     };
     let entries = [];
     let countdownTimer = null;
@@ -931,17 +1081,19 @@
 
     // ── Card state machine ─────────────────────────────────────────────────
     const STATES = {
-      syncing: { label: 'SYNCING…',        color: 'var(--yellow)', bg: ['#1f1f00','#141400'], dotClass: 'syncing',  progress: true  },
-      error:   { label: 'SYNC ERROR',      color: 'var(--red)',    bg: ['#1f0d0d','#140808'], dotClass: '',         progress: false },
-      waiting: { label: 'WAITING FOR PDF', color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',         progress: false },
-      paused:  { label: 'PAUSED',          color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',         progress: false },
-      synced:  { label: 'SYNCED',          color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',         progress: false },
+      syncing:    { label: 'SYNCING…',         color: 'var(--yellow)', bg: ['#1f1f00','#141400'], dotClass: 'syncing', progress: true  },
+      error:      { label: 'SYNC ERROR',        color: 'var(--red)',    bg: ['#1f0d0d','#140808'], dotClass: '',        progress: false },
+      waiting:    { label: 'WAITING FOR PDF',   color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',        progress: false },
+      quietHours: { label: 'QUIET HOURS',       color: 'var(--blue)',   bg: ['#00101f','#000a14'], dotClass: '',        progress: false },
+      paused:     { label: 'PAUSED',            color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',        progress: false },
+      synced:     { label: 'SYNCED',            color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',        progress: false },
     };
 
     function getStateName(s) {
       if (s.isSyncing)     return 'syncing';
       if (s.lastSyncError) return 'error';
       if (s.isWaiting)     return 'waiting';
+      if (s.isQuietHours)  return 'quietHours';
       if (s.isPaused)      return 'paused';
       return 'synced';
     }
@@ -993,15 +1145,33 @@
         badge.classList.remove('visible');
       }
 
+      // Streak milestone celebration
+      if (s.streakMilestone) {
+        triggerConfetti(s.streakMilestone);
+      }
+
       document.getElementById('syncBtn').disabled = s.isSyncing || s.isWaiting;
+      document.getElementById('noteBtn').disabled = s.isSyncing || s.isWaiting;
       const pauseBtn = document.getElementById('pauseBtn');
       pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
       pauseBtn.disabled = s.isSyncing;
 
+      // PDF overlay
+      const shell = document.getElementById('shell');
+      shell.classList.toggle('pdf-waiting', s.isWaiting);
+      const pdfBanner = document.getElementById('pdfBanner');
+      if (s.isWaiting) {
+        pdfBanner.classList.add('visible');
+        const fileNames = (s.openPDFs || []).map(p => p.split('/').pop()).filter(Boolean);
+        document.getElementById('pdfBannerFile').textContent =
+          fileNames.length > 0 ? `"${fileNames[0]}"` : 'a PDF';
+      } else {
+        pdfBanner.classList.remove('visible');
+      }
+
       // Sync steps visibility
       document.getElementById('syncSteps').classList.toggle('visible', s.isSyncing);
       if (!s.isSyncing && wasSyncing) {
-        // Sync just ended — reset steps after a short delay
         setTimeout(resetSteps, 2000);
       }
 
@@ -1009,9 +1179,15 @@
       const countdown = document.getElementById('cardCountdown');
       if (s.isSyncing || s.isWaiting) {
         countdown.style.display = 'none';
-      } else if (s.isPaused) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      } else if (s.isPaused || s.isQuietHours) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
         countdown.style.display = 'flex';
-        document.getElementById('countdownText').innerHTML = '<strong>Auto-sync is paused</strong>';
+        document.getElementById('countdownText').innerHTML = s.isPaused
+          ? '<strong>Auto-sync is paused</strong>'
+          : '🌙 <strong>Quiet hours active</strong>';
         setArc(0);
       } else {
         countdown.style.display = 'flex';
@@ -1123,11 +1299,24 @@
     // ── Commit message helpers ─────────────────────────────────────────────
     let commitMsgVisible = false;
 
+    // Sync Now: immediately trigger sync, open terminal
     function clickSyncNow() {
+      if (status.isSyncing || status.isWaiting) return;
+      // Force terminal open for visual feedback
+      const terminal = document.getElementById('syncTerminal');
+      terminal.classList.add('open');
+      document.getElementById('terminalToggleBtn').classList.add('active');
+      if (window.syncAPI) window.syncAPI.triggerSync('');
+    }
+
+    // Pencil button: toggle optional commit note
+    function clickCommitNote() {
       if (status.isSyncing || status.isWaiting) return;
       commitMsgVisible = !commitMsgVisible;
       const row = document.getElementById('commitMsgRow');
+      const noteBtn = document.getElementById('noteBtn');
       row.classList.toggle('open', commitMsgVisible);
+      noteBtn.classList.toggle('active', commitMsgVisible);
       if (commitMsgVisible) {
         setTimeout(() => document.getElementById('commitMsgInput').focus(), 350);
       }
@@ -1137,13 +1326,23 @@
       commitMsgVisible = false;
       const row = document.getElementById('commitMsgRow');
       row.classList.remove('open');
+      document.getElementById('noteBtn').classList.remove('active');
       document.getElementById('commitMsgInput').value = '';
     }
 
-    function doSync() {
+    function doSyncWithNote() {
       const msg = document.getElementById('commitMsgInput').value.trim();
       hideCommitMsg();
+      // Open terminal for visual feedback
+      const terminal = document.getElementById('syncTerminal');
+      terminal.classList.add('open');
+      document.getElementById('terminalToggleBtn').classList.add('active');
       if (window.syncAPI) window.syncAPI.triggerSync(msg);
+    }
+
+    // Force sync past PDF warning
+    function forceSyncNow() {
+      if (window.syncAPI) window.syncAPI.triggerSync('');
     }
 
     // ── Countdown arc ──────────────────────────────────────────────────────
@@ -1171,6 +1370,74 @@
         setArc(fraction);
         document.getElementById('countdownText').innerHTML = formatCountdown(remaining);
       }, 1000);
+    }
+
+    // ── Confetti celebration ───────────────────────────────────────────────
+    const CONFETTI_COLORS = ['#32d74b','#ffd60a','#ff9f0a','#0a84ff','#ff453a','#bf5af2','#ffffff'];
+
+    function triggerConfetti(milestone) {
+      // Play sound
+      if (window.syncAPI) window.syncAPI.playSound();
+
+      // Burst of particles
+      const overlay = document.createElement('div');
+      overlay.className = 'confetti-overlay';
+      document.body.appendChild(overlay);
+
+      const count = 40;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-particle';
+        const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.8;
+        const dur = 1.8 + Math.random() * 1.2;
+        const size = 5 + Math.random() * 8;
+        p.style.cssText = `
+          background: ${color};
+          left: ${left}%;
+          top: -10px;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+          animation-duration: ${dur}s;
+          animation-delay: ${delay}s;
+        `;
+        overlay.appendChild(p);
+      }
+
+      // Show milestone toast above the card
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        background: rgba(30,30,35,0.96);
+        border: 1px solid rgba(255,215,0,0.4);
+        border-radius: 14px;
+        padding: 18px 28px;
+        text-align: center;
+        z-index: 101;
+        font-size: 28px;
+        animation: toast-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(255,215,0,0.15);
+      `;
+      const style = document.createElement('style');
+      style.textContent = `@keyframes toast-pop { to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }`;
+      document.head.appendChild(style);
+      toast.innerHTML = `🔥<div style="font-size:14px;font-weight:700;color:#fff;margin-top:6px">${milestone} Sync Streak!</div>`;
+      document.body.appendChild(toast);
+
+      // Clean up after 3s
+      setTimeout(() => {
+        overlay.style.transition = 'opacity 0.5s';
+        overlay.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s, transform 0.5s';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%,-50%) scale(0.9)';
+        setTimeout(() => { overlay.remove(); toast.remove(); style.remove(); }, 500);
+      }, 3000);
     }
 
     // ── GitHub URL builder ─────────────────────────────────────────────────
@@ -1305,13 +1572,20 @@
         document.getElementById('customIntervalInput').value = Math.round(secs / 60);
       }
 
-      // Notification level + login item via IPC
+      // Notification level + login item + quiet hours via IPC
       if (window.syncAPI) {
         const s = await window.syncAPI.getSettings();
         const level = s.notifyLevel || 'errors';
         const radio = document.querySelector(`input[name="notifyLevel"][value="${level}"]`);
         if (radio) radio.checked = true;
         document.getElementById('loginItemToggle').checked = !!s.loginItem;
+
+        // Quiet hours
+        const qh = s.quietHours || {};
+        document.getElementById('quietHoursToggle').checked = !!qh.enabled;
+        document.getElementById('quietStart').value = qh.start || '22:00';
+        document.getElementById('quietEnd').value   = qh.end   || '07:00';
+        document.getElementById('quietHoursTimes').classList.toggle('visible', !!qh.enabled);
       } else {
         document.getElementById('notifyErrors').checked = true;
       }
@@ -1319,7 +1593,6 @@
 
     function applyInterval(seconds) {
       if (window.syncAPI) window.syncAPI.setInterval(seconds);
-      // Update local status so countdown recalculates
       status.intervalSeconds = seconds;
       if (status.lastSyncTime) {
         nextSyncAt = new Date(status.lastSyncTime).getTime() + seconds * 1000;
@@ -1345,6 +1618,14 @@
 
     function applyLoginItem(val) {
       if (window.syncAPI) window.syncAPI.setLoginItem(val);
+    }
+
+    function applyQuietHours() {
+      const enabled = document.getElementById('quietHoursToggle').checked;
+      const start   = document.getElementById('quietStart').value || '22:00';
+      const end     = document.getElementById('quietEnd').value   || '07:00';
+      document.getElementById('quietHoursTimes').classList.toggle('visible', enabled);
+      if (window.syncAPI) window.syncAPI.saveSettings({ quietHours: { enabled, start, end } });
     }
 
     // ── Keyboard shortcuts ─────────────────────────────────────────────────
@@ -1388,7 +1669,7 @@
         {
           timestamp: new Date(now - 2*60000).toISOString(),
           status: 'success', detail: 'Synced', errorLines: [],
-          commitSha: 'a1b2c3d', commitMessage: 'Quartz sync: Mar 27, 2:40 PM',
+          commitSha: 'a1b2c3d', commitMessage: 'Updated: Bread, Sabbath, Egypt',
           filesChanged: '3 files  +20  -5',
           fileList: [
             {path:'content/Notes/Foo.md', add:12, del:4},
@@ -1399,22 +1680,24 @@
         {
           timestamp: new Date(now - 32*60000).toISOString(),
           status: 'success', detail: 'Synced', errorLines: [],
-          commitSha: 'e4f5a6b', commitMessage: 'Quartz sync: Mar 27, 2:10 PM',
+          commitSha: 'e4f5a6b', commitMessage: 'Updated: Daily/2026-03-27',
           filesChanged: '1 file  +4',
           fileList: [{path:'content/Daily/2026-03-27.md', add:4, del:0}],
         },
         { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped -- no internet', errorLines: [], commitSha: null },
         { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null },
-        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Quartz sync: Mar 27, 10:40 AM', filesChanged: '7 files  +58  -12' },
+        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Updated: Armor of God, Fox, Wolf (+4 more)', filesChanged: '7 files  +58  -12' },
       ];
       const mockStatus = {
-        isSyncing: false, isWaiting: false, isPaused: false,
+        isSyncing: false, isWaiting: false, isPaused: false, isQuietHours: false,
         lastSyncError: false,
         lastSyncTime: new Date(now - 2*60000).toISOString(),
         intervalSeconds: 1800,
         nextSyncAt: now - 2*60000 + 1800*1000,
         syncStartedAt: null,
         syncStreak: 7,
+        streakMilestone: null,
+        openPDFs: [],
       };
       renderEntries(mockEntries, false);
       updateCard(mockStatus);

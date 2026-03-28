@@ -6,9 +6,9 @@ const os = require('os');
 const { spawn, execSync } = require('child_process');
 
 const { makeCircleIcon } = require('./icon-generator');
-const { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, invalidatePlistCache, unloadAgent, loadAgent } = require('./plist-manager');
-const { getRecentEntries, getAllEntries, invalidateLogCache, LOG_FILE } = require('./log-parser');
-const { hasPDFConflict } = require('./pdf-detector');
+const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
+const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
+const { hasPDFConflict, openPDFsInContent } = require('./pdf-detector');
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible';
@@ -16,6 +16,8 @@ const LAST_SYNC_FILE = path.join(REPO_DIR, 'content/.last-sync');
 const SYNC_SCRIPT = path.join(os.homedir(), '.local/bin/quartz-sync.sh');
 const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
 const SETTINGS_FILE = path.join(os.homedir(), 'Library/Application Support/bible-notes-sync/settings.json');
+
+const STREAK_MILESTONES = [5, 10, 25, 50, 100];
 
 // ── Settings persistence ───────────────────────────────────────────────────
 function loadSettings() {
@@ -36,6 +38,7 @@ const COLORS = {
   red:    [255, 59,  48],
   orange: [255, 149, 0],
   grey:   [142, 142, 147],
+  blue:   [10,  132, 255],
 };
 
 function makeIcon(color) {
@@ -59,13 +62,16 @@ let menuRefreshTimer = null;
 let spinnerTimer = null;
 let logWatcher = null;
 let spinnerFrame = 0;
+let quietHoursTimer = null;
 
 let isSyncing = false;
 let isWaiting = false;
+let isQuietHours = false;
 let lastSyncError = false;
 let lastNotesChanged = 0;
 let notesChangedTimer = null;
 let syncOutputOffset = 0;
+let lastStreakMilestone = null;  // milestone to announce, cleared after sending
 
 let nextSyncTimer = null;
 let nextSyncAt = null;      // ms timestamp — when next sync fires
@@ -96,8 +102,9 @@ function getPlistInterval() {
 }
 
 function getCountdownText(paused) {
-  if (isWaiting) return '\u23f3 Waiting for PDF to close\u2026';
-  if (paused)    return '\u23f8 Auto-sync paused';
+  if (isWaiting)      return '\u23f3 Waiting for PDF to close\u2026';
+  if (isQuietHours)   return '\ud83c\udf19 Quiet hours active';
+  if (paused)         return '\u23f8 Auto-sync paused';
   if (!nextSyncAt) {
     const lastSync = getLastSyncTime();
     if (!lastSync || isNaN(lastSync)) return 'Next sync: unknown';
@@ -114,10 +121,14 @@ function buildStatusPayload() {
   const paused = !isAgentLoaded();
   const lastSync = getLastSyncTime();
   const settings = loadSettings();
+  const openPDFs = isWaiting ? openPDFsInContent() : [];
+  const milestone = lastStreakMilestone;
+  lastStreakMilestone = null;  // consume once sent
   return {
     isSyncing,
     isWaiting,
     isPaused: paused,
+    isQuietHours,
     lastSyncError,
     lastSyncTime: lastSync ? lastSync.toISOString() : null,
     intervalSeconds: getPlistInterval(),
@@ -125,6 +136,8 @@ function buildStatusPayload() {
     nextSyncAt: nextSyncAt,
     syncStartedAt: syncStartedAt,
     syncStreak: settings.syncStreak || 0,
+    streakMilestone: milestone || null,
+    openPDFs,
   };
 }
 
@@ -134,7 +147,18 @@ function pushStatusToWindow() {
   }
 }
 
-function notify(title, body, opts = {}) {
+// Notify only when appropriate for current notifyLevel
+function notifyIfAllowed(title, body, opts = {}) {
+  const nl = loadSettings().notifyLevel || 'errors';
+  if (nl !== 'all') return null;
+  const n = new Notification({ title, body, ...opts });
+  n.show();
+  return n;
+}
+
+function notifyError(title, body, opts = {}) {
+  const nl = loadSettings().notifyLevel || 'errors';
+  if (nl === 'never') return null;
   const n = new Notification({ title, body, ...opts });
   n.show();
   return n;
@@ -153,6 +177,7 @@ function refreshTrayAppearance() {
   const timeLabel = formatTime(getLastSyncTime());
   const notesLabel = lastNotesChanged > 0 ? `\u2191${lastNotesChanged}` : timeLabel;
   if (isWaiting)          setTrayState('orange', timeLabel);
+  else if (isQuietHours)  setTrayState('blue',   '\ud83c\udf19');
   else if (paused)        setTrayState('grey',   '\u23f8');
   else if (lastSyncError) setTrayState('red',    timeLabel);
   else                    setTrayState('green',  notesLabel);
@@ -175,9 +200,60 @@ function stopSpinner() {
   refreshTrayAppearance();
 }
 
+// ── Quiet hours helpers ────────────────────────────────────────────────────
+function parseTime(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function isInQuietWindow(settings) {
+  const qh = settings.quietHours;
+  if (!qh || !qh.enabled) return false;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const start = parseTime(qh.start || '22:00');
+  const end   = parseTime(qh.end   || '07:00');
+  if (start <= end) return cur >= start && cur < end;
+  // overnight range (e.g. 22:00 – 07:00)
+  return cur >= start || cur < end;
+}
+
+function msUntilQuietEnd(settings) {
+  const qh = settings.quietHours;
+  const endStr = qh?.end || '07:00';
+  const [eh, em] = endStr.split(':').map(Number);
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(eh, em, 0, 0);
+  if (end <= now) end.setDate(end.getDate() + 1);
+  return end.getTime() - now.getTime();
+}
+
 // ── App-controlled sync scheduler ─────────────────────────────────────────
 function scheduleNextSync(delayMs) {
   clearTimeout(nextSyncTimer);
+  clearTimeout(quietHoursTimer);
+  nextSyncTimer = null;
+  quietHoursTimer = null;
+
+  const settings = loadSettings();
+
+  // Check quiet hours first
+  if (isInQuietWindow(settings)) {
+    isQuietHours = true;
+    nextSyncAt = null;
+    refreshTrayAppearance();
+    rebuildMenu();
+    pushStatusToWindow();
+    const delay = msUntilQuietEnd(settings);
+    quietHoursTimer = setTimeout(() => {
+      isQuietHours = false;
+      scheduleNextSync();
+    }, delay);
+    return;
+  }
+
+  isQuietHours = false;
   const ms = delayMs !== undefined ? delayMs : getPlistInterval() * 1000;
   nextSyncAt = Date.now() + ms;
   nextSyncTimer = setTimeout(() => autoSync(), ms);
@@ -193,6 +269,25 @@ function autoSync() {
   } else {
     runSync();
   }
+}
+
+// ── Smart commit message generation ───────────────────────────────────────
+function buildSmartCommitMsg() {
+  try {
+    const out = execSync(
+      `git -C "${REPO_DIR}" status --short -- content/ 2>/dev/null`,
+      { encoding: 'utf8', timeout: 3000 }
+    ).trim();
+    if (!out) return null;
+    const names = out.split('\n')
+      .map(l => l.trim().replace(/^.{2}\s+/, ''))  // strip status chars
+      .map(f => path.basename(f, path.extname(f)))  // basename without ext
+      .filter(Boolean);
+    if (names.length === 0) return null;
+    const MAX = 3;
+    if (names.length <= MAX) return `Updated: ${names.join(', ')}`;
+    return `Updated: ${names.slice(0, MAX).join(', ')} (+${names.length - MAX} more)`;
+  } catch { return null; }
 }
 
 // ── fs.watch for instant log refresh + live output streaming ───────────────
@@ -264,6 +359,7 @@ function buildMenu() {
   let statusText;
   if (isSyncing)          statusText = '\ud83d\udd04  Syncing\u2026';
   else if (isWaiting)     statusText = '\ud83d\udfe0  Waiting for PDF to close';
+  else if (isQuietHours)  statusText = '\ud83c\udf19  Quiet hours active';
   else if (paused)        statusText = `\u23f8  Paused \u2014 last ${formatTime(lastSync)}`;
   else if (lastSyncError) statusText = `\u274c  Error \u2014 last ${formatTime(lastSync)}`;
   else                    statusText = `\u2705  Synced \u2014 ${formatTime(lastSync)}`;
@@ -318,7 +414,10 @@ function runSync(commitMsg) {
   pushStatusToWindow();
 
   const env = { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH };
-  if (commitMsg) env.SYNC_MSG = commitMsg;
+
+  // Use provided commit message, smart-generated one, or let script decide
+  const msg = commitMsg || buildSmartCommitMsg();
+  if (msg) env.SYNC_MSG = msg;
 
   syncProcess = spawn('/bin/bash', [SYNC_SCRIPT], { env });
 
@@ -334,13 +433,29 @@ function runSync(commitMsg) {
     if (code !== 0) {
       settings.syncStreak = 0;
       saveSettings(settings);
-      if (nl !== 'never') notify('Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
+      notifyError('Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
     } else {
-      // Increment streak
-      settings.syncStreak = (settings.syncStreak || 0) + 1;
+      // Increment streak and check for milestone
+      const prevStreak = settings.syncStreak || 0;
+      settings.syncStreak = prevStreak + 1;
       saveSettings(settings);
 
-      if (nl === 'all') notify('Bible Notes Sync', 'Sync completed successfully.');
+      // Check milestone BEFORE saving to avoid re-announcing
+      const hitMilestone = STREAK_MILESTONES.find(
+        m => settings.syncStreak === m
+      ) || null;
+      if (hitMilestone) {
+        lastStreakMilestone = hitMilestone;
+        if (nl !== 'never') {
+          new Notification({
+            title: `\ud83d\udd25 ${hitMilestone} Sync Streak!`,
+            body: `You've synced ${hitMilestone} times in a row. Keep it up!`,
+          }).show();
+        }
+      } else if (nl === 'all') {
+        new Notification({ title: 'Bible Notes Sync', body: 'Sync completed successfully.' }).show();
+      }
+
       // Count changed notes for tray badge
       try {
         const entries = getAllEntries();
@@ -378,7 +493,7 @@ function runSync(commitMsg) {
     syncStartedAt = null;
     stopSpinner();
     lastSyncError = true;
-    if (loadSettings().notifyLevel !== 'never') notify('Quartz Sync Error', err.message);
+    notifyError('Quartz Sync Error', err.message);
     scheduleNextSync();
     rebuildMenu();
     refreshTrayAppearance();
@@ -408,9 +523,9 @@ function startWaitingForPDFClose() {
   refreshTrayAppearance();
   rebuildMenu();
   pushStatusToWindow();
-  if (loadSettings().notifyLevel !== 'never') {
-    notify('Quartz Sync', 'Watching for the PDF to close \u2014 sync will run automatically.');
-  }
+
+  // Only notify on 'all' — waiting is informational, not an error
+  notifyIfAllowed('Quartz Sync', 'Watching for the PDF to close \u2014 sync will run automatically.');
 
   pdfPollTimer = setInterval(() => {
     if (!hasPDFConflict()) {
@@ -420,14 +535,14 @@ function startWaitingForPDFClose() {
       refreshTrayAppearance();
       rebuildMenu();
       runSync();
-      if (loadSettings().notifyLevel !== 'never') {
-        notify('Quartz Sync', 'PDF closed \u2014 syncing now.');
-      }
+      notifyIfAllowed('Quartz Sync', 'PDF closed \u2014 syncing now.');
     }
   }, 5000);
 }
 
 function showPDFAutoNotification() {
+  const nl = loadSettings().notifyLevel || 'errors';
+  if (nl === 'never') return;
   const n = new Notification({
     title: 'Sync is patiently waiting\u2026',
     body: 'A PDF is open in your content folder. Sync will run the moment you close it. No action needed \u2014 or choose below.',
@@ -468,13 +583,17 @@ function handleSyncNow(commitMsg) {
 function handlePauseResume() {
   if (isAgentLoaded()) {
     unloadAgent();
-    invalidateAgentCache();
-    notify('Quartz Sync', 'Auto-sync paused.');
+    // Stop the in-app countdown timer too
+    clearTimeout(nextSyncTimer);
+    nextSyncTimer = null;
+    nextSyncAt = null;
+    notifyIfAllowed('Quartz Sync', 'Auto-sync paused.');
   } else {
     try {
       loadAgent();
-      invalidateAgentCache();
-      notify('Quartz Sync', 'Auto-sync resumed.');
+      notifyIfAllowed('Quartz Sync', 'Auto-sync resumed.');
+      // Resume the in-app scheduler
+      scheduleNextSync();
     } catch (err) {
       dialog.showErrorBox('Could not resume agent', err.message);
     }
@@ -489,9 +608,8 @@ function handleIntervalChange(seconds) {
     const wasLoaded = isAgentLoaded();
     if (wasLoaded) unloadAgent();
     writeInterval(seconds);
-    invalidatePlistCache();
-    if (wasLoaded) { loadAgent(); invalidateAgentCache(); }
-    notify('Quartz Sync', `Auto-sync interval set to ${formatInterval(seconds)}.`);
+    if (wasLoaded) loadAgent();
+    notifyIfAllowed('Quartz Sync', `Auto-sync interval set to ${formatInterval(seconds)}.`);
   } catch (err) {
     dialog.showErrorBox('Could not change interval', err.message);
   }
@@ -575,13 +693,23 @@ ipcMain.on('trigger-sync',         (_e, msg) => handleSyncNow(msg || undefined))
 ipcMain.on('toggle-pause',         () => handlePauseResume());
 ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-github',          (_e, url) => shell.openExternal(url));
+ipcMain.on('play-sound',           () => {
+  try { spawn('afplay', ['/System/Library/Sounds/Glass.aiff']); } catch {}
+});
 
 ipcMain.handle('get-settings', () => ({
   ...loadSettings(),
   loginItem: app.getLoginItemSettings().openAtLogin,
 }));
-ipcMain.on('save-settings',  (_e, s) => saveSettings(s));
+ipcMain.on('save-settings',  (_e, s) => {
+  saveSettings({ ...loadSettings(), ...s });
+  // If quiet hours settings changed, reschedule
+  if (s.quietHours !== undefined) {
+    scheduleNextSync();
+  }
+});
 ipcMain.on('set-login-item', (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
+ipcMain.on('set-interval',   (_e, s) => handleIntervalChange(s));
 
 // ── App init ───────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
@@ -624,6 +752,7 @@ app.on('window-all-closed', (e) => e.preventDefault());
 
 app.on('before-quit', () => {
   clearTimeout(nextSyncTimer);
+  clearTimeout(quietHoursTimer);
   clearInterval(menuRefreshTimer);
   clearInterval(pdfPollTimer);
   clearInterval(spinnerTimer);

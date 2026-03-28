@@ -870,6 +870,183 @@
       0%   { opacity: 1; transform: translateY(-20px) rotate(0deg); }
       100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
     }
+
+    /* ── Deploy status badge ─────────────────────────────────────────────── */
+    .deploy-badge {
+      display: none;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 10px;
+      padding: 6px 11px;
+      border-radius: 7px;
+      font-size: 11px;
+      border: 1px solid transparent;
+      -webkit-app-region: no-drag;
+      cursor: pointer;
+      transition: background 0.25s, border-color 0.25s, opacity 0.25s;
+    }
+    .deploy-badge.visible { display: flex; }
+    .deploy-badge.in-progress {
+      background: rgba(255,159,10,0.1);
+      border-color: rgba(255,159,10,0.28);
+      color: var(--orange);
+    }
+    .deploy-badge.success {
+      background: rgba(50,215,75,0.1);
+      border-color: rgba(50,215,75,0.22);
+      color: var(--green);
+    }
+    .deploy-badge.failure {
+      background: rgba(255,69,58,0.1);
+      border-color: rgba(255,69,58,0.22);
+      color: var(--red);
+    }
+    .deploy-badge.queued {
+      background: rgba(142,142,147,0.1);
+      border-color: rgba(142,142,147,0.2);
+      color: var(--grey);
+    }
+    .deploy-badge:hover { filter: brightness(1.15); }
+    .deploy-badge-icon { font-size: 13px; flex-shrink: 0; line-height: 1; }
+    @keyframes deploy-orbit {
+      0%   { transform: rotate(0deg) translateX(1.5px) rotate(0deg); }
+      100% { transform: rotate(360deg) translateX(1.5px) rotate(-360deg); }
+    }
+    .deploy-badge-icon.orbiting {
+      animation: deploy-orbit 2.8s linear infinite, step-pulse 1.4s ease-in-out infinite;
+      display: inline-block;
+    }
+    .deploy-badge-text { flex: 1; font-weight: 600; }
+    .deploy-badge-meta { font-size: 10px; opacity: 0.6; font-variant-numeric: tabular-nums; }
+    @keyframes deploy-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.12); filter: brightness(1.4); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+    .deploy-badge.pop { animation: deploy-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+    /* ── Deploy logs panel ───────────────────────────────────────────────── */
+    .deploy-logs-panel {
+      margin: 0 12px;
+      background: rgba(0,0,0,0.32);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      flex-shrink: 0;
+      transition: max-height 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                  margin-bottom 0.3s ease,
+                  opacity 0.3s ease;
+    }
+    .deploy-logs-panel.open {
+      max-height: 320px;
+      margin-bottom: 10px;
+      opacity: 1;
+    }
+    .deploy-logs-header {
+      display: flex;
+      align-items: center;
+      padding: 5px 10px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .deploy-logs-label {
+      flex: 1;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+    }
+    .deploy-logs-close {
+      font-size: 11px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      -webkit-app-region: no-drag;
+      transition: color 0.15s;
+    }
+    .deploy-logs-close:hover { color: rgba(255,255,255,0.75); }
+    .deploy-logs-body {
+      overflow-y: auto;
+      max-height: 278px;
+      padding: 4px 0;
+    }
+    .deploy-logs-body::-webkit-scrollbar { width: 3px; }
+    .deploy-logs-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .deploy-step { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .deploy-step-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      -webkit-app-region: no-drag;
+      transition: background 0.1s;
+    }
+    .deploy-step-header:hover { background: rgba(255,255,255,0.03); }
+    .deploy-step-icon { font-size: 11px; flex-shrink: 0; }
+    .deploy-step-name { flex: 1; font-weight: 500; }
+    .deploy-step-duration { font-size: 10px; color: rgba(255,255,255,0.25); font-variant-numeric: tabular-nums; }
+    .deploy-step-arrow {
+      font-size: 9px;
+      color: rgba(255,255,255,0.2);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .deploy-step.expanded .deploy-step-arrow { transform: rotate(90deg); }
+    .deploy-step-lines {
+      display: none;
+      padding: 4px 10px 6px 28px;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 10px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.38);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .deploy-step.expanded .deploy-step-lines { display: block; }
+    .deploy-log-error   { color: #ff6b63; }
+    .deploy-log-warning { color: #ffd60a; }
+    .deploy-logs-load-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.55);
+      font-size: 11px;
+      cursor: pointer;
+      -webkit-app-region: no-drag;
+      transition: background 0.15s;
+    }
+    .deploy-logs-load-btn:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── Enhanced status dot morphing ───────────────────────────────────── */
+    .status-dot.paused {
+      border-radius: 3px;
+      animation: pulse-dot 3s ease-in-out infinite;
+    }
+    .status-dot.dot-error {
+      animation: error-flash 1.1s ease-in-out infinite;
+    }
+    @keyframes error-flash {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.35; transform: scale(0.65); }
+    }
+
+    /* ── Enhanced entry slide-in ─────────────────────────────────────────── */
+    @keyframes slide-in {
+      0%   { opacity: 0; transform: translateY(-12px) scale(0.98); }
+      60%  { opacity: 1; transform: translateY(2px) scale(1.005); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -894,6 +1071,13 @@
       </div>
 
       <div class="streak-badge" id="streakBadge"></div>
+
+      <!-- Deploy status badge -->
+      <div class="deploy-badge" id="deployBadge" onclick="toggleDeployLogs()">
+        <span class="deploy-badge-icon" id="deployBadgeIcon">🛰</span>
+        <span class="deploy-badge-text" id="deployBadgeText">Deploy</span>
+        <span class="deploy-badge-meta" id="deployBadgeMeta"></span>
+      </div>
 
       <div class="card-times" id="cardTimes">
         <span>Last sync: <span class="accent" id="lastSyncTime">—</span></span>
@@ -941,6 +1125,17 @@
         <span class="sync-terminal-label" id="terminalLabel">Live Output</span>
       </div>
       <pre class="sync-terminal-text" id="syncTerminalText"></pre>
+    </div>
+
+    <!-- Deploy logs panel -->
+    <div class="deploy-logs-panel" id="deployLogsPanel">
+      <div class="deploy-logs-header">
+        <span class="deploy-logs-label">🚀 Deploy Logs</span>
+        <button class="deploy-logs-close" onclick="toggleDeployLogs()">✕</button>
+      </div>
+      <div class="deploy-logs-body" id="deployLogsBody">
+        <button class="deploy-logs-load-btn" id="deployLogsLoadBtn" onclick="loadDeployLogs()">Load Deploy Logs</button>
+      </div>
     </div>
 
     <!-- Log list -->
@@ -1071,7 +1266,7 @@
       isSyncing: false, isWaiting: false, isPaused: false, isQuietHours: false,
       lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
       nextSyncAt: null, syncStartedAt: null, syncStreak: 0,
-      streakMilestone: null, openPDFs: [],
+      streakMilestone: null, openPDFs: [], deployStatus: null,
     };
     let entries = [];
     let countdownTimer = null;
@@ -1126,7 +1321,7 @@
 
       const lastSync = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
       document.getElementById('lastSyncTime').textContent =
-        lastSync ? lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
+        lastSync ? (timeAgo(lastSync) || lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) : '—';
 
       // Elapsed timer
       document.getElementById('elapsedSpan').classList.toggle('visible', s.isSyncing);
@@ -1193,10 +1388,31 @@
         countdown.style.display = 'flex';
         if (s.nextSyncAt) {
           nextSyncAt = s.nextSyncAt;
-          startCountdown(s.intervalSeconds);
+          if (!wasSyncing) {
+            startCountdown(s.intervalSeconds);
+          } else {
+            // Arc reset: briefly empty then start refilling (satisfying visual reset)
+            const arcFill = document.getElementById('arcFill');
+            arcFill.style.transition = 'none';
+            arcFill.style.strokeDashoffset = '88';
+            setTimeout(() => {
+              arcFill.style.transition = 'stroke-dashoffset 1s linear, stroke 0.4s ease';
+              startCountdown(s.intervalSeconds);
+            }, 220);
+          }
         } else if (lastSync && s.intervalSeconds) {
           nextSyncAt = lastSync.getTime() + s.intervalSeconds * 1000;
-          startCountdown(s.intervalSeconds);
+          if (!wasSyncing) {
+            startCountdown(s.intervalSeconds);
+          } else {
+            const arcFill = document.getElementById('arcFill');
+            arcFill.style.transition = 'none';
+            arcFill.style.strokeDashoffset = '88';
+            setTimeout(() => {
+              arcFill.style.transition = 'stroke-dashoffset 1s linear, stroke 0.4s ease';
+              startCountdown(s.intervalSeconds);
+            }, 220);
+          }
         }
       }
 
@@ -1220,6 +1436,16 @@
       }
 
       toggleBtn.classList.toggle('active', terminal.classList.contains('open'));
+
+      // Deploy badge
+      updateDeployBadge(s.deployStatus || null);
+
+      // Status dot morphing
+      const dotState = getStateName(s);
+      if (dotState === 'paused') dot.classList.add('paused');
+      else dot.classList.remove('paused');
+      if (dotState === 'error') dot.classList.add('dot-error');
+      else dot.classList.remove('dot-error');
     }
 
     // ── Sync step pills ────────────────────────────────────────────────────
@@ -1440,6 +1666,147 @@
       }, 3000);
     }
 
+    // ── Deploy badge ───────────────────────────────────────────────────────
+    let lastDeployStatus = null;
+    let deployLogsOpen = false;
+
+    function updateDeployBadge(ds) {
+      const badge = document.getElementById('deployBadge');
+      const icon  = document.getElementById('deployBadgeIcon');
+      const text  = document.getElementById('deployBadgeText');
+      const meta  = document.getElementById('deployBadgeMeta');
+      if (!ds) { badge.className = 'deploy-badge'; return; }
+
+      const wasInProgress = lastDeployStatus?.status === 'in_progress';
+      const nowSuccess    = ds.status === 'completed' && ds.conclusion === 'success';
+      lastDeployStatus = ds;
+
+      let stateClass, iconChar, iconClass, labelText;
+      if (ds.status === 'in_progress') {
+        stateClass = 'in-progress'; iconChar = '🛰'; iconClass = 'orbiting';
+        labelText = `Deploying #${ds.runNumber}`;
+      } else if (ds.status === 'queued') {
+        stateClass = 'queued'; iconChar = '🕐'; iconClass = '';
+        labelText = `Queued #${ds.runNumber}`;
+      } else if (ds.conclusion === 'success') {
+        stateClass = 'success'; iconChar = '✓'; iconClass = '';
+        labelText = `Deployed #${ds.runNumber}`;
+      } else if (ds.conclusion === 'failure') {
+        stateClass = 'failure'; iconChar = '✕'; iconClass = '';
+        labelText = `Deploy failed #${ds.runNumber}`;
+      } else {
+        stateClass = 'queued'; iconChar = '—'; iconClass = '';
+        labelText = `Deploy #${ds.runNumber || '?'}`;
+      }
+
+      badge.className = `deploy-badge visible ${stateClass}`;
+      icon.textContent = iconChar;
+      icon.className = `deploy-badge-icon${iconClass ? ' ' + iconClass : ''}`;
+      text.textContent = labelText;
+      meta.textContent = ds.updatedAt ? (timeAgo(ds.updatedAt) || '') : '';
+
+      // Pop animation on success transition
+      if (wasInProgress && nowSuccess) {
+        badge.classList.add('pop');
+        badge.addEventListener('animationend', () => badge.classList.remove('pop'), { once: true });
+        // Auto-refresh logs if panel is open
+        if (deployLogsOpen) loadDeployLogs();
+      }
+    }
+
+    function toggleDeployLogs() {
+      deployLogsOpen = !deployLogsOpen;
+      document.getElementById('deployLogsPanel').classList.toggle('open', deployLogsOpen);
+      if (deployLogsOpen && status.deployStatus?.runId) loadDeployLogs();
+    }
+
+    async function loadDeployLogs() {
+      const runId = status.deployStatus?.runId;
+      if (!runId || !window.syncAPI) {
+        document.getElementById('deployLogsBody').innerHTML =
+          '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">No deploy run available.</div>';
+        return;
+      }
+      document.getElementById('deployLogsBody').innerHTML =
+        '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">Loading logs…</div>';
+
+      const result = await window.syncAPI.getDeployLogs(runId);
+      if (result.error || !result.logs) {
+        document.getElementById('deployLogsBody').innerHTML =
+          `<div style="padding:10px 12px;font-size:11px;color:rgba(255,69,58,0.8)">${escHtml(result.error || 'No logs available')}</div>`;
+        return;
+      }
+      document.getElementById('deployLogsBody').innerHTML = renderDeployLogs(result.job, result.logs);
+    }
+
+    function parseDeployLogs(rawText) {
+      const lines = rawText.split('\n');
+      const steps = [];
+      let current = null;
+      const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z (.*)$/;
+
+      for (const rawLine of lines) {
+        const m = rawLine.match(TS_RE);
+        if (!m) continue;
+        const content = m[1];
+
+        if (content.startsWith('##[group]')) {
+          if (current) steps.push(current);
+          current = { name: content.slice(9), startLine: rawLine, endLine: null, lines: [] };
+        } else if (content.startsWith('##[endgroup]')) {
+          if (current) { current.endLine = rawLine; steps.push(current); current = null; }
+        } else if (current) {
+          let cls = '', text = content;
+          if (content.startsWith('##[error]'))   { cls = 'deploy-log-error';   text = content.slice(8); }
+          if (content.startsWith('##[warning]')) { cls = 'deploy-log-warning'; text = content.slice(10); }
+          // Strip remaining ##[...] markers
+          text = text.replace(/^##\[[^\]]*\]/, '');
+          if (text.trim()) current.lines.push({ text, cls });
+        }
+      }
+      if (current) steps.push(current);
+      return steps;
+    }
+
+    function extractLogTimestamp(line) {
+      const m = line.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)/);
+      return m ? new Date(m[1]) : null;
+    }
+
+    function renderDeployLogs(job, rawText) {
+      const steps = parseDeployLogs(rawText);
+      if (steps.length === 0) {
+        return '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">No structured log steps found.</div>';
+      }
+      return steps.map((step, i) => {
+        const startTs = extractLogTimestamp(step.startLine || '');
+        const endTs   = extractLogTimestamp(step.endLine   || '');
+        const durMs   = startTs && endTs ? endTs - startTs : null;
+        const durStr  = durMs !== null
+          ? (durMs < 1000 ? `${durMs}ms` : `${(durMs / 1000).toFixed(1)}s`)
+          : '';
+        const hasErr  = step.lines.some(l => l.cls === 'deploy-log-error');
+        const hasWarn = step.lines.some(l => l.cls === 'deploy-log-warning');
+        const stepIcon = hasErr ? '❌' : hasWarn ? '⚠️' : '✓';
+        const linesHtml = step.lines.map(l =>
+          `<div class="${l.cls}">${escHtml(l.text)}</div>`
+        ).join('');
+        return `<div class="deploy-step" id="deploy-step-${i}">
+          <div class="deploy-step-header" onclick="toggleDeployStep(${i})">
+            <span class="deploy-step-icon">${stepIcon}</span>
+            <span class="deploy-step-name">${escHtml(step.name)}</span>
+            <span class="deploy-step-duration">${escHtml(durStr)}</span>
+            <span class="deploy-step-arrow">▶</span>
+          </div>
+          <div class="deploy-step-lines">${linesHtml}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleDeployStep(i) {
+      document.getElementById(`deploy-step-${i}`)?.classList.toggle('expanded');
+    }
+
     // ── GitHub URL builder ─────────────────────────────────────────────────
     function githubUrl(entry) {
       if (entry.commitSha) return `${GITHUB_REPO}/commit/${entry.commitSha}`;
@@ -1451,11 +1818,27 @@
       return s === 'success' ? '✅' : s === 'error' ? '❌' : '⚪';
     }
 
+    function timeAgo(date) {
+      if (!date) return null;
+      const diffMs = Date.now() - new Date(date).getTime();
+      const diffS = Math.floor(diffMs / 1000);
+      if (diffS < 60)  return 'just now';
+      const diffM = Math.floor(diffS / 60);
+      if (diffM < 60)  return `${diffM}m ago`;
+      const diffH = Math.floor(diffM / 60);
+      if (diffH < 24)  return `${diffH}h ago`;
+      return null;
+    }
+
     function formatDate(iso) {
       const d = new Date(iso);
       const today = new Date();
       const sameDay = d.toDateString() === today.toDateString();
-      if (sameDay) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      if (sameDay) {
+        const ago = timeAgo(d);
+        if (ago) return ago;
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
       return d.toLocaleDateString([], { month: 'short', day: 'numeric' })
         + '  ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
@@ -1505,7 +1888,7 @@
           </div>` : '';
 
         return `
-        <div class="entry ${e.status}${isNew ? ' new' : ''}" onclick="toggleExpand(this)">
+        <div class="entry ${e.status}${isNew ? ' new' : ''}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
           <div class="entry-row">
             <span class="entry-icon">${statusIcon(e.status)}</span>
             <span class="entry-summary">${escHtml(e.detail)}</span>
@@ -1650,6 +2033,14 @@
       renderEntries(initialEntries, false);
       updateCard(initialStatus);
 
+      // Restore last sync output if not currently syncing
+      if (!initialStatus.isSyncing) {
+        const lastOut = await window.syncAPI.getLastOutput();
+        if (lastOut && lastOut.trim()) {
+          document.getElementById('syncTerminalText').textContent = lastOut;
+        }
+      }
+
       window.syncAPI.onLogUpdate((e) => renderEntries(e, true));
       window.syncAPI.onSyncStatus((s) => updateCard(s));
 
@@ -1660,6 +2051,31 @@
         el.scrollTop = el.scrollHeight;
         detectStep(chunk);
       });
+
+      // Live-update "just now" labels and entry timestamps every 10s
+      setInterval(() => {
+        // Update card "Last sync:" label
+        const lastSync = status.lastSyncTime ? new Date(status.lastSyncTime) : null;
+        if (lastSync && !status.isSyncing) {
+          document.getElementById('lastSyncTime').textContent =
+            timeAgo(lastSync) || lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        // Update deploy badge meta (relative time)
+        if (status.deployStatus?.updatedAt) {
+          const meta = document.getElementById('deployBadgeMeta');
+          if (meta) meta.textContent = timeAgo(status.deployStatus.updatedAt) || '';
+        }
+        // Re-render entries preserving expanded state
+        if (entries.length > 0) {
+          const expanded = new Set(
+            [...document.querySelectorAll('.entry.expanded')].map(el => el.dataset.ts)
+          );
+          renderEntries(entries, false);
+          expanded.forEach(ts => {
+            document.querySelector(`.entry[data-ts="${CSS.escape(ts)}"]`)?.classList.add('expanded');
+          });
+        }
+      }, 10_000);
     }
 
     // Mock for browser preview
@@ -1698,6 +2114,15 @@
         syncStreak: 7,
         streakMilestone: null,
         openPDFs: [],
+        deployStatus: {
+          status: 'completed',
+          conclusion: 'success',
+          runId: 23680259128,
+          runNumber: 42,
+          updatedAt: new Date(now - 3*60000).toISOString(),
+          url: 'https://github.com/RoyalWeden/meatnotes/actions/runs/23680259128',
+          headSha: 'a1b2c3d4e5f6',
+        },
       };
       renderEntries(mockEntries, false);
       updateCard(mockStatus);

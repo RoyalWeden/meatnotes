@@ -123,9 +123,9 @@ function parseLog() {
     }
 
     if (msg === 'Already running, skipping.') {
-      if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
-      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped -- already running', errorLines: [], commitSha: null });
-      current = null; currentRawLines = [];
+      // Do NOT push/reset `current` — it is still in progress and will complete later.
+      // Just record the standalone skipped marker without disturbing the running session.
+      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — already running', errorLines: [], commitSha: null });
       continue;
     }
     if (msg === 'No internet connection, skipping sync') {

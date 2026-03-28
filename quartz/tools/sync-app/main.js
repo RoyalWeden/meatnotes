@@ -6,7 +6,7 @@ const os = require('os');
 const { spawn, execSync } = require('child_process');
 
 const { makeCircleIcon } = require('./icon-generator');
-const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
+const { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, unloadAgent, loadAgent } = require('./plist-manager');
 const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict, openPDFsInContent } = require('./pdf-detector');
 
@@ -16,6 +16,11 @@ const LAST_SYNC_FILE = path.join(REPO_DIR, 'content/.last-sync');
 const SYNC_SCRIPT = path.join(os.homedir(), '.local/bin/quartz-sync.sh');
 const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
 const SETTINGS_FILE = path.join(os.homedir(), 'Library/Application Support/bible-notes-sync/settings.json');
+
+// ── GitHub API constants ───────────────────────────────────────────────────
+const GITHUB_API_OWNER = 'RoyalWeden';
+const GITHUB_API_REPO  = 'meatnotes';
+const DEPLOY_WORKFLOW_FILE = 'deploy.yml';
 
 const STREAK_MILESTONES = [5, 10, 25, 50, 100];
 
@@ -79,6 +84,13 @@ let syncStartedAt = null;   // ms timestamp — when current sync began
 let menuRebuildDebounceTimer = null;
 let windowUpdateDebounceTimer = null;
 
+// ── Deploy status state ────────────────────────────────────────────────────
+let deployStatus = null;    // { status, conclusion, runId, runNumber, updatedAt, url, headSha }
+let deployPollTimer = null;
+
+// ── Last sync output ───────────────────────────────────────────────────────
+let lastSyncOutput = '';    // persists the most recent sync's terminal output
+
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -138,12 +150,56 @@ function buildStatusPayload() {
     syncStreak: settings.syncStreak || 0,
     streakMilestone: milestone || null,
     openPDFs,
+    deployStatus,
   };
 }
 
 function pushStatusToWindow() {
   if (logWindow && !logWindow.isDestroyed()) {
     logWindow.webContents.send('sync-status', buildStatusPayload());
+  }
+}
+
+// ── GitHub deploy status polling ───────────────────────────────────────────
+async function pollDeployStatus() {
+  clearTimeout(deployPollTimer);
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/workflows/${DEPLOY_WORKFLOW_FILE}/runs?per_page=1`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' },
+    });
+    // Respect rate limit
+    const remaining = parseInt(res.headers.get('X-RateLimit-Remaining') || '60', 10);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const run = json.workflow_runs?.[0];
+    if (run) {
+      const prev = deployStatus;
+      deployStatus = {
+        status:     run.status,
+        conclusion: run.conclusion,
+        runId:      run.id,
+        runNumber:  run.run_number,
+        updatedAt:  run.updated_at,
+        url:        run.html_url,
+        headSha:    run.head_sha,
+      };
+      // Only push to window if something changed
+      if (!prev ||
+          prev.status !== deployStatus.status ||
+          prev.conclusion !== deployStatus.conclusion ||
+          prev.runId !== deployStatus.runId) {
+        pushStatusToWindow();
+      }
+    }
+    // Faster polling when in_progress, but back off if rate-limited
+    const interval = remaining < 5 ? 60_000
+      : deployStatus?.status === 'in_progress' ? 10_000
+      : 60_000;
+    deployPollTimer = setTimeout(pollDeployStatus, interval);
+  } catch {
+    // Network errors are silent — deploy status is non-critical
+    deployPollTimer = setTimeout(pollDeployStatus, 60_000);
   }
 }
 
@@ -305,7 +361,10 @@ function startLogWatcher() {
             fs.readSync(fd, buf, 0, buf.length, syncOutputOffset);
             fs.closeSync(fd);
             syncOutputOffset = size;
-            logWindow.webContents.send('sync-output', buf.toString('utf8'));
+            const chunk = buf.toString('utf8');
+            // Accumulate for window re-opens (cap at 500KB)
+            if (lastSyncOutput.length < 500_000) lastSyncOutput += chunk;
+            logWindow.webContents.send('sync-output', chunk);
           }
         } catch {}
       }
@@ -408,6 +467,7 @@ function runSync(commitMsg) {
   try { syncOutputOffset = fs.statSync(LOG_FILE).size; } catch { syncOutputOffset = 0; }
 
   syncStartedAt = Date.now();
+  lastSyncOutput = ''; // reset for fresh capture
   startSpinner();
   lastSyncError = false;
   rebuildMenu();
@@ -476,6 +536,9 @@ function runSync(commitMsg) {
         }
       } catch {}
     }
+
+    // Deploy likely just started — poll immediately
+    pollDeployStatus();
 
     // Schedule next sync from NOW (after sync completes)
     scheduleNextSync();
@@ -583,6 +646,7 @@ function handleSyncNow(commitMsg) {
 function handlePauseResume() {
   if (isAgentLoaded()) {
     unloadAgent();
+    invalidateAgentCache(); // flush stale TTL cache immediately
     // Stop the in-app countdown timer too
     clearTimeout(nextSyncTimer);
     nextSyncTimer = null;
@@ -591,6 +655,7 @@ function handlePauseResume() {
   } else {
     try {
       loadAgent();
+      invalidateAgentCache(); // flush stale TTL cache immediately
       notifyIfAllowed('Quartz Sync', 'Auto-sync resumed.');
       // Resume the in-app scheduler
       scheduleNextSync();
@@ -689,6 +754,30 @@ function openLogWindow() {
 // ── IPC ────────────────────────────────────────────────────────────────────
 ipcMain.handle('get-log-entries',  () => getAllEntries());
 ipcMain.handle('get-sync-status',  () => buildStatusPayload());
+ipcMain.handle('get-last-output',  () => lastSyncOutput);
+
+ipcMain.handle('get-deploy-logs',  async (_e, runId) => {
+  try {
+    const jobsRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/runs/${runId}/jobs`,
+      { headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' } }
+    );
+    if (!jobsRes.ok) throw new Error(`Jobs HTTP ${jobsRes.status}`);
+    const jobsJson = await jobsRes.json();
+    const job = jobsJson.jobs?.[0];
+    if (!job) return { job: null, logs: '' };
+
+    // GitHub returns 302 to a signed S3 URL — fetch follows redirects automatically
+    const logsRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/jobs/${job.id}/logs`,
+      { headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' } }
+    );
+    const logs = logsRes.ok ? await logsRes.text() : '';
+    return { job, logs };
+  } catch (err) {
+    return { job: null, logs: '', error: err.message };
+  }
+});
 ipcMain.on('trigger-sync',         (_e, msg) => handleSyncNow(msg || undefined));
 ipcMain.on('toggle-pause',         () => handlePauseResume());
 ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
@@ -727,6 +816,7 @@ app.whenReady().then(() => {
   refreshTrayAppearance();
   rebuildMenu();
   startLogWatcher();
+  pollDeployStatus(); // initial deploy status fetch
 
   // Schedule first sync from last known time
   const lastSync = getLastSyncTime();
@@ -753,6 +843,7 @@ app.on('window-all-closed', (e) => e.preventDefault());
 app.on('before-quit', () => {
   clearTimeout(nextSyncTimer);
   clearTimeout(quietHoursTimer);
+  clearTimeout(deployPollTimer);
   clearInterval(menuRefreshTimer);
   clearInterval(pdfPollTimer);
   clearInterval(spinnerTimer);

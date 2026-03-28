@@ -132,4 +132,116 @@ function makeBookIcon(r, g, b, size = 32) {
   });
 }
 
-module.exports = { makeCircleIcon, makeBookIcon };
+/**
+ * Generate a polished macOS-style app icon PNG.
+ * Deep green squircle background with a detailed book illustration.
+ * @param {number} size - Image size (1024 recommended)
+ * @returns {Buffer} PNG buffer
+ */
+function makeAppIcon(size = 1024) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const s = size / 1024; // scale from 1024 reference
+
+  // Squircle (superellipse, n=4.5) — macOS icon shape
+  function inSquircle(px, py) {
+    const rx = (px - cx) / (cx * 0.9);
+    const ry = (py - cy) / (cy * 0.9);
+    return Math.pow(Math.abs(rx), 4.5) + Math.pow(Math.abs(ry), 4.5) <= 1;
+  }
+
+  // Squircle anti-aliased alpha (sample 4 subpixels)
+  function squircleAlpha(x, y) {
+    let count = 0;
+    const offsets = [0.25, 0.75];
+    for (const dx of offsets) for (const dy of offsets) {
+      if (inSquircle(x + dx, y + dy)) count++;
+    }
+    return Math.round((count / 4) * 255);
+  }
+
+  // Book bounds (scaled from 1024 reference)
+  const bx1 = Math.round(220 * s);
+  const bx2 = Math.round(800 * s);
+  const by1 = Math.round(160 * s);
+  const by2 = Math.round(860 * s);
+  const spineW = Math.round(90 * s);
+  const pagesW = Math.round(60 * s);
+  const spineX2 = bx1 + spineW;
+  const pagesX1 = bx2 - pagesW;
+  const bookCr = Math.round(28 * s);
+
+  function inRoundRectB(px, py) {
+    if (px < bx1 || px > bx2 || py < by1 || py > by2) return false;
+    const cx2 = px < bx1 + bookCr ? bx1 + bookCr : px > bx2 - bookCr ? bx2 - bookCr : px;
+    const cy2 = py < by1 + bookCr ? by1 + bookCr : py > by2 - bookCr ? by2 - bookCr : py;
+    return Math.sqrt((px - cx2) ** 2 + (py - cy2) ** 2) <= bookCr;
+  }
+
+  // Page line texture (horizontal lines every ~16px in the pages strip)
+  const pageLineSpacing = Math.round(22 * s);
+
+  return encodePng(size, (x, y) => {
+    const alpha = squircleAlpha(x, y);
+    if (alpha === 0) return [0, 0, 0, 0];
+
+    // Background gradient: dark forest green, lighter at top
+    const gradT = y / size; // 0=top, 1=bottom
+    const bgR = Math.round((26 + gradT * 4));  // ~26-30
+    const bgG = Math.round((74 - gradT * 20)); // ~74-54
+    const bgB = Math.round((26 + gradT * 4));  // ~26-30
+
+    const px = x + 0.5;
+    const py = y + 0.5;
+    const inBook = inRoundRectB(px, py);
+
+    if (!inBook) {
+      // Small inner-shadow at top of squircle
+      const fromTop = py / size;
+      const shadowAdd = fromTop < 0.1 ? Math.round((0.1 - fromTop) * 60) : 0;
+      return [Math.min(255, bgR + shadowAdd), Math.min(255, bgG + shadowAdd), Math.min(255, bgB + shadowAdd), alpha];
+    }
+
+    const bookGradT = (py - by1) / (by2 - by1); // 0=top, 1=bottom
+
+    if (px >= pagesX1) {
+      // Page edges — cream/parchment with subtle horizontal line texture
+      const linePos = (py - by1) % pageLineSpacing;
+      const isLine = linePos < Math.max(1, Math.round(1.5 * s));
+      const cream = isLine ? 185 : 218;
+      const creamG = isLine ? 178 : 208;
+      const creamB = isLine ? 148 : 175;
+      return [cream, creamG, creamB, alpha];
+    }
+
+    if (px < spineX2) {
+      // Spine — dark brown-green
+      const spineBase = [28, 48, 28];
+      // Left-edge highlight (thin strip)
+      const fromSpineLeft = px - bx1;
+      if (fromSpineLeft < Math.max(2, Math.round(4 * s))) {
+        // Highlight strip: slightly lighter
+        return [Math.round(spineBase[0] * 1.6), Math.round(spineBase[1] * 1.5), Math.round(spineBase[2] * 1.6), alpha];
+      }
+      return [spineBase[0], spineBase[1], spineBase[2], alpha];
+    }
+
+    // Main cover — gradient: lighter at top-left, darker at bottom-right
+    const coverLight = 0.38 + (1 - bookGradT) * 0.14; // 0.52 at top, 0.38 at bottom
+    const coverR = Math.round(10 * coverLight);
+    const coverG = Math.round(120 * coverLight);
+    const coverB = Math.round(10 * coverLight);
+
+    // Subtle horizontal rule lines on cover (faint)
+    const ruleSpacing = Math.round(48 * s);
+    const rulePos = Math.round((py - by1 - Math.round(40*s)) % ruleSpacing);
+    const isRule = rulePos >= 0 && rulePos < Math.max(1, Math.round(1.5 * s)) && py > by1 + Math.round(80*s) && py < by2 - Math.round(80*s);
+    if (isRule) {
+      return [Math.round(coverR * 0.7), Math.round(coverG * 0.7), Math.round(coverB * 0.7), alpha];
+    }
+
+    return [coverR, coverG, coverB, alpha];
+  });
+}
+
+module.exports = { makeCircleIcon, makeBookIcon, makeAppIcon };

@@ -29,7 +29,7 @@ function enrichEntry(entry) {
 
     if (stat) {
       // Last line: "3 files changed, 20 insertions(+), 5 deletions(-)"
-      // Compact to: "3 files  +20  −5"
+      // Compact to: "3 files  +20  -5"
       const summary = stat.split('\n').pop() || '';
       const fMatch = summary.match(/(\d+) file/);
       const iMatch = summary.match(/(\d+) insertion/);
@@ -37,11 +37,25 @@ function enrichEntry(entry) {
       const parts = [];
       if (fMatch) parts.push(`${fMatch[1]} file${fMatch[1] === '1' ? '' : 's'}`);
       if (iMatch) parts.push(`+${iMatch[1]}`);
-      if (dMatch) parts.push(`−${dMatch[1]}`);
+      if (dMatch) parts.push(`-${dMatch[1]}`);
       entry.filesChanged = parts.join('  ');
     }
+
+    // Per-file diff list
+    try {
+      const numstatRaw = execSync(
+        `git -C "${REPO_DIR}" diff-tree --no-commit-id -r --numstat ${entry.commitSha} -- content/ 2>/dev/null`,
+        { encoding: 'utf8', timeout: 3000 }
+      ).trim();
+      if (numstatRaw) {
+        entry.fileList = numstatRaw.split('\n').filter(Boolean).map(line => {
+          const [add, del, filePath] = line.split('\t');
+          return { add: parseInt(add) || 0, del: parseInt(del) || 0, path: filePath || '' };
+        });
+      }
+    } catch {}
   } catch {
-    // git not available or SHA not found — skip enrichment
+    // git not available or SHA not found -- skip enrichment
   }
 }
 
@@ -49,7 +63,7 @@ function enrichEntry(entry) {
  * Parse the sync log into structured session entries.
  * @returns {Array<{timestamp: Date, status: 'success'|'error'|'skipped', detail: string,
  *                  errorLines: string[], commitSha: string|null,
- *                  commitMessage?: string, filesChanged?: string}>}
+ *                  commitMessage?: string, filesChanged?: string, fileList?: Array}>}
  *          Sorted newest-first.
  */
 function parseLog() {
@@ -87,13 +101,13 @@ function parseLog() {
 
     if (msg === 'Already running, skipping.') {
       if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
-      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — already running', errorLines: [], commitSha: null });
+      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped -- already running', errorLines: [], commitSha: null });
       current = null; currentRawLines = [];
       continue;
     }
     if (msg === 'No internet connection, skipping sync') {
       if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
-      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — no internet', errorLines: [], commitSha: null });
+      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped -- no internet', errorLines: [], commitSha: null });
       current = null; currentRawLines = [];
       continue;
     }

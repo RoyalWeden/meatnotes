@@ -4,7 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('syncAPI', {
   getLogEntries:  () => ipcRenderer.invoke('get-log-entries'),
   getSyncStatus:  () => ipcRenderer.invoke('get-sync-status'),
-  triggerSync:    () => ipcRenderer.send('trigger-sync'),
+  triggerSync:    (msg) => ipcRenderer.send('trigger-sync', msg || ''),
   togglePause:    () => ipcRenderer.send('toggle-pause'),
   openGitHub:     (url) => ipcRenderer.send('open-github', url),
   onLogUpdate:    (cb) => ipcRenderer.on('log-updated', (_e, entries) => cb(entries)),

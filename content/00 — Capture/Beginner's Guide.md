@@ -5,3 +5,5 @@
 - [straitisthegatesearch.net](http://straitisthegatesearch.net) (<https://straitisthegatesearch.netlify.app/>) → search videos from brothers based on keywords in transcript
 
 more documents on the main website and [here](https://docs.google.com/document/d/1hLN1rSP5m9EQtXIfH3wiwkslCJ0aMMPgP91PjBVghhg/edit?tab=t.0)
+
+Teen zoom: <https://us06web.zoom.us/j/88960959534?pwd=TEatuTOaIHshia8WSchchhHAg4sjA6.1>

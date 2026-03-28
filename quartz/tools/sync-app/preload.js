@@ -9,4 +9,10 @@ contextBridge.exposeInMainWorld('syncAPI', {
   openGitHub:     (url) => ipcRenderer.send('open-github', url),
   onLogUpdate:    (cb) => ipcRenderer.on('log-updated', (_e, entries) => cb(entries)),
   onSyncStatus:   (cb) => ipcRenderer.on('sync-status', (_e, status) => cb(status)),
+  onSyncOutput:   (cb) => ipcRenderer.on('sync-output', (_e, chunk) => cb(chunk)),
+  // Settings
+  getSettings:    () => ipcRenderer.invoke('get-settings'),
+  saveSettings:   (s) => ipcRenderer.send('save-settings', s),
+  setLoginItem:   (val) => ipcRenderer.send('set-login-item', val),
+  setInterval:    (s) => ipcRenderer.send('custom-interval', s),
 });

@@ -38,6 +38,7 @@
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
     }
 
     /* ── Drag region + traffic lights spacer ── */
@@ -47,7 +48,8 @@
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      padding-left: 80px; /* space for traffic lights */
+      padding-left: 80px;
+      padding-right: 8px;
       font-size: 12px;
       font-weight: 600;
       color: rgba(255,255,255,0.35);
@@ -55,6 +57,23 @@
       text-transform: uppercase;
       user-select: none;
     }
+    .titlebar-spacer { flex: 1; }
+    .titlebar-settings-btn {
+      -webkit-app-region: no-drag;
+      width: 22px; height: 22px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.35);
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .titlebar-settings-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
+    .titlebar-settings-btn.active { color: var(--accent); background: rgba(50,215,75,0.12); }
 
     /* ── Status card ── */
     .card {
@@ -69,7 +88,6 @@
       flex-shrink: 0;
     }
 
-    /* Thin progress bar across top of card (shown while syncing) */
     .card-progress {
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -92,7 +110,6 @@
       100% { transform: translateX(600%); }
     }
 
-    /* Glow blob behind status */
     .card-glow {
       position: absolute;
       width: 120px; height: 120px;
@@ -112,7 +129,6 @@
       margin-bottom: 10px;
     }
 
-    /* Pulsing / spinning status dot */
     .status-dot {
       width: 11px; height: 11px;
       border-radius: 50%;
@@ -125,9 +141,7 @@
       0%, 100% { opacity: 1;   transform: scale(1); }
       50%       { opacity: 0.55; transform: scale(0.8); }
     }
-    .status-dot.syncing {
-      animation: spin-dot 0.9s linear infinite;
-    }
+    .status-dot.syncing { animation: spin-dot 0.9s linear infinite; }
     @keyframes spin-dot {
       to { transform: rotate(360deg); border-radius: 30%; }
     }
@@ -149,7 +163,7 @@
     .card-times span { display: flex; align-items: center; gap: 4px; }
     .card-times .accent { color: var(--accent); font-weight: 600; }
 
-    /* Countdown arc */
+    /* Countdown arc — no label inside */
     .card-countdown {
       display: flex;
       align-items: center;
@@ -162,12 +176,6 @@
     .arc-fill  { fill: none; stroke: var(--accent); stroke-width: 3;
                  stroke-linecap: round; stroke-dasharray: 88; stroke-dashoffset: 88;
                  transition: stroke-dashoffset 1s linear, stroke 0.4s ease; }
-    .arc-label {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8px; font-weight: 700; color: var(--accent);
-      transform: rotate(90deg);
-    }
     .countdown-text { font-size: 12px; color: rgba(255,255,255,0.55); }
     .countdown-text strong { color: rgba(255,255,255,0.9); font-weight: 600; }
 
@@ -189,16 +197,48 @@
     }
     .btn:active { transform: scale(0.96); }
     .btn:disabled { opacity: 0.35; cursor: default; }
-    .btn-primary {
-      background: var(--accent);
-      color: #000;
-    }
+    .btn-primary { background: var(--accent); color: #000; }
     .btn-secondary {
       background: rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.8);
       border: 1px solid rgba(255,255,255,0.1);
     }
     .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
+
+    /* ── Live sync terminal ── */
+    .sync-terminal {
+      margin: 0 12px 10px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+      display: none;
+      flex-shrink: 0;
+    }
+    .sync-terminal.visible { display: block; }
+    .sync-terminal-label {
+      padding: 5px 10px 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .sync-terminal-text {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.45);
+      padding: 7px 10px;
+      margin: 0;
+      overflow-y: auto;
+      max-height: 100px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.45;
+    }
+    .sync-terminal-text::-webkit-scrollbar { width: 3px; }
+    .sync-terminal-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
     /* ── Log list ── */
     .log-header {
@@ -255,6 +295,27 @@
       font-size: 11px;
       color: #555;
       flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Commit + files meta under summary */
+    .entry-meta {
+      margin-top: 3px;
+      padding-left: 23px; /* align with summary text */
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .entry-commit {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .entry-files {
+      font-size: 10px;
+      color: rgba(255,255,255,0.22);
       font-variant-numeric: tabular-nums;
     }
 
@@ -316,12 +377,245 @@
       font-size: 13px;
     }
     .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+    /* ── Settings backdrop ── */
+    .settings-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 10;
+    }
+    .settings-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ── Settings slide-in panel ── */
+    .settings-panel {
+      position: fixed;
+      top: 0; right: 0;
+      width: 268px;
+      height: 100%;
+      background: rgba(22, 22, 26, 0.97);
+      backdrop-filter: blur(28px) saturate(1.5);
+      -webkit-backdrop-filter: blur(28px) saturate(1.5);
+      border-left: 1px solid rgba(255,255,255,0.09);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 11;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .settings-panel.open { transform: translateX(0); }
+
+    .settings-panel-header {
+      -webkit-app-region: drag;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .settings-panel-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.02em;
+    }
+    .settings-close-btn {
+      -webkit-app-region: no-drag;
+      width: 22px; height: 22px;
+      border: none;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.5);
+      font-size: 16px;
+      line-height: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .settings-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+    .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0 20px;
+    }
+    .settings-body::-webkit-scrollbar { width: 3px; }
+    .settings-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    /* Settings sections */
+    .settings-section {
+      padding: 0 16px;
+      margin-bottom: 24px;
+    }
+    .settings-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 10px;
+    }
+    .settings-rows {
+      background: rgba(255,255,255,0.04);
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      -webkit-app-region: no-drag;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label {
+      flex: 1;
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Custom radio buttons */
+    .settings-radio {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.22);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .settings-radio:checked {
+      border-color: var(--green);
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(50,215,75,0.18);
+    }
+    .settings-radio:checked::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    /* Custom input for interval */
+    .settings-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      -webkit-app-region: no-drag;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .settings-custom-row:last-child { border-bottom: none; }
+    .settings-custom-radio {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.22);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .settings-custom-radio:checked {
+      border-color: var(--green);
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(50,215,75,0.18);
+    }
+    .settings-custom-radio:checked::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #000;
+    }
+    .settings-custom-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      user-select: none;
+    }
+    .settings-custom-input {
+      width: 48px;
+      padding: 3px 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .settings-custom-input:focus { border-color: var(--green); }
+    .settings-custom-suffix {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* iOS-style toggle */
+    .toggle-switch {
+      position: relative;
+      width: 32px; height: 18px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0; height: 0;
+      position: absolute;
+    }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.14);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 2px; top: 2px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-track {
+      background: var(--green);
+    }
+    .toggle-switch input:checked + .toggle-track::after {
+      transform: translateX(14px);
+      background: #fff;
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <!-- Drag titlebar -->
-    <div class="titlebar">Quartz Sync</div>
+    <div class="titlebar">
+      Quartz Sync
+      <div class="titlebar-spacer"></div>
+      <button class="titlebar-settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings (⌘,)">⚙</button>
+    </div>
 
     <!-- Status card -->
     <div class="card" id="card">
@@ -345,7 +639,6 @@
             <circle class="arc-track" cx="18" cy="18" r="14"/>
             <circle class="arc-fill"  cx="18" cy="18" r="14" id="arcFill"/>
           </svg>
-          <div class="arc-label" id="arcLabel">—</div>
         </div>
         <div class="countdown-text" id="countdownText">Calculating…</div>
       </div>
@@ -356,12 +649,96 @@
       </div>
     </div>
 
+    <!-- Live sync terminal (visible only while syncing) -->
+    <div class="sync-terminal" id="syncTerminal">
+      <div class="sync-terminal-label">Live Output</div>
+      <pre class="sync-terminal-text" id="syncTerminalText"></pre>
+    </div>
+
     <!-- Log list -->
     <div class="log-header">Sync History</div>
     <div class="entries" id="entries"></div>
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">🔄</div>
       No sync entries yet.
+    </div>
+  </div>
+
+  <!-- Settings backdrop (click to close) -->
+  <div class="settings-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+
+  <!-- Settings panel -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-panel-header">
+      <span class="settings-panel-title">Settings</span>
+      <button class="settings-close-btn" onclick="closeSettings()">×</button>
+    </div>
+    <div class="settings-body">
+
+      <!-- Sync Interval -->
+      <div class="settings-section">
+        <div class="settings-section-title">Sync Interval</div>
+        <div class="settings-rows">
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="interval" id="int15" value="900" onchange="applyInterval(900)">
+            <label class="settings-row-label" for="int15">15 minutes</label>
+          </div>
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="interval" id="int30" value="1800" onchange="applyInterval(1800)">
+            <label class="settings-row-label" for="int30">30 minutes</label>
+          </div>
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="interval" id="int60" value="3600" onchange="applyInterval(3600)">
+            <label class="settings-row-label" for="int60">1 hour</label>
+          </div>
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="interval" id="int120" value="7200" onchange="applyInterval(7200)">
+            <label class="settings-row-label" for="int120">2 hours</label>
+          </div>
+          <div class="settings-custom-row">
+            <input type="radio" class="settings-custom-radio" name="interval" id="intCustom" value="custom">
+            <label class="settings-custom-label" for="intCustom">Custom</label>
+            <input type="number" class="settings-custom-input" id="customIntervalInput"
+                   min="1" max="1440" placeholder="30"
+                   oninput="onCustomIntervalInput()" onfocus="selectCustomRadio()">
+            <span class="settings-custom-suffix">min</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="settings-section">
+        <div class="settings-section-title">Notifications</div>
+        <div class="settings-rows">
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyAll" value="all" onchange="applyNotifyLevel('all')">
+            <label class="settings-row-label" for="notifyAll">All syncs</label>
+          </div>
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyErrors" value="errors" onchange="applyNotifyLevel('errors')">
+            <label class="settings-row-label" for="notifyErrors">Errors only</label>
+          </div>
+          <div class="settings-row">
+            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyNever" value="never" onchange="applyNotifyLevel('never')">
+            <label class="settings-row-label" for="notifyNever">Never</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- General -->
+      <div class="settings-section">
+        <div class="settings-section-title">General</div>
+        <div class="settings-rows">
+          <div class="settings-row">
+            <span class="settings-row-label">Open at Login</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="loginItemToggle" onchange="applyLoginItem(this.checked)">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -376,22 +753,22 @@
     let entries = [];
     let countdownTimer = null;
     let nextSyncAt = null;
-    let knownTopId = null; // detect new entries
+    let knownTopId = null;
 
     // ── Card state machine ─────────────────────────────────────────────────
     const STATES = {
-      syncing: { label: 'SYNCING…',       color: 'var(--yellow)', bg: ['#1f1f00','#141400'], dotClass: 'syncing',  progress: true  },
-      error:   { label: 'SYNC ERROR',     color: 'var(--red)',    bg: ['#1f0d0d','#140808'], dotClass: '',         progress: false },
-      waiting: { label: 'WAITING FOR PDF',color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',         progress: false },
-      paused:  { label: 'PAUSED',         color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',         progress: false },
-      synced:  { label: 'SYNCED',         color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',         progress: false },
+      syncing: { label: 'SYNCING…',        color: 'var(--yellow)', bg: ['#1f1f00','#141400'], dotClass: 'syncing',  progress: true  },
+      error:   { label: 'SYNC ERROR',      color: 'var(--red)',    bg: ['#1f0d0d','#140808'], dotClass: '',         progress: false },
+      waiting: { label: 'WAITING FOR PDF', color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',         progress: false },
+      paused:  { label: 'PAUSED',          color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',         progress: false },
+      synced:  { label: 'SYNCED',          color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',         progress: false },
     };
 
     function getStateName(s) {
-      if (s.isSyncing)    return 'syncing';
+      if (s.isSyncing)     return 'syncing';
       if (s.lastSyncError) return 'error';
-      if (s.isWaiting)    return 'waiting';
-      if (s.isPaused)     return 'paused';
+      if (s.isWaiting)     return 'waiting';
+      if (s.isPaused)      return 'paused';
       return 'synced';
     }
 
@@ -399,34 +776,24 @@
       status = s;
       const st = STATES[getStateName(s)];
 
-      // CSS vars
       document.documentElement.style.setProperty('--accent', st.color);
-
-      // Card gradient
       document.getElementById('card').style.background =
         `linear-gradient(135deg, ${st.bg[0]}, ${st.bg[1]})`;
-
-      // Glow
       document.getElementById('cardGlow').style.background = st.color;
 
-      // Dot
       const dot = document.getElementById('statusDot');
       dot.style.background = st.color;
       dot.className = 'status-dot' + (st.dotClass ? ' ' + st.dotClass : '');
 
-      // Label
       document.getElementById('statusLabel').textContent = st.label;
 
-      // Progress bar
       const prog = document.getElementById('cardProgress');
       prog.className = 'card-progress' + (st.progress ? ' visible' : '');
 
-      // Times
       const lastSync = s.lastSyncTime ? new Date(s.lastSyncTime) : null;
       document.getElementById('lastSyncTime').textContent =
         lastSync ? lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
 
-      // Buttons
       document.getElementById('syncBtn').disabled = s.isSyncing || s.isWaiting;
       const pauseBtn = document.getElementById('pauseBtn');
       pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
@@ -440,7 +807,6 @@
         countdown.style.display = 'flex';
         document.getElementById('countdownText').innerHTML = '<strong>Auto-sync is paused</strong>';
         setArc(0);
-        document.getElementById('arcLabel').textContent = '—';
       } else {
         countdown.style.display = 'flex';
         if (lastSync && s.intervalSeconds) {
@@ -448,13 +814,21 @@
           startCountdown(s.intervalSeconds);
         }
       }
+
+      // Live terminal visibility
+      const terminal = document.getElementById('syncTerminal');
+      if (s.isSyncing) {
+        terminal.classList.add('visible');
+      } else {
+        terminal.classList.remove('visible');
+        document.getElementById('syncTerminalText').textContent = '';
+      }
     }
 
     // ── Countdown arc ──────────────────────────────────────────────────────
-    const ARC_CIRCUMFERENCE = 88; // 2π×14 ≈ 87.96
+    const ARC_CIRCUMFERENCE = 88;
 
     function setArc(fraction) {
-      // fraction = 0 (empty) → 1 (full)
       const offset = ARC_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, fraction)));
       document.getElementById('arcFill').style.strokeDashoffset = offset;
     }
@@ -474,8 +848,6 @@
         const remaining = Math.max(0, (nextSyncAt - Date.now()) / 1000);
         const fraction = remaining / totalInterval;
         setArc(fraction);
-        document.getElementById('arcLabel').textContent =
-          remaining > 60 ? `${Math.ceil(remaining/60)}m` : `${Math.ceil(remaining)}s`;
         document.getElementById('countdownText').innerHTML = formatCountdown(remaining);
       }, 1000);
     }
@@ -529,6 +901,12 @@
             ).join('\n')
           : '';
 
+        const metaHtml = (e.commitMessage || e.filesChanged) ? `
+          <div class="entry-meta">
+            ${e.commitMessage ? `<div class="entry-commit">${escHtml(e.commitMessage)}</div>` : ''}
+            ${e.filesChanged  ? `<div class="entry-files">${escHtml(e.filesChanged)}</div>` : ''}
+          </div>` : '';
+
         return `
         <div class="entry ${e.status}${isNew ? ' new' : ''}" onclick="toggleExpand(this)">
           <div class="entry-row">
@@ -540,6 +918,7 @@
               onclick="event.stopPropagation(); openGitHub('${escHtml(ghUrl)}')"
             >⎋ <span style="font-size:10px">GitHub</span></button>
           </div>
+          ${metaHtml}
           ${hasDetail ? `<div class="entry-detail">${detailHtml}</div>` : ''}
         </div>`;
       }).join('');
@@ -566,10 +945,91 @@
       else window.open(url, '_blank');
     }
 
+    // ── Settings panel ─────────────────────────────────────────────────────
+    let settingsOpen = false;
+
+    function openSettings() {
+      settingsOpen = true;
+      document.getElementById('settingsPanel').classList.add('open');
+      document.getElementById('settingsBackdrop').classList.add('open');
+      document.getElementById('settingsBtn').classList.add('active');
+      loadSettingsIntoPanel();
+    }
+
+    function closeSettings() {
+      settingsOpen = false;
+      document.getElementById('settingsPanel').classList.remove('open');
+      document.getElementById('settingsBackdrop').classList.remove('open');
+      document.getElementById('settingsBtn').classList.remove('active');
+    }
+
+    function toggleSettings() {
+      settingsOpen ? closeSettings() : openSettings();
+    }
+
+    async function loadSettingsIntoPanel() {
+      // Interval radios — use live status.intervalSeconds (no IPC needed)
+      const secs = status.intervalSeconds || 1800;
+      const knownValues = [900, 1800, 3600, 7200];
+      if (knownValues.includes(secs)) {
+        const radio = document.querySelector(`input[name="interval"][value="${secs}"]`);
+        if (radio) radio.checked = true;
+      } else {
+        document.getElementById('intCustom').checked = true;
+        document.getElementById('customIntervalInput').value = Math.round(secs / 60);
+      }
+
+      // Notification level + login item via IPC
+      if (window.syncAPI) {
+        const s = await window.syncAPI.getSettings();
+        const level = s.notifyLevel || 'errors';
+        const radio = document.querySelector(`input[name="notifyLevel"][value="${level}"]`);
+        if (radio) radio.checked = true;
+        document.getElementById('loginItemToggle').checked = !!s.loginItem;
+      } else {
+        document.getElementById('notifyErrors').checked = true;
+      }
+    }
+
+    function applyInterval(seconds) {
+      if (window.syncAPI) window.syncAPI.setInterval(seconds);
+      // Update local status so countdown recalculates
+      status.intervalSeconds = seconds;
+      if (status.lastSyncTime) {
+        nextSyncAt = new Date(status.lastSyncTime).getTime() + seconds * 1000;
+        startCountdown(seconds);
+      }
+    }
+
+    function selectCustomRadio() {
+      document.getElementById('intCustom').checked = true;
+    }
+
+    function onCustomIntervalInput() {
+      document.getElementById('intCustom').checked = true;
+      const mins = parseInt(document.getElementById('customIntervalInput').value, 10);
+      if (!isNaN(mins) && mins >= 1) {
+        applyInterval(mins * 60);
+      }
+    }
+
+    function applyNotifyLevel(level) {
+      if (window.syncAPI) window.syncAPI.saveSettings({ notifyLevel: level });
+    }
+
+    function applyLoginItem(val) {
+      if (window.syncAPI) window.syncAPI.setLoginItem(val);
+    }
+
+    // ── Keyboard shortcuts ─────────────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && settingsOpen) { closeSettings(); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === ',') { e.preventDefault(); toggleSettings(); }
+    });
+
     // ── Init ───────────────────────────────────────────────────────────────
     async function init() {
       if (!window.syncAPI) {
-        // Browser preview mode — inject mock data
         injectMock();
         return;
       }
@@ -584,17 +1044,24 @@
 
       window.syncAPI.onLogUpdate((e) => renderEntries(e, true));
       window.syncAPI.onSyncStatus((s) => updateCard(s));
+
+      window.syncAPI.onSyncOutput((chunk) => {
+        const el = document.getElementById('syncTerminalText');
+        if (!el) return;
+        el.textContent += chunk;
+        el.scrollTop = el.scrollHeight;
+      });
     }
 
     // Mock for browser preview
     function injectMock() {
       const now = Date.now();
       const mockEntries = [
-        { timestamp: new Date(now - 2*60000).toISOString(),   status: 'success', detail: 'Synced', errorLines: [], commitSha: 'a1b2c3d' },
-        { timestamp: new Date(now - 32*60000).toISOString(),  status: 'success', detail: 'Synced', errorLines: [], commitSha: 'e4f5a6b' },
+        { timestamp: new Date(now - 2*60000).toISOString(),   status: 'success', detail: 'Synced', errorLines: [], commitSha: 'a1b2c3d', commitMessage: 'Quartz sync: Mar 27, 2:40 PM', filesChanged: '3 files  +20  −5' },
+        { timestamp: new Date(now - 32*60000).toISOString(),  status: 'success', detail: 'Synced', errorLines: [], commitSha: 'e4f5a6b', commitMessage: 'Quartz sync: Mar 27, 2:10 PM', filesChanged: '1 file  +4' },
         { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped — no internet', errorLines: [], commitSha: null },
         { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null },
-        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f' },
+        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Quartz sync: Mar 27, 10:40 AM', filesChanged: '7 files  +58  −12' },
       ];
       const mockStatus = {
         isSyncing: false, isWaiting: false, isPaused: false,

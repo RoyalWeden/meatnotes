@@ -314,8 +314,11 @@
     .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
     .btn-sm { padding: 4px 10px; font-size: 11px; }
 
-    /* Pencil/note icon button */
+    /* Pencil/note icon button — hidden by default, revealed on parent hover */
     .btn-note {
+      opacity: 0;
+      transform: scale(0.75);
+      pointer-events: none;
       padding: 6px 9px;
       border-radius: 7px;
       border: 1px solid rgba(255,255,255,0.1);
@@ -324,13 +327,14 @@
       cursor: pointer;
       background: rgba(255,255,255,0.07);
       color: rgba(255,255,255,0.5);
-      transition: background 0.15s, color 0.15s, transform 0.1s;
+      transition: background 0.15s, color 0.15s, transform 0.18s, opacity 0.18s;
       -webkit-app-region: no-drag;
     }
+    .card-actions:hover .btn-note { opacity: 1; transform: scale(1); pointer-events: auto; }
     .btn-note:hover:not(:disabled) { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
-    .btn-note.active { color: var(--accent); background: rgba(var(--accent-rgb),0.12); border-color: rgba(var(--accent-rgb),0.3); }
-    .btn-note:active { transform: scale(0.94); }
-    .btn-note:disabled { opacity: 0.3; cursor: default; }
+    .btn-note.active { opacity: 1; transform: scale(1); pointer-events: auto; color: var(--accent); background: rgba(var(--accent-rgb),0.12); border-color: rgba(var(--accent-rgb),0.3); }
+    .btn-note:active { transform: scale(0.94) !important; }
+    .btn-note:disabled { opacity: 0.3 !important; cursor: default; }
 
     /* ── Commit message row ── */
     .commit-msg-row {
@@ -609,7 +613,7 @@
     .settings-panel {
       position: fixed;
       top: 0; right: 0;
-      width: 280px;
+      width: 360px;
       height: 100%;
       background: rgba(22, 22, 26, 0.97);
       backdrop-filter: blur(28px) saturate(1.5);
@@ -1199,9 +1203,11 @@
 
     /* ── Duration badge ────────────────────────────────────────────────── */
     .entry-duration {
-      font-size: 10px; color: rgba(255,255,255,0.3);
+      display: inline-flex; align-items: center; gap: 2px;
+      font-size: 10px; color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.07); border-radius: 8px;
+      padding: 1px 6px; margin-left: 4px; flex-shrink: 0;
       font-variant-numeric: tabular-nums;
-      margin-left: 6px; flex-shrink: 0;
     }
 
     /* ── No-internet skip entry ────────────────────────────────────────── */
@@ -1212,11 +1218,13 @@
     /* ── Copy SHA button ───────────────────────────────────────────────── */
     .copy-sha-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 11px; color: rgba(255,255,255,0.3); padding: 0 4px;
-      transition: color 0.15s;
+      font-size: 15px; color: rgba(255,255,255,0.35); padding: 3px 8px;
+      border-radius: 5px; transition: color 0.15s, background 0.15s, transform 0.15s;
+      flex-shrink: 0;
     }
-    .copy-sha-btn:hover { color: rgba(255,255,255,0.7); }
-    .copy-sha-btn.copied { color: #32d74b; }
+    .copy-sha-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); }
+    .copy-sha-btn.copied { color: #32d74b; transform: scale(1.2); }
+    .copy-sha-btn:active { transform: scale(0.9); }
 
     /* ── Error retry button in history ─────────────────────────────────── */
     .entry-retry-btn {
@@ -1231,7 +1239,7 @@
     .sync-count-pill {
       font-size: 10px; color: rgba(255,255,255,0.3);
       background: rgba(255,255,255,0.06); border-radius: 10px;
-      padding: 1px 8px; margin-left: 8px;
+      padding: 1px 8px; margin-left: 8px; margin-right: 8px;
     }
 
     /* ── Personal best streak ──────────────────────────────────────────── */
@@ -1358,6 +1366,118 @@
     @keyframes spin-btn { to { transform: rotate(360deg); } }
     .btn-spinning { pointer-events: none; opacity: 0.7; }
     .btn-spin-icon { display: inline-block; animation: spin-btn 0.7s linear infinite; }
+
+    /* ── Button hover lift & scale ──────────────────────────────────────── */
+    .btn:not(:disabled):not(.btn-spinning) {
+      transition: background 0.15s, color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:not(:disabled):not(.btn-spinning):hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08);
+    }
+    .btn-primary:not(:disabled):not(.btn-spinning):active { transform: translateY(0) scale(0.97); }
+    .btn-secondary:not(:disabled):hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    }
+    .btn-secondary:not(:disabled):active { transform: translateY(0) scale(0.97); }
+
+    /* ── Settings gear spin on hover ────────────────────────────────────── */
+    .titlebar-settings-btn {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s;
+    }
+    .titlebar-settings-btn:hover { transform: rotate(72deg) scale(1.15); }
+    .titlebar-settings-btn.active { transform: rotate(90deg); }
+
+    /* ── Note button hover wobble ───────────────────────────────────────── */
+    @keyframes btn-wobble {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      20%       { transform: scale(1.08) rotate(-8deg); }
+      40%       { transform: scale(1.08) rotate(8deg); }
+      60%       { transform: scale(1.05) rotate(-4deg); }
+      80%       { transform: scale(1.05) rotate(4deg); }
+    }
+    .card-actions:hover .btn-note:hover:not(:disabled) {
+      animation: btn-wobble 0.45s ease;
+    }
+
+    /* ── Entry slide-up on initial load ─────────────────────────────────── */
+    @keyframes entry-slide-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .entry { animation: entry-slide-up 0.22s ease both; }
+    .entry:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.035);
+      transition: background 0.12s, transform 0.12s;
+    }
+
+    /* ── Terminal toggle button slide-in ────────────────────────────────── */
+    @keyframes slide-from-right {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .terminal-toggle-btn { animation: slide-from-right 0.35s 0.1s ease both; }
+    .terminal-toggle-btn:hover {
+      transform: translateX(-2px);
+      transition: background 0.15s, color 0.15s, transform 0.15s;
+    }
+
+    /* ── Pagination button ripple ───────────────────────────────────────── */
+    @keyframes ripple-out {
+      from { transform: scale(0.5); opacity: 0.4; }
+      to   { transform: scale(2.2); opacity: 0; }
+    }
+    .pagination-btn {
+      position: relative; overflow: hidden;
+      transition: background 0.15s, color 0.15s, transform 0.12s;
+    }
+    .pagination-btn:hover { transform: scale(1.04); }
+    .pagination-btn:active { transform: scale(0.96); }
+    .pagination-btn::after {
+      content: ''; position: absolute;
+      width: 60%; padding-top: 60%;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(0); opacity: 0;
+    }
+    .pagination-btn:active::after { animation: ripple-out 0.4s ease forwards; }
+
+    /* ── Deploying status pulse on entry ────────────────────────────────── */
+    @keyframes entry-deploy-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.6; }
+    }
+    .entry.deploying .entry-summary { animation: entry-deploy-pulse 1.6s ease-in-out infinite; }
+
+    /* ── Pagination bar ─────────────────────────────────────────────────── */
+    .pagination-bar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .pagination-bar.visible { display: flex; }
+    .pagination-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.55);
+      border-radius: 6px;
+      font-size: 11px;
+      padding: 3px 10px;
+      cursor: pointer;
+    }
+    .pagination-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+    .pagination-info {
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      min-width: 70px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -1466,6 +1586,11 @@
       <button class="terminal-toggle-btn" id="terminalToggleBtn" onclick="toggleTerminal()">◀ Output</button>
     </div>
     <div class="entries" id="entries"></div>
+    <div class="pagination-bar" id="paginationBar">
+      <button class="pagination-btn" id="pagePrev" onclick="goToPage(currentPage - 1)">← Prev</button>
+      <span class="pagination-info" id="pageInfo">Page 1</span>
+      <button class="pagination-btn" id="pageNext" onclick="goToPage(currentPage + 1)">Next →</button>
+    </div>
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">🌟</div>
       <div class="empty-title">Ready to sync</div>
@@ -1617,6 +1742,8 @@
     let nextSyncAt = null;
     let knownTopId = null;
     let lastSyncingState = false;
+    let currentPage = 0;
+    const PAGE_SIZE = 50;
     let lastCardStateName = null;
 
     // ── Card state machine ─────────────────────────────────────────────────
@@ -1909,6 +2036,21 @@
       terminal.classList.toggle('open', terminalUserOpen);
       btn.classList.toggle('active', terminalUserOpen);
       if (window.syncAPI) window.syncAPI.saveSettings({ terminalOpen: terminalUserOpen });
+
+      // If opening and terminal is empty, load last output on demand
+      if (terminalUserOpen && window.syncAPI) {
+        const el = document.getElementById('syncTerminalText');
+        if (el && !el.textContent.trim()) {
+          window.syncAPI.getLastOutput().then(out => {
+            if (out && out.trim()) {
+              setTerminalStatic(out);
+              setTimeout(() => { if (el) el.scrollTop = el.scrollHeight; }, 100);
+            } else {
+              el.textContent = '(No output recorded for last sync)';
+            }
+          }).catch(() => {});
+        }
+      }
     }
 
     // ── Terminal output helpers ────────────────────────────────────────────
@@ -2418,6 +2560,40 @@
       return `${GITHUB_REPO}/commits/main`;
     }
 
+    // ── Deploy-aware display helpers ───────────────────────────────────────
+    function getEntryDeployInfo(entry) {
+      if (!entry.commitSha || !status?.deployRuns?.length) return null;
+      return status.deployRuns.find(r =>
+        r.headSha === entry.commitSha ||
+        (r.headSha && r.headSha.startsWith(entry.commitSha)) ||
+        (entry.commitSha && r.headSha && entry.commitSha.startsWith(r.headSha.slice(0, 7)))
+      ) || null;
+    }
+
+    function getEntryDisplayInfo(entry) {
+      if (entry.status !== 'success') {
+        return { icon: entry.status === 'error' ? '❌' : '⚪', label: entry.detail, deployClass: '' };
+      }
+      const run = getEntryDeployInfo(entry);
+      if (run) {
+        if (run.status === 'in_progress')
+          return { icon: '🚀', label: 'Deploying…', deployClass: 'deploying' };
+        if (run.status === 'queued')
+          return { icon: '📤', label: 'Committed', deployClass: '' };
+        if (run.conclusion === 'success')
+          return { icon: '✅', label: 'Synced', deployClass: '' };
+        if (run.conclusion === 'failure')
+          return { icon: '✅', label: 'Synced · Deploy ❌', deployClass: '' };
+      }
+      // No deploy data for this specific SHA — if it's recent and we have token/runs,
+      // say "Committed" to avoid false "Synced" impression
+      const ageMs = Date.now() - new Date(entry.timestamp).getTime();
+      if (ageMs < 2 * 60 * 60 * 1000 && status?.hasGithubToken && status?.deployRuns?.length) {
+        return { icon: '📤', label: 'Committed', deployClass: '' };
+      }
+      return { icon: '✅', label: entry.detail, deployClass: '' };
+    }
+
     // ── Render entries ─────────────────────────────────────────────────────
     function statusIcon(s) {
       return s === 'success' ? '✅' : s === 'error' ? '❌' : '⚪';
@@ -2494,16 +2670,41 @@
       const pill = document.getElementById('syncCountPill');
       if (pill) pill.textContent = successCount > 0 ? `${successCount} syncs` : '';
 
-      const newTopId = filtered[0].timestamp;
-      const isReallyNew = animate && knownTopId && newTopId !== knownTopId;
+      // Clamp currentPage to valid range
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (currentPage >= totalPages) currentPage = totalPages - 1;
+      if (currentPage < 0) currentPage = 0;
 
-      container.innerHTML = filtered.map((e, i) => {
+      // Pagination bar visibility
+      const pagBar = document.getElementById('paginationBar');
+      const pagPrev = document.getElementById('pagePrev');
+      const pagNext = document.getElementById('pageNext');
+      const pagInfo = document.getElementById('pageInfo');
+      if (filtered.length > PAGE_SIZE) {
+        pagBar.classList.add('visible');
+        pagInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`;
+        pagPrev.disabled = currentPage === 0;
+        pagNext.disabled = currentPage >= totalPages - 1;
+      } else {
+        pagBar.classList.remove('visible');
+      }
+
+      // Slice for current page
+      const paginated = filtered.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+
+      const newTopId = paginated[0]?.timestamp ?? filtered[0].timestamp;
+      const isReallyNew = animate && knownTopId && newTopId !== knownTopId && currentPage === 0;
+
+      container.innerHTML = paginated.map((e, i) => {
         const isNew = isReallyNew && i === 0;
         const staggerClass = !animate && i > 0 && i <= 8 ? ` stagger-${i}` : '';
         const hasDetail = (e.errorLines && e.errorLines.length > 0) || (e.fileList && e.fileList.length > 0);
         const ghUrl = githubUrl(e);
         const noInternetClass = e.subtype === 'no-internet' ? ' no-internet' : '';
-        const entryIcon = e.subtype === 'no-internet' ? '📵' : statusIcon(e.status);
+        const deployInfo = e.subtype === 'no-internet' ? null : getEntryDisplayInfo(e);
+        const entryIcon = e.subtype === 'no-internet' ? '📵' : (deployInfo?.icon ?? statusIcon(e.status));
+        const entryLabel = deployInfo?.label ?? e.detail;
+        const deployClass = deployInfo?.deployClass ? ` ${deployInfo.deployClass}` : '';
         const tsTitle = `title="${escHtml(new Date(e.timestamp).toLocaleString())}"`;
 
         let detailHtml = '';
@@ -2529,7 +2730,7 @@
           </div>` : '';
 
         const durBadge = e.durationSeconds != null
-          ? `<span class="entry-duration">${e.durationSeconds}s</span>` : '';
+          ? `<span class="entry-duration">⏱ ${e.durationSeconds}s</span>` : '';
 
         const shaBtn = e.commitSha
           ? `<button class="copy-sha-btn" title="Copy commit SHA" onclick="event.stopPropagation();copySha(this,'${escHtml(e.commitSha)}')">⎘</button>`
@@ -2540,10 +2741,10 @@
           : '';
 
         return `
-        <div class="entry ${e.status}${noInternetClass}${isNew ? ' new' : ''}${staggerClass}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
+        <div class="entry ${e.status}${noInternetClass}${deployClass}${isNew ? ' new' : ''}${staggerClass}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
           <div class="entry-row">
             <span class="entry-icon">${entryIcon}</span>
-            <span class="entry-summary">${escHtml(e.detail)}</span>
+            <span class="entry-summary">${escHtml(entryLabel)}</span>
             <span class="entry-time" ${tsTitle}>${formatDate(e.timestamp)}</span>
             ${durBadge}${shaBtn}${retryBtn}
             ${hasDetail ? '<button class="expand-btn" title="Expand">▼</button>' : ''}
@@ -2562,6 +2763,13 @@
 
     function toggleExpand(el) {
       el.classList.toggle('expanded');
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderEntries(entries, false);
+      // Scroll history list to top when changing pages
+      document.getElementById('entries')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // ── Actions ────────────────────────────────────────────────────────────
@@ -2630,10 +2838,10 @@
         document.getElementById('notifyErrors').checked = true;
       }
 
-      // App version
-      if (window.syncAPI && window.syncAPI.getAppVersion) {
+      // Site version (1.FEAT.FIX from git history)
+      if (window.syncAPI && window.syncAPI.getSiteVersion) {
         try {
-          const v = await window.syncAPI.getAppVersion();
+          const v = await window.syncAPI.getSiteVersion();
           const el = document.getElementById('settingsVersion');
           if (el) el.textContent = `v${v}`;
         } catch {}
@@ -2728,7 +2936,11 @@
           // Auto-open terminal when there's output to show
           document.getElementById('syncTerminal').classList.add('open');
           document.getElementById('terminalToggleBtn').classList.add('active');
-          document.getElementById('syncTerminalText').scrollTop = Infinity;
+          // Scroll after CSS transition (max-height: 0→260px takes 450ms)
+          setTimeout(() => {
+            const el = document.getElementById('syncTerminalText');
+            if (el) el.scrollTop = el.scrollHeight;
+          }, 500);
         } else if (savedSettings.terminalOpen) {
           // Restore remembered open state
           document.getElementById('syncTerminal').classList.add('open');

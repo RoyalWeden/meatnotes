@@ -21,5 +21,6 @@ contextBridge.exposeInMainWorld('syncAPI', {
   getDeployLogs:   (runId) => ipcRenderer.invoke('get-deploy-logs', runId),
   // App info
   getAppVersion:   () => ipcRenderer.invoke('get-app-version'),
+  getSiteVersion:  () => ipcRenderer.invoke('get-site-version'),
   openLogFile:     () => ipcRenderer.send('open-log-file'),
 });

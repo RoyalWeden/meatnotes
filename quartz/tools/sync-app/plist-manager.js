@@ -8,16 +8,26 @@ const plist = require('plist');
 const PLIST_PATH = path.join(os.homedir(), 'Library/LaunchAgents/com.roywe.quartz-sync.plist');
 const AGENT_LABEL = 'com.roywe.quartz-sync';
 
+let plistCache = null; // { mtimeMs, result }
+
 function readPlist() {
+  let mtimeMs = 0;
+  try { mtimeMs = fs.statSync(PLIST_PATH).mtimeMs; } catch {}
+  if (plistCache && plistCache.mtimeMs === mtimeMs) return plistCache.result;
+
   const raw = fs.readFileSync(PLIST_PATH, 'utf8');
   const data = plist.parse(raw);
-  return {
+  const result = {
     label: data.Label,
     startInterval: data.StartInterval || 1800,
     programArguments: data.ProgramArguments || [],
     raw: data,
   };
+  plistCache = { mtimeMs, result };
+  return result;
 }
+
+function invalidatePlistCache() { plistCache = null; }
 
 function writePlist(data) {
   const xml = plist.build(data);
@@ -30,14 +40,25 @@ function writeInterval(seconds) {
   writePlist(raw);
 }
 
+let agentLoadedCache = null; // { result, ts }
+const AGENT_CACHE_TTL = 5000;
+
 function isAgentLoaded() {
+  if (agentLoadedCache && Date.now() - agentLoadedCache.ts < AGENT_CACHE_TTL) {
+    return agentLoadedCache.result;
+  }
   try {
     const out = execSync(`launchctl list 2>/dev/null`, { encoding: 'utf8' });
-    return out.includes(AGENT_LABEL);
+    const result = out.includes(AGENT_LABEL);
+    agentLoadedCache = { result, ts: Date.now() };
+    return result;
   } catch {
+    agentLoadedCache = { result: false, ts: Date.now() };
     return false;
   }
 }
+
+function invalidateAgentCache() { agentLoadedCache = null; }
 
 function unloadAgent() {
   try {
@@ -51,4 +72,4 @@ function loadAgent() {
   execSync(`launchctl load "${PLIST_PATH}"`, { encoding: 'utf8' });
 }
 
-module.exports = { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent, PLIST_PATH };
+module.exports = { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, invalidatePlistCache, unloadAgent, loadAgent, PLIST_PATH };

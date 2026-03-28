@@ -77,6 +77,7 @@ let nextSyncTimer = null;
 let nextSyncAt = null;      // ms timestamp — when next sync fires
 let syncStartedAt = null;   // ms timestamp — when current sync began
 let menuRebuildDebounceTimer = null;
+let windowUpdateDebounceTimer = null;
 
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
@@ -309,12 +310,12 @@ function startLogWatcher() {
         } catch {}
       }
 
-      if (logWindow && !logWindow.isDestroyed()) {
-        logWindow.webContents.send('log-updated', getAllEntries());
-        logWindow.webContents.send('sync-status', buildStatusPayload());
-      }
-      clearTimeout(menuRebuildDebounceTimer);
-      menuRebuildDebounceTimer = setTimeout(() => {
+      clearTimeout(windowUpdateDebounceTimer);
+      windowUpdateDebounceTimer = setTimeout(() => {
+        if (logWindow && !logWindow.isDestroyed()) {
+          logWindow.webContents.send('log-updated', getAllEntries());
+          logWindow.webContents.send('sync-status', buildStatusPayload());
+        }
         rebuildMenu();
         refreshTrayAppearance();
       }, 400);
@@ -757,6 +758,7 @@ app.on('before-quit', () => {
   clearInterval(spinnerTimer);
   clearTimeout(notesChangedTimer);
   clearTimeout(menuRebuildDebounceTimer);
+  clearTimeout(windowUpdateDebounceTimer);
   stopLogWatcher();
   if (syncProcess) syncProcess.kill();
 });

@@ -16,6 +16,7 @@
     "productName": "Bible Notes Sync",
     "mac": {
       "category": "public.app-category.productivity",
+      "icon": "icon.png",
       "target": [{ "target": "dir", "arch": ["arm64"] }],
       "extendInfo": {
         "LSUIElement": true

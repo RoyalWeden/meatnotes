@@ -6,8 +6,8 @@ const os = require('os');
 const { spawn, execSync } = require('child_process');
 
 const { makeCircleIcon } = require('./icon-generator');
-const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
-const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
+const { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, invalidatePlistCache, unloadAgent, loadAgent } = require('./plist-manager');
+const { getRecentEntries, getAllEntries, invalidateLogCache, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict } = require('./pdf-detector');
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -71,6 +71,7 @@ let nextSyncTimer = null;
 let nextSyncAt = null;      // ms timestamp — when next sync fires
 let syncStartedAt = null;   // ms timestamp — when current sync began
 let menuRebuildDebounceTimer = null;
+let windowUpdateDebounceTimer = null;
 
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
@@ -214,12 +215,12 @@ function startLogWatcher() {
         } catch {}
       }
 
-      if (logWindow && !logWindow.isDestroyed()) {
-        logWindow.webContents.send('log-updated', getAllEntries());
-        logWindow.webContents.send('sync-status', buildStatusPayload());
-      }
-      clearTimeout(menuRebuildDebounceTimer);
-      menuRebuildDebounceTimer = setTimeout(() => {
+      clearTimeout(windowUpdateDebounceTimer);
+      windowUpdateDebounceTimer = setTimeout(() => {
+        if (logWindow && !logWindow.isDestroyed()) {
+          logWindow.webContents.send('log-updated', getAllEntries());
+          logWindow.webContents.send('sync-status', buildStatusPayload());
+        }
         rebuildMenu();
         refreshTrayAppearance();
       }, 400);
@@ -467,10 +468,12 @@ function handleSyncNow(commitMsg) {
 function handlePauseResume() {
   if (isAgentLoaded()) {
     unloadAgent();
+    invalidateAgentCache();
     notify('Quartz Sync', 'Auto-sync paused.');
   } else {
     try {
       loadAgent();
+      invalidateAgentCache();
       notify('Quartz Sync', 'Auto-sync resumed.');
     } catch (err) {
       dialog.showErrorBox('Could not resume agent', err.message);
@@ -486,7 +489,8 @@ function handleIntervalChange(seconds) {
     const wasLoaded = isAgentLoaded();
     if (wasLoaded) unloadAgent();
     writeInterval(seconds);
-    if (wasLoaded) loadAgent();
+    invalidatePlistCache();
+    if (wasLoaded) { loadAgent(); invalidateAgentCache(); }
     notify('Quartz Sync', `Auto-sync interval set to ${formatInterval(seconds)}.`);
   } catch (err) {
     dialog.showErrorBox('Could not change interval', err.message);
@@ -625,6 +629,7 @@ app.on('before-quit', () => {
   clearInterval(spinnerTimer);
   clearTimeout(notesChangedTimer);
   clearTimeout(menuRebuildDebounceTimer);
+  clearTimeout(windowUpdateDebounceTimer);
   stopLogWatcher();
   if (syncProcess) syncProcess.kill();
 });

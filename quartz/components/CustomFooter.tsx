@@ -15,6 +15,8 @@ const CustomFooter: QuartzComponent = (_props: QuartzComponentProps) => {
       </div>
       <div class="footer-build">
         <span id="build-time-display" data-tooltip="">checking...</span>
+        <span class="footer-version-sep">·</span>
+        <span id="site-version-display" class="footer-version"></span>
       </div>
     </footer>
   )
@@ -44,6 +46,18 @@ footer {
 .footer-build {
   font-size: 0.8rem;
   color: var(--gray);
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.footer-version-sep {
+  margin: 0 0.4rem;
+  opacity: 0.4;
+}
+.footer-version {
+  font-size: 0.75rem;
+  color: var(--gray);
+  opacity: 0.6;
 }
 #build-time-display {
   cursor: help;
@@ -110,13 +124,21 @@ CustomFooter.afterDOMLoaded = `
     el.setAttribute("data-tooltip", exactTime(date))
   }
 
+  function updateSiteVersion() {
+    const el = document.getElementById('site-version-display')
+    if (!el || !window._siteVersion) return
+    el.textContent = "v" + window._siteVersion
+  }
+
   async function loadBuildTime() {
-    if (window._buildTime) { updateBuildTime(); return }
+    if (window._buildTime) { updateBuildTime(); updateSiteVersion(); return }
     try {
       const res = await fetch('/buildTime.json')
       const data = await res.json()
       window._buildTime = data.builtAt
+      window._siteVersion = data.version || ""
       updateBuildTime()
+      updateSiteVersion()
       setInterval(updateBuildTime, 60000)
     } catch(e) {
       const el = document.getElementById('build-time-display')

@@ -385,7 +385,12 @@ function buildSmartCommitMsg() {
 
 // ── Last sync output persistence ──────────────────────────────────────────
 function saveLastOutput() {
-  try { fs.writeFileSync(LAST_OUTPUT_FILE, lastSyncOutput, 'utf8'); } catch {}
+  try {
+    // If live streaming didn't capture anything (e.g. watcher was idle), fall
+    // back to reconstructing from the structured log so the file is never empty.
+    const content = lastSyncOutput.trim() ? lastSyncOutput : reconstructLastOutput();
+    fs.writeFileSync(LAST_OUTPUT_FILE, content, 'utf8');
+  } catch {}
 }
 
 function loadLastOutputFromFile() {
@@ -449,6 +454,12 @@ function startLogWatcher() {
         rebuildMenu();
         refreshTrayAppearance();
       }, 400);
+    });
+    // If the watched file is rotated or replaced, the watcher can silently stop
+    // firing on macOS. Reset and re-attempt so the next sync is captured.
+    logWatcher.on('error', () => {
+      logWatcher = null;
+      setTimeout(startLogWatcher, 500);
     });
   } catch {
     // Log file may not exist yet — no watcher needed
@@ -534,6 +545,9 @@ function rebuildMenu() {
 function runSync(commitMsg) {
   if (isSyncing) return;
 
+  // Re-attempt watcher setup in case it failed at startup or the file was rotated
+  startLogWatcher();
+
   // Track log file position for live output streaming
   try { syncOutputOffset = fs.statSync(LOG_FILE).size; } catch { syncOutputOffset = 0; }
 
@@ -616,6 +630,8 @@ function runSync(commitMsg) {
 
     // Persist the terminal output so it survives app restarts
     saveLastOutput();
+    // Invalidate version cache — a new commit may have changed feat/fix counts
+    cachedSiteVersion = null;
 
     // Deploy likely just started — poll immediately
     pollDeployStatus();
@@ -890,6 +906,28 @@ ipcMain.on('set-login-item',  (_e, val) => app.setLoginItemSettings({ openAtLogi
 ipcMain.on('set-interval',    (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-log-file',   () => { try { shell.showItemInFolder(LOG_FILE); } catch {} });
 ipcMain.handle('get-app-version', () => app.getVersion());
+
+// ── Site version (1.FEAT.FIX computed from git history) ────────────────────
+let cachedSiteVersion = null;
+function getSiteVersion() {
+  if (cachedSiteVersion) return cachedSiteVersion;
+  try {
+    const exclude = "grep -Ev 'Quartz sync:|Auto-commit before sync'";
+    const featCount = parseInt(execSync(
+      `git -C "${REPO_DIR}" log --oneline | ${exclude} | grep -c 'feat:' || echo 0`,
+      { timeout: 5000 }
+    ).toString().trim()) || 0;
+    const fixCount = parseInt(execSync(
+      `git -C "${REPO_DIR}" log --oneline | ${exclude} | grep -c 'fix:' || echo 0`,
+      { timeout: 5000 }
+    ).toString().trim()) || 0;
+    cachedSiteVersion = `1.${featCount}.${fixCount}`;
+  } catch {
+    cachedSiteVersion = '1.0.0';
+  }
+  return cachedSiteVersion;
+}
+ipcMain.handle('get-site-version', () => getSiteVersion());
 
 // ── App init ───────────────────────────────────────────────────────────────
 app.whenReady().then(() => {

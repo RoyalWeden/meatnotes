@@ -5,7 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const { spawn, execSync } = require('child_process');
 
-const { makeBookIcon } = require('./icon-generator');
+const { makeCircleIcon } = require('./icon-generator');
 const { readPlist, writeInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
 const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict } = require('./pdf-detector');
@@ -40,7 +40,7 @@ const COLORS = {
 
 function makeIcon(color) {
   const [r, g, b] = COLORS[color] || COLORS.grey;
-  const buf = makeBookIcon(r, g, b, 32);
+  const buf = makeCircleIcon(r, g, b, 32);
   return nativeImage.createFromBuffer(buf, { scaleFactor: 2 });
 }
 
@@ -60,6 +60,10 @@ let lastSyncError = false;
 let lastNotesChanged = 0;
 let notesChangedTimer = null;
 let syncOutputOffset = 0;
+
+let nextSyncTimer = null;
+let nextSyncAt = null;      // ms timestamp — when next sync fires
+let syncStartedAt = null;   // ms timestamp — when current sync began
 
 const SPINNER_FRAMES = ['◐', '◓', '◑', '◒'];
 
@@ -84,11 +88,16 @@ function getPlistInterval() {
 }
 
 function getCountdownText(paused) {
-  if (isWaiting) return '⏳ Waiting for PDF to close…';
-  if (paused)    return '⏸ Auto-sync paused';
-  const lastSync = getLastSyncTime();
-  if (!lastSync || isNaN(lastSync)) return 'Next sync: unknown';
-  const diff = lastSync.getTime() + getPlistInterval() * 1000 - Date.now();
+  if (isWaiting) return '\u23f3 Waiting for PDF to close\u2026';
+  if (paused)    return '\u23f8 Auto-sync paused';
+  if (!nextSyncAt) {
+    const lastSync = getLastSyncTime();
+    if (!lastSync || isNaN(lastSync)) return 'Next sync: unknown';
+    const diff = lastSync.getTime() + getPlistInterval() * 1000 - Date.now();
+    if (diff <= 0) return 'Next sync: very soon';
+    return `Next sync in: ${Math.ceil(diff / 60_000)} min`;
+  }
+  const diff = nextSyncAt - Date.now();
   if (diff <= 0) return 'Next sync: very soon';
   return `Next sync in: ${Math.ceil(diff / 60_000)} min`;
 }
@@ -96,6 +105,7 @@ function getCountdownText(paused) {
 function buildStatusPayload() {
   const paused = !isAgentLoaded();
   const lastSync = getLastSyncTime();
+  const settings = loadSettings();
   return {
     isSyncing,
     isWaiting,
@@ -104,6 +114,9 @@ function buildStatusPayload() {
     lastSyncTime: lastSync ? lastSync.toISOString() : null,
     intervalSeconds: getPlistInterval(),
     githubRepo: GITHUB_REPO,
+    nextSyncAt: nextSyncAt,
+    syncStartedAt: syncStartedAt,
+    syncStreak: settings.syncStreak || 0,
   };
 }
 
@@ -130,9 +143,9 @@ function refreshTrayAppearance() {
   if (isSyncing) return;
   const paused = !isAgentLoaded();
   const timeLabel = formatTime(getLastSyncTime());
-  const notesLabel = lastNotesChanged > 0 ? `↑${lastNotesChanged}` : timeLabel;
+  const notesLabel = lastNotesChanged > 0 ? `\u2191${lastNotesChanged}` : timeLabel;
   if (isWaiting)          setTrayState('orange', timeLabel);
-  else if (paused)        setTrayState('grey',   '⏸');
+  else if (paused)        setTrayState('grey',   '\u23f8');
   else if (lastSyncError) setTrayState('red',    timeLabel);
   else                    setTrayState('green',  notesLabel);
 }
@@ -152,6 +165,26 @@ function stopSpinner() {
   clearInterval(spinnerTimer);
   spinnerTimer = null;
   refreshTrayAppearance();
+}
+
+// ── App-controlled sync scheduler ─────────────────────────────────────────
+function scheduleNextSync(delayMs) {
+  clearTimeout(nextSyncTimer);
+  const ms = delayMs !== undefined ? delayMs : getPlistInterval() * 1000;
+  nextSyncAt = Date.now() + ms;
+  nextSyncTimer = setTimeout(() => autoSync(), ms);
+  rebuildMenu();
+  pushStatusToWindow();
+}
+
+function autoSync() {
+  if (isSyncing) return;
+  if (hasPDFConflict()) {
+    startWaitingForPDFClose();
+    showPDFAutoNotification();
+  } else {
+    runSync();
+  }
 }
 
 // ── fs.watch for instant log refresh + live output streaming ───────────────
@@ -207,7 +240,7 @@ function buildIntervalSubmenu(currentInterval) {
       click: () => handleIntervalChange(p.seconds),
     })),
     { type: 'separator' },
-    { label: 'Custom…', click: showCustomIntervalDialog },
+    { label: 'Custom\u2026', click: showCustomIntervalDialog },
   ];
 }
 
@@ -218,15 +251,15 @@ function buildMenu() {
   const currentInterval = getPlistInterval();
 
   let statusText;
-  if (isSyncing)          statusText = '🔄  Syncing…';
-  else if (isWaiting)     statusText = '🟠  Waiting for PDF to close';
-  else if (paused)        statusText = `⏸  Paused — last ${formatTime(lastSync)}`;
-  else if (lastSyncError) statusText = `❌  Error — last ${formatTime(lastSync)}`;
-  else                    statusText = `✅  Synced — ${formatTime(lastSync)}`;
+  if (isSyncing)          statusText = '\ud83d\udd04  Syncing\u2026';
+  else if (isWaiting)     statusText = '\ud83d\udfe0  Waiting for PDF to close';
+  else if (paused)        statusText = `\u23f8  Paused \u2014 last ${formatTime(lastSync)}`;
+  else if (lastSyncError) statusText = `\u274c  Error \u2014 last ${formatTime(lastSync)}`;
+  else                    statusText = `\u2705  Synced \u2014 ${formatTime(lastSync)}`;
 
   const recentItems = recent.length > 0
     ? recent.map(e => ({
-        label: `  ${e.status === 'success' ? '✅' : e.status === 'error' ? '❌' : '⚪'}  ${formatTime(new Date(e.timestamp))}  —  ${e.detail}`,
+        label: `  ${e.status === 'success' ? '\u2705' : e.status === 'error' ? '\u274c' : '\u26aa'}  ${formatTime(new Date(e.timestamp))}  \u2014  ${e.detail}`,
         enabled: false,
       }))
     : [{ label: '  No entries yet', enabled: false }];
@@ -242,7 +275,7 @@ function buildMenu() {
     { type: 'separator' },
     { label: 'Recent Syncs:', enabled: false },
     ...recentItems,
-    { label: 'View All Logs…', click: openLogWindow },
+    { label: 'View All Logs\u2026', click: openLogWindow },
     { type: 'separator' },
     {
       label: 'Open at Login',
@@ -261,30 +294,41 @@ function rebuildMenu() {
 }
 
 // ── Sync execution ─────────────────────────────────────────────────────────
-function runSync() {
+function runSync(commitMsg) {
   if (isSyncing) return;
 
   // Track log file position for live output streaming
   try { syncOutputOffset = fs.statSync(LOG_FILE).size; } catch { syncOutputOffset = 0; }
 
+  syncStartedAt = Date.now();
   startSpinner();
   lastSyncError = false;
   rebuildMenu();
   pushStatusToWindow();
 
-  syncProcess = spawn('/bin/bash', [SYNC_SCRIPT], {
-    env: { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH },
-  });
+  const env = { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH };
+  if (commitMsg) env.SYNC_MSG = commitMsg;
+
+  syncProcess = spawn('/bin/bash', [SYNC_SCRIPT], { env });
 
   syncProcess.on('close', (code) => {
     syncProcess = null;
+    syncStartedAt = null;
     stopSpinner();
     lastSyncError = code !== 0;
 
-    const nl = loadSettings().notifyLevel;
+    const settings = loadSettings();
+    const nl = settings.notifyLevel;
+
     if (code !== 0) {
+      settings.syncStreak = 0;
+      saveSettings(settings);
       if (nl !== 'never') notify('Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
     } else {
+      // Increment streak
+      settings.syncStreak = (settings.syncStreak || 0) + 1;
+      saveSettings(settings);
+
       if (nl === 'all') notify('Bible Notes Sync', 'Sync completed successfully.');
       // Count changed notes for tray badge
       try {
@@ -307,6 +351,9 @@ function runSync() {
       } catch {}
     }
 
+    // Schedule next sync from NOW (after sync completes)
+    scheduleNextSync();
+
     rebuildMenu();
     refreshTrayAppearance();
     pushStatusToWindow();
@@ -317,9 +364,11 @@ function runSync() {
 
   syncProcess.on('error', (err) => {
     syncProcess = null;
+    syncStartedAt = null;
     stopSpinner();
     lastSyncError = true;
     if (loadSettings().notifyLevel !== 'never') notify('Quartz Sync Error', err.message);
+    scheduleNextSync();
     rebuildMenu();
     refreshTrayAppearance();
     pushStatusToWindow();
@@ -330,7 +379,7 @@ function runSync() {
 function handlePDFConflict(onSyncAnyway, onSkip, onWait) {
   const n = new Notification({
     title: 'Quartz Sync',
-    body: 'A PDF is open — sync may overwrite your edits.',
+    body: 'A PDF is open \u2014 sync may overwrite your edits.',
     actions: [
       { type: 'button', text: 'Sync Anyway' },
       { type: 'button', text: 'Skip This Sync' },
@@ -349,7 +398,7 @@ function startWaitingForPDFClose() {
   rebuildMenu();
   pushStatusToWindow();
   if (loadSettings().notifyLevel !== 'never') {
-    notify('Quartz Sync', 'Watching for the PDF to close — sync will run automatically.');
+    notify('Quartz Sync', 'Watching for the PDF to close \u2014 sync will run automatically.');
   }
 
   pdfPollTimer = setInterval(() => {
@@ -361,18 +410,47 @@ function startWaitingForPDFClose() {
       rebuildMenu();
       runSync();
       if (loadSettings().notifyLevel !== 'never') {
-        notify('Quartz Sync', 'PDF closed — syncing now.');
+        notify('Quartz Sync', 'PDF closed \u2014 syncing now.');
       }
     }
   }, 5000);
 }
 
+function showPDFAutoNotification() {
+  const n = new Notification({
+    title: 'Sync is patiently waiting\u2026',
+    body: 'A PDF is open in your content folder. Sync will run the moment you close it. No action needed \u2014 or choose below.',
+    actions: [
+      { type: 'button', text: 'Sync Anyway' },
+      { type: 'button', text: 'Skip This One' },
+    ],
+    closeButtonText: 'Auto-waiting\u2026',
+  });
+  n.on('action', (_e, i) => {
+    if (i === 0) {
+      // Sync Anyway
+      clearInterval(pdfPollTimer); pdfPollTimer = null;
+      isWaiting = false;
+      runSync();
+    } else {
+      // Skip This One
+      clearInterval(pdfPollTimer); pdfPollTimer = null;
+      isWaiting = false;
+      refreshTrayAppearance();
+      rebuildMenu();
+      pushStatusToWindow();
+      scheduleNextSync();
+    }
+  });
+  n.show();
+}
+
 // ── Event handlers ─────────────────────────────────────────────────────────
-function handleSyncNow() {
+function handleSyncNow(commitMsg) {
   if (hasPDFConflict()) {
-    handlePDFConflict(() => runSync(), () => {}, () => startWaitingForPDFClose());
+    handlePDFConflict(() => runSync(commitMsg), () => {}, () => startWaitingForPDFClose());
   } else {
-    runSync();
+    runSync(commitMsg);
   }
 }
 
@@ -479,7 +557,7 @@ function openLogWindow() {
 // ── IPC ────────────────────────────────────────────────────────────────────
 ipcMain.handle('get-log-entries',  () => getAllEntries());
 ipcMain.handle('get-sync-status',  () => buildStatusPayload());
-ipcMain.on('trigger-sync',         () => handleSyncNow());
+ipcMain.on('trigger-sync',         (_e, msg) => handleSyncNow(msg || undefined));
 ipcMain.on('toggle-pause',         () => handlePauseResume());
 ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-github',          (_e, url) => shell.openExternal(url));
@@ -508,13 +586,25 @@ app.whenReady().then(() => {
   rebuildMenu();
   startLogWatcher();
 
-  // Rebuild menu every 60s for countdown
-  menuRefreshTimer = setInterval(() => { rebuildMenu(); refreshTrayAppearance(); }, 60_000);
+  // Schedule first sync from last known time
+  const lastSync = getLastSyncTime();
+  if (lastSync && !isNaN(lastSync)) {
+    const elapsed = Date.now() - lastSync.getTime();
+    const interval = getPlistInterval() * 1000;
+    const remaining = Math.max(5000, interval - elapsed);
+    scheduleNextSync(remaining);
+  } else {
+    scheduleNextSync();
+  }
+
+  // Rebuild menu every 10s for countdown
+  menuRefreshTimer = setInterval(() => { rebuildMenu(); refreshTrayAppearance(); }, 10_000);
 });
 
 app.on('window-all-closed', (e) => e.preventDefault());
 
 app.on('before-quit', () => {
+  clearTimeout(nextSyncTimer);
   clearInterval(menuRefreshTimer);
   clearInterval(pdfPollTimer);
   clearInterval(spinnerTimer);

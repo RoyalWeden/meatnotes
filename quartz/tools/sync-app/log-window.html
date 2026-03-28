@@ -14,6 +14,7 @@
       --orange: #ff9f0a;
       --grey:   #8e8e93;
       --accent: var(--green);
+      --accent-rgb: 50, 215, 75;
       --card-bg-a: #0d1f0d;
       --card-bg-b: #0a150a;
     }
@@ -153,6 +154,16 @@
       color: #fff;
     }
 
+    /* ── Streak badge ── */
+    .streak-badge {
+      display: none;
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+    .streak-badge.visible { display: block; }
+
     .card-times {
       font-size: 12px;
       color: rgba(255,255,255,0.45);
@@ -162,6 +173,55 @@
     }
     .card-times span { display: flex; align-items: center; gap: 4px; }
     .card-times .accent { color: var(--accent); font-weight: 600; }
+
+    /* ── Elapsed timer ── */
+    .card-times .elapsed-span { display: none; }
+    .card-times .elapsed-span.visible { display: flex; }
+
+    /* ── Sync step pills ── */
+    .sync-steps {
+      display: none;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+      padding: 0;
+    }
+    .sync-steps.visible { display: flex; }
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .step-pill.active {
+      background: rgba(var(--accent-rgb), 0.18);
+      color: var(--accent);
+      border-color: rgba(var(--accent-rgb), 0.4);
+      animation: step-pulse 1.4s ease-in-out infinite;
+    }
+    .step-pill.done {
+      color: rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.04);
+    }
+    @keyframes step-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.65; }
+    }
+
+    /* ── Card pulse during sync ── */
+    @keyframes card-sync-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50%       { box-shadow: 0 0 18px 2px rgba(255,204,0,0.12); }
+    }
+    .card.syncing { animation: card-sync-pulse 2.2s ease-in-out infinite; }
 
     /* Countdown arc — no label inside */
     .card-countdown {
@@ -204,27 +264,73 @@
       border: 1px solid rgba(255,255,255,0.1);
     }
     .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
 
-    /* ── Live sync terminal ── */
+    /* ── Commit message row ── */
+    .commit-msg-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+      -webkit-app-region: no-drag;
+    }
+    .commit-msg-row.open {
+      max-height: 40px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+    .commit-msg-input {
+      flex: 1;
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .commit-msg-input:focus { border-color: var(--accent); }
+    .commit-msg-input::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* ── Terminal (spring drawer) ── */
     .sync-terminal {
-      margin: 0 12px 10px;
+      margin: 0 12px;
       background: rgba(0,0,0,0.35);
       border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.06);
       overflow: hidden;
-      display: none;
+      max-height: 0;
+      opacity: 0;
       flex-shrink: 0;
+      transition: max-height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  margin-bottom 0.3s ease,
+                  opacity 0.3s ease;
     }
-    .sync-terminal.visible { display: block; }
-    .sync-terminal-label {
+    .sync-terminal.open {
+      max-height: 260px;
+      margin-bottom: 10px;
+      opacity: 1;
+    }
+    .sync-terminal-header {
+      display: flex;
+      align-items: center;
       padding: 5px 10px 3px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .sync-terminal-label {
+      flex: 1;
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.2);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
+    .sync-terminal-label.live { color: var(--accent); animation: step-pulse 1.2s ease-in-out infinite; }
     .sync-terminal-text {
       font-family: 'SF Mono', 'Menlo', monospace;
       font-size: 10px;
@@ -232,7 +338,7 @@
       padding: 7px 10px;
       margin: 0;
       overflow-y: auto;
-      max-height: 100px;
+      max-height: 220px;
       white-space: pre-wrap;
       word-break: break-all;
       line-height: 1.45;
@@ -241,15 +347,35 @@
     .sync-terminal-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
     /* ── Log list ── */
-    .log-header {
+    .log-header-row {
+      display: flex;
+      align-items: center;
       padding: 0 16px 6px;
+      flex-shrink: 0;
+    }
+    .log-header-title {
+      flex: 1;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: rgba(255,255,255,0.25);
-      flex-shrink: 0;
     }
+    .terminal-toggle-btn {
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      color: rgba(255,255,255,0.4);
+      padding: 2px 8px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      -webkit-app-region: no-drag;
+      transition: background 0.15s, color 0.15s;
+    }
+    .terminal-toggle-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+    .terminal-toggle-btn.active { color: var(--accent); background: rgba(var(--accent-rgb),0.1); border-color: rgba(var(--accent-rgb),0.25); }
 
     .entries {
       flex: 1;
@@ -368,6 +494,26 @@
     .entry.expanded .entry-detail { display: block; }
     .detail-error { color: #ff6b63; }
     .detail-warn  { color: #ffd60a; }
+
+    /* ── File list in entry detail ── */
+    .file-list { margin-top: 6px; }
+    .file-list-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 10px;
+      line-height: 1.6;
+      font-family: 'SF Mono', 'Menlo', monospace;
+    }
+    .file-list-path {
+      flex: 1;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-list-add { color: #32d74b; font-weight: 600; }
+    .file-list-del { color: #ff453a; font-weight: 600; }
 
     .empty-state {
       display: none;
@@ -629,9 +775,14 @@
         <span class="status-label" id="statusLabel">Loading…</span>
       </div>
 
+      <div class="streak-badge" id="streakBadge"></div>
+
       <div class="card-times" id="cardTimes">
         <span>Last sync: <span class="accent" id="lastSyncTime">—</span></span>
+        <span class="elapsed-span" id="elapsedSpan">Syncing… <span class="accent" id="syncElapsed">0s</span></span>
       </div>
+
+      <div class="sync-steps" id="syncSteps"></div>
 
       <div class="card-countdown" id="cardCountdown">
         <div class="arc-wrap">
@@ -644,19 +795,31 @@
       </div>
 
       <div class="card-actions">
-        <button class="btn btn-primary" id="syncBtn" onclick="triggerSync()">▶ Sync Now</button>
+        <button class="btn btn-primary" id="syncBtn" onclick="clickSyncNow()">▶ Sync Now</button>
         <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+      </div>
+      <div class="commit-msg-row" id="commitMsgRow">
+        <input class="commit-msg-input" id="commitMsgInput" type="text"
+               placeholder="Add a note… (optional)" maxlength="80"
+               onkeydown="if(event.key==='Enter')doSync(); if(event.key==='Escape')hideCommitMsg();">
+        <button class="btn btn-primary btn-sm" onclick="doSync()">→ Go</button>
+        <button class="btn btn-secondary btn-sm" onclick="hideCommitMsg()">✕</button>
       </div>
     </div>
 
-    <!-- Live sync terminal (visible only while syncing) -->
+    <!-- Live sync terminal (spring drawer) -->
     <div class="sync-terminal" id="syncTerminal">
-      <div class="sync-terminal-label">Live Output</div>
+      <div class="sync-terminal-header">
+        <span class="sync-terminal-label" id="terminalLabel">Live Output</span>
+      </div>
       <pre class="sync-terminal-text" id="syncTerminalText"></pre>
     </div>
 
     <!-- Log list -->
-    <div class="log-header">Sync History</div>
+    <div class="log-header-row">
+      <span class="log-header-title">Sync History</span>
+      <button class="terminal-toggle-btn" id="terminalToggleBtn" onclick="toggleTerminal()">◀ Output</button>
+    </div>
     <div class="entries" id="entries"></div>
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">🔄</div>
@@ -745,15 +908,26 @@
   <script>
     const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
 
+    // ── Accent RGB map ──────────────────────────────────────────────────────
+    const ACCENT_RGB = {
+      'var(--yellow)': '255, 204, 0',
+      'var(--red)':    '255, 69, 58',
+      'var(--orange)': '255, 149, 0',
+      'var(--grey)':   '142, 142, 147',
+      'var(--green)':  '50, 215, 75',
+    };
+
     // ── State ──────────────────────────────────────────────────────────────
     let status = {
       isSyncing: false, isWaiting: false, isPaused: false,
       lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
+      nextSyncAt: null, syncStartedAt: null, syncStreak: 0,
     };
     let entries = [];
     let countdownTimer = null;
     let nextSyncAt = null;
     let knownTopId = null;
+    let lastSyncingState = false;
 
     // ── Card state machine ─────────────────────────────────────────────────
     const STATES = {
@@ -773,12 +947,20 @@
     }
 
     function updateCard(s) {
+      const wasSyncing = lastSyncingState;
       status = s;
+      lastSyncingState = s.isSyncing;
+
       const st = STATES[getStateName(s)];
 
+      // Accent color + RGB var
       document.documentElement.style.setProperty('--accent', st.color);
+      const accentRgb = ACCENT_RGB[st.color] || '50, 215, 75';
+      document.documentElement.style.setProperty('--accent-rgb', accentRgb);
+
       document.getElementById('card').style.background =
         `linear-gradient(135deg, ${st.bg[0]}, ${st.bg[1]})`;
+      document.getElementById('card').classList.toggle('syncing', s.isSyncing);
       document.getElementById('cardGlow').style.background = st.color;
 
       const dot = document.getElementById('statusDot');
@@ -794,10 +976,34 @@
       document.getElementById('lastSyncTime').textContent =
         lastSync ? lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
 
+      // Elapsed timer
+      document.getElementById('elapsedSpan').classList.toggle('visible', s.isSyncing);
+      if (s.isSyncing && s.syncStartedAt) {
+        startElapsedTimer(s.syncStartedAt);
+      } else {
+        stopElapsedTimer();
+      }
+
+      // Streak badge
+      const badge = document.getElementById('streakBadge');
+      if ((s.syncStreak || 0) >= 2) {
+        badge.textContent = `🔥 ${s.syncStreak} syncs in a row`;
+        badge.classList.add('visible');
+      } else {
+        badge.classList.remove('visible');
+      }
+
       document.getElementById('syncBtn').disabled = s.isSyncing || s.isWaiting;
       const pauseBtn = document.getElementById('pauseBtn');
       pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
       pauseBtn.disabled = s.isSyncing;
+
+      // Sync steps visibility
+      document.getElementById('syncSteps').classList.toggle('visible', s.isSyncing);
+      if (!s.isSyncing && wasSyncing) {
+        // Sync just ended — reset steps after a short delay
+        setTimeout(resetSteps, 2000);
+      }
 
       // Countdown
       const countdown = document.getElementById('cardCountdown');
@@ -809,20 +1015,135 @@
         setArc(0);
       } else {
         countdown.style.display = 'flex';
-        if (lastSync && s.intervalSeconds) {
+        if (s.nextSyncAt) {
+          nextSyncAt = s.nextSyncAt;
+          startCountdown(s.intervalSeconds);
+        } else if (lastSync && s.intervalSeconds) {
           nextSyncAt = lastSync.getTime() + s.intervalSeconds * 1000;
           startCountdown(s.intervalSeconds);
         }
       }
 
-      // Live terminal visibility
+      // Terminal
       const terminal = document.getElementById('syncTerminal');
-      if (s.isSyncing) {
-        terminal.classList.add('visible');
-      } else {
-        terminal.classList.remove('visible');
+      const termLabel = document.getElementById('terminalLabel');
+      const toggleBtn = document.getElementById('terminalToggleBtn');
+
+      if (s.isSyncing && !wasSyncing) {
+        // Fresh sync started — clear terminal and open it
         document.getElementById('syncTerminalText').textContent = '';
+        terminal.classList.add('open');
       }
+
+      if (s.isSyncing) {
+        termLabel.textContent = 'Live Output';
+        termLabel.classList.add('live');
+      } else {
+        termLabel.textContent = 'Last Output';
+        termLabel.classList.remove('live');
+      }
+
+      toggleBtn.classList.toggle('active', terminal.classList.contains('open'));
+    }
+
+    // ── Sync step pills ────────────────────────────────────────────────────
+    const SYNC_STEPS = [
+      { key: 'start',    match: /sync started/i,               label: '① Starting' },
+      { key: 'network',  match: /ping|No internet|checking/i,  label: '② Network check' },
+      { key: 'prepare',  match: /last-sync|Wrote/i,            label: '③ Preparing' },
+      { key: 'lfs',      match: /git lfs/i,                    label: '④ LFS files' },
+      { key: 'quartz',   match: /quartz sync|Running quartz/i, label: '⑤ Building & syncing' },
+      { key: 'compress', match: /compress/i,                   label: '⑥ Compressing' },
+      { key: 'push',     match: /Pushing|git push/i,           label: '⑦ Pushing' },
+      { key: 'done',     match: /completed successfully/i,     label: '✓ Done' },
+    ];
+
+    let activeStepIdx = -1;
+    let completedSteps = new Set();
+
+    function detectStep(chunk) {
+      for (let i = activeStepIdx + 1; i < SYNC_STEPS.length; i++) {
+        if (SYNC_STEPS[i].match.test(chunk)) {
+          if (activeStepIdx >= 0) completedSteps.add(SYNC_STEPS[activeStepIdx].key);
+          activeStepIdx = i;
+          renderSteps();
+          break;
+        }
+      }
+    }
+
+    function renderSteps() {
+      const container = document.getElementById('syncSteps');
+      if (!container) return;
+      container.innerHTML = SYNC_STEPS.map((step, i) => {
+        let cls = 'step-pill';
+        if (i === activeStepIdx) cls += ' active';
+        else if (completedSteps.has(step.key)) cls += ' done';
+        const check = completedSteps.has(step.key) ? '✓ ' : '';
+        return `<div class="${cls}">${check}${step.label}</div>`;
+      }).join('');
+    }
+
+    function resetSteps() {
+      activeStepIdx = -1;
+      completedSteps.clear();
+      const container = document.getElementById('syncSteps');
+      if (container) container.innerHTML = '';
+    }
+
+    // ── Elapsed timer ──────────────────────────────────────────────────────
+    let elapsedTimer = null;
+
+    function startElapsedTimer(startedAt) {
+      clearInterval(elapsedTimer);
+      const el = document.getElementById('syncElapsed');
+      elapsedTimer = setInterval(() => {
+        if (!el) return;
+        const secs = Math.floor((Date.now() - startedAt) / 1000);
+        el.textContent = secs >= 60 ? `${Math.floor(secs/60)}m ${secs%60}s` : `${secs}s`;
+      }, 1000);
+    }
+
+    function stopElapsedTimer() {
+      clearInterval(elapsedTimer);
+      elapsedTimer = null;
+    }
+
+    // ── Terminal toggle ────────────────────────────────────────────────────
+    let terminalUserOpen = false;
+
+    function toggleTerminal() {
+      const terminal = document.getElementById('syncTerminal');
+      const btn = document.getElementById('terminalToggleBtn');
+      terminalUserOpen = !terminal.classList.contains('open');
+      terminal.classList.toggle('open', terminalUserOpen);
+      btn.classList.toggle('active', terminalUserOpen);
+    }
+
+    // ── Commit message helpers ─────────────────────────────────────────────
+    let commitMsgVisible = false;
+
+    function clickSyncNow() {
+      if (status.isSyncing || status.isWaiting) return;
+      commitMsgVisible = !commitMsgVisible;
+      const row = document.getElementById('commitMsgRow');
+      row.classList.toggle('open', commitMsgVisible);
+      if (commitMsgVisible) {
+        setTimeout(() => document.getElementById('commitMsgInput').focus(), 350);
+      }
+    }
+
+    function hideCommitMsg() {
+      commitMsgVisible = false;
+      const row = document.getElementById('commitMsgRow');
+      row.classList.remove('open');
+      document.getElementById('commitMsgInput').value = '';
+    }
+
+    function doSync() {
+      const msg = document.getElementById('commitMsgInput').value.trim();
+      hideCommitMsg();
+      if (window.syncAPI) window.syncAPI.triggerSync(msg);
     }
 
     // ── Countdown arc ──────────────────────────────────────────────────────
@@ -892,14 +1213,23 @@
 
       container.innerHTML = newEntries.map((e, i) => {
         const isNew = isReallyNew && i === 0;
-        const hasDetail = e.errorLines && e.errorLines.length > 0;
+        const hasDetail = (e.errorLines && e.errorLines.length > 0) || (e.fileList && e.fileList.length > 0);
         const ghUrl = githubUrl(e);
 
-        const detailHtml = hasDetail
-          ? e.errorLines.map(l =>
-              `<span class="${l.startsWith('WARN') ? 'detail-warn' : 'detail-error'}">${escHtml(l)}</span>`
-            ).join('\n')
-          : '';
+        let detailHtml = '';
+        if (e.errorLines && e.errorLines.length > 0) {
+          detailHtml += e.errorLines.map(l =>
+            `<span class="${l.startsWith('WARN') ? 'detail-warn' : 'detail-error'}">${escHtml(l)}</span>`
+          ).join('\n');
+        }
+        if (e.fileList && e.fileList.length > 0) {
+          detailHtml += `<div class="file-list">` + e.fileList.map(f => {
+            const addStr = f.add > 0 ? `<span class="file-list-add">+${f.add}</span>` : '';
+            const delStr = f.del > 0 ? `<span class="file-list-del"> -${f.del}</span>` : '';
+            const name = f.path.replace(/^content\//, '');
+            return `<div class="file-list-item"><span class="file-list-path" title="${escHtml(f.path)}">${escHtml(name)}</span>${addStr}${delStr}</div>`;
+          }).join('') + `</div>`;
+        }
 
         const metaHtml = (e.commitMessage || e.filesChanged) ? `
           <div class="entry-meta">
@@ -932,10 +1262,6 @@
     }
 
     // ── Actions ────────────────────────────────────────────────────────────
-    function triggerSync() {
-      if (window.syncAPI) window.syncAPI.triggerSync();
-    }
-
     function togglePause() {
       if (window.syncAPI) window.syncAPI.togglePause();
     }
@@ -1024,6 +1350,7 @@
     // ── Keyboard shortcuts ─────────────────────────────────────────────────
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && settingsOpen) { closeSettings(); return; }
+      if (e.key === 'Escape' && commitMsgVisible) { hideCommitMsg(); return; }
       if ((e.metaKey || e.ctrlKey) && e.key === ',') { e.preventDefault(); toggleSettings(); }
     });
 
@@ -1050,6 +1377,7 @@
         if (!el) return;
         el.textContent += chunk;
         el.scrollTop = el.scrollHeight;
+        detectStep(chunk);
       });
     }
 
@@ -1057,21 +1385,40 @@
     function injectMock() {
       const now = Date.now();
       const mockEntries = [
-        { timestamp: new Date(now - 2*60000).toISOString(),   status: 'success', detail: 'Synced', errorLines: [], commitSha: 'a1b2c3d', commitMessage: 'Quartz sync: Mar 27, 2:40 PM', filesChanged: '3 files  +20  −5' },
-        { timestamp: new Date(now - 32*60000).toISOString(),  status: 'success', detail: 'Synced', errorLines: [], commitSha: 'e4f5a6b', commitMessage: 'Quartz sync: Mar 27, 2:10 PM', filesChanged: '1 file  +4' },
-        { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped — no internet', errorLines: [], commitSha: null },
+        {
+          timestamp: new Date(now - 2*60000).toISOString(),
+          status: 'success', detail: 'Synced', errorLines: [],
+          commitSha: 'a1b2c3d', commitMessage: 'Quartz sync: Mar 27, 2:40 PM',
+          filesChanged: '3 files  +20  -5',
+          fileList: [
+            {path:'content/Notes/Foo.md', add:12, del:4},
+            {path:'content/Daily/2026-03-27.md', add:3, del:0},
+            {path:'content/20 - Complete/01 - Idioms/Bread.md', add:5, del:1},
+          ],
+        },
+        {
+          timestamp: new Date(now - 32*60000).toISOString(),
+          status: 'success', detail: 'Synced', errorLines: [],
+          commitSha: 'e4f5a6b', commitMessage: 'Quartz sync: Mar 27, 2:10 PM',
+          filesChanged: '1 file  +4',
+          fileList: [{path:'content/Daily/2026-03-27.md', add:4, del:0}],
+        },
+        { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped -- no internet', errorLines: [], commitSha: null },
         { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null },
-        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Quartz sync: Mar 27, 10:40 AM', filesChanged: '7 files  +58  −12' },
+        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Quartz sync: Mar 27, 10:40 AM', filesChanged: '7 files  +58  -12' },
       ];
       const mockStatus = {
         isSyncing: false, isWaiting: false, isPaused: false,
         lastSyncError: false,
         lastSyncTime: new Date(now - 2*60000).toISOString(),
         intervalSeconds: 1800,
+        nextSyncAt: now - 2*60000 + 1800*1000,
+        syncStartedAt: null,
+        syncStreak: 7,
       };
       renderEntries(mockEntries, false);
       updateCard(mockStatus);
-      nextSyncAt = now - 2*60000 + 1800*1000;
+      nextSyncAt = mockStatus.nextSyncAt;
       startCountdown(1800);
     }
 

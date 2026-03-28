@@ -7,6 +7,12 @@
       "runtimeArgs": ["quartz", "build", "--serve"],
       "port": 8080,
       "autoPort": true
+    },
+    {
+      "name": "sync-app-ui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["quartz/tools/sync-app/preview-server.mjs"],
+      "port": 4321
     }
   ]
 }

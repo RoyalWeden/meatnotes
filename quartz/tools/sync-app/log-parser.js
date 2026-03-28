@@ -2,15 +2,54 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { execSync } = require('child_process');
 
 const LOG_FILE = path.join(os.homedir(), 'Library/Logs/quartz-sync.log');
+const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible';
 const LINE_RE = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.+)$/;
 // Matches git push output: "   abc123..def456  main -> main"
 const PUSH_SHA_RE = /^\s{1,4}[0-9a-f]+\.\.([0-9a-f]+)\s+\S+\s+->\s+\S+/;
 
 /**
+ * Try to get commit message and files-changed stat for a given SHA.
+ * Fast (git is local), but wrapped in try/catch in case the SHA is gone.
+ */
+function enrichEntry(entry) {
+  if (!entry.commitSha) return;
+  try {
+    entry.commitMessage = execSync(
+      `git -C "${REPO_DIR}" log -1 --format=%s ${entry.commitSha} 2>/dev/null`,
+      { timeout: 3000 }
+    ).toString().trim();
+
+    const stat = execSync(
+      `git -C "${REPO_DIR}" diff-tree --no-commit-id -r --stat ${entry.commitSha} 2>/dev/null`,
+      { timeout: 3000 }
+    ).toString().trim();
+
+    if (stat) {
+      // Last line: "3 files changed, 20 insertions(+), 5 deletions(-)"
+      // Compact to: "3 files  +20  −5"
+      const summary = stat.split('\n').pop() || '';
+      const fMatch = summary.match(/(\d+) file/);
+      const iMatch = summary.match(/(\d+) insertion/);
+      const dMatch = summary.match(/(\d+) deletion/);
+      const parts = [];
+      if (fMatch) parts.push(`${fMatch[1]} file${fMatch[1] === '1' ? '' : 's'}`);
+      if (iMatch) parts.push(`+${iMatch[1]}`);
+      if (dMatch) parts.push(`−${dMatch[1]}`);
+      entry.filesChanged = parts.join('  ');
+    }
+  } catch {
+    // git not available or SHA not found — skip enrichment
+  }
+}
+
+/**
  * Parse the sync log into structured session entries.
- * @returns {Array<{timestamp: Date, status: 'success'|'error'|'skipped', detail: string, errorLines: string[], commitSha: string|null}>}
+ * @returns {Array<{timestamp: Date, status: 'success'|'error'|'skipped', detail: string,
+ *                  errorLines: string[], commitSha: string|null,
+ *                  commitMessage?: string, filesChanged?: string}>}
  *          Sorted newest-first.
  */
 function parseLog() {
@@ -29,7 +68,6 @@ function parseLog() {
   for (const line of lines) {
     const m = line.match(LINE_RE);
     if (!m) {
-      // Raw output from npx quartz sync / git — keep for SHA extraction
       if (current) currentRawLines.push(line);
       continue;
     }
@@ -39,6 +77,7 @@ function parseLog() {
     if (msg === 'Sync started') {
       if (current) {
         current.commitSha = extractSha(currentRawLines);
+        enrichEntry(current);
         sessions.push(current);
       }
       current = { timestamp, status: 'success', detail: 'Synced', errorLines: [] };
@@ -47,13 +86,13 @@ function parseLog() {
     }
 
     if (msg === 'Already running, skipping.') {
-      if (current) { current.commitSha = extractSha(currentRawLines); sessions.push(current); }
+      if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
       sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — already running', errorLines: [], commitSha: null });
       current = null; currentRawLines = [];
       continue;
     }
     if (msg === 'No internet connection, skipping sync') {
-      if (current) { current.commitSha = extractSha(currentRawLines); sessions.push(current); }
+      if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
       sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — no internet', errorLines: [], commitSha: null });
       current = null; currentRawLines = [];
       continue;
@@ -75,6 +114,7 @@ function parseLog() {
 
   if (current) {
     current.commitSha = extractSha(currentRawLines);
+    enrichEntry(current);
     sessions.push(current);
   }
 

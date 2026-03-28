@@ -14,5 +14,6 @@ contextBridge.exposeInMainWorld('syncAPI', {
   getSettings:    () => ipcRenderer.invoke('get-settings'),
   saveSettings:   (s) => ipcRenderer.send('save-settings', s),
   setLoginItem:   (val) => ipcRenderer.send('set-login-item', val),
-  setInterval:    (s) => ipcRenderer.send('custom-interval', s),
+  setInterval:    (s) => ipcRenderer.send('set-interval', s),
+  playSound:      () => ipcRenderer.send('play-sound'),
 });

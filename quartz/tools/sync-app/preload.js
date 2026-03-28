@@ -16,4 +16,7 @@ contextBridge.exposeInMainWorld('syncAPI', {
   setLoginItem:   (val) => ipcRenderer.send('set-login-item', val),
   setInterval:    (s) => ipcRenderer.send('set-interval', s),
   playSound:      () => ipcRenderer.send('play-sound'),
+  // Output + deploy
+  getLastOutput:  () => ipcRenderer.invoke('get-last-output'),
+  getDeployLogs:  (runId) => ipcRenderer.invoke('get-deploy-logs', runId),
 });

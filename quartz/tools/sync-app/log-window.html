@@ -1196,6 +1196,168 @@
     .entry.stagger-6  { animation-delay: 240ms; }
     .entry.stagger-7  { animation-delay: 280ms; }
     .entry.stagger-8  { animation-delay: 320ms; }
+
+    /* ── Duration badge ────────────────────────────────────────────────── */
+    .entry-duration {
+      font-size: 10px; color: rgba(255,255,255,0.3);
+      font-variant-numeric: tabular-nums;
+      margin-left: 6px; flex-shrink: 0;
+    }
+
+    /* ── No-internet skip entry ────────────────────────────────────────── */
+    .entry.skipped.no-internet .entry-icon { opacity: 0.7; }
+    .entry.skipped.no-internet { border-left: 2px solid rgba(10,132,255,0.35); }
+    .entry.skipped.no-internet .entry-summary { color: rgba(100,170,255,0.75); }
+
+    /* ── Copy SHA button ───────────────────────────────────────────────── */
+    .copy-sha-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; color: rgba(255,255,255,0.3); padding: 0 4px;
+      transition: color 0.15s;
+    }
+    .copy-sha-btn:hover { color: rgba(255,255,255,0.7); }
+    .copy-sha-btn.copied { color: #32d74b; }
+
+    /* ── Error retry button in history ─────────────────────────────────── */
+    .entry-retry-btn {
+      background: none; border: 1px solid rgba(255,69,58,0.3);
+      color: rgba(255,100,90,0.8); cursor: pointer; border-radius: 5px;
+      font-size: 10px; padding: 2px 7px; margin-left: 6px;
+      transition: background 0.15s, color 0.15s; flex-shrink: 0;
+    }
+    .entry-retry-btn:hover { background: rgba(255,69,58,0.15); color: #ff453a; }
+
+    /* ── Total sync count badge ────────────────────────────────────────── */
+    .sync-count-pill {
+      font-size: 10px; color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.06); border-radius: 10px;
+      padding: 1px 8px; margin-left: 8px;
+    }
+
+    /* ── Personal best streak ──────────────────────────────────────────── */
+    .streak-best {
+      font-size: 10px; color: rgba(255,255,255,0.28);
+      margin-left: 6px;
+    }
+
+    /* ── Deploy mini history pills ─────────────────────────────────────── */
+    .deploy-run-pills {
+      display: flex; gap: 4px; align-items: center; margin-left: auto; margin-right: 6px;
+    }
+    .deploy-run-pill {
+      font-size: 10px; padding: 1px 7px; border-radius: 8px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: filter 0.15s;
+    }
+    .deploy-run-pill:hover { filter: brightness(1.3); }
+    .deploy-run-pill.success  { color: #32d74b; border-color: rgba(50,215,75,0.3);  background: rgba(50,215,75,0.08);  }
+    .deploy-run-pill.failure  { color: #ff453a; border-color: rgba(255,69,58,0.3);  background: rgba(255,69,58,0.08);  }
+    .deploy-run-pill.queued   { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.12); }
+    .deploy-run-pill.active   { border-color: rgba(255,255,255,0.4); }
+
+    /* ── Deploy error/warning summary ──────────────────────────────────── */
+    .deploy-err-summary { font-size: 10px; margin-left: 6px; }
+    .deploy-err-summary.has-errors   { color: #ff6b63; }
+    .deploy-err-summary.has-warnings { color: #ffd60a; }
+
+    /* ── Deploy retry button ────────────────────────────────────────────── */
+    .deploy-retry-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6); cursor: pointer; border-radius: 6px;
+      font-size: 11px; padding: 4px 10px; margin-top: 8px;
+      transition: background 0.15s;
+    }
+    .deploy-retry-btn:hover { background: rgba(255,255,255,0.14); }
+
+    /* ── Deploy onboarding banner ───────────────────────────────────────── */
+    .deploy-onboarding {
+      margin: 10px; border-radius: 10px;
+      border: 1px solid rgba(255,159,10,0.4);
+      background: rgba(255,159,10,0.06);
+      padding: 12px 14px;
+      animation: onboard-glow 2.5s ease-in-out infinite;
+      position: relative;
+    }
+    @keyframes onboard-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,159,10,0); border-color: rgba(255,159,10,0.35); }
+      50%       { box-shadow: 0 0 16px 2px rgba(255,159,10,0.18); border-color: rgba(255,159,10,0.6); }
+    }
+    .deploy-onboarding-close {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none; color: rgba(255,255,255,0.35);
+      cursor: pointer; font-size: 13px; padding: 0; line-height: 1;
+    }
+    .deploy-onboarding-close:hover { color: rgba(255,255,255,0.7); }
+    .deploy-onboarding-title {
+      font-size: 12px; font-weight: 700; color: rgba(255,159,10,0.9);
+      margin-bottom: 8px;
+    }
+    .deploy-onboarding-steps {
+      font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.7;
+      list-style: none; padding: 0; margin: 0;
+    }
+    .deploy-onboarding-steps li { display: flex; gap: 6px; }
+    .deploy-onboarding-steps li .step-num {
+      color: rgba(255,159,10,0.7); font-weight: 700; flex-shrink: 0;
+    }
+    .deploy-onboarding-link {
+      color: rgba(100,160,255,0.85); text-decoration: underline; cursor: pointer;
+    }
+
+    /* ── Last deployed commit link ──────────────────────────────────────── */
+    .deploy-commit-link {
+      font-size: 10px; color: rgba(255,255,255,0.28); font-family: monospace;
+      margin-top: 3px; cursor: pointer; display: inline-block;
+      transition: color 0.15s;
+    }
+    .deploy-commit-link:hover { color: rgba(255,255,255,0.6); }
+
+    /* ── GitHub token settings section ─────────────────────────────────── */
+    .token-input-row {
+      display: flex; gap: 6px; align-items: center; margin-top: 6px;
+    }
+    .token-input {
+      flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 7px; color: rgba(255,255,255,0.85); font-size: 12px;
+      padding: 6px 9px; font-family: monospace; outline: none;
+      transition: border-color 0.2s;
+    }
+    .token-input:focus { border-color: rgba(10,132,255,0.5); }
+    .token-reveal-btn, .token-save-btn {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55); cursor: pointer; border-radius: 6px;
+      font-size: 11px; padding: 5px 10px; white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+    .token-reveal-btn:hover, .token-save-btn:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
+    .token-save-btn.saved { color: #32d74b; border-color: rgba(50,215,75,0.35); }
+    .token-hint {
+      font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 5px; line-height: 1.5;
+    }
+
+    /* ── Settings footer ────────────────────────────────────────────────── */
+    .settings-footer {
+      padding: 14px 18px 18px; border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: auto;
+    }
+    .settings-version { font-size: 10px; color: rgba(255,255,255,0.2); }
+    .settings-open-log-btn {
+      background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer;
+      font-size: 11px; padding: 0; transition: color 0.15s;
+    }
+    .settings-open-log-btn:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── Empty state ────────────────────────────────────────────────────── */
+    .empty-state { text-align: center; padding: 32px 20px; color: rgba(255,255,255,0.35); }
+    .empty-state .empty-icon { font-size: 32px; margin-bottom: 8px; animation: pulse-dot 3s ease-in-out infinite; }
+    .empty-state .empty-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+    .empty-state .empty-sub { font-size: 11px; line-height: 1.6; }
+
+    /* ── Sync Now button spinning state ─────────────────────────────────── */
+    @keyframes spin-btn { to { transform: rotate(360deg); } }
+    .btn-spinning { pointer-events: none; opacity: 0.7; }
+    .btn-spin-icon { display: inline-block; animation: spin-btn 0.7s linear infinite; }
   </style>
 </head>
 <body>
@@ -1233,6 +1395,7 @@
         <span class="deploy-badge-text" id="deployBadgeText">Deploy</span>
         <span class="deploy-badge-meta" id="deployBadgeMeta"></span>
       </div>
+      <div class="deploy-commit-link" id="deployCommitLink" style="display:none"></div>
 
       <div class="card-times" id="cardTimes">
         <span>Last sync: <span class="accent" id="lastSyncTime">—</span></span>
@@ -1286,6 +1449,8 @@
     <div class="deploy-logs-panel" id="deployLogsPanel">
       <div class="deploy-logs-header">
         <span class="deploy-logs-label">🚀 Deploy Logs</span>
+        <span class="deploy-err-summary" id="deployErrSummary"></span>
+        <div class="deploy-run-pills" id="deployRunPills"></div>
         <span class="deploy-refresh-indicator" id="deployRefreshIndicator">⟳</span>
         <button class="deploy-logs-close" onclick="closeDeployLogs()">✕</button>
       </div>
@@ -1297,12 +1462,14 @@
     <!-- Log list -->
     <div class="log-header-row">
       <span class="log-header-title">Sync History</span>
+      <span class="sync-count-pill" id="syncCountPill"></span>
       <button class="terminal-toggle-btn" id="terminalToggleBtn" onclick="toggleTerminal()">◀ Output</button>
     </div>
     <div class="entries" id="entries"></div>
     <div class="empty-state" id="emptyState">
-      <div class="empty-icon">🔄</div>
-      No sync entries yet.
+      <div class="empty-icon">🌟</div>
+      <div class="empty-title">Ready to sync</div>
+      <div class="empty-sub">Click Sync Now or wait for the next<br>auto-sync to see your history here.</div>
     </div>
   </div>
 
@@ -1401,6 +1568,26 @@
         </div>
       </div>
 
+      <!-- GitHub Integration -->
+      <div class="settings-section">
+        <div class="settings-section-title">GitHub Integration</div>
+        <div class="settings-rows">
+          <div class="settings-custom-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <span class="settings-custom-label">GitHub Token</span>
+            <div class="token-input-row">
+              <input type="password" class="token-input" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+              <button class="token-reveal-btn" onclick="toggleTokenReveal()">👁</button>
+              <button class="token-save-btn" id="tokenSaveBtn" onclick="saveGithubToken()">Save</button>
+            </div>
+            <div class="token-hint">Required for deploy logs. Generate at github.com/settings/tokens<br>with <strong>repo → Actions (read)</strong> scope.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="settings-footer">
+      <span class="settings-version" id="settingsVersion">v—</span>
+      <button class="settings-open-log-btn" onclick="if(window.syncAPI)window.syncAPI.openLogFile()">Open Log File 📂</button>
     </div>
   </div>
 
@@ -1421,8 +1608,9 @@
     let status = {
       isSyncing: false, isWaiting: false, isPaused: false, isQuietHours: false,
       lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
-      nextSyncAt: null, syncStartedAt: null, syncStreak: 0,
-      streakMilestone: null, openPDFs: [], deployStatus: null,
+      nextSyncAt: null, syncStartedAt: null, syncStreak: 0, syncStreakBest: 0,
+      streakMilestone: null, openPDFs: [], deployStatus: null, deployRuns: [],
+      hasGithubToken: false,
     };
     let entries = [];
     let countdownTimer = null;
@@ -1506,7 +1694,9 @@
       // Streak badge
       const badge = document.getElementById('streakBadge');
       if ((s.syncStreak || 0) >= 2) {
-        badge.textContent = `🔥 ${s.syncStreak} syncs in a row`;
+        const bestStr = (s.syncStreakBest && s.syncStreakBest > s.syncStreak)
+          ? ` <span class="streak-best">(Best: ${s.syncStreakBest})</span>` : '';
+        badge.innerHTML = `🔥 ${s.syncStreak} syncs in a row${bestStr}`;
         badge.classList.add('visible');
       } else {
         badge.classList.remove('visible');
@@ -1517,7 +1707,13 @@
         triggerConfetti(s.streakMilestone);
       }
 
-      document.getElementById('syncBtn').disabled = s.isSyncing || s.isWaiting;
+      // Reset sync button spinner when sync starts (state takes over) or finishes
+      const syncBtnEl = document.getElementById('syncBtn');
+      if (syncBtnEl.classList.contains('btn-spinning')) {
+        syncBtnEl.classList.remove('btn-spinning');
+        syncBtnEl.innerHTML = '▶ Sync Now';
+      }
+      syncBtnEl.disabled = s.isSyncing || s.isWaiting;
       document.getElementById('noteBtn').disabled = s.isSyncing || s.isWaiting;
       const pauseBtn = document.getElementById('pauseBtn');
       pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
@@ -1536,10 +1732,24 @@
         pdfBanner.classList.remove('visible');
       }
 
-      // Sync steps visibility
+      // Sync steps visibility — persist 5s after sync finishes with fade-out
       document.getElementById('syncSteps').classList.toggle('visible', s.isSyncing);
       if (!s.isSyncing && wasSyncing) {
-        setTimeout(resetSteps, 2000);
+        // Mark any remaining active pills as done
+        document.querySelectorAll('.step-pill.active').forEach(el => {
+          el.classList.remove('active');
+          el.classList.add('done');
+        });
+        const stepsContainer = document.getElementById('syncSteps');
+        setTimeout(() => {
+          stepsContainer.style.transition = 'opacity 0.5s';
+          stepsContainer.style.opacity = '0';
+          setTimeout(() => {
+            resetSteps();
+            stepsContainer.style.opacity = '';
+            stepsContainer.style.transition = '';
+          }, 500);
+        }, 5000);
       }
 
       // Countdown
@@ -1614,8 +1824,9 @@
 
       toggleBtn.classList.toggle('active', terminal.classList.contains('open'));
 
-      // Deploy badge
+      // Deploy badge + run pills
       updateDeployBadge(s.deployStatus || null);
+      updateDeployRunPills(s.deployRuns || [], s.deployStatus?.runId);
 
       // Status dot morphing
       const dotState = getStateName(s);
@@ -1697,6 +1908,7 @@
       terminalUserOpen = !terminal.classList.contains('open');
       terminal.classList.toggle('open', terminalUserOpen);
       btn.classList.toggle('active', terminalUserOpen);
+      if (window.syncAPI) window.syncAPI.saveSettings({ terminalOpen: terminalUserOpen });
     }
 
     // ── Terminal output helpers ────────────────────────────────────────────
@@ -1742,11 +1954,21 @@
     // Sync Now: immediately trigger sync, open terminal
     function clickSyncNow() {
       if (status.isSyncing || status.isWaiting) return;
+      const btn = document.getElementById('syncBtn');
+      btn.innerHTML = '<span class="btn-spin-icon">⟳</span> Syncing…';
+      btn.classList.add('btn-spinning');
       // Force terminal open for visual feedback
       const terminal = document.getElementById('syncTerminal');
       terminal.classList.add('open');
       document.getElementById('terminalToggleBtn').classList.add('active');
       if (window.syncAPI) window.syncAPI.triggerSync('');
+      // Safety revert if sync doesn't start in 4s
+      setTimeout(() => {
+        if (btn.classList.contains('btn-spinning')) {
+          btn.classList.remove('btn-spinning');
+          btn.innerHTML = '▶ Sync Now';
+        }
+      }, 4000);
     }
 
     // Pencil button: toggle optional commit note
@@ -1882,25 +2104,82 @@
 
     // ── Deploy badge ───────────────────────────────────────────────────────
     let lastDeployStatus = null;
+    let deployElapsedTimer = null;
+
+    function startDeployElapsedTimer(startedAt) {
+      stopDeployElapsedTimer();
+      const meta = document.getElementById('deployBadgeMeta');
+      deployElapsedTimer = setInterval(() => {
+        if (!meta) return;
+        const elapsed = Math.floor((Date.now() - new Date(startedAt)) / 1000);
+        const m = Math.floor(elapsed / 60), s = elapsed % 60;
+        meta.textContent = m > 0 ? `${m}m ${s}s` : `${s}s`;
+      }, 1000);
+    }
+
+    function stopDeployElapsedTimer() {
+      clearInterval(deployElapsedTimer);
+      deployElapsedTimer = null;
+    }
+
+    function updateDeployRunPills(runs, activeRunId) {
+      const container = document.getElementById('deployRunPills');
+      if (!container || !runs || runs.length === 0) {
+        if (container) container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = runs.map(r => {
+        const isActive = r.runId === activeRunId;
+        let cls, icon;
+        if (r.status === 'in_progress') { cls = 'queued'; icon = '🛰'; }
+        else if (r.conclusion === 'success') { cls = 'success'; icon = '✓'; }
+        else if (r.conclusion === 'failure') { cls = 'failure'; icon = '✕'; }
+        else { cls = 'queued'; icon = '—'; }
+        return `<span class="deploy-run-pill ${cls}${isActive ? ' active' : ''}" onclick="loadDeployLogsForRun(${r.runId})" title="Run #${r.runNumber}">${icon} #${r.runNumber}</span>`;
+      }).join('');
+    }
+
+    async function loadDeployLogsForRun(runId) {
+      if (!window.syncAPI) return;
+      document.querySelectorAll('.deploy-run-pill').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.deploy-run-pill').forEach(p => {
+        if (p.getAttribute('onclick') === `loadDeployLogsForRun(${runId})`) p.classList.add('active');
+      });
+      document.getElementById('deployLogsBody').innerHTML =
+        '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">Loading logs…</div>';
+      const result = await window.syncAPI.getDeployLogs(runId);
+      if (result.error || !result.logs) {
+        document.getElementById('deployLogsBody').innerHTML =
+          `<div style="padding:10px 12px;font-size:11px;color:rgba(255,69,58,0.8)">${escHtml(result.error || 'No logs available')}</div>
+           <div style="text-align:center"><button class="deploy-retry-btn" onclick="loadDeployLogsForRun(${runId})">Retry ↺</button></div>`;
+        return;
+      }
+      document.getElementById('deployLogsBody').innerHTML = renderDeployLogs(result.job, result.logs);
+    }
+
+    function showDeployOnboarding() {
+      document.getElementById('deployLogsBody').innerHTML = `
+        <div class="deploy-onboarding" id="deployOnboarding">
+          <button class="deploy-onboarding-close" onclick="dismissDeployOnboarding()">✕</button>
+          <div class="deploy-onboarding-title">🔑 Connect your GitHub account</div>
+          <ol class="deploy-onboarding-steps">
+            <li><span class="step-num">1.</span><span>Go to <span class="deploy-onboarding-link" onclick="if(window.syncAPI)window.syncAPI.openGitHub('https://github.com/settings/tokens')">github.com/settings/tokens</span></span></li>
+            <li><span class="step-num">2.</span><span>Click <strong>Generate new token (classic)</strong></span></li>
+            <li><span class="step-num">3.</span><span>Enable scope: <strong>repo → Actions (read)</strong></span></li>
+            <li><span class="step-num">4.</span><span>Copy token → paste in <strong>⚙ Settings → GitHub Token → Save</strong></span></li>
+          </ol>
+        </div>`;
+    }
+
+    function dismissDeployOnboarding() {
+      document.getElementById('deployOnboarding')?.remove();
+      if (window.syncAPI) window.syncAPI.saveSettings({ deployOnboardingDismissed: true });
+    }
     let deployLogsOpen = false;
     let deployLogsRefreshTimer = null;
 
-    function updateDeploySubLabel(ds) {
-      const el   = document.getElementById('deploySubLabel');
-      const text = document.getElementById('deploySubLabelText');
-      const icon = el?.querySelector('.sub-icon');
-      if (!el) return;
-      if (ds?.status === 'in_progress') {
-        if (icon) icon.textContent = '🛰';
-        text.textContent = `Deploying #${ds.runNumber}`;
-        el.className = 'deploy-sub-label deploying visible';
-      } else if (ds?.status === 'queued') {
-        if (icon) icon.textContent = '🕐';
-        text.textContent = `Queued #${ds.runNumber}`;
-        el.className = 'deploy-sub-label queued visible';
-      } else {
-        el.className = 'deploy-sub-label';
-      }
+    function updateDeploySubLabel(_ds) {
+      // Sub-label removed — deploy badge is the canonical display
     }
 
     function startDeployRefresh() {
@@ -1928,7 +2207,11 @@
     function openDeployLogs() {
       deployLogsOpen = true;
       document.getElementById('deployLogsPanel').classList.add('open');
-      if (status.deployStatus?.runId) loadDeployLogs(false);
+      if (!status.hasGithubToken) {
+        showDeployOnboarding();
+      } else if (status.deployStatus?.runId) {
+        loadDeployLogs(false);
+      }
       if (status.deployStatus?.status === 'in_progress') startDeployRefresh();
     }
 
@@ -1976,7 +2259,24 @@
       icon.textContent = iconChar;
       icon.className = `deploy-badge-icon${iconClass ? ' ' + iconClass : ''}`;
       text.textContent = labelText;
-      meta.textContent = ds.updatedAt ? (timeAgo(ds.updatedAt) || '') : '';
+
+      // Elapsed timer for in-progress, otherwise relative time
+      if (ds.status === 'in_progress' && ds.updatedAt) {
+        startDeployElapsedTimer(ds.updatedAt);
+      } else {
+        stopDeployElapsedTimer();
+        meta.textContent = ds.updatedAt ? (timeAgo(ds.updatedAt) || '') : '';
+      }
+
+      // Deploy commit link below badge
+      const commitLink = document.getElementById('deployCommitLink');
+      if (commitLink && ds.headSha) {
+        commitLink.style.display = 'inline-block';
+        commitLink.textContent = `↳ ${ds.headSha.slice(0, 7)}`;
+        commitLink.onclick = () => { if (window.syncAPI) window.syncAPI.openGitHub(`${GITHUB_REPO}/commit/${ds.headSha}`); };
+      } else if (commitLink) {
+        commitLink.style.display = 'none';
+      }
 
       // Update the card sub-label
       updateDeploySubLabel(ds);
@@ -2017,7 +2317,8 @@
       const result = await window.syncAPI.getDeployLogs(runId);
       if (result.error || !result.logs) {
         document.getElementById('deployLogsBody').innerHTML =
-          `<div style="padding:10px 12px;font-size:11px;color:rgba(255,69,58,0.8)">${escHtml(result.error || 'No logs available')}</div>`;
+          `<div style="padding:10px 12px;font-size:11px;color:rgba(255,69,58,0.8)">${escHtml(result.error || 'No logs available')}</div>
+           <div style="text-align:center"><button class="deploy-retry-btn" onclick="loadDeployLogs(false)">Retry ↺</button></div>`;
         return;
       }
       document.getElementById('deployLogsBody').innerHTML = renderDeployLogs(result.job, result.logs);
@@ -2059,10 +2360,13 @@
 
     function renderDeployLogs(job, rawText) {
       const steps = parseDeployLogs(rawText);
+      const errSummaryEl = document.getElementById('deployErrSummary');
       if (steps.length === 0) {
+        if (errSummaryEl) { errSummaryEl.textContent = ''; errSummaryEl.className = 'deploy-err-summary'; }
         return '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">No structured log steps found.</div>';
       }
-      return steps.map((step, i) => {
+      let errorCount = 0, warnCount = 0;
+      const html = steps.map((step, i) => {
         const startTs = extractLogTimestamp(step.startLine || '');
         const endTs   = extractLogTimestamp(step.endLine   || '');
         const durMs   = startTs && endTs ? endTs - startTs : null;
@@ -2071,11 +2375,14 @@
           : '';
         const hasErr  = step.lines.some(l => l.cls === 'deploy-log-error');
         const hasWarn = step.lines.some(l => l.cls === 'deploy-log-warning');
+        if (hasErr) errorCount++;
+        else if (hasWarn) warnCount++;
         const stepIcon = hasErr ? '❌' : hasWarn ? '⚠️' : '✓';
         const linesHtml = step.lines.map(l =>
           `<div class="${l.cls}">${escHtml(l.text)}</div>`
         ).join('');
-        return `<div class="deploy-step" id="deploy-step-${i}">
+        // Auto-expand steps that have errors
+        return `<div class="deploy-step${hasErr ? ' expanded' : ''}" id="deploy-step-${i}">
           <div class="deploy-step-header" onclick="toggleDeployStep(${i})">
             <span class="deploy-step-icon">${stepIcon}</span>
             <span class="deploy-step-name">${escHtml(step.name)}</span>
@@ -2085,6 +2392,20 @@
           <div class="deploy-step-lines">${linesHtml}</div>
         </div>`;
       }).join('');
+      // Update error/warning summary in header
+      if (errSummaryEl) {
+        if (errorCount > 0) {
+          errSummaryEl.textContent = `• ${errorCount} error${errorCount > 1 ? 's' : ''}`;
+          errSummaryEl.className = 'deploy-err-summary has-errors';
+        } else if (warnCount > 0) {
+          errSummaryEl.textContent = `• ${warnCount} warning${warnCount > 1 ? 's' : ''}`;
+          errSummaryEl.className = 'deploy-err-summary has-warnings';
+        } else {
+          errSummaryEl.textContent = '';
+          errSummaryEl.className = 'deploy-err-summary';
+        }
+      }
+      return html;
     }
 
     function toggleDeployStep(i) {
@@ -2100,6 +2421,26 @@
     // ── Render entries ─────────────────────────────────────────────────────
     function statusIcon(s) {
       return s === 'success' ? '✅' : s === 'error' ? '❌' : '⚪';
+    }
+
+    function truncatePath(path, maxLen = 42) {
+      if (path.length <= maxLen) return escHtml(path);
+      const slash = path.lastIndexOf('/');
+      const filename = slash >= 0 ? path.slice(slash + 1) : path;
+      const dir = slash >= 0 ? path.slice(0, slash) : '';
+      const available = maxLen - filename.length - 4;
+      const truncDir = dir.length > 0
+        ? escHtml(available > 0 ? dir.slice(0, available) + '…' : '…') + '/'
+        : '';
+      return truncDir + `<strong>${escHtml(filename)}</strong>`;
+    }
+
+    function copySha(btn, sha) {
+      navigator.clipboard.writeText(sha).then(() => {
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1200);
+      }).catch(() => {});
     }
 
     function timeAgo(date) {
@@ -2135,21 +2476,35 @@
       const container = document.getElementById('entries');
       const empty = document.getElementById('emptyState');
 
-      if (!newEntries || newEntries.length === 0) {
+      // Filter out "already running" skip entries
+      const filtered = (newEntries || []).filter(e => e.subtype !== 'already-running');
+
+      if (filtered.length === 0) {
         container.innerHTML = '';
         empty.style.display = 'block';
+        const pill = document.getElementById('syncCountPill');
+        if (pill) pill.textContent = '';
+        entries = newEntries || [];
         return;
       }
       empty.style.display = 'none';
 
-      const newTopId = newEntries[0].timestamp;
+      // Update sync count badge
+      const successCount = filtered.filter(e => e.status === 'success').length;
+      const pill = document.getElementById('syncCountPill');
+      if (pill) pill.textContent = successCount > 0 ? `${successCount} syncs` : '';
+
+      const newTopId = filtered[0].timestamp;
       const isReallyNew = animate && knownTopId && newTopId !== knownTopId;
 
-      container.innerHTML = newEntries.map((e, i) => {
+      container.innerHTML = filtered.map((e, i) => {
         const isNew = isReallyNew && i === 0;
         const staggerClass = !animate && i > 0 && i <= 8 ? ` stagger-${i}` : '';
         const hasDetail = (e.errorLines && e.errorLines.length > 0) || (e.fileList && e.fileList.length > 0);
         const ghUrl = githubUrl(e);
+        const noInternetClass = e.subtype === 'no-internet' ? ' no-internet' : '';
+        const entryIcon = e.subtype === 'no-internet' ? '📵' : statusIcon(e.status);
+        const tsTitle = `title="${escHtml(new Date(e.timestamp).toLocaleString())}"`;
 
         let detailHtml = '';
         if (e.errorLines && e.errorLines.length > 0) {
@@ -2162,7 +2517,8 @@
             const addStr = f.add > 0 ? `<span class="file-list-add">+${f.add}</span>` : '';
             const delStr = f.del > 0 ? `<span class="file-list-del"> -${f.del}</span>` : '';
             const name = f.path.replace(/^content\//, '');
-            return `<div class="file-list-item"><span class="file-list-path" title="${escHtml(f.path)}">${escHtml(name)}</span>${addStr}${delStr}</div>`;
+            const displayName = truncatePath(name);
+            return `<div class="file-list-item"><span class="file-list-path" title="${escHtml(f.path)}">${displayName}</span>${addStr}${delStr}</div>`;
           }).join('') + `</div>`;
         }
 
@@ -2172,12 +2528,24 @@
             ${e.filesChanged  ? `<div class="entry-files">${escHtml(e.filesChanged)}</div>` : ''}
           </div>` : '';
 
+        const durBadge = e.durationSeconds != null
+          ? `<span class="entry-duration">${e.durationSeconds}s</span>` : '';
+
+        const shaBtn = e.commitSha
+          ? `<button class="copy-sha-btn" title="Copy commit SHA" onclick="event.stopPropagation();copySha(this,'${escHtml(e.commitSha)}')">⎘</button>`
+          : '';
+
+        const retryBtn = e.status === 'error'
+          ? `<button class="entry-retry-btn" onclick="event.stopPropagation();if(window.syncAPI)window.syncAPI.triggerSync('')" title="Retry sync">Retry ↺</button>`
+          : '';
+
         return `
-        <div class="entry ${e.status}${isNew ? ' new' : ''}${staggerClass}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
+        <div class="entry ${e.status}${noInternetClass}${isNew ? ' new' : ''}${staggerClass}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
           <div class="entry-row">
-            <span class="entry-icon">${statusIcon(e.status)}</span>
+            <span class="entry-icon">${entryIcon}</span>
             <span class="entry-summary">${escHtml(e.detail)}</span>
-            <span class="entry-time">${formatDate(e.timestamp)}</span>
+            <span class="entry-time" ${tsTitle}>${formatDate(e.timestamp)}</span>
+            ${durBadge}${shaBtn}${retryBtn}
             ${hasDetail ? '<button class="expand-btn" title="Expand">▼</button>' : ''}
             <button class="gh-btn" title="View on GitHub"
               onclick="event.stopPropagation(); openGitHub('${escHtml(ghUrl)}')"
@@ -2254,8 +2622,39 @@
         document.getElementById('quietStart').value = qh.start || '22:00';
         document.getElementById('quietEnd').value   = qh.end   || '07:00';
         document.getElementById('quietHoursTimes').classList.toggle('visible', !!qh.enabled);
+
+        // GitHub token
+        const tokenInput = document.getElementById('githubTokenInput');
+        if (tokenInput) tokenInput.value = s.githubToken || '';
       } else {
         document.getElementById('notifyErrors').checked = true;
+      }
+
+      // App version
+      if (window.syncAPI && window.syncAPI.getAppVersion) {
+        try {
+          const v = await window.syncAPI.getAppVersion();
+          const el = document.getElementById('settingsVersion');
+          if (el) el.textContent = `v${v}`;
+        } catch {}
+      }
+    }
+
+    function toggleTokenReveal() {
+      const input = document.getElementById('githubTokenInput');
+      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function saveGithubToken() {
+      const val = document.getElementById('githubTokenInput')?.value?.trim() || '';
+      if (window.syncAPI) {
+        window.syncAPI.saveSettings({ githubToken: val });
+        const btn = document.getElementById('tokenSaveBtn');
+        if (btn) {
+          btn.textContent = '✓';
+          btn.classList.add('saved');
+          setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2000);
+        }
       }
     }
 
@@ -2318,11 +2717,22 @@
       renderEntries(initialEntries, false);
       updateCard(initialStatus);
 
-      // Restore last sync output if not currently syncing
+      // Restore last sync output and terminal state
       if (!initialStatus.isSyncing) {
-        const lastOut = await window.syncAPI.getLastOutput();
+        const [lastOut, savedSettings] = await Promise.all([
+          window.syncAPI.getLastOutput(),
+          window.syncAPI.getSettings(),
+        ]);
         if (lastOut && lastOut.trim()) {
           setTerminalStatic(lastOut);
+          // Auto-open terminal when there's output to show
+          document.getElementById('syncTerminal').classList.add('open');
+          document.getElementById('terminalToggleBtn').classList.add('active');
+          document.getElementById('syncTerminalText').scrollTop = Infinity;
+        } else if (savedSettings.terminalOpen) {
+          // Restore remembered open state
+          document.getElementById('syncTerminal').classList.add('open');
+          document.getElementById('terminalToggleBtn').classList.add('active');
         }
       }
 
@@ -2347,8 +2757,8 @@
           document.getElementById('lastSyncTime').textContent =
             timeAgo(lastSync) || lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-        // Update deploy badge meta (relative time)
-        if (status.deployStatus?.updatedAt) {
+        // Update deploy badge meta (relative time, only when not showing elapsed timer)
+        if (status.deployStatus?.updatedAt && status.deployStatus.status !== 'in_progress') {
           const meta = document.getElementById('deployBadgeMeta');
           if (meta) meta.textContent = timeAgo(status.deployStatus.updatedAt) || '';
         }
@@ -2371,25 +2781,26 @@
       const mockEntries = [
         {
           timestamp: new Date(now - 2*60000).toISOString(),
-          status: 'success', detail: 'Synced', errorLines: [],
+          status: 'success', detail: 'Synced', errorLines: [], durationSeconds: 28,
           commitSha: 'a1b2c3d', commitMessage: 'Updated: Bread, Sabbath, Egypt',
           filesChanged: '3 files  +20  -5',
           fileList: [
             {path:'content/Notes/Foo.md', add:12, del:4},
             {path:'content/Daily/2026-03-27.md', add:3, del:0},
-            {path:'content/20 - Complete/01 - Idioms/Bread.md', add:5, del:1},
+            {path:'content/20 — Complete/01 — Idioms/Bread.md', add:5, del:1},
           ],
         },
         {
           timestamp: new Date(now - 32*60000).toISOString(),
-          status: 'success', detail: 'Synced', errorLines: [],
+          status: 'success', detail: 'Synced', errorLines: [], durationSeconds: 19,
           commitSha: 'e4f5a6b', commitMessage: 'Updated: Daily/2026-03-27',
           filesChanged: '1 file  +4',
           fileList: [{path:'content/Daily/2026-03-27.md', add:4, del:0}],
         },
-        { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', detail: 'Skipped -- no internet', errorLines: [], commitSha: null },
-        { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null },
-        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Updated: Armor of God, Fox, Wolf (+4 more)', filesChanged: '7 files  +58  -12' },
+        { timestamp: new Date(now - 62*60000).toISOString(),  status: 'skipped', subtype: 'no-internet', detail: 'Skipped — no internet', errorLines: [], commitSha: null },
+        { timestamp: new Date(now - 65*60000).toISOString(),  status: 'skipped', subtype: 'already-running', detail: 'Skipped — already running', errorLines: [], commitSha: null },
+        { timestamp: new Date(now - 92*60000).toISOString(),  status: 'error',   detail: 'Sync failed with exit code 1', errorLines: ['ERROR: Sync failed with exit code 1','WARN: git lfs pull had issues (non-fatal)'], commitSha: null, durationSeconds: 14 },
+        { timestamp: new Date(now - 122*60000).toISOString(), status: 'success', detail: 'Synced', errorLines: [], commitSha: 'c7d8e9f', commitMessage: 'Updated: Armor of God, Fox, Wolf (+4 more)', filesChanged: '7 files  +58  -12', durationSeconds: 32 },
       ];
       const mockStatus = {
         isSyncing: false, isWaiting: false, isPaused: false, isQuietHours: false,
@@ -2398,9 +2809,15 @@
         intervalSeconds: 1800,
         nextSyncAt: now - 2*60000 + 1800*1000,
         syncStartedAt: null,
-        syncStreak: 7,
+        syncStreak: 7, syncStreakBest: 23,
         streakMilestone: null,
         openPDFs: [],
+        hasGithubToken: true,
+        deployRuns: [
+          { runId: 23680259126, runNumber: 40, status: 'completed', conclusion: 'failure' },
+          { runId: 23680259127, runNumber: 41, status: 'completed', conclusion: 'success' },
+          { runId: 23680259128, runNumber: 42, status: 'completed', conclusion: 'success' },
+        ],
         deployStatus: {
           status: 'completed',
           conclusion: 'success',

@@ -117,20 +117,19 @@ function parseLog() {
         enrichEntry(current);
         sessions.push(current);
       }
-      current = { timestamp, status: 'success', detail: 'Synced', errorLines: [] };
+      current = { timestamp, startTimestamp: timestamp, status: 'success', detail: 'Synced', errorLines: [] };
       currentRawLines = [];
       continue;
     }
 
     if (msg === 'Already running, skipping.') {
       // Do NOT push/reset `current` — it is still in progress and will complete later.
-      // Just record the standalone skipped marker without disturbing the running session.
-      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped — already running', errorLines: [], commitSha: null });
+      sessions.push({ timestamp, status: 'skipped', subtype: 'already-running', detail: 'Skipped — already running', errorLines: [], commitSha: null });
       continue;
     }
     if (msg === 'No internet connection, skipping sync') {
       if (current) { current.commitSha = extractSha(currentRawLines); enrichEntry(current); sessions.push(current); }
-      sessions.push({ timestamp, status: 'skipped', detail: 'Skipped -- no internet', errorLines: [], commitSha: null });
+      sessions.push({ timestamp, status: 'skipped', subtype: 'no-internet', detail: 'Skipped — no internet', errorLines: [], commitSha: null });
       current = null; currentRawLines = [];
       continue;
     }
@@ -140,10 +139,12 @@ function parseLog() {
     if (msg === 'Sync completed successfully') {
       current.status = 'success';
       current.detail = 'Synced';
+      current.durationSeconds = Math.round((timestamp - current.startTimestamp) / 1000);
     } else if (msg.startsWith('ERROR:')) {
       current.status = 'error';
       current.detail = msg.replace(/^ERROR:\s*/, '');
       current.errorLines.push(msg);
+      current.durationSeconds = Math.round((timestamp - current.startTimestamp) / 1000);
     } else if (msg.startsWith('WARN:')) {
       current.errorLines.push(msg);
     }

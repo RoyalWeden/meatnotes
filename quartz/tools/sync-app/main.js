@@ -6,7 +6,7 @@ const os = require('os');
 const { spawn, execSync } = require('child_process');
 
 const { makeCircleIcon } = require('./icon-generator');
-const { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, unloadAgent, loadAgent } = require('./plist-manager');
+const { readPlist, writeInterval, removeStartInterval, isAgentLoaded, invalidateAgentCache, unloadAgent, loadAgent } = require('./plist-manager');
 const { getRecentEntries, getAllEntries, LOG_FILE } = require('./log-parser');
 const { hasPDFConflict, openPDFsInContent } = require('./pdf-detector');
 
@@ -80,13 +80,15 @@ let syncOutputOffset = 0;
 let lastStreakMilestone = null;  // milestone to announce, cleared after sending
 
 let nextSyncTimer = null;
-let nextSyncAt = null;      // ms timestamp — when next sync fires
-let syncStartedAt = null;   // ms timestamp — when current sync began
+let nextSyncAt = null;         // ms timestamp — when next sync fires
+let syncStartedAt = null;      // ms timestamp — when current sync began
+let pausedRemainingMs = null;  // ms remaining when paused — restored on resume
 let menuRebuildDebounceTimer = null;
 let windowUpdateDebounceTimer = null;
 
 // ── Deploy status state ────────────────────────────────────────────────────
-let deployStatus = null;    // { status, conclusion, runId, runNumber, updatedAt, url, headSha }
+let deployStatus = null;    // most recent run (primary)
+let deployRuns   = [];      // last 3 runs for mini history
 let deployPollTimer = null;
 
 // ── Last sync output ───────────────────────────────────────────────────────
@@ -111,7 +113,8 @@ function formatInterval(seconds) {
 }
 
 function getPlistInterval() {
-  try { return readPlist().startInterval; } catch { return 1800; }
+  // Interval is now stored in settings.json (not plist) so Electron is the sole scheduler
+  try { return loadSettings().intervalSeconds || 1800; } catch { return 1800; }
 }
 
 function getCountdownText(paused) {
@@ -149,9 +152,12 @@ function buildStatusPayload() {
     nextSyncAt: nextSyncAt,
     syncStartedAt: syncStartedAt,
     syncStreak: settings.syncStreak || 0,
+    syncStreakBest: settings.syncStreakBest || 0,
     streakMilestone: milestone || null,
     openPDFs,
     deployStatus,
+    deployRuns,
+    hasGithubToken: !!(loadSettings().githubToken || process.env.GITHUB_TOKEN),
   };
 }
 
@@ -161,22 +167,28 @@ function pushStatusToWindow() {
   }
 }
 
+// ── GitHub auth headers ────────────────────────────────────────────────────
+function getGithubHeaders() {
+  const token = loadSettings().githubToken || process.env.GITHUB_TOKEN || '';
+  const headers = { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
 // ── GitHub deploy status polling ───────────────────────────────────────────
 async function pollDeployStatus() {
   clearTimeout(deployPollTimer);
   try {
-    const url = `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/workflows/${DEPLOY_WORKFLOW_FILE}/runs?per_page=1`;
-    const res = await fetch(url, {
-      headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' },
-    });
-    // Respect rate limit
+    const url = `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/workflows/${DEPLOY_WORKFLOW_FILE}/runs?per_page=3`;
+    const res = await fetch(url, { headers: getGithubHeaders() });
     const remaining = parseInt(res.headers.get('X-RateLimit-Remaining') || '60', 10);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    const run = json.workflow_runs?.[0];
-    if (run) {
+    const runs = json.workflow_runs || [];
+
+    if (runs.length > 0) {
       const prev = deployStatus;
-      deployStatus = {
+      deployRuns = runs.map(run => ({
         status:     run.status,
         conclusion: run.conclusion,
         runId:      run.id,
@@ -184,8 +196,16 @@ async function pollDeployStatus() {
         updatedAt:  run.updated_at,
         url:        run.html_url,
         headSha:    run.head_sha,
-      };
-      // Only push to window if something changed
+      }));
+      deployStatus = deployRuns[0];
+
+      // Notify on deploy failure transition
+      const wasInProgress = prev?.status === 'in_progress';
+      const nowFailed = deployStatus.status === 'completed' && deployStatus.conclusion === 'failure';
+      if (wasInProgress && nowFailed) {
+        notifyError('Deploy Failed', `Run #${deployStatus.runNumber} failed. Check deploy logs in the sync window.`);
+      }
+
       if (!prev ||
           prev.status !== deployStatus.status ||
           prev.conclusion !== deployStatus.conclusion ||
@@ -193,13 +213,11 @@ async function pollDeployStatus() {
         pushStatusToWindow();
       }
     }
-    // Faster polling when in_progress, but back off if rate-limited
     const interval = remaining < 5 ? 60_000
       : deployStatus?.status === 'in_progress' ? 10_000
       : 60_000;
     deployPollTimer = setTimeout(pollDeployStatus, interval);
   } catch {
-    // Network errors are silent — deploy status is non-critical
     deployPollTimer = setTimeout(pollDeployStatus, 60_000);
   }
 }
@@ -255,6 +273,24 @@ function stopSpinner() {
   clearInterval(spinnerTimer);
   spinnerTimer = null;
   refreshTrayAppearance();
+}
+
+function flashTraySuccess() {
+  // Briefly pulse brighter on success
+  let count = 0;
+  const t = setInterval(() => {
+    setTrayState(count % 2 === 0 ? 'grey' : 'green', '');
+    if (++count >= 4) { clearInterval(t); refreshTrayAppearance(); }
+  }, 250);
+}
+
+function flashTrayError() {
+  // Flash red 3× before settling on steady red
+  let count = 0;
+  const t = setInterval(() => {
+    setTrayState(count % 2 === 0 ? 'grey' : 'red', '');
+    if (++count >= 6) { clearInterval(t); refreshTrayAppearance(); }
+  }, 300);
 }
 
 // ── Quiet hours helpers ────────────────────────────────────────────────────
@@ -382,9 +418,11 @@ function startLogWatcher() {
   try {
     logWatcher = fs.watch(LOG_FILE, { persistent: false }, () => {
       // Stream new log content to window while sync is running
-      if (isSyncing && logWindow && !logWindow.isDestroyed()) {
+      if (isSyncing) {
         try {
           const size = fs.statSync(LOG_FILE).size;
+          // Handle log rotation: if file shrank, reset offset
+          if (size < syncOutputOffset) syncOutputOffset = 0;
           if (size > syncOutputOffset) {
             const buf = Buffer.alloc(size - syncOutputOffset);
             const fd = fs.openSync(LOG_FILE, 'r');
@@ -392,9 +430,12 @@ function startLogWatcher() {
             fs.closeSync(fd);
             syncOutputOffset = size;
             const chunk = buf.toString('utf8');
-            // Accumulate for window re-opens (cap at 500KB)
+            // Always accumulate for window re-opens (cap at 500KB)
             if (lastSyncOutput.length < 500_000) lastSyncOutput += chunk;
-            logWindow.webContents.send('sync-output', chunk);
+            // Only send to renderer if window is open
+            if (logWindow && !logWindow.isDestroyed()) {
+              logWindow.webContents.send('sync-output', chunk);
+            }
           }
         } catch {}
       }
@@ -453,12 +494,12 @@ function buildMenu() {
   else if (lastSyncError) statusText = `\u274c  Error \u2014 last ${formatTime(lastSync)}`;
   else                    statusText = `\u2705  Synced \u2014 ${formatTime(lastSync)}`;
 
-  const recentItems = recent.length > 0
-    ? recent.map(e => ({
-        label: `  ${e.status === 'success' ? '\u2705' : e.status === 'error' ? '\u274c' : '\u26aa'}  ${formatTime(new Date(e.timestamp))}  \u2014  ${e.detail}`,
-        enabled: false,
-      }))
-    : [{ label: '  No entries yet', enabled: false }];
+  const recentItems = recent.filter(e => e.subtype !== 'already-running').map(e => {
+    const dur = e.durationSeconds != null ? `  \u2022 ${e.durationSeconds}s` : '';
+    const icon = e.subtype === 'no-internet' ? '\ud83d\udcf5' : e.status === 'success' ? '\u2705' : e.status === 'error' ? '\u274c' : '\u26aa';
+    return { label: `  ${icon}  ${formatTime(new Date(e.timestamp))}  \u2014  ${e.detail}${dur}`, enabled: false };
+  });
+  if (recentItems.length === 0) recentItems.push({ label: '  No entries yet', enabled: false });
 
   return Menu.buildFromTemplate([
     { label: statusText,                      enabled: false },
@@ -524,10 +565,16 @@ function runSync(commitMsg) {
       settings.syncStreak = 0;
       saveSettings(settings);
       notifyError('Sync Failed', `Sync exited with code ${code}. Check View All Logs.`);
+      flashTrayError();
     } else {
-      // Increment streak and check for milestone
+      flashTraySuccess();
+
+      // Increment streak and update personal best
       const prevStreak = settings.syncStreak || 0;
       settings.syncStreak = prevStreak + 1;
+      if (settings.syncStreak > (settings.syncStreakBest || 0)) {
+        settings.syncStreakBest = settings.syncStreak;
+      }
       saveSettings(settings);
 
       // Check milestone BEFORE saving to avoid re-announcing
@@ -678,9 +725,12 @@ function handleSyncNow(commitMsg) {
 
 function handlePauseResume() {
   if (isAgentLoaded()) {
+    // Save remaining time so resume can continue from where it left off
+    pausedRemainingMs = nextSyncAt ? Math.max(5000, nextSyncAt - Date.now()) : null;
+    saveSettings({ ...loadSettings(), pausedRemainingMs });
+
     unloadAgent();
-    invalidateAgentCache(); // flush stale TTL cache immediately
-    // Stop the in-app countdown timer too
+    invalidateAgentCache();
     clearTimeout(nextSyncTimer);
     nextSyncTimer = null;
     nextSyncAt = null;
@@ -688,10 +738,14 @@ function handlePauseResume() {
   } else {
     try {
       loadAgent();
-      invalidateAgentCache(); // flush stale TTL cache immediately
+      invalidateAgentCache();
       notifyIfAllowed('Quartz Sync', 'Auto-sync resumed.');
-      // Resume the in-app scheduler
-      scheduleNextSync();
+      // Resume from where we left off (or full interval if unknown)
+      const s = loadSettings();
+      const remaining = s.pausedRemainingMs ?? undefined;
+      saveSettings({ ...s, pausedRemainingMs: null });
+      pausedRemainingMs = null;
+      scheduleNextSync(remaining);
     } catch (err) {
       dialog.showErrorBox('Could not resume agent', err.message);
     }
@@ -703,11 +757,10 @@ function handlePauseResume() {
 
 function handleIntervalChange(seconds) {
   try {
-    const wasLoaded = isAgentLoaded();
-    if (wasLoaded) unloadAgent();
-    writeInterval(seconds);
-    if (wasLoaded) loadAgent();
+    saveSettings({ ...loadSettings(), intervalSeconds: seconds });
     notifyIfAllowed('Quartz Sync', `Auto-sync interval set to ${formatInterval(seconds)}.`);
+    // Reschedule with the new interval from now
+    scheduleNextSync(seconds * 1000);
   } catch (err) {
     dialog.showErrorBox('Could not change interval', err.message);
   }
@@ -798,7 +851,7 @@ ipcMain.handle('get-deploy-logs',  async (_e, runId) => {
   try {
     const jobsRes = await fetch(
       `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/runs/${runId}/jobs`,
-      { headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' } }
+      { headers: getGithubHeaders() }
     );
     if (!jobsRes.ok) throw new Error(`Jobs HTTP ${jobsRes.status}`);
     const jobsJson = await jobsRes.json();
@@ -808,7 +861,7 @@ ipcMain.handle('get-deploy-logs',  async (_e, runId) => {
     // GitHub returns 302 to a signed S3 URL — fetch follows redirects automatically
     const logsRes = await fetch(
       `https://api.github.com/repos/${GITHUB_API_OWNER}/${GITHUB_API_REPO}/actions/jobs/${job.id}/logs`,
-      { headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'quartz-sync-app' } }
+      { headers: getGithubHeaders() }
     );
     const logs = logsRes.ok ? await logsRes.text() : '';
     return { job, logs };
@@ -820,9 +873,7 @@ ipcMain.on('trigger-sync',         (_e, msg) => handleSyncNow(msg || undefined))
 ipcMain.on('toggle-pause',         () => handlePauseResume());
 ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-github',          (_e, url) => shell.openExternal(url));
-ipcMain.on('play-sound',           () => {
-  try { spawn('afplay', ['/System/Library/Sounds/Glass.aiff']); } catch {}
-});
+ipcMain.on('play-sound',           () => { /* sounds disabled */ });
 
 ipcMain.handle('get-settings', () => ({
   ...loadSettings(),
@@ -835,8 +886,10 @@ ipcMain.on('save-settings',  (_e, s) => {
     scheduleNextSync();
   }
 });
-ipcMain.on('set-login-item', (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
-ipcMain.on('set-interval',   (_e, s) => handleIntervalChange(s));
+ipcMain.on('set-login-item',  (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
+ipcMain.on('set-interval',    (_e, s) => handleIntervalChange(s));
+ipcMain.on('open-log-file',   () => { try { shell.showItemInFolder(LOG_FILE); } catch {} });
+ipcMain.handle('get-app-version', () => app.getVersion());
 
 // ── App init ───────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
@@ -845,6 +898,24 @@ app.whenReady().then(() => {
   // Default to open at login on first launch
   if (!app.getLoginItemSettings().openAtLogin) {
     app.setLoginItemSettings({ openAtLogin: true });
+  }
+
+  // Migrate interval from plist to settings.json (one-time, if not already done)
+  const initSettings = loadSettings();
+  if (!initSettings.intervalSeconds) {
+    try {
+      const plistData = readPlist();
+      const migratedInterval = plistData.startInterval || 1800;
+      saveSettings({ ...initSettings, intervalSeconds: migratedInterval });
+    } catch { saveSettings({ ...initSettings, intervalSeconds: 1800 }); }
+  }
+
+  // Remove StartInterval from plist so launchd no longer schedules the script.
+  // Electron app is now the sole scheduler — prevents double-sync "already running" skips.
+  const agentWasLoaded = isAgentLoaded();
+  removeStartInterval();
+  if (agentWasLoaded) {
+    try { unloadAgent(); loadAgent(); } catch {}
   }
 
   tray = new Tray(makeIcon('green'));
@@ -858,15 +929,23 @@ app.whenReady().then(() => {
   lastSyncOutput = loadLastOutputFromFile();
   pollDeployStatus(); // initial deploy status fetch
 
-  // Schedule first sync from last known time
-  const lastSync = getLastSyncTime();
-  if (lastSync && !isNaN(lastSync)) {
-    const elapsed = Date.now() - lastSync.getTime();
-    const interval = getPlistInterval() * 1000;
-    const remaining = Math.max(5000, interval - elapsed);
-    scheduleNextSync(remaining);
-  } else {
-    scheduleNextSync();
+  // Restore paused remaining time in case app restarted while paused
+  const startupSettings = loadSettings();
+  if (startupSettings.pausedRemainingMs) {
+    pausedRemainingMs = startupSettings.pausedRemainingMs;
+  }
+
+  // Schedule first sync from last known time (skip if agent is paused/unloaded)
+  if (isAgentLoaded()) {
+    const lastSync = getLastSyncTime();
+    if (lastSync && !isNaN(lastSync)) {
+      const elapsed = Date.now() - lastSync.getTime();
+      const interval = getPlistInterval() * 1000;
+      const remaining = Math.max(5000, interval - elapsed);
+      scheduleNextSync(remaining);
+    } else {
+      scheduleNextSync();
+    }
   }
 
   // Rebuild menu every 10s for countdown

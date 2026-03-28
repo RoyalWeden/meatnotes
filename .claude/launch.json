@@ -12,7 +12,8 @@
       "name": "sync-app-ui",
       "runtimeExecutable": "node",
       "runtimeArgs": ["quartz/tools/sync-app/preview-server.mjs"],
-      "port": 4321
+      "port": 4321,
+      "autoPort": true
     }
   ]
 }

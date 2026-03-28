@@ -21,6 +21,7 @@ const SETTINGS_FILE = path.join(os.homedir(), 'Library/Application Support/bible
 const GITHUB_API_OWNER = 'RoyalWeden';
 const GITHUB_API_REPO  = 'meatnotes';
 const DEPLOY_WORKFLOW_FILE = 'deploy.yml';
+const LAST_OUTPUT_FILE = path.join(os.homedir(), 'Library/Logs/quartz-sync-last-output.txt');
 
 const STREAK_MILESTONES = [5, 10, 25, 50, 100];
 
@@ -346,6 +347,35 @@ function buildSmartCommitMsg() {
   } catch { return null; }
 }
 
+// ── Last sync output persistence ──────────────────────────────────────────
+function saveLastOutput() {
+  try { fs.writeFileSync(LAST_OUTPUT_FILE, lastSyncOutput, 'utf8'); } catch {}
+}
+
+function loadLastOutputFromFile() {
+  try {
+    const data = fs.readFileSync(LAST_OUTPUT_FILE, 'utf8');
+    if (data && data.trim()) return data;
+  } catch {}
+  return '';
+}
+
+function reconstructLastOutput() {
+  try {
+    const raw = fs.readFileSync(LOG_FILE, 'utf8');
+    const lines = raw.split('\n');
+    let startIdx = -1;
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] Sync started$/.test(lines[i])) {
+        startIdx = i;
+        break;
+      }
+    }
+    if (startIdx === -1) return '';
+    return lines.slice(startIdx).join('\n');
+  } catch { return ''; }
+}
+
 // ── fs.watch for instant log refresh + live output streaming ───────────────
 function startLogWatcher() {
   if (logWatcher) return;
@@ -536,6 +566,9 @@ function runSync(commitMsg) {
         }
       } catch {}
     }
+
+    // Persist the terminal output so it survives app restarts
+    saveLastOutput();
 
     // Deploy likely just started — poll immediately
     pollDeployStatus();
@@ -754,7 +787,12 @@ function openLogWindow() {
 // ── IPC ────────────────────────────────────────────────────────────────────
 ipcMain.handle('get-log-entries',  () => getAllEntries());
 ipcMain.handle('get-sync-status',  () => buildStatusPayload());
-ipcMain.handle('get-last-output',  () => lastSyncOutput);
+ipcMain.handle('get-last-output',  () => {
+  if (lastSyncOutput && lastSyncOutput.trim()) return lastSyncOutput;
+  const fromFile = loadLastOutputFromFile();
+  if (fromFile) { lastSyncOutput = fromFile; return fromFile; }
+  return reconstructLastOutput();
+});
 
 ipcMain.handle('get-deploy-logs',  async (_e, runId) => {
   try {
@@ -816,6 +854,8 @@ app.whenReady().then(() => {
   refreshTrayAppearance();
   rebuildMenu();
   startLogWatcher();
+  // Pre-load last sync output from file so it's ready when window opens
+  lastSyncOutput = loadLastOutputFromFile();
   pollDeployStatus(); // initial deploy status fetch
 
   // Schedule first sync from last known time

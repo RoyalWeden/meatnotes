@@ -1047,6 +1047,155 @@
       60%  { opacity: 1; transform: translateY(2px) scale(1.005); }
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
+
+    /* ── Deploy sub-label on card ──────────────────────────────────────── */
+    .deploy-sub-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      transition: max-height 0.38s cubic-bezier(0.34,1.56,0.64,1),
+                  opacity 0.28s ease,
+                  margin-top 0.28s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .deploy-sub-label.visible {
+      max-height: 24px;
+      opacity: 1;
+      margin-top: 2px;
+    }
+    .deploy-sub-label.deploying { color: var(--orange); }
+    .deploy-sub-label.queued   { color: var(--grey); }
+    .deploy-sub-label .sub-icon { display: inline-block; }
+    .deploy-sub-label.deploying .sub-icon {
+      animation: deploy-orbit 2.8s linear infinite;
+    }
+    @keyframes deploy-sublabel-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.55; }
+    }
+    .deploy-sub-label.deploying {
+      animation: deploy-sublabel-pulse 2s ease-in-out infinite;
+    }
+
+    /* ── Status label morph animation ─────────────────────────────────── */
+    @keyframes status-morph {
+      0%   { opacity: 0; filter: blur(3px); transform: scale(0.94) translateY(-3px); }
+      100% { opacity: 1; filter: blur(0);   transform: scale(1)    translateY(0); }
+    }
+    .status-label.morphing { animation: status-morph 0.22s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+    /* ── Card ambient breathing glow ──────────────────────────────────── */
+    @keyframes card-breathe {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50%       { box-shadow: 0 0 28px 5px rgba(var(--accent-rgb), 0.13); }
+    }
+    .card.breathing { animation: card-breathe 2.6s ease-in-out infinite; }
+    .card.syncing.breathing { animation: card-sync-pulse 2.2s ease-in-out infinite,
+                                         card-breathe 2.6s ease-in-out infinite; }
+
+    /* ── Progress bar shimmer ──────────────────────────────────────────── */
+    .card-progress-bar {
+      background-size: 200% 100%;
+      animation: progress-slide 1.4s ease-in-out infinite,
+                 shimmer-sweep 2s linear infinite;
+    }
+    @keyframes shimmer-sweep {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .card-progress.visible .card-progress-bar {
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, rgba(255,255,255,0.85) 50%, var(--accent) 60%, transparent 100%);
+      background-size: 200% 100%;
+    }
+
+    /* ── Terminal enhancements ─────────────────────────────────────────── */
+    .sync-terminal { position: relative; }
+    .sync-terminal::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.025) 2px,
+        rgba(0,0,0,0.025) 4px
+      );
+      z-index: 1;
+      border-radius: 8px;
+    }
+    @keyframes term-line-in {
+      from { opacity: 0; transform: translateX(-3px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .term-line {
+      display: block;
+      animation: term-line-in 0.14s ease forwards;
+    }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    .term-cursor {
+      display: inline-block;
+      width: 5px;
+      height: 10px;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      border-radius: 1px;
+      margin-left: 2px;
+      animation: cursor-blink 1s step-end infinite;
+      opacity: 0.7;
+    }
+    .sync-terminal-text { position: relative; z-index: 2; }
+
+    /* ── Deploy badge breathing glow ──────────────────────────────────── */
+    @keyframes deploy-badge-breathe {
+      0%, 100% { box-shadow: none; }
+      50%       { box-shadow: 0 0 14px 2px rgba(255,159,10,0.28); }
+    }
+    .deploy-badge.in-progress.breathing {
+      animation: deploy-badge-breathe 2.2s ease-in-out infinite;
+    }
+    /* Stronger pop animation */
+    @keyframes deploy-pop-bold {
+      0%   { transform: scale(1);    filter: brightness(1); }
+      35%  { transform: scale(1.25); filter: brightness(1.7) drop-shadow(0 0 8px currentColor); }
+      65%  { transform: scale(0.96); filter: brightness(1.1); }
+      100% { transform: scale(1);    filter: brightness(1); }
+    }
+    .deploy-badge.pop { animation: deploy-pop-bold 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards !important; }
+
+    /* ── Deploy logs refresh indicator ────────────────────────────────── */
+    .deploy-refresh-indicator {
+      font-size: 9px;
+      color: rgba(255,255,255,0.25);
+      margin-right: 4px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .deploy-refresh-indicator.active { opacity: 1; }
+    @keyframes spin-refresh {
+      to { transform: rotate(360deg); }
+    }
+    .deploy-refresh-indicator.spinning { animation: spin-refresh 0.8s linear infinite; }
+
+    /* ── Log entry stagger ─────────────────────────────────────────────── */
+    .entry.stagger-1  { animation-delay: 40ms; }
+    .entry.stagger-2  { animation-delay: 80ms; }
+    .entry.stagger-3  { animation-delay: 120ms; }
+    .entry.stagger-4  { animation-delay: 160ms; }
+    .entry.stagger-5  { animation-delay: 200ms; }
+    .entry.stagger-6  { animation-delay: 240ms; }
+    .entry.stagger-7  { animation-delay: 280ms; }
+    .entry.stagger-8  { animation-delay: 320ms; }
   </style>
 </head>
 <body>
@@ -1067,7 +1216,13 @@
 
       <div class="card-top">
         <div class="status-dot" id="statusDot"></div>
-        <span class="status-label" id="statusLabel">Loading…</span>
+        <div>
+          <span class="status-label" id="statusLabel">Loading…</span>
+          <div class="deploy-sub-label" id="deploySubLabel">
+            <span class="sub-icon">🛰</span>
+            <span id="deploySubLabelText">Deploying</span>
+          </div>
+        </div>
       </div>
 
       <div class="streak-badge" id="streakBadge"></div>
@@ -1131,7 +1286,8 @@
     <div class="deploy-logs-panel" id="deployLogsPanel">
       <div class="deploy-logs-header">
         <span class="deploy-logs-label">🚀 Deploy Logs</span>
-        <button class="deploy-logs-close" onclick="toggleDeployLogs()">✕</button>
+        <span class="deploy-refresh-indicator" id="deployRefreshIndicator">⟳</span>
+        <button class="deploy-logs-close" onclick="closeDeployLogs()">✕</button>
       </div>
       <div class="deploy-logs-body" id="deployLogsBody">
         <button class="deploy-logs-load-btn" id="deployLogsLoadBtn" onclick="loadDeployLogs()">Load Deploy Logs</button>
@@ -1273,6 +1429,7 @@
     let nextSyncAt = null;
     let knownTopId = null;
     let lastSyncingState = false;
+    let lastCardStateName = null;
 
     // ── Card state machine ─────────────────────────────────────────────────
     const STATES = {
@@ -1314,7 +1471,22 @@
       dot.style.background = st.color;
       dot.className = 'status-dot' + (st.dotClass ? ' ' + st.dotClass : '');
 
-      document.getElementById('statusLabel').textContent = st.label;
+      // Morph animation when state label changes
+      const newStateName = getStateName(s);
+      const labelEl = document.getElementById('statusLabel');
+      if (lastCardStateName !== null && lastCardStateName !== newStateName) {
+        labelEl.classList.remove('morphing');
+        void labelEl.offsetWidth; // reflow to restart animation
+        labelEl.classList.add('morphing');
+        labelEl.addEventListener('animationend', () => labelEl.classList.remove('morphing'), { once: true });
+      }
+      lastCardStateName = newStateName;
+      labelEl.textContent = st.label;
+
+      // Ambient breathing glow on card during sync or deploy
+      const card = document.getElementById('card');
+      const isDeploying = s.deployStatus?.status === 'in_progress' || s.deployStatus?.status === 'queued';
+      card.classList.toggle('breathing', s.isSyncing || isDeploying);
 
       const prog = document.getElementById('cardProgress');
       prog.className = 'card-progress' + (st.progress ? ' visible' : '');
@@ -1423,8 +1595,13 @@
 
       if (s.isSyncing && !wasSyncing) {
         // Fresh sync started — clear terminal and open it
-        document.getElementById('syncTerminalText').textContent = '';
+        const termText = document.getElementById('syncTerminalText');
+        termText.innerHTML = '';
         terminal.classList.add('open');
+      }
+      if (!s.isSyncing && wasSyncing) {
+        // Sync finished — remove blinking cursor
+        document.getElementById('syncTerminalText')?.querySelector('.term-cursor')?.remove();
       }
 
       if (s.isSyncing) {
@@ -1520,6 +1697,43 @@
       terminalUserOpen = !terminal.classList.contains('open');
       terminal.classList.toggle('open', terminalUserOpen);
       btn.classList.toggle('active', terminalUserOpen);
+    }
+
+    // ── Terminal output helpers ────────────────────────────────────────────
+    function appendTerminalChunk(chunk) {
+      const el = document.getElementById('syncTerminalText');
+      if (!el) return;
+      // Remove existing cursor before appending
+      const existingCursor = el.querySelector('.term-cursor');
+      if (existingCursor) existingCursor.remove();
+
+      // Split chunk into lines and animate each
+      const lines = chunk.split('\n');
+      lines.forEach((line, idx) => {
+        if (idx > 0) {
+          const br = document.createElement('br');
+          el.appendChild(br);
+        }
+        if (line.length > 0) {
+          const span = document.createElement('span');
+          span.className = 'term-line';
+          span.textContent = line;
+          el.appendChild(span);
+        }
+      });
+
+      // Re-add cursor at end
+      const cursor = document.createElement('span');
+      cursor.className = 'term-cursor';
+      el.appendChild(cursor);
+
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function setTerminalStatic(text) {
+      const el = document.getElementById('syncTerminalText');
+      if (!el) return;
+      el.textContent = text;
     }
 
     // ── Commit message helpers ─────────────────────────────────────────────
@@ -1669,15 +1883,74 @@
     // ── Deploy badge ───────────────────────────────────────────────────────
     let lastDeployStatus = null;
     let deployLogsOpen = false;
+    let deployLogsRefreshTimer = null;
+
+    function updateDeploySubLabel(ds) {
+      const el   = document.getElementById('deploySubLabel');
+      const text = document.getElementById('deploySubLabelText');
+      const icon = el?.querySelector('.sub-icon');
+      if (!el) return;
+      if (ds?.status === 'in_progress') {
+        if (icon) icon.textContent = '🛰';
+        text.textContent = `Deploying #${ds.runNumber}`;
+        el.className = 'deploy-sub-label deploying visible';
+      } else if (ds?.status === 'queued') {
+        if (icon) icon.textContent = '🕐';
+        text.textContent = `Queued #${ds.runNumber}`;
+        el.className = 'deploy-sub-label queued visible';
+      } else {
+        el.className = 'deploy-sub-label';
+      }
+    }
+
+    function startDeployRefresh() {
+      stopDeployRefresh();
+      deployLogsRefreshTimer = setInterval(async () => {
+        if (!deployLogsOpen || status.deployStatus?.status !== 'in_progress') {
+          stopDeployRefresh();
+          return;
+        }
+        const ind = document.getElementById('deployRefreshIndicator');
+        if (ind) { ind.classList.add('active', 'spinning'); }
+        await loadDeployLogs(true);
+        if (ind) {
+          ind.classList.remove('spinning');
+          setTimeout(() => ind.classList.remove('active'), 600);
+        }
+      }, 15_000);
+    }
+
+    function stopDeployRefresh() {
+      clearInterval(deployLogsRefreshTimer);
+      deployLogsRefreshTimer = null;
+    }
+
+    function openDeployLogs() {
+      deployLogsOpen = true;
+      document.getElementById('deployLogsPanel').classList.add('open');
+      if (status.deployStatus?.runId) loadDeployLogs(false);
+      if (status.deployStatus?.status === 'in_progress') startDeployRefresh();
+    }
+
+    function closeDeployLogs() {
+      deployLogsOpen = false;
+      document.getElementById('deployLogsPanel').classList.remove('open');
+      stopDeployRefresh();
+    }
+
+    function toggleDeployLogs() {
+      deployLogsOpen ? closeDeployLogs() : openDeployLogs();
+    }
 
     function updateDeployBadge(ds) {
       const badge = document.getElementById('deployBadge');
       const icon  = document.getElementById('deployBadgeIcon');
       const text  = document.getElementById('deployBadgeText');
       const meta  = document.getElementById('deployBadgeMeta');
-      if (!ds) { badge.className = 'deploy-badge'; return; }
+      if (!ds) { badge.className = 'deploy-badge'; updateDeploySubLabel(null); return; }
 
       const wasInProgress = lastDeployStatus?.status === 'in_progress';
+      const nowInProgress = ds.status === 'in_progress';
       const nowSuccess    = ds.status === 'completed' && ds.conclusion === 'success';
       lastDeployStatus = ds;
 
@@ -1699,36 +1972,47 @@
         labelText = `Deploy #${ds.runNumber || '?'}`;
       }
 
-      badge.className = `deploy-badge visible ${stateClass}`;
+      badge.className = `deploy-badge visible ${stateClass}${nowInProgress ? ' breathing' : ''}`;
       icon.textContent = iconChar;
       icon.className = `deploy-badge-icon${iconClass ? ' ' + iconClass : ''}`;
       text.textContent = labelText;
       meta.textContent = ds.updatedAt ? (timeAgo(ds.updatedAt) || '') : '';
 
+      // Update the card sub-label
+      updateDeploySubLabel(ds);
+
       // Pop animation on success transition
       if (wasInProgress && nowSuccess) {
         badge.classList.add('pop');
         badge.addEventListener('animationend', () => badge.classList.remove('pop'), { once: true });
-        // Auto-refresh logs if panel is open
-        if (deployLogsOpen) loadDeployLogs();
+        stopDeployRefresh();
+        if (deployLogsOpen) loadDeployLogs(false);
+      }
+
+      // Auto-open deploy logs when deploy starts while window is open
+      if (!wasInProgress && nowInProgress && !deployLogsOpen) {
+        openDeployLogs();
+      }
+
+      // Start/stop refresh based on status
+      if (nowInProgress && deployLogsOpen && !deployLogsRefreshTimer) {
+        startDeployRefresh();
+      } else if (!nowInProgress) {
+        stopDeployRefresh();
       }
     }
 
-    function toggleDeployLogs() {
-      deployLogsOpen = !deployLogsOpen;
-      document.getElementById('deployLogsPanel').classList.toggle('open', deployLogsOpen);
-      if (deployLogsOpen && status.deployStatus?.runId) loadDeployLogs();
-    }
-
-    async function loadDeployLogs() {
+    async function loadDeployLogs(isRefresh = false) {
       const runId = status.deployStatus?.runId;
       if (!runId || !window.syncAPI) {
         document.getElementById('deployLogsBody').innerHTML =
           '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">No deploy run available.</div>';
         return;
       }
-      document.getElementById('deployLogsBody').innerHTML =
-        '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">Loading logs…</div>';
+      if (!isRefresh) {
+        document.getElementById('deployLogsBody').innerHTML =
+          '<div style="padding:10px 12px;font-size:11px;color:rgba(255,255,255,0.3)">Loading logs…</div>';
+      }
 
       const result = await window.syncAPI.getDeployLogs(runId);
       if (result.error || !result.logs) {
@@ -1863,6 +2147,7 @@
 
       container.innerHTML = newEntries.map((e, i) => {
         const isNew = isReallyNew && i === 0;
+        const staggerClass = !animate && i > 0 && i <= 8 ? ` stagger-${i}` : '';
         const hasDetail = (e.errorLines && e.errorLines.length > 0) || (e.fileList && e.fileList.length > 0);
         const ghUrl = githubUrl(e);
 
@@ -1888,7 +2173,7 @@
           </div>` : '';
 
         return `
-        <div class="entry ${e.status}${isNew ? ' new' : ''}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
+        <div class="entry ${e.status}${isNew ? ' new' : ''}${staggerClass}" data-ts="${escHtml(String(e.timestamp))}" onclick="toggleExpand(this)">
           <div class="entry-row">
             <span class="entry-icon">${statusIcon(e.status)}</span>
             <span class="entry-summary">${escHtml(e.detail)}</span>
@@ -2037,18 +2322,20 @@
       if (!initialStatus.isSyncing) {
         const lastOut = await window.syncAPI.getLastOutput();
         if (lastOut && lastOut.trim()) {
-          document.getElementById('syncTerminalText').textContent = lastOut;
+          setTerminalStatic(lastOut);
         }
+      }
+
+      // Auto-open deploy logs if a deploy is already in progress on window open
+      if (initialStatus.deployStatus?.status === 'in_progress') {
+        openDeployLogs();
       }
 
       window.syncAPI.onLogUpdate((e) => renderEntries(e, true));
       window.syncAPI.onSyncStatus((s) => updateCard(s));
 
       window.syncAPI.onSyncOutput((chunk) => {
-        const el = document.getElementById('syncTerminalText');
-        if (!el) return;
-        el.textContent += chunk;
-        el.scrollTop = el.scrollHeight;
+        appendTerminalChunk(chunk);
         detectStep(chunk);
       });
 

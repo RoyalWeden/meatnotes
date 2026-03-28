@@ -35,9 +35,22 @@ function writePlist(data) {
 }
 
 function writeInterval(seconds) {
-  const { raw } = readPlist();
-  raw.StartInterval = seconds;
-  writePlist(raw);
+  // Interval is now stored in settings.json, not in plist.
+  // This function is kept for API compatibility but is a no-op.
+  void seconds;
+}
+
+function removeStartInterval() {
+  try {
+    const { raw } = readPlist();
+    if (raw.StartInterval !== undefined) {
+      delete raw.StartInterval;
+      writePlist(raw);
+      invalidatePlistCache();
+    }
+  } catch {
+    // Plist may not exist yet — that's fine
+  }
 }
 
 let agentLoadedCache = null; // { result, ts }
@@ -72,4 +85,4 @@ function loadAgent() {
   execSync(`launchctl load "${PLIST_PATH}"`, { encoding: 'utf8' });
 }
 
-module.exports = { readPlist, writeInterval, isAgentLoaded, invalidateAgentCache, invalidatePlistCache, unloadAgent, loadAgent, PLIST_PATH };
+module.exports = { readPlist, writeInterval, removeStartInterval, isAgentLoaded, invalidateAgentCache, invalidatePlistCache, unloadAgent, loadAgent, PLIST_PATH };

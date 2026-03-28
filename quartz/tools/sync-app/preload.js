@@ -17,6 +17,9 @@ contextBridge.exposeInMainWorld('syncAPI', {
   setInterval:    (s) => ipcRenderer.send('set-interval', s),
   playSound:      () => ipcRenderer.send('play-sound'),
   // Output + deploy
-  getLastOutput:  () => ipcRenderer.invoke('get-last-output'),
-  getDeployLogs:  (runId) => ipcRenderer.invoke('get-deploy-logs', runId),
+  getLastOutput:   () => ipcRenderer.invoke('get-last-output'),
+  getDeployLogs:   (runId) => ipcRenderer.invoke('get-deploy-logs', runId),
+  // App info
+  getAppVersion:   () => ipcRenderer.invoke('get-app-version'),
+  openLogFile:     () => ipcRenderer.send('open-log-file'),
 });

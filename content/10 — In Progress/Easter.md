@@ -1,8 +1,8 @@
-See list of scriptures to use at [[00 — Capture/Easter List]].
+See list of scriptures to use at [[00 — Capture/Easter List]] .
 
 # Starter Questions
 
-- What does a Rabbit and Eggs have to do with Yeshua being resurrected?
+- Where did the eggs and rabbits come from? Do rabbits even lay eggs? How does that even relate to the resurrection?
 - How do you get 3 Days and 3 Nights from Friday Evening to Sunday Morning?
 - In Acts 12, why is the word Pascha ( Passover ) replaced with the word Easter?
 - Where does the word Easter originate? What is its etymology?

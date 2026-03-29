@@ -53,5 +53,10 @@
     "name": "pdfGroups",
     "type": "string",
     "options": null
+  },
+  {
+    "name": "shortlink",
+    "type": "string",
+    "options": null
   }
 ]

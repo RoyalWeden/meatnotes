@@ -1,3 +1,12 @@
+---
+shortlink: easterlist
+
+---
+
+
+
+
+
 Deuteronomy 12:30-32 (Don’t learn the heathen ways, don’t add nor diminish to what God commands)
 
 Acts 12:4 (“Easter” is supposed to be the word “Passover”, not “Easter”)

@@ -18,13 +18,13 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Fetch all history for git info
       - name: Create LFS file list
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > /tmp/lfs-ids.txt
       - name: Restore LFS cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .git/lfs
           key: lfs-${{ hashFiles('/tmp/lfs-ids.txt') }}
@@ -32,12 +32,12 @@ jobs:
       - name: Pull LFS objects
         run: git lfs pull
       - name: Restore Quartz font cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .quartz-cache/fonts
           key: quartz-fonts-${{ hashFiles('quartz.config.ts') }}
           restore-keys: quartz-fonts-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install Dependencies
@@ -45,7 +45,7 @@ jobs:
       - name: Build Quartz
         run: npx quartz build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: public
  
@@ -58,4 +58,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

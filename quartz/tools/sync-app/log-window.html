@@ -70,23 +70,6 @@
       user-select: none;
     }
     .titlebar-spacer { flex: 1; }
-    .titlebar-settings-btn {
-      -webkit-app-region: no-drag;
-      width: 22px; height: 22px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.35);
-      font-size: 15px;
-      line-height: 1;
-      cursor: pointer;
-      border-radius: 5px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, color 0.15s;
-      padding: 0;
-    }
-    .titlebar-settings-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
-    .titlebar-settings-btn.active { color: var(--accent); background: rgba(50,215,75,0.12); }
-
     /* ── Status card ── */
     .card {
       margin: 0 12px 12px;
@@ -302,6 +285,8 @@
       cursor: pointer;
       transition: opacity 0.15s, transform 0.1s;
       letter-spacing: 0.01em;
+      position: relative;
+      overflow: hidden;
     }
     .btn:active { transform: scale(0.96); }
     .btn:disabled { opacity: 0.35; cursor: default; }
@@ -367,55 +352,6 @@
     .commit-msg-input:focus { border-color: var(--accent); }
     .commit-msg-input::placeholder { color: rgba(255,255,255,0.3); }
 
-    /* ── Terminal (spring drawer) ── */
-    .sync-terminal {
-      margin: 0 12px;
-      background: rgba(0,0,0,0.35);
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      flex-shrink: 0;
-      transition: max-height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-                  margin-bottom 0.3s ease,
-                  opacity 0.3s ease;
-    }
-    .sync-terminal.open {
-      max-height: 260px;
-      margin-bottom: 10px;
-      opacity: 1;
-    }
-    .sync-terminal-header {
-      display: flex;
-      align-items: center;
-      padding: 5px 10px 3px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .sync-terminal-label {
-      flex: 1;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.2);
-    }
-    .sync-terminal-label.live { color: var(--accent); animation: step-pulse 1.2s ease-in-out infinite; }
-    .sync-terminal-text {
-      font-family: 'SF Mono', 'Menlo', monospace;
-      font-size: 10px;
-      color: rgba(255,255,255,0.45);
-      padding: 7px 10px;
-      margin: 0;
-      overflow-y: auto;
-      max-height: 220px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      line-height: 1.45;
-    }
-    .sync-terminal-text::-webkit-scrollbar { width: 3px; }
-    .sync-terminal-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
     /* ── Log list ── */
     .log-header-row {
       display: flex;
@@ -431,22 +367,6 @@
       letter-spacing: 0.08em;
       color: rgba(255,255,255,0.25);
     }
-    .terminal-toggle-btn {
-      font-size: 10px;
-      font-weight: 600;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 5px;
-      color: rgba(255,255,255,0.4);
-      padding: 2px 8px;
-      cursor: pointer;
-      letter-spacing: 0.02em;
-      -webkit-app-region: no-drag;
-      transition: background 0.15s, color 0.15s;
-    }
-    .terminal-toggle-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
-    .terminal-toggle-btn.active { color: var(--accent); background: rgba(var(--accent-rgb),0.1); border-color: rgba(var(--accent-rgb),0.25); }
-
     .entries {
       flex: 1;
       overflow-y: auto;
@@ -594,78 +514,14 @@
     }
     .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
 
-    /* ── Settings backdrop ── */
-    .settings-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-      z-index: 10;
-    }
-    .settings-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* ── Settings slide-in panel ── */
-    .settings-panel {
-      position: fixed;
-      top: 0; right: 0;
-      width: 360px;
-      height: 100%;
-      background: rgba(22, 22, 26, 0.97);
-      backdrop-filter: blur(28px) saturate(1.5);
-      -webkit-backdrop-filter: blur(28px) saturate(1.5);
-      border-left: 1px solid rgba(255,255,255,0.09);
-      transform: translateX(100%);
-      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 11;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .settings-panel.open { transform: translateX(0); }
-
-    .settings-panel-header {
-      -webkit-app-region: drag;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      padding: 0 14px 0 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      flex-shrink: 0;
-    }
-    .settings-panel-title {
-      flex: 1;
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.85);
-      letter-spacing: 0.02em;
-    }
-    .settings-close-btn {
-      -webkit-app-region: no-drag;
-      width: 22px; height: 22px;
-      border: none;
-      background: rgba(255,255,255,0.07);
-      color: rgba(255,255,255,0.5);
-      font-size: 16px;
-      line-height: 1;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-    }
-    .settings-close-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-
-    .settings-body {
+    /* ── Settings page ── */
+    .settings-page-body {
       flex: 1;
       overflow-y: auto;
       padding: 16px 0 20px;
     }
-    .settings-body::-webkit-scrollbar { width: 3px; }
-    .settings-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .settings-page-body::-webkit-scrollbar { width: 3px; }
+    .settings-page-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
     /* Settings sections */
     .settings-section {
@@ -1382,13 +1238,6 @@
     }
     .btn-secondary:not(:disabled):active { transform: translateY(0) scale(0.97); }
 
-    /* ── Settings gear spin on hover ────────────────────────────────────── */
-    .titlebar-settings-btn {
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s;
-    }
-    .titlebar-settings-btn:hover { transform: rotate(72deg) scale(1.15); }
-    .titlebar-settings-btn.active { transform: rotate(90deg); }
-
     /* ── Note button hover wobble ───────────────────────────────────────── */
     @keyframes btn-wobble {
       0%, 100% { transform: scale(1) rotate(0deg); }
@@ -1478,6 +1327,733 @@
       min-width: 70px;
       text-align: center;
     }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      height: 36px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      flex-shrink: 0;
+      background: rgba(30,30,30,0.55);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: color 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      -webkit-app-region: no-drag;
+      position: relative;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.6); }
+    .tab-btn.active { color: var(--accent); }
+    .tab-indicator {
+      position: absolute;
+      bottom: 0;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(52,199,89,0.6), 0 0 2px rgba(52,199,89,0.9);
+      transition: left 0.28s cubic-bezier(0.4,0,0.2,1), width 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .tab-badge {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .tab-badge.visible { opacity: 1; }
+
+    /* ── Page system ── */
+    .page-viewport {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+    .page {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      will-change: transform;
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.22s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .page.active {
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .page.slide-left {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ── Output page ── */
+    .output-step-bar {
+      flex-shrink: 0;
+      padding: 6px 12px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      min-height: 28px;
+    }
+    .output-terminal {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin: 8px 12px 10px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .output-terminal-header {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .output-terminal-label {
+      flex: 1;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+    }
+    .output-terminal-label.live { color: var(--accent); animation: step-pulse 1.2s ease-in-out infinite; }
+    .output-clear-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.3);
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .output-clear-btn:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+    .output-terminal-text {
+      flex: 1;
+      overflow-y: auto;
+      font: 10.5px/1.5 'SF Mono','Menlo',monospace;
+      color: rgba(255,255,255,0.55);
+      padding: 8px 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+    .output-terminal-text::-webkit-scrollbar { width: 3px; }
+    .output-terminal-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    @keyframes badge-bounce { 0%{transform:scale(1)} 40%{transform:scale(1.6)} 70%{transform:scale(0.88)} 100%{transform:scale(1)} }
+
+    /* ── Card spring animation (triggered via .entering) ── */
+    @keyframes card-spring-in {
+      from { transform: scale(0.95); opacity: 0.7; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Status page mini-syncs ── */
+    .status-recent-header {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px 6px;
+    }
+    .status-recent-title {
+      flex: 1;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.25);
+    }
+    .status-recent-link {
+      font-size: 10px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .status-recent-link:hover { opacity: 1; }
+    .status-recent-list {
+      padding: 0 12px 12px;
+    }
+    .status-mini-entry {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: background 0.12s;
+      font-size: 11px;
+    }
+    .status-mini-entry:hover { background: rgba(255,255,255,0.065); }
+    .status-mini-icon { font-size: 12px; flex-shrink: 0; }
+    .status-mini-detail { flex: 1; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .status-mini-time { font-size: 10px; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+    /* ── Streak count-up animation ── */
+    @keyframes streak-count-up {
+      from { transform: translateY(4px) scale(0.8); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .streak-num {
+      display: inline-block;
+      animation: streak-count-up 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       APPLE GLASSY LOOK — COMPREHENSIVE
+       All surfaces frosted, all transitions polished, macOS Sonoma vibrancy
+       ══════════════════════════════════════════════════════════════════════ */
+
+    /* ── Shell accent glow overlay ──────────────────────────────────────── */
+    .shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      pointer-events: none;
+      background: radial-gradient(ellipse 80% 40% at 50% 0%,
+        rgba(var(--accent-rgb), 0.06) 0%, transparent 65%);
+      z-index: 0;
+      transition: background 0.6s ease;
+    }
+    .shell > * { position: relative; z-index: 1; }
+
+    /* ── Status card — glass over JS gradient ───────────────────────────── */
+    .card {
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        inset 0 -1px 0 rgba(0,0,0,0.18);
+    }
+    /* Specular highlight — top edge glass sheen */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 42%;
+      border-radius: 14px 14px 40% 40%;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.08) 0%,
+        rgba(255,255,255,0.0) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Output terminal — deep glass panel ─────────────────────────────── */
+    .output-terminal {
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(24px) saturate(1.6);
+      -webkit-backdrop-filter: blur(24px) saturate(1.6);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      box-shadow:
+        0 4px 24px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 0 0 0.5px rgba(255,255,255,0.04);
+    }
+    .output-terminal-header {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    /* Scanlines overlay on terminal */
+    .output-terminal::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.03) 3px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+    .output-terminal > * { position: relative; z-index: 1; }
+
+    /* ── Output step bar ─────────────────────────────────────────────────── */
+    .output-step-bar {
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ── Deploy logs panel ───────────────────────────────────────────────── */
+    .deploy-logs-panel {
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* ── PDF banner ──────────────────────────────────────────────────────── */
+    .pdf-banner {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 16px rgba(255,149,10,0.1),
+                  inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    /* ── Deploy badge ────────────────────────────────────────────────────── */
+    .deploy-badge {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .deploy-badge.in-progress {
+      box-shadow: 0 0 12px rgba(255,159,10,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .deploy-badge.success {
+      box-shadow: 0 0 12px rgba(50,215,75,0.1), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    /* ── Pagination bar ──────────────────────────────────────────────────── */
+    .pagination-bar {
+      background: rgba(15,15,18,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .pagination-btn {
+      backdrop-filter: blur(8px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.1);
+      transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+    }
+    .pagination-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
+      transform: scale(1.04);
+    }
+
+    /* ── Log header row ──────────────────────────────────────────────────── */
+    .log-header-row {
+      background: rgba(15,15,18,0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 8px 16px;
+    }
+
+    /* ── Settings rows ───────────────────────────────────────────────────── */
+    .settings-page-body .settings-section .settings-rows {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px) saturate(1.6);
+      -webkit-backdrop-filter: blur(20px) saturate(1.6);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.25),
+                  inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .settings-row:hover, .settings-custom-row:hover {
+      background: rgba(255,255,255,0.04);
+      transition: background 0.15s;
+    }
+
+    /* ── Entry detail (expanded) ─────────────────────────────────────────── */
+    .entry-detail {
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    /* ── Commit message input ────────────────────────────────────────────── */
+    .commit-msg-input {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* ── Tab bar enhancements ────────────────────────────────────────────── */
+    .tab-btn {
+      transition: color 0.18s, background 0.18s, transform 0.1s;
+      border-radius: 0;
+    }
+    .tab-btn:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    .tab-btn:active {
+      transform: scale(0.92);
+      background: rgba(255,255,255,0.08);
+    }
+    .tab-btn.active {
+      background: rgba(var(--accent-rgb), 0.06);
+    }
+    .tab-indicator {
+      box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.8),
+                  0 0 3px rgba(var(--accent-rgb), 1);
+    }
+
+    /* ── Enhanced action buttons ─────────────────────────────────────────── */
+    .btn-primary {
+      background: linear-gradient(180deg,
+        rgba(var(--accent-rgb), 0.30) 0%,
+        rgba(var(--accent-rgb), 0.18) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(var(--accent-rgb), 0.38);
+      box-shadow: 0 1px 8px rgba(var(--accent-rgb), 0.18),
+                  inset 0 1px 0 rgba(255,255,255,0.18),
+                  inset 0 -1px 0 rgba(0,0,0,0.12);
+      color: rgba(255,255,255,0.95);
+    }
+    .btn-primary:hover:not(:disabled):not(.btn-spinning) {
+      background: linear-gradient(180deg,
+        rgba(var(--accent-rgb), 0.40) 0%,
+        rgba(var(--accent-rgb), 0.26) 100%);
+      box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.32),
+                  inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+    .btn-secondary {
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.10) 0%,
+        rgba(255,255,255,0.05) 100%);
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.10),
+                  inset 0 -1px 0 rgba(0,0,0,0.12);
+      color: rgba(255,255,255,0.82);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.14) 0%,
+        rgba(255,255,255,0.08) 100%);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25),
+                  inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    /* ── Mini entries — full glass treatment ─────────────────────────────── */
+    .status-mini-entry {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06),
+                  0 1px 4px rgba(0,0,0,0.1);
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .status-mini-entry:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22),
+                  inset 0 1px 0 rgba(255,255,255,0.10);
+    }
+    .status-mini-entry:active { transform: scale(0.98); }
+
+    /* ── Log entries — glass rows ────────────────────────────────────────── */
+    .entry {
+      background: rgba(255,255,255,0.015);
+    }
+    .entry:hover {
+      background: rgba(255,255,255,0.05);
+      border-bottom-color: rgba(255,255,255,0.07);
+      transform: translateX(2px);
+    }
+
+    /* ── Settings inputs — glass fields ─────────────────────────────────── */
+    .settings-custom-input,
+    .quiet-time-input,
+    .token-input {
+      background: rgba(255,255,255,0.07) !important;
+      border: 1px solid rgba(255,255,255,0.14) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 8px !important;
+      color: rgba(255,255,255,0.9) !important;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15),
+                  inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .settings-custom-input:focus,
+    .quiet-time-input:focus,
+    .token-input:focus {
+      border-color: rgba(var(--accent-rgb), 0.5) !important;
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15),
+                  inset 0 1px 3px rgba(0,0,0,0.12) !important;
+      outline: none;
+    }
+    .token-reveal-btn, .token-save-btn {
+      backdrop-filter: blur(8px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       PAGE ENTRANCE ANIMATIONS — stagger on every tab switch
+       ══════════════════════════════════════════════════════════════════════ */
+
+    @keyframes item-slide-up {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+    @keyframes item-slide-left {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes section-fade-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* JS adds .entering to the page when it becomes active */
+
+    /* Status page */
+    .page.entering .page-card-spring {
+      animation: item-slide-up 0.32s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .page.entering .deploy-logs-panel.open {
+      animation: item-slide-up 0.30s 0.05s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .page.entering .status-recent-header {
+      animation: fade-in 0.25s 0.08s ease both;
+    }
+    .page.entering .status-mini-entry:nth-child(1) { animation: item-slide-left 0.24s 0.10s ease both; }
+    .page.entering .status-mini-entry:nth-child(2) { animation: item-slide-left 0.24s 0.16s ease both; }
+    .page.entering .status-mini-entry:nth-child(3) { animation: item-slide-left 0.24s 0.22s ease both; }
+
+    /* Output page */
+    .page.entering .output-step-bar {
+      animation: section-fade-up 0.22s ease both;
+    }
+    .page.entering .output-terminal {
+      animation: item-slide-up 0.32s 0.05s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    /* History page */
+    .page.entering .log-header-row {
+      animation: section-fade-up 0.22s ease both;
+    }
+    .page.entering .entries {
+      animation: fade-in 0.28s 0.06s ease both;
+    }
+    .page.entering .pagination-bar.visible {
+      animation: section-fade-up 0.22s 0.10s ease both;
+    }
+
+    /* Settings page — stagger sections */
+    .page.entering .settings-section:nth-child(1) { animation: section-fade-up 0.28s 0.02s ease both; }
+    .page.entering .settings-section:nth-child(2) { animation: section-fade-up 0.28s 0.07s ease both; }
+    .page.entering .settings-section:nth-child(3) { animation: section-fade-up 0.28s 0.12s ease both; }
+    .page.entering .settings-section:nth-child(4) { animation: section-fade-up 0.28s 0.17s ease both; }
+    .page.entering .settings-section:nth-child(5) { animation: section-fade-up 0.28s 0.22s ease both; }
+    .page.entering .settings-footer {
+      animation: fade-in 0.28s 0.26s ease both;
+    }
+
+    /* ── Mini entries slide in when rendered ─────────────────────────────── */
+    @keyframes mini-entry-in {
+      from { opacity: 0; transform: translateX(-8px) scale(0.97); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .status-mini-entry:nth-child(1) { animation: mini-entry-in 0.22s 0.00s ease both; }
+    .status-mini-entry:nth-child(2) { animation: mini-entry-in 0.22s 0.06s ease both; }
+    .status-mini-entry:nth-child(3) { animation: mini-entry-in 0.22s 0.12s ease both; }
+
+    /* ── Step pill entrance ───────────────────────────────────────────────── */
+    @keyframes pill-pop-in {
+      from { opacity: 0; transform: scale(0.75) translateY(4px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .step-pill { animation: pill-pop-in 0.18s ease both; }
+
+    /* ── Empty state float ────────────────────────────────────────────────── */
+    @keyframes empty-float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-5px); }
+    }
+    .empty-state .empty-icon {
+      animation: empty-float 3.5s ease-in-out infinite, pulse-dot 3s ease-in-out infinite;
+    }
+
+    /* ── Glass button press ripple ────────────────────────────────────────── */
+    @keyframes btn-ripple {
+      from { transform: translate(-50%,-50%) scale(0); opacity: 0.35; }
+      to   { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+    }
+    .btn { overflow: hidden; }
+    .btn .btn-ripple {
+      position: absolute;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      pointer-events: none;
+      animation: btn-ripple 0.45s ease forwards;
+    }
+
+    /* ── Sync count pill pulse on update ─────────────────────────────────── */
+    @keyframes pill-update {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.25); background: rgba(var(--accent-rgb),0.2); }
+      100% { transform: scale(1); }
+    }
+    .sync-count-pill.updated { animation: pill-update 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+    /* ── Token save button flash ─────────────────────────────────────────── */
+    .token-save-btn.saved {
+      color: #32d74b;
+      border-color: rgba(50,215,75,0.35);
+      box-shadow: 0 0 8px rgba(50,215,75,0.25);
+    }
+
+    /* ── Settings footer glass ───────────────────────────────────────────── */
+    .settings-footer {
+      background: rgba(15,15,18,0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    /* ── Subtle page noise grain ─────────────────────────────────────────── */
+    .page-viewport::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.018;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 180px 180px;
+    }
+
+    /* ── Step pill stagger when batch-rendered ───────────────────────────── */
+    .step-pill:nth-child(1) { animation-delay: 0ms;  }
+    .step-pill:nth-child(2) { animation-delay: 30ms; }
+    .step-pill:nth-child(3) { animation-delay: 60ms; }
+    .step-pill:nth-child(4) { animation-delay: 90ms; }
+    .step-pill:nth-child(5) { animation-delay: 120ms; }
+    .step-pill:nth-child(6) { animation-delay: 150ms; }
+    .step-pill:nth-child(7) { animation-delay: 180ms; }
+    .step-pill:nth-child(8) { animation-delay: 210ms; }
+
+    /* ── Status recent "see all" arrow bounce ────────────────────────────── */
+    .status-recent-link:hover::after {
+      content: '';
+      display: inline-block;
+      animation: arrow-nudge 0.4s ease forwards;
+    }
+    @keyframes arrow-nudge {
+      0%   { transform: translateX(0); }
+      50%  { transform: translateX(3px); }
+      100% { transform: translateX(1px); }
+    }
+
+    /* ── Arc glow when countdown running ────────────────────────────────── */
+    .arc-fill {
+      filter: drop-shadow(0 0 3px rgba(var(--accent-rgb), 0.6));
+    }
+
+    /* ── Sync count pill glass ───────────────────────────────────────────── */
+    .sync-count-pill {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* ── Deploy run pills glass ──────────────────────────────────────────── */
+    .deploy-run-pill {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* ── Empty state glass card ──────────────────────────────────────────── */
+    .empty-state {
+      background: rgba(255,255,255,0.02);
+      margin: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* ── Duration badge glass ────────────────────────────────────────────── */
+    .entry-duration {
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* ── Card countdown glass wrap ───────────────────────────────────────── */
+    .card-countdown {
+      background: rgba(0,0,0,0.12);
+      border-radius: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* ── PDF force button glass ──────────────────────────────────────────── */
+    .pdf-force-btn {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    /* ── Onboarding banner glass ─────────────────────────────────────────── */
+    .deploy-onboarding {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 0 20px rgba(255,159,10,0.08),
+                  inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* ── History page — entry rows with left accent on status ───────────── */
+    .entry.success { border-left: 2px solid rgba(50,215,75,0.25); }
+    .entry.error   { border-left: 2px solid rgba(255,69,58,0.35); }
+    .entry.skipped { border-left: 2px solid rgba(142,142,147,0.2); }
+
+    /* ── Output terminal label live pulse — stronger ─────────────────────── */
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; text-shadow: 0 0 6px rgba(var(--accent-rgb),0.8); }
+      50%       { opacity: 0.6; text-shadow: none; }
+    }
+    .output-terminal-label.live {
+      animation: live-pulse 1.2s ease-in-out infinite;
+      color: var(--accent);
+    }
+
   </style>
 </head>
 <body>
@@ -1486,11 +2062,27 @@
     <div class="titlebar">
       Quartz Sync
       <div class="titlebar-spacer"></div>
-      <button class="titlebar-settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings (⌘,)">⚙</button>
     </div>
 
+    <!-- Tab bar -->
+    <nav class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="0" id="tabStatus">◉ Status</button>
+      <button class="tab-btn" data-tab="1" id="tabOutput">⌨ Output
+        <span class="tab-badge" id="outputBadge"></span>
+      </button>
+      <button class="tab-btn" data-tab="2" id="tabHistory">☰ History</button>
+      <button class="tab-btn" data-tab="3" id="tabSettings">⚙</button>
+      <span class="tab-indicator" id="tabIndicator"></span>
+    </nav>
+
+    <!-- Page viewport -->
+    <div class="page-viewport" id="pageViewport">
+
+      <!-- Page 0: Status -->
+      <div class="page active" id="pageStatus">
+
     <!-- Status card -->
-    <div class="card" id="card">
+    <div class="card page-card-spring" id="card">
       <div class="card-glow" id="cardGlow"></div>
       <div class="card-progress" id="cardProgress">
         <div class="card-progress-bar"></div>
@@ -1531,8 +2123,6 @@
         <button class="pdf-force-btn" onclick="forceSyncNow()">Force Sync</button>
       </div>
 
-      <div class="sync-steps" id="syncSteps"></div>
-
       <div class="card-countdown" id="cardCountdown">
         <div class="arc-wrap">
           <svg class="arc-svg" viewBox="0 0 36 36">
@@ -1557,14 +2147,6 @@
       </div>
     </div>
 
-    <!-- Live sync terminal (spring drawer) -->
-    <div class="sync-terminal" id="syncTerminal">
-      <div class="sync-terminal-header">
-        <span class="sync-terminal-label" id="terminalLabel">Live Output</span>
-      </div>
-      <pre class="sync-terminal-text" id="syncTerminalText"></pre>
-    </div>
-
     <!-- Deploy logs panel -->
     <div class="deploy-logs-panel" id="deployLogsPanel">
       <div class="deploy-logs-header">
@@ -1579,144 +2161,301 @@
       </div>
     </div>
 
-    <!-- Log list -->
-    <div class="log-header-row">
-      <span class="log-header-title">Sync History</span>
-      <span class="sync-count-pill" id="syncCountPill"></span>
-      <button class="terminal-toggle-btn" id="terminalToggleBtn" onclick="toggleTerminal()">◀ Output</button>
+    <!-- Mini recent syncs -->
+    <div class="status-recent-header" id="statusRecentHeader" style="display:none;">
+      <span class="status-recent-title">Recent Syncs</span>
+      <button class="status-recent-link" onclick="switchTab(TAB_HISTORY)">See all →</button>
     </div>
-    <div class="entries" id="entries"></div>
-    <div class="pagination-bar" id="paginationBar">
-      <button class="pagination-btn" id="pagePrev" onclick="goToPage(currentPage - 1)">← Prev</button>
-      <span class="pagination-info" id="pageInfo">Page 1</span>
-      <button class="pagination-btn" id="pageNext" onclick="goToPage(currentPage + 1)">Next →</button>
-    </div>
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">🌟</div>
-      <div class="empty-title">Ready to sync</div>
-      <div class="empty-sub">Click Sync Now or wait for the next<br>auto-sync to see your history here.</div>
-    </div>
-  </div>
+    <div class="status-recent-list" id="statusRecentList"></div>
 
-  <!-- Settings backdrop (click to close) -->
-  <div class="settings-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+      </div><!-- /pageStatus -->
 
-  <!-- Settings panel -->
-  <div class="settings-panel" id="settingsPanel">
-    <div class="settings-panel-header">
-      <span class="settings-panel-title">Settings</span>
-      <button class="settings-close-btn" onclick="closeSettings()">×</button>
-    </div>
-    <div class="settings-body">
-
-      <!-- Sync Interval -->
-      <div class="settings-section">
-        <div class="settings-section-title">Sync Interval</div>
-        <div class="settings-rows">
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="interval" id="int15" value="900" onchange="applyInterval(900)">
-            <label class="settings-row-label" for="int15">15 minutes</label>
+      <!-- Page 1: Output -->
+      <div class="page" id="pageOutput">
+        <div class="output-step-bar" id="outputStepBar"></div>
+        <div class="output-terminal">
+          <div class="output-terminal-header">
+            <span class="output-terminal-label" id="outputTerminalLabel">Last Output</span>
+            <button class="output-clear-btn" onclick="document.getElementById('syncTerminalText').innerHTML=''">Clear</button>
           </div>
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="interval" id="int30" value="1800" onchange="applyInterval(1800)">
-            <label class="settings-row-label" for="int30">30 minutes</label>
-          </div>
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="interval" id="int60" value="3600" onchange="applyInterval(3600)">
-            <label class="settings-row-label" for="int60">1 hour</label>
-          </div>
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="interval" id="int120" value="7200" onchange="applyInterval(7200)">
-            <label class="settings-row-label" for="int120">2 hours</label>
-          </div>
-          <div class="settings-custom-row">
-            <input type="radio" class="settings-custom-radio" name="interval" id="intCustom" value="custom">
-            <label class="settings-custom-label" for="intCustom">Custom</label>
-            <input type="number" class="settings-custom-input" id="customIntervalInput"
-                   min="1" max="1440" placeholder="30"
-                   oninput="onCustomIntervalInput()" onfocus="selectCustomRadio()">
-            <span class="settings-custom-suffix">min</span>
-          </div>
+          <pre class="output-terminal-text" id="syncTerminalText"></pre>
         </div>
       </div>
 
-      <!-- Notifications -->
-      <div class="settings-section">
-        <div class="settings-section-title">Notifications</div>
-        <div class="settings-rows">
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyAll" value="all" onchange="applyNotifyLevel('all')">
-            <label class="settings-row-label" for="notifyAll">All syncs</label>
-          </div>
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyErrors" value="errors" onchange="applyNotifyLevel('errors')">
-            <label class="settings-row-label" for="notifyErrors">Errors only</label>
-          </div>
-          <div class="settings-row">
-            <input type="radio" class="settings-radio" name="notifyLevel" id="notifyNever" value="never" onchange="applyNotifyLevel('never')">
-            <label class="settings-row-label" for="notifyNever">Never</label>
-          </div>
+      <!-- Page 2: History -->
+      <div class="page" id="pageHistory">
+        <div class="log-header-row">
+          <span class="log-header-title">Sync History</span>
+          <span class="sync-count-pill" id="syncCountPill"></span>
+        </div>
+        <div class="entries" id="entries"></div>
+        <div class="pagination-bar" id="paginationBar">
+          <button class="pagination-btn" id="pagePrev" onclick="goToPage(currentPage - 1)">← Prev</button>
+          <span class="pagination-info" id="pageInfo">Page 1</span>
+          <button class="pagination-btn" id="pageNext" onclick="goToPage(currentPage + 1)">Next →</button>
+        </div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🌟</div>
+          <div class="empty-title">Ready to sync</div>
+          <div class="empty-sub">Click Sync Now or wait for the next<br>auto-sync to see your history here.</div>
         </div>
       </div>
 
-      <!-- Quiet Hours -->
-      <div class="settings-section">
-        <div class="settings-section-title">Quiet Hours</div>
-        <div class="settings-rows">
-          <div class="settings-row">
-            <span class="settings-row-label">Enable Quiet Hours</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="quietHoursToggle" onchange="applyQuietHours()">
-              <span class="toggle-track"></span>
-            </label>
-          </div>
-          <div class="quiet-hours-times" id="quietHoursTimes">
-            <label>From</label>
-            <input type="time" class="quiet-time-input" id="quietStart" value="22:00" onchange="applyQuietHours()">
-            <span class="quiet-time-sep">to</span>
-            <input type="time" class="quiet-time-input" id="quietEnd" value="07:00" onchange="applyQuietHours()">
-          </div>
-        </div>
-      </div>
+      <!-- Page 3: Settings -->
+      <div class="page" id="pageSettings">
+        <div class="settings-page-body">
 
-      <!-- General -->
-      <div class="settings-section">
-        <div class="settings-section-title">General</div>
-        <div class="settings-rows">
-          <div class="settings-row">
-            <span class="settings-row-label">Open at Login</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="loginItemToggle" onchange="applyLoginItem(this.checked)">
-              <span class="toggle-track"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- GitHub Integration -->
-      <div class="settings-section">
-        <div class="settings-section-title">GitHub Integration</div>
-        <div class="settings-rows">
-          <div class="settings-custom-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
-            <span class="settings-custom-label">GitHub Token</span>
-            <div class="token-input-row">
-              <input type="password" class="token-input" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-              <button class="token-reveal-btn" onclick="toggleTokenReveal()">👁</button>
-              <button class="token-save-btn" id="tokenSaveBtn" onclick="saveGithubToken()">Save</button>
+          <!-- Sync Interval -->
+          <div class="settings-section">
+            <div class="settings-section-title">Sync Interval</div>
+            <div class="settings-rows">
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="interval" id="int15" value="900" onchange="applyInterval(900)">
+                <label class="settings-row-label" for="int15">15 minutes</label>
+              </div>
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="interval" id="int30" value="1800" onchange="applyInterval(1800)">
+                <label class="settings-row-label" for="int30">30 minutes</label>
+              </div>
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="interval" id="int60" value="3600" onchange="applyInterval(3600)">
+                <label class="settings-row-label" for="int60">1 hour</label>
+              </div>
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="interval" id="int120" value="7200" onchange="applyInterval(7200)">
+                <label class="settings-row-label" for="int120">2 hours</label>
+              </div>
+              <div class="settings-custom-row">
+                <input type="radio" class="settings-custom-radio" name="interval" id="intCustom" value="custom">
+                <label class="settings-custom-label" for="intCustom">Custom</label>
+                <input type="number" class="settings-custom-input" id="customIntervalInput"
+                       min="1" max="1440" placeholder="30"
+                       oninput="onCustomIntervalInput()" onfocus="selectCustomRadio()">
+                <span class="settings-custom-suffix">min</span>
+              </div>
             </div>
-            <div class="token-hint">Required for deploy logs. Generate at github.com/settings/tokens<br>with <strong>repo → Actions (read)</strong> scope.</div>
           </div>
+
+          <!-- Notifications -->
+          <div class="settings-section">
+            <div class="settings-section-title">Notifications</div>
+            <div class="settings-rows">
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyAll" value="all" onchange="applyNotifyLevel('all')">
+                <label class="settings-row-label" for="notifyAll">All syncs</label>
+              </div>
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyErrors" value="errors" onchange="applyNotifyLevel('errors')">
+                <label class="settings-row-label" for="notifyErrors">Errors only</label>
+              </div>
+              <div class="settings-row">
+                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyNever" value="never" onchange="applyNotifyLevel('never')">
+                <label class="settings-row-label" for="notifyNever">Never</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quiet Hours -->
+          <div class="settings-section">
+            <div class="settings-section-title">Quiet Hours</div>
+            <div class="settings-rows">
+              <div class="settings-row">
+                <span class="settings-row-label">Enable Quiet Hours</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="quietHoursToggle" onchange="applyQuietHours()">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="quiet-hours-times" id="quietHoursTimes">
+                <label>From</label>
+                <input type="time" class="quiet-time-input" id="quietStart" value="22:00" onchange="applyQuietHours()">
+                <span class="quiet-time-sep">to</span>
+                <input type="time" class="quiet-time-input" id="quietEnd" value="07:00" onchange="applyQuietHours()">
+              </div>
+            </div>
+          </div>
+
+          <!-- General -->
+          <div class="settings-section">
+            <div class="settings-section-title">General</div>
+            <div class="settings-rows">
+              <div class="settings-row">
+                <span class="settings-row-label">Open at Login</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="loginItemToggle" onchange="applyLoginItem(this.checked)">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- GitHub Integration -->
+          <div class="settings-section">
+            <div class="settings-section-title">GitHub Integration</div>
+            <div class="settings-rows">
+              <div class="settings-custom-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                <span class="settings-custom-label">GitHub Token</span>
+                <div class="token-input-row">
+                  <input type="password" class="token-input" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                  <button class="token-reveal-btn" onclick="toggleTokenReveal()">👁</button>
+                  <button class="token-save-btn" id="tokenSaveBtn" onclick="saveGithubToken()">Save</button>
+                </div>
+                <div class="token-hint">Required for deploy logs. Generate at github.com/settings/tokens<br>with <strong>repo → Actions (read)</strong> scope.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="settings-footer">
+          <span class="settings-version" id="settingsVersion">v—</span>
+          <button class="settings-open-log-btn" onclick="if(window.syncAPI)window.syncAPI.openLogFile()">Open Log File 📂</button>
         </div>
       </div>
 
-    </div>
-    <div class="settings-footer">
-      <span class="settings-version" id="settingsVersion">v—</span>
-      <button class="settings-open-log-btn" onclick="if(window.syncAPI)window.syncAPI.openLogFile()">Open Log File 📂</button>
-    </div>
-  </div>
+    </div><!-- /page-viewport -->
+  </div><!-- /shell -->
 
   <script>
+    // ── Tab navigation ──────────────────────────────────────────────────────
+    const TAB_STATUS = 0, TAB_OUTPUT = 1, TAB_HISTORY = 2, TAB_SETTINGS = 3;
+    let currentTab = 0;
+    let previousTab = 0;
+
+    const pages = () => document.querySelectorAll('.page');
+    const tabBtns = () => document.querySelectorAll('.tab-btn');
+
+    function switchTab(idx, force) {
+      if (idx === currentTab && !force) return;
+      previousTab = currentTab;
+
+      // Clear entering from all pages before transition
+      pages().forEach(p => p.classList.remove('entering'));
+
+      pages().forEach((page, i) => {
+        page.classList.remove('active', 'slide-left');
+        if (i === idx) {
+          page.classList.add('active');
+        } else if (i < idx) {
+          page.classList.add('slide-left');
+        }
+      });
+
+      tabBtns().forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+      });
+
+      currentTab = idx;
+      updateTabIndicator(idx);
+
+      // Trigger entrance animations after a microtask (so 'active' paint is done)
+      const enteringPage = document.querySelectorAll('.page')[idx];
+      requestAnimationFrame(() => {
+        enteringPage.classList.add('entering');
+      });
+
+      onTabEnter(idx);
+      try { localStorage.setItem('syncApp_tab', idx); } catch {}
+    }
+
+    function updateTabIndicator(idx) {
+      const bar = document.getElementById('tabBar');
+      const indicator = document.getElementById('tabIndicator');
+      const btn = tabBtns()[idx];
+      if (!bar || !indicator || !btn) return;
+      const barRect = bar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      indicator.style.left = (btnRect.left - barRect.left) + 'px';
+      indicator.style.width = btnRect.width + 'px';
+    }
+
+    function onTabEnter(idx) {
+      if (idx === TAB_OUTPUT) {
+        // Clear output badge
+        const badge = document.getElementById('outputBadge');
+        if (badge) badge.classList.remove('visible');
+        // Load last output if terminal empty and not syncing
+        const el = document.getElementById('syncTerminalText');
+        if (el && !el.textContent.trim() && window.syncAPI && !status.isSyncing) {
+          window.syncAPI.getLastOutput().then(out => {
+            if (out && out.trim()) {
+              setTerminalStatic(out);
+              setTimeout(() => { if (el) el.scrollTop = el.scrollHeight; }, 100);
+            } else {
+              el.textContent = '(No output recorded for last sync)';
+            }
+          }).catch(() => {});
+        }
+      }
+      if (idx === TAB_SETTINGS) {
+        loadSettingsIntoPanel();
+      }
+      if (idx === TAB_HISTORY) {
+        // Refresh relative timestamps
+        if (typeof entries !== 'undefined' && entries.length > 0) {
+          const expanded = new Set(
+            [...document.querySelectorAll('.entry.expanded')].map(el => el.dataset.ts)
+          );
+          renderEntries(entries, false);
+          expanded.forEach(ts => {
+            document.querySelector(`.entry[data-ts="${CSS.escape(ts)}"]`)?.classList.add('expanded');
+          });
+        }
+      }
+    }
+
+    function showOutputBadge() {
+      if (currentTab === TAB_OUTPUT) return;
+      const badge = document.getElementById('outputBadge');
+      if (badge && !badge.classList.contains('visible')) {
+        badge.classList.add('visible');
+        badge.style.animation = 'badge-bounce 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+        badge.addEventListener('animationend', () => { badge.style.animation = ''; }, { once: true });
+      }
+    }
+
+    // Wire tab button clicks
+    document.addEventListener('DOMContentLoaded', () => {
+      tabBtns().forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(parseInt(btn.dataset.tab, 10));
+        });
+      });
+
+      // Button ripple effect on all .btn elements
+      document.addEventListener('click', e => {
+        const btn = e.target.closest('.btn');
+        if (!btn || btn.disabled) return;
+        const ripple = document.createElement('span');
+        ripple.className = 'btn-ripple';
+        const r = btn.getBoundingClientRect();
+        ripple.style.left = (e.clientX - r.left) + 'px';
+        ripple.style.top  = (e.clientY - r.top)  + 'px';
+        btn.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+      });
+
+      // Restore saved tab
+      try {
+        const saved = parseInt(localStorage.getItem('syncApp_tab'), 10);
+        if (!isNaN(saved) && saved >= 0 && saved <= 3) {
+          switchTab(saved, true);
+        } else {
+          // Fire entrance on default tab 0
+          requestAnimationFrame(() => {
+            document.querySelectorAll('.page')[0]?.classList.add('entering');
+          });
+          updateTabIndicator(0);
+        }
+      } catch {
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.page')[0]?.classList.add('entering');
+        });
+        updateTabIndicator(0);
+      }
+      // Reposition indicator on resize
+      window.addEventListener('resize', () => updateTabIndicator(currentTab));
+    });
+
     const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
 
     // ── Accent RGB map ──────────────────────────────────────────────────────
@@ -1823,7 +2562,7 @@
       if ((s.syncStreak || 0) >= 2) {
         const bestStr = (s.syncStreakBest && s.syncStreakBest > s.syncStreak)
           ? ` <span class="streak-best">(Best: ${s.syncStreakBest})</span>` : '';
-        badge.innerHTML = `🔥 ${s.syncStreak} syncs in a row${bestStr}`;
+        badge.innerHTML = `🔥 <span class="streak-num">${s.syncStreak}</span> syncs in a row${bestStr}`;
         badge.classList.add('visible');
       } else {
         badge.classList.remove('visible');
@@ -1860,14 +2599,14 @@
       }
 
       // Sync steps visibility — persist 5s after sync finishes with fade-out
-      document.getElementById('syncSteps').classList.toggle('visible', s.isSyncing);
+      document.getElementById('outputStepBar').classList.toggle('visible', s.isSyncing);
       if (!s.isSyncing && wasSyncing) {
         // Mark any remaining active pills as done
         document.querySelectorAll('.step-pill.active').forEach(el => {
           el.classList.remove('active');
           el.classList.add('done');
         });
-        const stepsContainer = document.getElementById('syncSteps');
+        const stepsContainer = document.getElementById('outputStepBar');
         setTimeout(() => {
           stepsContainer.style.transition = 'opacity 0.5s';
           stepsContainer.style.opacity = '0';
@@ -1925,16 +2664,13 @@
         }
       }
 
-      // Terminal
-      const terminal = document.getElementById('syncTerminal');
-      const termLabel = document.getElementById('terminalLabel');
-      const toggleBtn = document.getElementById('terminalToggleBtn');
+      // Output page terminal
+      const termLabel = document.getElementById('outputTerminalLabel');
 
       if (s.isSyncing && !wasSyncing) {
-        // Fresh sync started — clear terminal and open it
-        const termText = document.getElementById('syncTerminalText');
-        termText.innerHTML = '';
-        terminal.classList.add('open');
+        // Fresh sync started — clear terminal and switch to Output tab
+        document.getElementById('syncTerminalText').innerHTML = '';
+        switchTab(TAB_OUTPUT);
       }
       if (!s.isSyncing && wasSyncing) {
         // Sync finished — remove blinking cursor
@@ -1948,8 +2684,6 @@
         termLabel.textContent = 'Last Output';
         termLabel.classList.remove('live');
       }
-
-      toggleBtn.classList.toggle('active', terminal.classList.contains('open'));
 
       // Deploy badge + run pills
       updateDeployBadge(s.deployStatus || null);
@@ -1990,7 +2724,7 @@
     }
 
     function renderSteps() {
-      const container = document.getElementById('syncSteps');
+      const container = document.getElementById('outputStepBar');
       if (!container) return;
       container.innerHTML = SYNC_STEPS.map((step, i) => {
         let cls = 'step-pill';
@@ -2004,7 +2738,7 @@
     function resetSteps() {
       activeStepIdx = -1;
       completedSteps.clear();
-      const container = document.getElementById('syncSteps');
+      const container = document.getElementById('outputStepBar');
       if (container) container.innerHTML = '';
     }
 
@@ -2024,33 +2758,6 @@
     function stopElapsedTimer() {
       clearInterval(elapsedTimer);
       elapsedTimer = null;
-    }
-
-    // ── Terminal toggle ────────────────────────────────────────────────────
-    let terminalUserOpen = false;
-
-    function toggleTerminal() {
-      const terminal = document.getElementById('syncTerminal');
-      const btn = document.getElementById('terminalToggleBtn');
-      terminalUserOpen = !terminal.classList.contains('open');
-      terminal.classList.toggle('open', terminalUserOpen);
-      btn.classList.toggle('active', terminalUserOpen);
-      if (window.syncAPI) window.syncAPI.saveSettings({ terminalOpen: terminalUserOpen });
-
-      // If opening and terminal is empty, load last output on demand
-      if (terminalUserOpen && window.syncAPI) {
-        const el = document.getElementById('syncTerminalText');
-        if (el && !el.textContent.trim()) {
-          window.syncAPI.getLastOutput().then(out => {
-            if (out && out.trim()) {
-              setTerminalStatic(out);
-              setTimeout(() => { if (el) el.scrollTop = el.scrollHeight; }, 100);
-            } else {
-              el.textContent = '(No output recorded for last sync)';
-            }
-          }).catch(() => {});
-        }
-      }
     }
 
     // ── Terminal output helpers ────────────────────────────────────────────
@@ -2099,10 +2806,8 @@
       const btn = document.getElementById('syncBtn');
       btn.innerHTML = '<span class="btn-spin-icon">⟳</span> Syncing…';
       btn.classList.add('btn-spinning');
-      // Force terminal open for visual feedback
-      const terminal = document.getElementById('syncTerminal');
-      terminal.classList.add('open');
-      document.getElementById('terminalToggleBtn').classList.add('active');
+      // Switch to Output tab for visual feedback
+      switchTab(TAB_OUTPUT);
       if (window.syncAPI) window.syncAPI.triggerSync('');
       // Safety revert if sync doesn't start in 4s
       setTimeout(() => {
@@ -2137,10 +2842,8 @@
     function doSyncWithNote() {
       const msg = document.getElementById('commitMsgInput').value.trim();
       hideCommitMsg();
-      // Open terminal for visual feedback
-      const terminal = document.getElementById('syncTerminal');
-      terminal.classList.add('open');
-      document.getElementById('terminalToggleBtn').classList.add('active');
+      // Switch to Output tab for visual feedback
+      switchTab(TAB_OUTPUT);
       if (window.syncAPI) window.syncAPI.triggerSync(msg);
     }
 
@@ -2759,6 +3462,34 @@
 
       knownTopId = newTopId;
       entries = newEntries;
+      renderStatusRecent();
+    }
+
+    function renderStatusRecent() {
+      const header = document.getElementById('statusRecentHeader');
+      const list = document.getElementById('statusRecentList');
+      if (!header || !list) return;
+
+      const filtered = (entries || []).filter(e => e.subtype !== 'already-running' && e.status !== 'skipped');
+      const recent = filtered.slice(0, 3);
+
+      if (recent.length === 0) {
+        header.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+
+      header.style.display = 'flex';
+      list.innerHTML = recent.map(e => {
+        const icon = e.status === 'success' ? '✅' : (e.status === 'error' ? '❌' : '⏭');
+        const detail = e.commitMessage || e.detail || 'Sync';
+        const time = formatDate(e.timestamp);
+        return `<div class="status-mini-entry" onclick="switchTab(TAB_HISTORY)">
+          <span class="status-mini-icon">${icon}</span>
+          <span class="status-mini-detail">${escHtml(detail)}</span>
+          <span class="status-mini-time">${time}</span>
+        </div>`;
+      }).join('');
     }
 
     function toggleExpand(el) {
@@ -2782,28 +3513,7 @@
       else window.open(url, '_blank');
     }
 
-    // ── Settings panel ─────────────────────────────────────────────────────
-    let settingsOpen = false;
-
-    function openSettings() {
-      settingsOpen = true;
-      document.getElementById('settingsPanel').classList.add('open');
-      document.getElementById('settingsBackdrop').classList.add('open');
-      document.getElementById('settingsBtn').classList.add('active');
-      loadSettingsIntoPanel();
-    }
-
-    function closeSettings() {
-      settingsOpen = false;
-      document.getElementById('settingsPanel').classList.remove('open');
-      document.getElementById('settingsBackdrop').classList.remove('open');
-      document.getElementById('settingsBtn').classList.remove('active');
-    }
-
-    function toggleSettings() {
-      settingsOpen ? closeSettings() : openSettings();
-    }
-
+    // ── Settings ──────────────────────────────────────────────────────────
     async function loadSettingsIntoPanel() {
       // Interval radios — use live status.intervalSeconds (no IPC needed)
       const secs = status.intervalSeconds || 1800;
@@ -2905,9 +3615,13 @@
 
     // ── Keyboard shortcuts ─────────────────────────────────────────────────
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && settingsOpen) { closeSettings(); return; }
+      if (e.key === 'Escape' && currentTab === TAB_SETTINGS) { switchTab(previousTab || TAB_STATUS); return; }
       if (e.key === 'Escape' && commitMsgVisible) { hideCommitMsg(); return; }
-      if ((e.metaKey || e.ctrlKey) && e.key === ',') { e.preventDefault(); toggleSettings(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === ',') {
+        e.preventDefault();
+        if (currentTab === TAB_SETTINGS) switchTab(previousTab || TAB_STATUS);
+        else switchTab(TAB_SETTINGS);
+      }
     });
 
     // ── Init ───────────────────────────────────────────────────────────────
@@ -2925,27 +3639,15 @@
       renderEntries(initialEntries, false);
       updateCard(initialStatus);
 
-      // Restore last sync output and terminal state
-      if (!initialStatus.isSyncing) {
-        const [lastOut, savedSettings] = await Promise.all([
-          window.syncAPI.getLastOutput(),
-          window.syncAPI.getSettings(),
-        ]);
-        if (lastOut && lastOut.trim()) {
-          setTerminalStatic(lastOut);
-          // Auto-open terminal when there's output to show
-          document.getElementById('syncTerminal').classList.add('open');
-          document.getElementById('terminalToggleBtn').classList.add('active');
-          // Scroll after CSS transition (max-height: 0→260px takes 450ms)
-          setTimeout(() => {
+      // Pre-load last sync output into Output page terminal
+      if (!initialStatus.isSyncing && window.syncAPI) {
+        window.syncAPI.getLastOutput().then(lastOut => {
+          if (lastOut && lastOut.trim()) {
+            setTerminalStatic(lastOut);
             const el = document.getElementById('syncTerminalText');
-            if (el) el.scrollTop = el.scrollHeight;
-          }, 500);
-        } else if (savedSettings.terminalOpen) {
-          // Restore remembered open state
-          document.getElementById('syncTerminal').classList.add('open');
-          document.getElementById('terminalToggleBtn').classList.add('active');
-        }
+            if (el) setTimeout(() => { el.scrollTop = el.scrollHeight; }, 100);
+          }
+        }).catch(() => {});
       }
 
       // Auto-open deploy logs if a deploy is already in progress on window open
@@ -2959,6 +3661,7 @@
       window.syncAPI.onSyncOutput((chunk) => {
         appendTerminalChunk(chunk);
         detectStep(chunk);
+        showOutputBadge();
       });
 
       // Live-update "just now" labels and entry timestamps every 10s

@@ -71,3 +71,59 @@ time of life = middle of 3rd month
 > 4 Ye have seen what I did unto the Egyptians, and how I bare you on eagles' wings, and brought you unto myself.
 >
 > 5 Now therefore, if ye will ***~obey my voice indeed, and keep my covenant~***, then ye shall be a peculiar treasure unto me above all people: for all the earth is mine:
+
+# Birth of Yeshua
+
+> Luke 1:26-31
+>
+> 26 And ***~in the sixth month~*** the angel Gabriel was sent from God unto a city of Galilee, named Nazareth,
+>
+> 27 To a virgin espoused to a man whose name was Joseph, of the house of David; and the virgin's name was Mary.
+>
+> 28 And the angel came in unto her, and said, Hail, thou that art highly favoured, the Lord is with thee: blessed art thou among women.
+>
+> 29 And when she saw him, she was troubled at his saying, and cast in her mind what manner of salutation this should be.
+>
+> 30 And the angel said unto her, Fear not, Mary: for thou hast found favour with God.
+>
+> 31 And, behold, thou shalt conceive in thy womb, and bring forth a son, and shalt call his name Yeshua.
+
+9 months after the 6th month is the 3rd month
+
+---
+
+> Isaiah 51:1-2
+>
+> 1 Hearken to me, ye that follow after righteousness, ye that seek the Lord: look unto the rock whence ye are hewn, and to the hole of the pit whence ye are digged.
+>
+> 2 Look unto Abraham your father, and unto ***~Sarah that bare you~***: for I called him alone, and blessed him, and increased him.
+
+> Galatians 4:22-29
+>
+> 22 For it is written, that Abraham had two sons, the one by a bondmaid, the other by a freewoman.
+>
+> 23 But he who was of the bondwoman was born after the flesh; but he of the freewoman was by promise.
+>
+> 24 Which things are an allegory: for these are the two covenants; the one from the mount Sinai, which gendereth to bondage, which is Agar.
+>
+> 25 For this Agar is mount Sinai in Arabia, and answereth to Jerusalem which now is, and is in bondage with her children.
+>
+> 26 But Jerusalem which is above is free, which is the mother of us all.
+>
+> 27 For it is written, Rejoice, thou barren that bearest not; break forth and cry, thou that travailest not: for the desolate hath many more children than she which hath an husband.
+>
+> 28 ***~Now we, brethren, as Isaac was, are the children of promise~***.
+>
+> 29 But as then he that was born after the flesh persecuted him that was born after the Spirit, even so it is now.
+
+---
+
+> John 4:35 Say not ye, ***~There are yet four months, and then cometh harvest~***? behold, I say unto you, Lift up your eyes, and look on the fields; for they are white already to harvest.
+
+God revealed Deuteronomy 32 on February 15. Four months later is Sunday, June 15.
+
+> Revelation 12:5 And she brought forth a man child, who was to rule all nations with a rod of iron: and her child was caught up unto God, and to his throne.
+
+> Revelation 14:4 These are they which were not defiled with women; for they are virgins. These are they which follow the Lamb whithersoever he goeth. These were redeemed from among men, being the ***~firstfruits~*** unto God and to the Lamb.
+
+Isaac was born at the festival of the firstfruits.

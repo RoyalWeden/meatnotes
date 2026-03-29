@@ -31,15 +31,15 @@ Through the Strong’s Concordance, we can actually see that this word is suppos
 >
 > πάσχα páscha, pas'-khah; of Chaldee origin (compare [H6453](https://www.blueletterbible.org/lexicon/H6453/kjv/tr/)); the Passover (the meal, the day, the festival or the special sacrifices connected with it):—Easter, ***~Passover~***.
 
-Whatever holiday this is, it is supposed to come right before the feast of unleavened bread. The only option this could be is Passover. Let’s check one of the most apostate translations to see what they correctly change this word of “Easter” to.
+Whatever holiday this is, it is supposed to come right before the feast of unleavened bread. The only option this could be is Passover. Let’s check some other translations to see what they correctly change this word of “Easter” to.
 
-> Acts 12:3-4 (NIV)
->
-> 3 When he saw that this met with approval among the Jews, he proceeded to seize Peter also. This happened during the Festival of Unleavened Bread.
->
-> 4 After arresting him, he put him in prison, handing him over to be guarded by four squads of four soldiers each. Herod intended to bring him out for public trial after the ***~Passover~***.
+> Acts 12:4 (NIV) After arresting him, he put him in prison, handing him over to be guarded by four squads of four soldiers each. Herod intended to bring him out for public trial after the ***~Passover~***.
 
-So, if “Easter” is never mentioned in the Bible, where did it really come from?
+> Acts 12:4 (NKJV) So when he had arrested him, he put him in prison, and delivered him to four squads of soldiers to keep him, intending to bring him before the people after ***~Passover~***.
+
+> Acts 12:4 (ESV) And when he had seized him, he put him in prison, delivering him over to four squads of soldiers to guard him, intending after the ***~Passover~*** to bring him out to the people.
+
+Every other translation says “Passover,” but only the KJV says “Easter”. So, if “Easter” is never mentioned in the Bible, where did it really come from?
 
 # Pagan Origins
 

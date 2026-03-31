@@ -30,7 +30,18 @@ jobs:
           key: lfs-${{ hashFiles('/tmp/lfs-ids.txt') }}
           restore-keys: lfs-
       - name: Pull LFS objects
+        id: lfs-pull
+        continue-on-error: true
         run: git lfs pull
+      - name: Verify LFS status
+        if: steps.lfs-pull.outcome == 'failure'
+        run: |
+          echo "::warning::Git LFS pull failed — building with cached PDFs"
+          if [ -d ".git/lfs/objects" ] && [ "$(find .git/lfs/objects -type f | head -1)" ]; then
+            echo "Cached LFS objects found — PDFs from previous build will be used"
+          else
+            echo "::warning::No cached LFS objects — PDFs will be missing from this build"
+          fi
       - name: Restore Quartz font cache
         uses: actions/cache@v5
         with:

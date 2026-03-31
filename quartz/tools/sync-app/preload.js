@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('syncAPI', {
   getLogEntries:  () => ipcRenderer.invoke('get-log-entries'),
   getSyncStatus:  () => ipcRenderer.invoke('get-sync-status'),
   triggerSync:    (msg) => ipcRenderer.send('trigger-sync', msg || ''),
+  triggerLfsPull: () => ipcRenderer.send('trigger-lfs-pull'),
   togglePause:    () => ipcRenderer.send('toggle-pause'),
   openGitHub:     (url) => ipcRenderer.send('open-github', url),
   onLogUpdate:    (cb) => ipcRenderer.on('log-updated', (_e, entries) => cb(entries)),

@@ -50,16 +50,55 @@ else
   log "WARN: Could not write .last-sync"
 fi
 
-# ── Git LFS ────────────────────────────────────────────────────
+# ── Git LFS (isolated, non-fatal) ──────────────────────────────
 # PDFs are tracked via LFS (.gitattributes: *.pdf filter=lfs).
-# quartz sync does git pull which triggers LFS filters, but we
-# explicitly pull LFS objects first to match the CI pipeline behavior.
-log "Running git lfs pull..."
-git lfs pull >> "$LOG_FILE" 2>&1 || log "WARN: git lfs pull had issues (non-fatal)"
+# LFS pull is decoupled from the main sync so failures never block
+# content updates. A hash cache avoids redundant pulls when nothing changed.
+LFS_HASH_FILE="$HOME/.cache/quartz-sync/lfs-hash.txt"
+mkdir -p "$(dirname "$LFS_HASH_FILE")"
+
+if [ "${SKIP_LFS:-0}" = "1" ]; then
+  log "LFS skipped by user setting"
+  log "LFS_STATUS:skipped"
+else
+  CURRENT_LFS_HASH=$(git lfs ls-files -l 2>/dev/null | cut -d' ' -f1 | sort | shasum -a 256 | cut -d' ' -f1)
+  CACHED_LFS_HASH=$(cat "$LFS_HASH_FILE" 2>/dev/null || echo "")
+
+  if [ "$CURRENT_LFS_HASH" = "$CACHED_LFS_HASH" ] && [ -n "$CACHED_LFS_HASH" ]; then
+    log "No new LFS objects to fetch"
+    log "LFS_STATUS:unchanged"
+  else
+    log "Running git lfs pull..."
+    # Throttle concurrent transfers if bandwidth limit is set
+    if [ -n "${LFS_BANDWIDTH_LIMIT:-}" ]; then
+      git config lfs.concurrenttransfers 1
+    fi
+    if git lfs pull >> "$LOG_FILE" 2>&1; then
+      echo "$CURRENT_LFS_HASH" > "$LFS_HASH_FILE"
+      log "LFS_STATUS:success"
+    else
+      log "WARN: git lfs pull had issues (non-fatal)"
+      log "LFS_STATUS:failed"
+    fi
+    # Clean up throttle config
+    if [ -n "${LFS_BANDWIDTH_LIMIT:-}" ]; then
+      git config --unset lfs.concurrenttransfers 2>/dev/null || true
+    fi
+  fi
+fi
 
 # ── Run sync ───────────────────────────────────────────────────
+# Skip LFS smudge during quartz sync's internal git pull so it
+# never blocks on LFS — we already handled LFS above.
+export GIT_LFS_SKIP_SMUDGE=1
+
 log "Running quartz sync..."
 if npx quartz sync >> "$LOG_FILE" 2>&1; then
+  # Re-cache LFS hash after pull may have brought in new pointers
+  NEW_LFS_HASH=$(git lfs ls-files -l 2>/dev/null | cut -d' ' -f1 | sort | shasum -a 256 | cut -d' ' -f1)
+  if [ -n "$NEW_LFS_HASH" ]; then
+    echo "$NEW_LFS_HASH" > "$LFS_HASH_FILE"
+  fi
   log "Sync completed successfully"
 else
   EXIT_CODE=$?

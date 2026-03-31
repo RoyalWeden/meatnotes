@@ -9,6 +9,8 @@ const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octa
 const LINE_RE = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.+)$/;
 // Matches git push output: "   abc123..def456  main -> main"
 const PUSH_SHA_RE = /^\s{1,4}[0-9a-f]+\.\.([0-9a-f]+)\s+\S+\s+->\s+\S+/;
+// Matches LFS status markers emitted by sync.sh
+const LFS_STATUS_RE = /^LFS_STATUS:(success|failed|skipped|unchanged)$/;
 
 // Cache enriched git data by SHA — git history never changes, so this is permanent
 const enrichCache = new Map();
@@ -136,10 +138,22 @@ function parseLog() {
 
     if (!current) continue;
 
+    // Track LFS status within the session
+    const lfsMatch = msg.match(LFS_STATUS_RE);
+    if (lfsMatch) {
+      current.lfsStatus = lfsMatch[1];
+      continue;
+    }
+
     if (msg === 'Sync completed successfully') {
-      current.status = 'success';
-      current.detail = 'Synced';
       current.durationSeconds = Math.round((timestamp - current.startTimestamp) / 1000);
+      if (current.lfsStatus === 'failed') {
+        current.status = 'partial';
+        current.detail = 'Synced (PDFs failed)';
+      } else {
+        current.status = 'success';
+        current.detail = 'Synced';
+      }
     } else if (msg.startsWith('ERROR:')) {
       current.status = 'error';
       current.detail = msg.replace(/^ERROR:\s*/, '');

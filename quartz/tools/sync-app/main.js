@@ -74,6 +74,9 @@ let isSyncing = false;
 let isWaiting = false;
 let isQuietHours = false;
 let lastSyncError = false;
+let lfsStatus = null;       // 'success' | 'failed' | 'skipped' | 'unchanged' | null
+let isLfsPulling = false;
+let lfsPullProcess = null;
 let lastNotesChanged = 0;
 let notesChangedTimer = null;
 let syncOutputOffset = 0;
@@ -158,6 +161,12 @@ function buildStatusPayload() {
     deployStatus,
     deployRuns,
     hasGithubToken: !!(loadSettings().githubToken || process.env.GITHUB_TOKEN),
+    lfsStatus,
+    isLfsPulling,
+    lfsEnabled: settings.lfsEnabled !== false,
+    lfsBandwidthLimit: settings.lfsBandwidthLimit || null,
+    lfsSkipOnMetered: settings.lfsSkipOnMetered || false,
+    isMetered: settings.isMetered || false,
   };
 }
 
@@ -251,11 +260,12 @@ function refreshTrayAppearance() {
   const paused = !isAgentLoaded();
   const timeLabel = formatTime(getLastSyncTime());
   const notesLabel = lastNotesChanged > 0 ? `\u2191${lastNotesChanged}` : timeLabel;
-  if (isWaiting)          setTrayState('orange', timeLabel);
-  else if (isQuietHours)  setTrayState('blue',   '\ud83c\udf19');
-  else if (paused)        setTrayState('grey',   '\u23f8');
-  else if (lastSyncError) setTrayState('red',    timeLabel);
-  else                    setTrayState('green',  notesLabel);
+  if (isWaiting)               setTrayState('orange', timeLabel);
+  else if (isQuietHours)       setTrayState('blue',   '\ud83c\udf19');
+  else if (paused)             setTrayState('grey',   '\u23f8');
+  else if (lastSyncError)      setTrayState('red',    timeLabel);
+  else if (lfsStatus === 'failed') setTrayState('orange', notesLabel);
+  else                         setTrayState('green',  notesLabel);
 }
 
 function startSpinner() {
@@ -507,7 +517,7 @@ function buildMenu() {
 
   const recentItems = recent.filter(e => e.subtype !== 'already-running').map(e => {
     const dur = e.durationSeconds != null ? `  \u2022 ${e.durationSeconds}s` : '';
-    const icon = e.subtype === 'no-internet' ? '\ud83d\udcf5' : e.status === 'success' ? '\u2705' : e.status === 'error' ? '\u274c' : '\u26aa';
+    const icon = e.subtype === 'no-internet' ? '\ud83d\udcf5' : e.status === 'success' ? '\u2705' : e.status === 'error' ? '\u274c' : e.status === 'partial' ? '\ud83d\udfe0' : '\u26aa';
     return { label: `  ${icon}  ${formatTime(new Date(e.timestamp))}  \u2014  ${e.detail}${dur}`, enabled: false };
   });
   if (recentItems.length === 0) recentItems.push({ label: '  No entries yet', enabled: false });
@@ -520,6 +530,34 @@ function buildMenu() {
     { label: paused ? 'Resume Auto-Sync' : 'Pause Auto-Sync', enabled: !isSyncing, click: handlePauseResume },
     { type: 'separator' },
     { label: `Interval: ${formatInterval(currentInterval)}`, submenu: buildIntervalSubmenu(currentInterval) },
+    { type: 'separator' },
+    { label: lfsStatus === 'failed' ? '\u26a0\ufe0f  PDFs: fetch failed'
+           : lfsStatus === 'skipped' ? '\u23ed  PDFs: skipped'
+           : lfsStatus === 'unchanged' ? '\u2705  PDFs: up to date'
+           : lfsStatus === 'success' ? '\u2705  PDFs: synced'
+           : isLfsPulling ? '\ud83d\udd04  PDFs: fetching\u2026'
+           : '\ud83d\udcc4  PDFs', enabled: false },
+    { label: 'Fetch PDFs Now', enabled: !isLfsPulling && !isSyncing, click: () => runLfsPull() },
+    {
+      label: 'LFS Settings',
+      submenu: [
+        { label: 'Auto-fetch PDFs', type: 'checkbox', checked: loadSettings().lfsEnabled !== false,
+          click: (item) => { const s = loadSettings(); s.lfsEnabled = item.checked; saveSettings(s); rebuildMenu(); }},
+        { label: 'Skip on metered connection', type: 'checkbox', checked: !!loadSettings().lfsSkipOnMetered,
+          click: (item) => { const s = loadSettings(); s.lfsSkipOnMetered = item.checked; saveSettings(s); rebuildMenu(); }},
+        { label: 'Mark as metered network', type: 'checkbox', checked: !!loadSettings().isMetered,
+          click: (item) => { const s = loadSettings(); s.isMetered = item.checked; saveSettings(s); rebuildMenu(); }},
+        { type: 'separator' },
+        { label: 'Bandwidth: Unlimited', type: 'radio', checked: !loadSettings().lfsBandwidthLimit,
+          click: () => { const s = loadSettings(); delete s.lfsBandwidthLimit; saveSettings(s); rebuildMenu(); }},
+        { label: 'Bandwidth: 1 MB/s', type: 'radio', checked: loadSettings().lfsBandwidthLimit === 1024,
+          click: () => { const s = loadSettings(); s.lfsBandwidthLimit = 1024; saveSettings(s); rebuildMenu(); }},
+        { label: 'Bandwidth: 512 KB/s', type: 'radio', checked: loadSettings().lfsBandwidthLimit === 512,
+          click: () => { const s = loadSettings(); s.lfsBandwidthLimit = 512; saveSettings(s); rebuildMenu(); }},
+        { label: 'Bandwidth: 256 KB/s', type: 'radio', checked: loadSettings().lfsBandwidthLimit === 256,
+          click: () => { const s = loadSettings(); s.lfsBandwidthLimit = 256; saveSettings(s); rebuildMenu(); }},
+      ],
+    },
     { type: 'separator' },
     { label: 'Recent Syncs:', enabled: false },
     ...recentItems,
@@ -560,6 +598,15 @@ function runSync(commitMsg) {
 
   const env = { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH };
 
+  // LFS controls via environment variables
+  const settings = loadSettings();
+  if (settings.lfsEnabled === false || (settings.lfsSkipOnMetered && settings.isMetered)) {
+    env.SKIP_LFS = '1';
+  }
+  if (settings.lfsBandwidthLimit) {
+    env.LFS_BANDWIDTH_LIMIT = String(settings.lfsBandwidthLimit);
+  }
+
   // Use provided commit message, smart-generated one, or let script decide
   const msg = commitMsg || buildSmartCommitMsg();
   if (msg) env.SYNC_MSG = msg;
@@ -571,6 +618,10 @@ function runSync(commitMsg) {
     syncStartedAt = null;
     stopSpinner();
     lastSyncError = code !== 0;
+
+    // Extract LFS status from sync output
+    const lfsMatch = lastSyncOutput.match(/LFS_STATUS:(\w+)/);
+    lfsStatus = lfsMatch ? lfsMatch[1] : null;
 
     const settings = loadSettings();
     const nl = settings.notifyLevel;
@@ -603,6 +654,8 @@ function runSync(commitMsg) {
             body: `You've synced ${hitMilestone} times in a row. Keep it up!`,
           }).show();
         }
+      } else if (lfsStatus === 'failed') {
+        notifyError('Bible Notes Sync', 'Content synced, but PDF fetch failed. Use "Fetch PDFs Now" to retry.');
       } else if (nl === 'all') {
         new Notification({ title: 'Bible Notes Sync', body: 'Sync completed successfully.' }).show();
       }
@@ -728,6 +781,52 @@ function showPDFAutoNotification() {
     }
   });
   n.show();
+}
+
+// ── Manual LFS fetch ──────────────────────────────────────────────────────
+const LFS_HASH_FILE = path.join(os.homedir(), '.cache/quartz-sync/lfs-hash.txt');
+
+function runLfsPull() {
+  if (isLfsPulling || isSyncing) return;
+  isLfsPulling = true;
+  pushStatusToWindow();
+  rebuildMenu();
+
+  const env = { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH };
+  lfsPullProcess = spawn('git', ['lfs', 'pull'], { cwd: REPO_DIR, env });
+
+  lfsPullProcess.on('close', (code) => {
+    lfsPullProcess = null;
+    isLfsPulling = false;
+    lfsStatus = code === 0 ? 'success' : 'failed';
+    // Update LFS hash cache on success
+    if (code === 0) {
+      try {
+        const hash = execSync(
+          `git -C "${REPO_DIR}" lfs ls-files -l 2>/dev/null | cut -d' ' -f1 | sort | shasum -a 256 | cut -d' ' -f1`,
+          { encoding: 'utf8', timeout: 10000 }
+        ).trim();
+        const dir = path.dirname(LFS_HASH_FILE);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(LFS_HASH_FILE, hash, 'utf8');
+      } catch {}
+    }
+    pushStatusToWindow();
+    rebuildMenu();
+    refreshTrayAppearance();
+    if (code === 0) notifyIfAllowed('LFS Fetch', 'PDFs downloaded successfully.');
+    else notifyError('LFS Fetch Failed', 'Could not download PDF files. Check your connection.');
+  });
+
+  lfsPullProcess.on('error', () => {
+    lfsPullProcess = null;
+    isLfsPulling = false;
+    lfsStatus = 'failed';
+    pushStatusToWindow();
+    rebuildMenu();
+    refreshTrayAppearance();
+    notifyError('LFS Fetch Error', 'Failed to start git lfs pull.');
+  });
 }
 
 // ── Event handlers ─────────────────────────────────────────────────────────
@@ -905,6 +1004,7 @@ ipcMain.on('save-settings',  (_e, s) => {
 ipcMain.on('set-login-item',  (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
 ipcMain.on('set-interval',    (_e, s) => handleIntervalChange(s));
 ipcMain.on('open-log-file',   () => { try { shell.showItemInFolder(LOG_FILE); } catch {} });
+ipcMain.on('trigger-lfs-pull', () => runLfsPull());
 ipcMain.handle('get-app-version', () => app.getVersion());
 
 // ── Site version (1.FEAT.FIX computed from git history) ────────────────────

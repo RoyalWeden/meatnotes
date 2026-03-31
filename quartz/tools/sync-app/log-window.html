@@ -1632,6 +1632,54 @@
                   inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
+    /* ── LFS banner ──────────────────────────────────────────────────────── */
+    .lfs-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      -webkit-app-region: no-drag;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .lfs-banner.visible { display: flex; }
+    .lfs-banner.lfs-ok {
+      background: rgba(50,215,75,0.08);
+      border: 1px solid rgba(50,215,75,0.2);
+      color: var(--green);
+    }
+    .lfs-banner.lfs-warn {
+      background: rgba(255,149,10,0.1);
+      border: 1px solid rgba(255,149,10,0.25);
+      color: var(--orange);
+      box-shadow: 0 0 12px rgba(255,149,10,0.08);
+    }
+    .lfs-banner.lfs-pulling {
+      background: rgba(255,204,0,0.08);
+      border: 1px solid rgba(255,204,0,0.2);
+      color: var(--yellow);
+    }
+    .lfs-banner-icon { font-size: 14px; flex-shrink: 0; }
+    .lfs-banner-text { flex: 1; line-height: 1.3; }
+    .lfs-fetch-btn {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .lfs-fetch-btn:hover { background: rgba(255,255,255,0.15); }
+    .lfs-fetch-btn:disabled { opacity: 0.4; cursor: default; }
+
     /* ── Deploy badge ────────────────────────────────────────────────────── */
     .deploy-badge {
       backdrop-filter: blur(12px);
@@ -2041,6 +2089,7 @@
 
     /* ── History page — entry rows with left accent on status ───────────── */
     .entry.success { border-left: 2px solid rgba(50,215,75,0.25); }
+    .entry.partial { border-left: 2px solid rgba(255,149,0,0.35); }
     .entry.error   { border-left: 2px solid rgba(255,69,58,0.35); }
     .entry.skipped { border-left: 2px solid rgba(142,142,147,0.2); }
 
@@ -2121,6 +2170,13 @@
           Watching for <span class="pdf-banner-file" id="pdfBannerFile">PDF</span> to close…
         </span>
         <button class="pdf-force-btn" onclick="forceSyncNow()">Force Sync</button>
+      </div>
+
+      <!-- LFS status banner -->
+      <div class="lfs-banner" id="lfsBanner">
+        <span class="lfs-banner-icon" id="lfsBannerIcon">📄</span>
+        <span class="lfs-banner-text" id="lfsBannerText">PDFs: checking…</span>
+        <button class="lfs-fetch-btn" id="lfsFetchBtn" onclick="syncAPI.triggerLfsPull()">Fetch Now</button>
       </div>
 
       <div class="card-countdown" id="cardCountdown">
@@ -2474,7 +2530,8 @@
       lastSyncError: false, lastSyncTime: null, intervalSeconds: 1800,
       nextSyncAt: null, syncStartedAt: null, syncStreak: 0, syncStreakBest: 0,
       streakMilestone: null, openPDFs: [], deployStatus: null, deployRuns: [],
-      hasGithubToken: false,
+      hasGithubToken: false, lfsStatus: null, isLfsPulling: false,
+      lfsEnabled: true, lfsBandwidthLimit: null, lfsSkipOnMetered: false, isMetered: false,
     };
     let entries = [];
     let countdownTimer = null;
@@ -2493,6 +2550,7 @@
       quietHours: { label: 'QUIET HOURS',       color: 'var(--blue)',   bg: ['#00101f','#000a14'], dotClass: '',        progress: false },
       paused:     { label: 'PAUSED',            color: 'var(--grey)',   bg: ['#1a1a1a','#111'],    dotClass: '',        progress: false },
       synced:     { label: 'SYNCED',            color: 'var(--green)',  bg: ['#0d1f0d','#0a150a'], dotClass: '',        progress: false },
+      partial:    { label: 'SYNCED (PDFs PENDING)', color: 'var(--orange)', bg: ['#1f1000','#140a00'], dotClass: '',   progress: false },
     };
 
     function getStateName(s) {
@@ -2501,6 +2559,7 @@
       if (s.isWaiting)     return 'waiting';
       if (s.isQuietHours)  return 'quietHours';
       if (s.isPaused)      return 'paused';
+      if (s.lfsStatus === 'failed') return 'partial';
       return 'synced';
     }
 
@@ -2596,6 +2655,42 @@
           fileNames.length > 0 ? `"${fileNames[0]}"` : 'a PDF';
       } else {
         pdfBanner.classList.remove('visible');
+      }
+
+      // LFS banner
+      const lfsBanner = document.getElementById('lfsBanner');
+      const lfsIcon = document.getElementById('lfsBannerIcon');
+      const lfsText = document.getElementById('lfsBannerText');
+      const lfsBtn = document.getElementById('lfsFetchBtn');
+      lfsBanner.classList.remove('lfs-ok', 'lfs-warn', 'lfs-pulling');
+
+      if (s.isLfsPulling) {
+        lfsBanner.classList.add('visible', 'lfs-pulling');
+        lfsIcon.textContent = '🔄';
+        lfsText.textContent = 'Fetching PDFs…';
+        lfsBtn.disabled = true;
+      } else if (s.lfsStatus === 'failed') {
+        lfsBanner.classList.add('visible', 'lfs-warn');
+        lfsIcon.textContent = '⚠️';
+        lfsText.textContent = 'PDF fetch failed — content synced OK';
+        lfsBtn.disabled = false;
+      } else if (s.lfsStatus === 'skipped') {
+        lfsBanner.classList.add('visible', 'lfs-warn');
+        lfsIcon.textContent = '⏭';
+        lfsText.textContent = 'PDF fetch skipped (disabled or metered)';
+        lfsBtn.disabled = false;
+      } else if (s.lfsStatus === 'unchanged') {
+        lfsBanner.classList.add('visible', 'lfs-ok');
+        lfsIcon.textContent = '✅';
+        lfsText.textContent = 'PDFs up to date';
+        lfsBtn.disabled = s.isSyncing;
+      } else if (s.lfsStatus === 'success') {
+        lfsBanner.classList.add('visible', 'lfs-ok');
+        lfsIcon.textContent = '✅';
+        lfsText.textContent = 'PDFs synced';
+        lfsBtn.disabled = s.isSyncing;
+      } else {
+        lfsBanner.classList.remove('visible');
       }
 
       // Sync steps visibility — persist 5s after sync finishes with fade-out
@@ -3299,7 +3394,7 @@
 
     // ── Render entries ─────────────────────────────────────────────────────
     function statusIcon(s) {
-      return s === 'success' ? '✅' : s === 'error' ? '❌' : '⚪';
+      return s === 'success' ? '✅' : s === 'error' ? '❌' : s === 'partial' ? '🟠' : '⚪';
     }
 
     function truncatePath(path, maxLen = 42) {

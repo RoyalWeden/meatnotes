@@ -43,6 +43,24 @@ Every other translation says “Passover,” but only the KJV says “Easter”.
 
 # Pagan Origins
 
+The easiest and simpliest way to determine the origins of Easter is a search on where the word originated from. This is from [Online Etymology Dictionary](https://web.archive.org/web/20230403131002/https://www.etymonline.com/word/Easter#etymonline_v_950):
+
+> Old English Easterdæg, from Eastre (Northumbrian Eostre), from Proto-Germanic *austron-, "dawn," also the name of a goddess of fertility and spring, perhaps originally of sunrise, whose feast was celebrated at the spring equinox, from* aust- "east, toward the sunrise" (compare [east](https://web.archive.org/web/20230403131002/https://www.etymonline.com/word/east?ref=etymonline_crossreference)), from PIE root [*aus-](https://web.archive.org/web/20230403131002/https://www.etymonline.com/word/*aus-?ref=etymonline_crossreference#etymonline_v_52629) (1) "to shine," especially of the dawn.
+>
+> Bede says Anglo-Saxon Christians adopted her name and many of the celebratory practices for their Mass of Christ's resurrection. Almost all neighboring languages use a variant of Latin Pascha to name this holiday (see [paschal](https://web.archive.org/web/20230403131002/https://www.etymonline.com/word/paschal?ref=etymonline_crossreference)).
+
+If this name was adopted, that means it was adopted from pagans — the same pagans that worshipped the fertility goddess.
+
+From [History.com](https://www.history.com/articles/history-of-easter):
+
+> Eggs have long symbolized life, renewal and rebirth across many ancient cultures, appearing in creation myths—including the concept of the “cosmic egg” from which the universe emerges—and were established symbols of fertility and birth in pre-Christian pagan traditions. Egg decorating may have become part of the Easter celebration in a nod to the religious significance of Easter, i.e., Jesus’ resurrection or re-birth.
+
+More on why Easter has eggs, from [Britannica](https://www.britannica.com/story/what-do-eggs-have-to-do-with-easter):
+
+> The egg was a widely used premodern and pre-Christian symbol of fertility and restoration. European “Pagans” (a term used to refer to people who practiced a variety of non-Christian traditions) viewed eggs as a symbol of the regeneration that comes with springtime. Early Christians borrowed this image and applied it not to the regeneration of the earth but rather to Jesus Christ. This was also extended to the new life of the faithful followers of Christ.
+
+So, just like the pagan goddess, the eggs were used to represent fertilty.
+
 # Don’t Learn the Heathen Ways
 
 > Deuteronomy 12:30-32

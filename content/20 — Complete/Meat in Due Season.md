@@ -1,3 +1,8 @@
+---
+shortlink: meatindueseason
+
+---
+
 # Topic List
 
 - [[20 — Complete/How to Read the Bible]]
@@ -204,6 +209,7 @@
 
   - Bondservant
   - Virgin & Eunuch
+  - Don’t Give What’s Holy to Dogs
 
 - Ethiopian Eunuch & Hidden Manna
 
@@ -273,7 +279,7 @@
   - Earth Void & Without Form & 2 Peter 3 → Jeremiah 4-9, Isaiah 34, Hosea 6
   - What God Did In Shiloh & Red Heifer Sacrifice
 
-- Easter
+- [[10 — In Progress/Easter]]
 
   - 3 Days & 3 Nights
 
@@ -281,7 +287,9 @@
 
 - Way of Balaam
 
-- Whitestone
+- White Stone
+
+  - Don’t Cast Pearls to Swine
 
 - The Lord’s Prayer
 

@@ -217,7 +217,9 @@ shortlink: meatindueseason
 
   - Yeshua Wrote in the Sand & Slaying Oldest to Youngest
 
-- Evil Servants & 7 Worse Spirits & Esau
+- Evil Servants
+
+  - Seven Worse Spirits
 
   - Do This & You’ll Never Fall
 

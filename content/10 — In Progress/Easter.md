@@ -85,6 +85,38 @@ Some may think that it’s okay to “Christianize” things, but we just read i
 >
 > 5 They are upright as the palm tree, but speak not: they must needs be borne, because they cannot go. Be not afraid of them; for they cannot do evil, neither also is it in them to do good.
 
+The result of doing these idols is that they make you become deaf, dumb, and blind.
+
+> Psalm 115:1-8
+>
+> Not unto us, O Lord, not unto us, but unto thy name give glory, for thy mercy, and for thy truth's sake.
+>
+> 2 Wherefore should the heathen say, Where is now their God?
+>
+> 3 But our God is in the heavens: he hath done whatsoever he hath pleased.
+>
+> 4 Their idols are silver and gold, the work of men's hands.
+>
+> 5 They have mouths, but they speak not: eyes have they, but they see not:
+>
+> 6 They have ears, but they hear not: noses have they, but they smell not:
+>
+> 7 They have hands, but they handle not: feet have they, but they walk not: neither speak they through their throat.
+>
+> 8 They that make them are like unto them; so is every one that trusteth in them.
+
+> Psalm 135:15-18
+>
+> 15 The idols of the heathen are silver and gold, the work of men's hands.
+>
+> 16 They have mouths, but they speak not; eyes have they, but they see not;
+>
+> 17 They have ears, but they hear not; neither is there any breath in their mouths.
+>
+> 18 They that make them are like unto them: so is every one that trusteth in them.
+
+This means that even if you didn’t physically make a cross, crucifix, christmas tree, etc., you are still held just as accountable as those that made them.
+
 Matthew 28:1-6 (Mary was rebuked by the angel for coming on the 4th day, Sunday, since Yeshua rose on the Sabbath)
 
 Jeremiah 7:18 (breaking sabbath to bake hot cross buns for Ishtar/Easter, the fertility goddess)
@@ -104,5 +136,3 @@ Mark 7, Matthew 15 (traditions of men that break God's commandments)
 John 4:23-24 (worship in truth)
 
 Ezekiel 8:13-18 (sun worship and lent)
-
-Psalm 115, Psalm 135 (idolatry makes you deaf, dumb, and blind)

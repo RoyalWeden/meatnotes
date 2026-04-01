@@ -1,3 +1,5 @@
+[[where to do the feasts.jpg]]
+
 # Introduction
 
 The feasts are indeed wonderful and deeply significant, given by God for His people to celebrate. However, we must not overlook the serious command attached to their observance. What happens if we choose to disregard God's instruction and follow our own desires? Every scripture concerning the feasts clearly states that they must be kept in the place He chose—not where we see fit. And that place is Jerusalem, the city where He has chosen to put His name. To neglect this command is to act in defiance of His will.
@@ -356,3 +358,177 @@ Daniel fasted for 21 days (3 weeks) until it became the 24th day of the 1st mont
 Therefore, the feast of firstfruits is the 16th day of the 1st month (Nisan / Aviv).
 
 ### Feast Not Kept
+
+> Daniel 10:1-4
+>
+> 1 In the third year of Cyrus king of Persia a thing was revealed unto Daniel, whose name was called Belteshazzar; and the thing was true, but the time appointed was long: and he understood the thing, and had understanding of the vision.
+>
+> 2 In those days I Daniel was mourning three full weeks.
+>
+> 3 ***~I ate no pleasant bread, neither came flesh nor wine in my mouth, neither did I anoint myself at all, till three whole weeks were fulfilled~***.
+>
+> 4 ***~And in the four and twentieth day of the first month~***, as I was by the side of the great river, which is Hiddekel;
+
+Daniel fasted for 21 days (3 weeks) until it became the 24th day of the 1st month. Again, he didn't observe this feast as with the others in this month.
+
+## Feast of Weeks (Shavuot / Pentecost)
+
+### Date of the Feast
+
+> Leviticus 23:15-22
+>
+> 15 And ye shall count unto you from the morrow after the sabbath, from the day that ye brought the sheaf of the wave offering; seven sabbaths shall be complete:
+>
+> 16 ***~Even unto the morrow after the seventh sabbath shall ye number fifty days~***; and ye shall offer a new meat offering unto the Lord.
+>
+> 17 Ye shall bring out of your habitations two wave loaves of two tenth deals; they shall be of fine flour; they shall be baken with leaven; they are the firstfruits unto the Lord.
+>
+> 18 And ye shall offer with the bread seven lambs without blemish of the first year, and one young bullock, and two rams: they shall be for a burnt offering unto the Lord, with their meat offering, and their drink offerings, even an offering made by fire, of sweet savour unto the Lord.
+>
+> 19 Then ye shall sacrifice one kid of the goats for a sin offering, and two lambs of the first year for a sacrifice of peace offerings.
+>
+> 20 And the priest shall wave them with the bread of the firstfruits for a wave offering before the Lord, with the two lambs: they shall be holy to the Lord for the priest.
+>
+> 21 And ye shall proclaim on the selfsame day, that it may be an holy convocation unto you: ye shall do no servile work therein: it shall be a statute for ever in all your dwellings throughout your generations.
+>
+> 22 And when ye reap the harvest of your land, thou shalt not make clean riddance of the corners of thy field when thou reapest, neither shalt thou gather any gleaning of thy harvest: thou shalt leave them unto the poor, and to the stranger: I am the Lord your God.
+
+> Deuteronomy 16:8-10
+>
+> 8 Six days thou shalt eat unleavened bread: and on the seventh day shall be a solemn assembly to the Lord thy God: thou shalt do no work therein.
+>
+> 9 ***~Seven weeks shalt thou number unto thee: begin to number the seven weeks from such time as thou beginnest to put the sickle to the corn~***.
+>
+> 10 And ***~thou shalt keep the feast of weeks~*** unto the Lord thy God with a tribute of a freewill offering of thine hand, which thou shalt give unto the Lord thy God, according as the Lord thy God hath blessed thee:
+
+Therefore, the feast of weeks is on the 6th day of the 3rd month (Sivan).
+
+### Feast Not Kept
+
+> Ezekiel 31:1 And it came to pass ***~in the eleventh year, in the third month, in the first day of the month~***, that the word of the Lord came unto me, saying,
+>
+> . . .
+>
+> Ezekiel 32:1 And it came to pass ***~in the twelfth year~***, in the twelfth month, in the first day of the month, that the word of the Lord came unto me, saying,
+
+A few days before the feast of weeks, there is a complete lack of any mention of the feast.
+
+## Feast of Trumpets (Yom Teruah / Rosh Hashanah)
+
+### Date of the Feast
+
+> Leviticus 23:24-25
+>
+> 24 Speak unto the children of Israel, saying, ***~In the seventh month, in the first day of the month~***, shall ye have a sabbath, a memorial of blowing of ***~trumpets~***, an holy convocation.
+>
+> 25 Ye shall do no servile work therein: but ye shall offer an offering made by fire unto the Lord.
+
+> Numbers 29:1-6
+>
+> 1 And ***~in the seventh month, on the first day of the month~***, ye shall have an holy convocation; ye shall do no servile work: it is a day of blowing the ***~trumpets~*** unto you.
+>
+> 2 And ye shall offer a burnt offering for a sweet savour unto the Lord; one young bullock, one ram, and seven lambs of the first year without blemish:
+>
+> 3 And their meat offering shall be of flour mingled with oil, three tenth deals for a bullock, and two tenth deals for a ram,
+>
+> 4 And one tenth deal for one lamb, throughout the seven lambs:
+>
+> 5 And one kid of the goats for a sin offering, to make an atonement for you:
+>
+> 6 Beside the burnt offering of the month, and his meat offering, and the daily burnt offering, and his meat offering, and their drink offerings, according unto their manner, for a sweet savour, a sacrifice made by fire unto the Lord.
+
+Therefore, the feast of trumpets is on the 1st day of the 7th month (Tishrei). On this day you are to blow the trumpt and offer a burnt offering.
+
+### Feast Not Kept
+
+No mention.
+
+## Day of Atonement (Yom Kippur)
+
+### Date of the Feast
+
+> Leviticus 23:27-32
+>
+> 27 Also on ***~the tenth day of this seventh month there shall be a day of atonement~***: it shall be an holy convocation unto you; and ye shall afflict your souls, and offer an offering made by fire unto the Lord.
+>
+> 28 And ye shall do no work in that same day: for it is a day of atonement, to make an atonement for you before the Lord your God.
+>
+> 29 For whatsoever soul it be that shall not be afflicted in that same day, he shall be cut off from among his people.
+>
+> 30 And whatsoever soul it be that doeth any work in that same day, the same soul will I destroy from among his people.
+>
+> 31 Ye shall do no manner of work: it shall be a statute for ever throughout your generations in all your dwellings.
+>
+> 32 It shall be unto you a sabbath of rest, and ye shall afflict your souls: ***~in the ninth day of the month at even, from even unto even, shall ye celebrate your sabbath~***.
+
+> Numbers 29:7 And ye shall have on ***~the tenth day of this seventh month~*** an holy convocation; and ye shall afflict your souls: ye shall not do any work therein:
+
+Therefore, the day of atonment is from the evening of the 9th to the evening of the 10th day of the 7th month (Tishrei).
+
+### Feast Not Kept
+
+No mention.
+
+## Feast of Tabernacles (Sukkot)
+
+> Leviticus 23:34-43
+>
+> 34 Speak unto the children of Israel, saying, ***~The fifteenth day of this seventh month shall be the feast of tabernacles for seven days~*** unto the Lord.
+>
+> 35 On the first day shall be an holy convocation: ye shall do no servile work therein.
+>
+> 36 Seven days ye shall offer an offering made by fire unto the Lord: on the eighth day shall be an holy convocation unto you; and ye shall offer an offering made by fire unto the Lord: it is a solemn assembly; and ye shall do no servile work therein.
+>
+> 37 These are the feasts of the Lord, which ye shall proclaim to be holy convocations, to offer an offering made by fire unto the Lord, a burnt offering, and a meat offering, a sacrifice, and drink offerings, every thing upon his day:
+>
+> 38 Beside the sabbaths of the Lord, and beside your gifts, and beside all your vows, and beside all your freewill offerings, which ye give unto the Lord.
+>
+> 39 Also in the fifteenth day of the seventh month, when ye have gathered in the fruit of the land, ye shall keep a feast unto the Lord seven days: on the first day shall be a sabbath, and on the eighth day shall be a sabbath.
+>
+> 40 And ye shall take you on the first day the boughs of goodly trees, branches of palm trees, and the boughs of thick trees, and willows of the brook; and ye shall rejoice before the Lord your God seven days.
+>
+> 41 And ye shall keep it a feast unto the Lord seven days in the year. It shall be a statute for ever in your generations: ye shall celebrate it in the seventh month.
+>
+> 42 Ye shall dwell in booths seven days; all that are Israelites born shall dwell in booths:
+>
+> 43 That your generations may know that I made the children of Israel to dwell in booths, when I brought them out of the land of Egypt: I am the Lord your God.
+
+Therefore, the feast of tabernacles is from the 15th to the 21st day of the 7th month (Tishrei).
+
+### Feast Not Kept
+
+No mention. Potentially Jeremiah 41.
+
+### Feast Kept After Returning
+
+> Nehemiah 8:13-18
+>
+> 13 And on the second day were gathered together the chief of the fathers of all the people, the priests, and the Levites, unto Ezra the scribe, even to understand the words of the law.
+>
+> 14 And they found written in the law which the Lord had commanded by Moses, that the children of Israel should dwell in booths in the feast of the seventh month:
+>
+> 15 And that they should publish and proclaim in all their cities, and in Jerusalem, saying, Go forth unto the mount, and fetch olive branches, and pine branches, and myrtle branches, and palm branches, and branches of thick trees, to make booths, as it is written.
+>
+> 16 So the people went forth, and brought them, and made themselves booths, every one upon the roof of his house, and in their courts, and in the courts of the house of God, and in the street of the water gate, and in the street of the gate of Ephraim.
+>
+> 17 And ***~all the congregation of them that were come again out of the captivity~*** made booths, and sat under the booths: for since the days of Jeshua the son of Nun unto that day had not the children of Israel done so. And there was very great gladness.
+>
+> 18 Also day by day, from the first day unto the last day, he read in the book of the law of God. And they kept the feast seven days; and on the eighth day was a solemn assembly, according unto the manner.
+
+Another account (Very Important).
+
+> Ezra 3:1-6
+>
+> 1 And when the seventh month was come, and the children of Israel were in the cities, the people gathered themselves together as one man to Jerusalem.
+>
+> 2 Then stood up Jeshua the son of Jozadak, and his brethren the priests, and Zerubbabel the son of Shealtiel, and his brethren, and builded the altar of the God of Israel, to offer burnt offerings thereon, as it is written in the law of Moses the man of God.
+>
+> 3 And they set the altar upon his bases; for fear was upon them because of the people of those countries: and they offered burnt offerings thereon unto the Lord, ***~even burnt offerings morning and evening~***.
+>
+> 4 ***~They kept also the feast of tabernacles~***, as it is written, and offered the daily burnt offerings by number, according to the custom, as the duty of every day required;
+>
+> 5 ***~And afterward offered the continual burnt offering, both of the new moons, and of all the set feasts of the Lord that were consecrated, and of every one that willingly offered a freewill offering unto the Lord~***.
+>
+> 6 From the first day of the seventh month began they to offer burnt offerings unto the Lord. But the foundation of the temple of the Lord was not yet laid.
+
+Notice how Nehemiah and Ezra clearly proclaim that they need to keep the feast. Ezra saying they must keep all the feasts and offer all the burnt offerings that were commanded.

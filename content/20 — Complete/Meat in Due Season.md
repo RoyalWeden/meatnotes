@@ -306,7 +306,7 @@ shortlink: meatindueseason
 - The Feasts
 
   - Ephraim Envies Judah
-  - Where to Do the Feasts
+  - [[20 — Complete/Where to Do God's Feasts]]
     - Paul Returning to Jerusalem for the Feast
   - [[10 — In Progress/Reproach Was a Burden]]
 

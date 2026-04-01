@@ -231,4 +231,128 @@ What is this saying?
 
 Unfortunately, almost all translations today have removed that Paul had to go to Jerusalem to keep the feast. However, this is the smoking gun that there is something up because everyone uses this verse to point at it being okay to keep the feasts outside of Jerusalem. Here are some other common translations:
 
-Acts 18:21 (NIV) But as he left, he promised, “I will come back if it is God’s will.” Then he set sail from Ephesus.
+> Acts 18:21 (NIV) But as he left, he promised, “I will come back if it is God’s will.” Then he set sail from Ephesus.
+
+> Acts 18:21 (NASB) but took leave of them and said, “I will return to you again if God wills,” and he set sail from Ephesus.
+
+> Acts 18:21 (ESV) But on taking leave of them he said, “I will return to you if God wills,” and he set sail from Ephesus.
+
+> Acts 18:21 (DRA) But taking his leave, and saying: I will return to you again, God willing, he departed from Ephesus.
+
+*Now ask yourself why these Jewish inspired New Testament translations omit that Paul had to go back to Jerusalem.*
+
+> Acts 18:21 (CJB) however, in his farewell he said, “God willing, I will come back to you.” Then he set sail from Ephesus.
+
+> Acts 18:21 (OJB) But taking leave of them, he said, “I will return again im yirtzeh Hashem (G-d willing).” Then Rav Sha’ul set sail from Ephesus.
+
+## Where Did an Early Christian Understand to Do the Feasts?
+
+> 1 Clement 41:1-4
+>
+> 1 Let each of you, brethren, in his own order give thanks unto God, maintaining a good conscience and not transgressing the appointed rule of his service, but acting with all seemliness.
+>
+> 2 Not in every place, brethren, are the continual daily sacrifices offered, or the freewill offerings, or the sin offerings and the trespass offerings, but ***~in Jerusalem alone~***. And even there the offering is ***~not made in every place~***, but before the sanctuary in the court of the altar; and this too through the high priest and the afore said ministers, after that the victim to be offered hath been inspected for blemishes.
+>
+> 3 They therefore who do any thing contrary to the seemly ordinance of His will receive death as the penalty.
+>
+> 4 Ye see, brethren, in proportion as greater knowledge hath been vouchsafed unto us, so much the more are we exposed to danger.
+
+Read the entire book of [1 Clement](https://www.earlychristianwritings.com/text/1clement-lightfoot.html).
+
+# Feasts Not Kept in Captivity
+
+## Passover (Pesach)
+
+### Date of the Feast
+
+> Leviticus 23:5 In ***~the fourteenth day of the first month~*** at even is the Lord's passover.
+
+> Numbers 28:16 And in ***~the fourteenth day of the first month~*** is the passover of the Lord.
+
+Therefore, passover is at the evening of the 14th day of the 1st month (Nisan / Aviv). On this day, you are to eat the passover lamb.
+
+### Feast Not Kept
+
+> Daniel 10:1-4
+>
+> 1 In the third year of Cyrus king of Persia a thing was revealed unto Daniel, whose name was called Belteshazzar; and the thing was true, but the time appointed was long: and he understood the thing, and had understanding of the vision.
+>
+> 2 In those days I Daniel was mourning three full weeks.
+>
+> 3 ***~I ate no pleasant bread, neither came flesh nor wine in my mouth, neither did I anoint myself at all, till three whole weeks were fulfilled~***.
+>
+> 4 ***~And in the four and twentieth day of the first month~***, as I was by the side of the great river, which is Hiddekel;
+
+Daniel fasted for 21 days (3 weeks) until it became the 24th day of the 1st month. That means he fasted from the 3rd day to the 24th day, which includes the passover that occurs on the 14th day.
+
+### Feast Kept After Returning
+
+*Just one of many accounts.*
+
+> Luke 2:41 Now his parents went to Jerusalem every year at the feast of the passover.
+
+## Feast of Unleavened Bread (Chag HaMatzot)
+
+### Date of the Feast
+
+> Leviticus 23:5-6
+>
+> 5 In the fourteenth day of ***~the first month~*** at even is the Lord's passover.
+>
+> 6 And ***~on the fifteenth day of the same month is the feast of unleavened bread unto the Lord: seven days ye must eat unleavened bread~***.
+
+> Numbers 28:16-17
+>
+> 16 And in the fourteenth day of ***~the first month~*** is the passover of the Lord.
+>
+> 17 And in ***~the fifteenth day of this month is the feast: seven days shall unleavened bread be eaten~***.
+
+Therefore, the feast of unleavened bread occurs from the 15th to the 21st day of the 1st month (Nisan / Aviv). During this time, you are to eat unleavened bread.
+
+### Feast Not Kept
+
+> Daniel 10:1-4
+>
+> 1 In the third year of Cyrus king of Persia a thing was revealed unto Daniel, whose name was called Belteshazzar; and the thing was true, but the time appointed was long: and he understood the thing, and had understanding of the vision.
+>
+> 2 In those days I Daniel was mourning three full weeks.
+>
+> 3 ***~I ate no pleasant bread, neither came flesh nor wine in my mouth, neither did I anoint myself at all, till three whole weeks were fulfilled~***.
+>
+> 4 ***~And in the four and twentieth day of the first month~***, as I was by the side of the great river, which is Hiddekel;
+
+Daniel fasted for 21 days (3 weeks) until it became the 24th day of the 1st month. That means he fasted from the 3rd day to the 24th day, which includes the feast of unleavened bread that occurs from the 15th to the 21nd day of the 1st month.
+
+### Feast Kept After Returning
+
+*Note the Jews had the wrong dates.*
+
+> Mark 14:1 After two days was the feast of the passover, and of unleavened bread: and the chief priests and the scribes sought how they might take him by craft, and put him to death.
+
+## Feast of Firstfruits (Yom HaBikkurim)
+
+### Date of the Feast
+
+> Leviticus 23:5-7,10-14
+>
+> 5 ***~In the fourteenth day of the first month~*** at even is the Lord's passover.
+>
+> 6 And on the fifteenth day of the same month is the feast of unleavened bread unto the Lord: seven days ye must eat unleavened bread.
+>
+> 7 ***~In the first day ye shall have an holy convocation~***: ye shall do no servile work therein.
+>
+> . . .
+>
+> 10 Speak unto the children of Israel, and say unto them, When ye be come into the land which I give unto you, and shall reap the harvest thereof, then ye shall bring a sheaf of the firstfruits of your harvest unto the priest:
+>
+> 11 And he shall wave the sheaf before the Lord, to be accepted for you: ***~on the morrow after the sabbath~*** the priest shall wave it.
+>
+> 12 And ye shall offer that day when ye wave the sheaf an he lamb without blemish of the first year for a burnt offering unto the Lord.
+>
+> 13 And the meat offering thereof shall be two tenth deals of fine flour mingled with oil, an offering made by fire unto the Lord for a sweet savour: and the drink offering thereof shall be of wine, the fourth part of an hin.
+>
+> 14 And ye shall eat neither bread, nor parched corn, nor green ears, until the selfsame day that ye have brought an offering unto your God: it shall be a statute for ever throughout your generations in all your dwellings.
+
+Therefore, the feast of firstfruits is the 16th day of the 1st month (Nisan / Aviv).
+
+### Feast Not Kept

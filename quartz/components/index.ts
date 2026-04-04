@@ -40,6 +40,9 @@ export { default as IdiomSearch } from "./IdiomSearch"
 export { default as RecentIdioms } from "./RecentIdioms"
 export { default as PdfLibrary } from "./PdfLibrary"
 export { default as ShortlinkButton } from "./ShortlinkButton"
+export { default as VerseChainExplorer } from "./VerseChainExplorer"
+export { default as PipelineDashboard } from "./PipelineDashboard"
+export { default as TopicalChain } from "./TopicalChain"
 
 export {
   ArticleTitle,

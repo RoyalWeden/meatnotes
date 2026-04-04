@@ -1,150 +1,7 @@
 import { QuartzTransformerPlugin } from "../types"
-
-const books: Record<string, string> = {
-  // Old Testament
-  genesis: "Genesis",
-  gen: "Genesis",
-  exodus: "Exodus",
-  exod: "Exodus",
-  exo: "Exodus",
-  leviticus: "Leviticus",
-  lev: "Leviticus",
-  numbers: "Numbers",
-  num: "Numbers",
-  deuteronomy: "Deuteronomy",
-  deut: "Deuteronomy",
-  deu: "Deuteronomy",
-  joshua: "Joshua",
-  josh: "Joshua",
-  judges: "Judges",
-  judg: "Judges",
-  ruth: "Ruth",
-  "1 samuel": "1+Samuel",
-  "1 sam": "1+Samuel",
-  "1sam": "1+Samuel",
-  "2 samuel": "2+Samuel",
-  "2 sam": "2+Samuel",
-  "2sam": "2+Samuel",
-  "1 kings": "1+Kings",
-  "1kings": "1+Kings",
-  "2 kings": "2+Kings",
-  "2kings": "2+Kings",
-  "1 chronicles": "1+Chronicles",
-  "1 chron": "1+Chronicles",
-  "1chron": "1+Chronicles",
-  "2 chronicles": "2+Chronicles",
-  "2 chron": "2+Chronicles",
-  "2chron": "2+Chronicles",
-  ezra: "Ezra",
-  nehemiah: "Nehemiah",
-  neh: "Nehemiah",
-  job: "Job",
-  psalm: "Psalms",
-  psalms: "Psalms",
-  ps: "Psalms",
-  psa: "Psalms",
-  proverbs: "Proverbs",
-  prov: "Proverbs",
-  pro: "Proverbs",
-  ecclesiastes: "Ecclesiastes",
-  eccl: "Ecclesiastes",
-  ecc: "Ecclesiastes",
-  "song of solomon": "Song+of+Solomon",
-  song: "Song+of+Solomon",
-  sos: "Song+of+Solomon",
-  isaiah: "Isaiah",
-  isa: "Isaiah",
-  jeremiah: "Jeremiah",
-  jer: "Jeremiah",
-  lamentations: "Lamentations",
-  lam: "Lamentations",
-  ezekiel: "Ezekiel",
-  ezek: "Ezekiel",
-  eze: "Ezekiel",
-  daniel: "Daniel",
-  dan: "Daniel",
-  hosea: "Hosea",
-  hos: "Hosea",
-  joel: "Joel",
-  amos: "Amos",
-  obadiah: "Obadiah",
-  obad: "Obadiah",
-  jonah: "Jonah",
-  jon: "Jonah",
-  micah: "Micah",
-  mic: "Micah",
-  nahum: "Nahum",
-  nah: "Nahum",
-  habakkuk: "Habakkuk",
-  hab: "Habakkuk",
-  zephaniah: "Zephaniah",
-  zeph: "Zephaniah",
-  haggai: "Haggai",
-  hag: "Haggai",
-  zechariah: "Zechariah",
-  zech: "Zechariah",
-  malachi: "Malachi",
-  mal: "Malachi",
-  // New Testament
-  matthew: "Matthew",
-  matt: "Matthew",
-  mat: "Matthew",
-  mark: "Mark",
-  luke: "Luke",
-  john: "John",
-  acts: "Acts",
-  romans: "Romans",
-  rom: "Romans",
-  "1 corinthians": "1+Corinthians",
-  "1 cor": "1+Corinthians",
-  "1cor": "1+Corinthians",
-  "2 corinthians": "2+Corinthians",
-  "2 cor": "2+Corinthians",
-  "2cor": "2+Corinthians",
-  galatians: "Galatians",
-  gal: "Galatians",
-  ephesians: "Ephesians",
-  eph: "Ephesians",
-  philippians: "Philippians",
-  phil: "Philippians",
-  colossians: "Colossians",
-  col: "Colossians",
-  "1 thessalonians": "1+Thessalonians",
-  "1 thess": "1+Thessalonians",
-  "1thess": "1+Thessalonians",
-  "2 thessalonians": "2+Thessalonians",
-  "2 thess": "2+Thessalonians",
-  "2thess": "2+Thessalonians",
-  "1 timothy": "1+Timothy",
-  "1 tim": "1+Timothy",
-  "1tim": "1+Timothy",
-  "2 timothy": "2+Timothy",
-  "2 tim": "2+Timothy",
-  "2tim": "2+Timothy",
-  titus: "Titus",
-  tit: "Titus",
-  philemon: "Philemon",
-  phlm: "Philemon",
-  hebrews: "Hebrews",
-  heb: "Hebrews",
-  james: "James",
-  jas: "James",
-  "1 peter": "1+Peter",
-  "1 pet": "1+Peter",
-  "1pet": "1+Peter",
-  "2 peter": "2+Peter",
-  "2 pet": "2+Peter",
-  "2pet": "2+Peter",
-  "1 john": "1+John",
-  "1john": "1+John",
-  "2 john": "2+John",
-  "2john": "2+John",
-  "3 john": "3+John",
-  "3john": "3+John",
-  jude: "Jude",
-  revelation: "Revelation",
-  rev: "Revelation",
-}
+import { books, bookPattern, normalizeRef } from "../../util/bibleBooks"
+import { Root } from "hast"
+import { visit } from "unist-util-visit"
 
 // LXX book code mapping for ebible.org/eng-Brenton
 const lxxBooks: Record<string, string> = {
@@ -327,11 +184,6 @@ const kjbApocryphaBookPattern = Object.keys(kjbApocryphaBooks)
   .map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
   .join("|")
 
-const bookPattern = Object.keys(books)
-  .sort((a, b) => b.length - a.length)
-  .map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-  .join("|")
-
 const lxxBookPattern = Object.keys(lxxBooks)
   .sort((a, b) => b.length - a.length)
   .map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
@@ -414,6 +266,20 @@ const enochVerseRegex =
 
 const enochChapterRegex =
   /(?<![\w/>"'\[])\b(?:1[ \t]+)?Enoch[ \t]+(\d+(?:-\d+)?)(?![:\d\]])/gi
+
+// 1 Clement regexes — match "1 Clement", "1Clement", "1 Clem", "1Clem"
+const clementVerseRegex =
+  /(?<![\w/>"'\[])\b1[ \t]*Clem(?:ent)?[ \t]+(\d+):(\d+)(?:-(\d+))?(?!\])/gi
+
+const clementChapterRegex =
+  /(?<![\w/>"'\[])\b1[ \t]*Clem(?:ent)?[ \t]+(\d+(?:-\d+)?)(?![:\d\]])/gi
+
+function clementUrl(chapter: string, verse?: string): string {
+  const base = "https://www.earlychristianwritings.com/text/1clement-lightfoot.html"
+  if (!verse) return base
+  const fragment = `1Clem ${chapter}:${verse}`
+  return `${base}#:~:text=${encodeURIComponent(fragment)}`
+}
 
 function enochPageNum(ch: number): string {
   if (ch === 91) return "095"
@@ -594,6 +460,17 @@ export const BibleLinks: QuartzTransformerPlugin = () => {
           return `[${match}](${url})`
         })
 
+        // Pass 6.5a: 1 Clement verse refs
+        result = result.replace(clementVerseRegex, (match, chapter, firstVerse) => {
+          return `[${match}](${clementUrl(chapter, firstVerse)})`
+        })
+
+        // Pass 6.5b: 1 Clement chapter-only refs
+        result = result.replace(clementChapterRegex, (match, chapter) => {
+          const firstChapter = chapter.includes("-") ? chapter.split("-")[0] : chapter
+          return `[${match}](${clementUrl(firstChapter)})`
+        })
+
         // Pass 7: versioned verse refs — explicit translation tag e.g. "John 3:16 (NIV)"
         result = result.replace(versionedVerseRegex, (match, book, chapter, verse, version) => {
           const bgBook = books[book.toLowerCase().trim()]
@@ -649,6 +526,43 @@ export const BibleLinks: QuartzTransformerPlugin = () => {
       }
       parts.push(linkify(src.slice(lastIndex)))
       return parts.join("")
+    },
+    htmlPlugins() {
+      return [
+        () => {
+          return (tree: Root) => {
+            visit(tree, "element", (node) => {
+              if (
+                node.tagName === "a" &&
+                node.properties &&
+                typeof node.properties.href === "string"
+              ) {
+                const href = node.properties.href as string
+                // Match any Bible link domain (BibleGateway, ebible, kingjamesbibleonline,
+                // pseudepigrapha, sacred-texts, earlychristianwritings)
+                const isBibleLink =
+                  href.includes("biblegateway.com/passage") ||
+                  href.includes("ebible.org/eng-Brenton") ||
+                  href.includes("kingjamesbibleonline.org") ||
+                  href.includes("pseudepigrapha.com/jubilees") ||
+                  href.includes("sacred-texts.com/bib/boe") ||
+                  href.includes("earlychristianwritings.com/text/1clement")
+                if (isBibleLink) {
+                  const textParts: string[] = []
+                  for (const child of node.children) {
+                    if (child.type === "text") textParts.push(child.value)
+                  }
+                  const linkText = textParts.join("")
+                  const ref = normalizeRef(linkText)
+                  if (ref) {
+                    node.properties["data-verse-ref"] = ref
+                  }
+                }
+              }
+            })
+          }
+        },
+      ]
     },
     externalResources() {
       return {

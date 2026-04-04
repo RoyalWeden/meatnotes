@@ -1,0 +1,147 @@
+// Topical Chain Navigator — right sidebar widget (accordion)
+.topical-chain {
+  margin-top: 0.5rem;
+}
+
+.tc-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--darkgray);
+  margin: 0 0 0.5rem;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+.tc-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tc-loading {
+  font-size: 0.8rem;
+  color: var(--gray);
+  font-style: italic;
+}
+
+.tc-group {
+  border-bottom: 1px solid rgba(var(--lightgray-rgb, 200, 200, 200), 0.5);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.tc-verse-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 6px;
+  transition: background 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--lightgray) 50%, transparent);
+  }
+}
+
+.tc-chevron {
+  font-size: 0.6rem;
+  color: var(--gray);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+
+  .tc-group.expanded & {
+    transform: rotate(90deg);
+  }
+}
+
+.tc-verse-ref {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--secondary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.tc-badge {
+  font-size: 0.65rem;
+  background: var(--secondary);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.tc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+
+  .tc-group.expanded & {
+    grid-template-rows: 1fr;
+  }
+}
+
+.tc-body-inner {
+  overflow: hidden;
+  padding: 0 4px;
+
+  .tc-group.expanded & {
+    padding-bottom: 8px;
+  }
+}
+
+.tc-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 0.5rem;
+}
+
+.tc-note-link {
+  font-size: 0.8rem;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+  }
+}
+
+.tc-co-verses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 3px;
+  margin-left: 0.5rem;
+}
+
+.tc-co-chip {
+  font-size: 0.7rem;
+  color: var(--gray);
+  text-decoration: none;
+  padding: 1px 6px;
+  background: var(--lightgray);
+  border-radius: 10px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--secondary);
+    color: white;
+  }
+}

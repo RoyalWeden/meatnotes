@@ -20,6 +20,22 @@ const ExplorerTopLinks: QuartzComponent = () => (
       </svg>
       Books & PDFs
     </a>
+    <a href="/Verse-Chain" class="explorer-top-link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </svg>
+      Verse Chain
+    </a>
+    <a href="/Dashboard" class="explorer-top-link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="9" rx="1"/>
+        <rect x="14" y="3" width="7" height="5" rx="1"/>
+        <rect x="14" y="12" width="7" height="9" rx="1"/>
+        <rect x="3" y="16" width="7" height="5" rx="1"/>
+      </svg>
+      Dashboard
+    </a>
   </div>
 )
 
@@ -112,6 +128,22 @@ ExplorerTopLinks.afterDOMLoaded = `
         '<line x1="16" y1="17" x2="8" y2="17"/>' +
       '</svg>' +
       'Books \\x26 PDFs' +
+    '</a>' +
+    '<a href="/Verse-Chain" class="explorer-top-link" style="margin-top:0.35rem">' +
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>' +
+        '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>' +
+      '</svg>' +
+      'Verse Chain' +
+    '</a>' +
+    '<a href="/Dashboard" class="explorer-top-link" style="margin-top:0.35rem">' +
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<rect x="3" y="3" width="7" height="9" rx="1"/>' +
+        '<rect x="14" y="3" width="7" height="5" rx="1"/>' +
+        '<rect x="14" y="12" width="7" height="9" rx="1"/>' +
+        '<rect x="3" y="16" width="7" height="5" rx="1"/>' +
+      '</svg>' +
+      'Dashboard' +
     '</a>'
     content.insertBefore(div, content.firstChild)
   }

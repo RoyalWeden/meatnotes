@@ -1,0 +1,693 @@
+// Verse Chain Explorer styles
+// Spring easing for animations
+$spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Section colors
+$section-colors: (
+  capture: #8b8b8b,
+  in-progress: #f59e0b,
+  idiom: #a855f7,
+  complete: #22c55e,
+  rebukes: #ef4444,
+  daily: #3b82f6,
+);
+
+.verse-chain {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+// ── Search ──
+.vc-search-wrap {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.vc-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 12px;
+  background: var(--light);
+  color: var(--darkgray);
+  outline: none;
+  transition: border-color 0.2s $ease, box-shadow 0.2s $ease;
+
+  &:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(var(--secondary-rgb, 100, 100, 255), 0.15);
+  }
+
+  &::placeholder {
+    color: var(--gray);
+    opacity: 0.7;
+  }
+}
+
+// ── Autocomplete ──
+.vc-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+
+  &.open {
+    display: block;
+  }
+
+  li {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--darkgray);
+    transition: background 0.1s;
+
+    &:hover,
+    &.active {
+      background: var(--lightgray);
+    }
+
+    .ac-book {
+      font-weight: 600;
+    }
+
+    .ac-ref {
+      color: var(--gray);
+      margin-left: 0.25rem;
+    }
+
+    .ac-count {
+      float: right;
+      font-size: 0.8em;
+      color: var(--gray);
+    }
+  }
+}
+
+// ── History chips ──
+.vc-history {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 0.75rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:empty {
+    display: none;
+  }
+}
+
+.vc-history-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  background: var(--lightgray);
+  color: var(--darkgray);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  animation: chipIn 0.3s $spring both;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--gray);
+    color: var(--light);
+  }
+
+  .chip-x {
+    font-size: 0.7em;
+    opacity: 0.6;
+    margin-left: 2px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes chipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+// ── Controls row ──
+.vc-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vc-filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.vc-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--darkgray);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s $ease;
+
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  @each $name, $color in $section-colors {
+    &[data-filter="#{$name}"]::before {
+      background: $color;
+    }
+  }
+
+  &[data-filter="all"]::before {
+    display: none;
+  }
+
+  &.active {
+    background: var(--secondary);
+    color: var(--light);
+    border-color: var(--secondary);
+
+    &::before {
+      background: var(--light);
+    }
+  }
+
+  .chip-count {
+    font-size: 0.75em;
+    opacity: 0.8;
+  }
+}
+
+.vc-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vc-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--lightgray);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--darkgray);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--lightgray);
+  }
+
+  &[aria-pressed="true"],
+  &.active {
+    background: var(--secondary);
+    color: var(--light);
+    border-color: var(--secondary);
+  }
+}
+
+// ── Count ──
+.vc-count {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin-bottom: 0.5rem;
+  min-height: 1.2em;
+}
+
+// ── Tree view ──
+.vc-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// Verse card
+.vc-card {
+  border: 1px solid var(--lightgray);
+  border-radius: 10px;
+  background: var(--light);
+  overflow: hidden;
+  transition: box-shadow 0.25s $ease, transform 0.25s $spring;
+  animation: cardIn 0.35s $spring both;
+
+  @for $i from 1 through 20 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{($i - 1) * 40}ms;
+    }
+  }
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.expanded {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+    .vc-card-body {
+      grid-template-rows: 1fr;
+    }
+
+    .vc-card-arrow {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: -2px;
+    border-radius: 10px;
+  }
+}
+
+.vc-card-arrow {
+  font-size: 0.7em;
+  color: var(--gray);
+  transition: transform 0.25s $spring;
+  flex-shrink: 0;
+}
+
+.vc-card-ref {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--dark);
+}
+
+.vc-card-meta {
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+// Skeleton shimmer
+.vc-shimmer {
+  display: inline-block;
+  width: 60px;
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--lightgray) 25%, var(--light) 50%, var(--lightgray) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// Expandable body
+.vc-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s $spring;
+}
+
+.vc-card-inner {
+  overflow: hidden;
+  padding: 0 0.75rem;
+}
+
+.expanded .vc-card-inner {
+  padding-bottom: 0.75rem;
+}
+
+// Verse text blockquote
+.vc-verse-text {
+  border-left: 3px solid var(--secondary);
+  padding: 0.5rem 0.75rem;
+  margin: 0.25rem 0 0.5rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--darkgray);
+  line-height: 1.5;
+  background: rgba(var(--secondary-rgb, 100, 100, 255), 0.04);
+  border-radius: 0 6px 6px 0;
+}
+
+.vc-verse-unavailable {
+  color: var(--gray);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+// Note pills
+.vc-note-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.vc-note-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s $spring, box-shadow 0.15s;
+  border: none;
+  background: var(--lightgray);
+  color: var(--darkgray);
+
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  @each $name, $color in $section-colors {
+    &[data-section="#{$name}"] {
+      background: rgba($color, 0.15);
+      color: $color;
+      border: 1px solid rgba($color, 0.3);
+    }
+  }
+}
+
+// Connected verse chips
+.vc-connected {
+  margin-top: 0.25rem;
+}
+
+.vc-connected-label {
+  font-size: 0.75rem;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+
+.vc-connected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.vc-conn-chip {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  background: var(--lightgray);
+  color: var(--gray);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--secondary);
+    color: var(--light);
+  }
+}
+
+// 2nd-degree verses
+.vc-second-degree {
+  margin-left: 1rem;
+  padding-left: 0.75rem;
+  border-left: 1px dashed var(--lightgray);
+  margin-top: 0.25rem;
+
+  .vc-card {
+    font-size: 0.85em;
+    background: rgba(var(--light-rgb, 255, 255, 255), 0.5);
+  }
+}
+
+// ── Graph view ──
+.vc-graph {
+  position: relative;
+  border: 1px solid var(--lightgray);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 400px;
+  background: var(--light);
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.vc-graph-reset {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: var(--light);
+  color: var(--darkgray);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// ── Empty state ──
+.vc-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--gray);
+
+  .vc-empty-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .vc-empty-suggestion {
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+
+  .vc-empty-link {
+    color: var(--secondary);
+    cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    font-size: inherit;
+  }
+}
+
+// ── Verses-only mode ──
+.vc-tree.verses-only {
+  .vc-note-pills,
+  .vc-verse-text {
+    display: none;
+  }
+}
+
+// ── View crossfade ──
+.vc-tree,
+.vc-graph {
+  transition: opacity 0.2s $ease;
+}
+
+// ── Desktop-only ──
+.vc-desktop-only {
+  @media (max-width: 799px) {
+    display: none !important;
+  }
+}
+
+// ── Mobile adjustments ──
+@media (max-width: 799px) {
+  .verse-chain {
+    padding: 0 0.5rem;
+  }
+
+  .vc-input {
+    font-size: 1rem;
+    padding: 0.6rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .vc-card-header {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .vc-note-pill {
+    font-size: 0.75rem;
+  }
+
+  // Chain icons slightly larger on mobile
+  .verse-chain-btn {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+// ── Skeleton cards (loading state) ──
+.vc-skeleton-card {
+  border: 1px solid var(--lightgray);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  animation: cardIn 0.35s $spring both;
+
+  .vc-skel-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vc-skel-ref {
+    width: 120px;
+    height: 16px;
+  }
+
+  .vc-skel-meta {
+    width: 60px;
+    height: 12px;
+    margin-left: auto;
+  }
+}
+
+// ── Chain icon on verse links (global) ──
+.verse-chain-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  opacity: 0;
+  cursor: pointer;
+  color: var(--gray);
+  vertical-align: middle;
+  transition: opacity 0.15s ease, color 0.15s;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1 !important;
+    color: var(--secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  svg {
+    display: block;
+  }
+}
+
+a[data-verse-ref]:hover + .verse-chain-btn,
+.verse-chain-btn:hover {
+  opacity: 1;
+}
+
+@media (max-width: 799px) {
+  .verse-chain-btn {
+    width: 24px;
+    height: 24px;
+    opacity: 0.5;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// ── Export toast ──
+.vc-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 8px 16px;
+  background: var(--dark);
+  color: var(--light);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.3s $spring;
+  pointer-events: none;
+
+  &.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

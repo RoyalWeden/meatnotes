@@ -38,6 +38,14 @@ export const sharedPageComponents: SharedLayout = {
       component: Component.PdfLibrary(),
       condition: (page) => page.fileData.slug === "Books-and-PDFs",
     }),
+    Component.ConditionalRender({
+      component: Component.VerseChainExplorer(),
+      condition: (page) => page.fileData.slug === "Verse-Chain",
+    }),
+    Component.ConditionalRender({
+      component: Component.PipelineDashboard(),
+      condition: (page) => page.fileData.slug === "Dashboard",
+    }),
   ],
   footer: Component.CustomFooter({
     links: {
@@ -60,7 +68,10 @@ const explorerConfig = {
       node.displayName !== "All-Notes" &&
       node.displayName !== "All Notes" &&
       node.displayName !== "Books-and-PDFs" &&
-      node.displayName !== "Books & PDFs"
+      node.displayName !== "Books & PDFs" &&
+      node.displayName !== "Verse-Chain" &&
+      node.displayName !== "Verse Chain" &&
+      node.displayName !== "Dashboard"
     )
   },
   mapFn: (node: any) => {
@@ -84,19 +95,19 @@ export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
       component: Component.Breadcrumbs(),
-      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search",
+      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.ContentMeta(),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.TagList(),
-      condition: (page) => page.fileData.slug !== "Search",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.RebukePanel(),
@@ -133,7 +144,7 @@ export const defaultContentPageLayout: PageLayout = {
   right: [
     Component.ConditionalRender({
       component: Component.Graph(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "index",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "index",
     }),
     Component.ConditionalRender({
       component: Component.DesktopOnly(Component.TableOfContents()),
@@ -141,6 +152,16 @@ export const defaultContentPageLayout: PageLayout = {
         !((page.fileData.frontmatter?.cssclasses as string[] | undefined) ?? []).includes("rebuke"),
     }),
     Component.Backlinks(),
+    Component.ConditionalRender({
+      component: Component.TopicalChain(),
+      condition: (page) =>
+        page.fileData.slug !== "index" &&
+        page.fileData.slug !== "Search" &&
+        page.fileData.slug !== "Verse-Chain" &&
+        page.fileData.slug !== "Dashboard" &&
+        page.fileData.slug !== "All-Notes" &&
+        page.fileData.slug !== "Books-and-PDFs",
+    }),
     Component.ConditionalRender({
       component: Component.RecentNotes({
         title: "Recently Updated",

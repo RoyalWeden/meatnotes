@@ -24,4 +24,9 @@ contextBridge.exposeInMainWorld('syncAPI', {
   getAppVersion:   () => ipcRenderer.invoke('get-app-version'),
   getSiteVersion:  () => ipcRenderer.invoke('get-site-version'),
   openLogFile:     () => ipcRenderer.send('open-log-file'),
+  // BibleGateway sync
+  triggerBGSync:   () => ipcRenderer.send('trigger-bg-sync'),
+  getBGStatus:     () => ipcRenderer.invoke('get-bg-status'),
+  onBGProgress:    (cb) => ipcRenderer.on('bg-progress', (_e, data) => cb(data)),
+  onBGComplete:    (cb) => ipcRenderer.on('bg-complete', (_e, data) => cb(data)),
 });

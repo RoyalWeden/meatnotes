@@ -97,6 +97,7 @@ const config: QuartzConfig = {
       Plugin.CustomOgImages(),
       Plugin.BuildTime(),
       Plugin.PdfIndex(),
+      Plugin.BibleVerseIndex(),
     ],
   },
 }

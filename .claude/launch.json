@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "quartz-dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["quartz", "build", "--serve"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/usr/local/bin:$PATH && npx quartz build --serve"],
       "port": 8080,
       "autoPort": true
     },

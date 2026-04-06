@@ -253,6 +253,10 @@ a {
       grid-area: grid-sidebar-right;
       margin-right: 0;
       flex-direction: column;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--lightgray) transparent;
       @media all and ($mobile) {
         margin-left: inherit;
         margin-right: inherit;
@@ -264,6 +268,7 @@ a {
         flex-direction: row;
         padding: 0;
         overflow-x: hidden;
+        overflow-y: visible;
         & > * {
           flex: 1;
           min-width: 0;
@@ -662,4 +667,96 @@ iframe.pdf {
   background: var(--secondary);
   transition: width 0.2s ease;
   z-index: 9999;
+}
+
+// ── iOS-like shared utilities ──
+.pressable {
+  transition: transform $transition-fast $spring;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.glass {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+// Shared keyframes
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+// iOS-style sheet modal base
+.sheet-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.sheet-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--light);
+  border-radius: $radius-lg $radius-lg 0 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUpSheet 0.35s $spring;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+
+  &::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--gray);
+    border-radius: 2px;
+    margin: 8px auto 4px;
+    opacity: 0.5;
+  }
+}
+
+// Centered modal base
+.center-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-modal {
+  background: var(--light);
+  border-radius: $radius-lg;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeSlideUp 0.3s $spring;
 }

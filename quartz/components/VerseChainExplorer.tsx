@@ -17,35 +17,36 @@ export default (() => {
             autocomplete="off"
             aria-label="Search verse"
           />
+          <button id="vc-input-clear" class="vc-input-clear" data-tooltip="Clear search" aria-label="Clear">&times;</button>
           <ul id="vc-autocomplete" class="vc-autocomplete" role="listbox" aria-label="Suggestions"></ul>
         </div>
 
         {/* History chips */}
         <div id="vc-history" class="vc-history" aria-label="Search history"></div>
 
-        {/* Controls row: filter chips + view toggle + verses-only + export */}
+        {/* Controls row: filter chips + context slider + export */}
         <div class="vc-controls">
           <div class="vc-filters" id="vc-filters" role="group" aria-label="Section filter">
-            <button class="vc-filter-chip active" data-filter="all">All</button>
-            <button class="vc-filter-chip" data-filter="idiom">Idioms</button>
-            <button class="vc-filter-chip" data-filter="capture">Capture</button>
-            <button class="vc-filter-chip" data-filter="in-progress">In Progress</button>
-            <button class="vc-filter-chip" data-filter="complete">Complete</button>
-            <button class="vc-filter-chip" data-filter="daily">Daily</button>
+            <button class="vc-filter-chip pressable active" data-filter="all" data-tooltip="Show all sections">All</button>
+            <button class="vc-filter-chip pressable" data-filter="idiom" data-tooltip="Bible idiom notes">Idioms</button>
+            <button class="vc-filter-chip pressable" data-filter="capture" data-tooltip="Quick captures">Capture</button>
+            <button class="vc-filter-chip pressable" data-filter="in-progress" data-tooltip="In-progress studies">In Progress</button>
+            <button class="vc-filter-chip pressable" data-filter="complete" data-tooltip="Completed studies">Complete</button>
+            <button class="vc-filter-chip pressable" data-filter="daily" data-tooltip="Daily journal notes">Daily</button>
           </div>
           <div class="vc-actions">
-            <button id="vc-verses-only" class="vc-action-btn" aria-pressed="false" title="Show verses only">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
-            </button>
-            <button id="vc-view-toggle" class="vc-action-btn vc-desktop-only" aria-label="Toggle graph view" title="Graph view">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="5" cy="12" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/>
-                <path d="M7 11l10-4M7 13l10 4"/>
-              </svg>
-            </button>
-            <button id="vc-export" class="vc-action-btn" title="Copy as markdown">
+            <div class="vc-global-context" id="vc-global-context" data-tooltip="Verse context — how many surrounding verses to show">
+              <span class="vc-context-label">Context</span>
+              <div class="vc-context-step pressables" id="vc-context-steps">
+                <button class="vc-context-step pressable active" data-ctx="0" data-tooltip="Verse text only">0</button>
+                <button class="vc-context-step pressable" data-ctx="1" data-tooltip="Show ±1 surrounding verse">&plusmn;1</button>
+                <button class="vc-context-step pressable" data-ctx="2" data-tooltip="Show ±2 surrounding verses">&plusmn;2</button>
+                <button class="vc-context-step pressable" data-ctx="3" data-tooltip="Show ±3 surrounding verses">&plusmn;3</button>
+                <button class="vc-context-step pressable" data-ctx="5" data-tooltip="Show ±5 surrounding verses">&plusmn;5</button>
+                <button class="vc-context-step pressable" data-ctx="-1" data-tooltip="Show full chapter">Ch</button>
+              </div>
+            </div>
+            <button id="vc-export" class="vc-action-btn pressable" data-tooltip="Copy as Markdown">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
               </svg>
@@ -56,11 +57,18 @@ export default (() => {
         {/* Results count */}
         <div id="vc-count" class="vc-count" aria-live="polite"></div>
 
-        {/* Tree view */}
-        <div id="vc-tree" class="vc-tree"></div>
+        {/* Breadcrumb trail (sticky, shows chain path) */}
+        <div id="vc-breadcrumbs" class="vc-breadcrumbs" style="display:none"></div>
 
-        {/* Graph view (desktop only) */}
-        <div id="vc-graph" class="vc-graph vc-desktop-only" style="display:none;"></div>
+        {/* Horizontal flow container (desktop) / vertical stack (mobile) */}
+        <div id="vc-flow" class="vc-flow">
+          {/* SVG overlay for connecting lines */}
+          <svg id="vc-lines" class="vc-lines"></svg>
+          {/* Columns get appended here dynamically */}
+        </div>
+
+        {/* Note preview popup (desktop hover) */}
+        <div id="vc-note-preview" class="vc-note-preview"></div>
       </div>
     )
   }

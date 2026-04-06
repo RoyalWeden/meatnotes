@@ -9,12 +9,14 @@ export const sharedPageComponents: SharedLayout = {
       components: [
         { Component: Component.Search(), grow: true },
         { Component: Component.IdiomSearch() },
-        { Component: Component.Darkmode() },
-        { Component: Component.ReaderMode() },
       ],
     })),
   ],
   afterBody: [
+    Component.Tooltip(),
+    Component.SidebarCollapse(),
+    Component.Darkmode(),
+    Component.MobileSettings(),
     Component.DailyNoteNav(),
     Component.ConditionalRender({
       component: Component.HomeSections(),
@@ -133,8 +135,6 @@ export const defaultContentPageLayout: PageLayout = {
       components: [
         { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.MobileOnly(Component.IdiomSearch()) },
-        { Component: Component.Darkmode() },
-        { Component: Component.ReaderMode() },
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),
@@ -191,7 +191,6 @@ export const defaultListPageLayout: PageLayout = {
       components: [
         { Component: Component.MobileOnly(Component.Search()), grow: true },
         { Component: Component.MobileOnly(Component.IdiomSearch()) },
-        { Component: Component.Darkmode() },
       ],
     }),
     Component.DesktopOnly(Component.DailyCalendar()),

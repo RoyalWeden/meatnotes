@@ -61,14 +61,30 @@
   }
 }
 
-.tc-verse-ref {
+.tc-verse-label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--secondary);
-  text-decoration: none;
+}
+
+.tc-chain-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray);
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
 
   &:hover {
-    text-decoration: underline;
+    color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+  }
+
+  .tc-verse-pill:hover & {
+    opacity: 1;
   }
 }
 

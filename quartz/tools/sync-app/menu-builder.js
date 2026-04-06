@@ -108,6 +108,11 @@ function buildMenu() {
         const { runBGSync } = require('./bg-controller');
         runBGSync();
       }},
+    { label: 'Debug BG Sync', enabled: state.bgSyncStatus === 'idle' || state.bgSyncStatus === 'done' || state.bgSyncStatus === 'error',
+      click: () => {
+        const { runBGSync } = require('./bg-controller');
+        runBGSync({ debug: true });
+      }},
     { type: 'separator' },
     { label: 'Recent Syncs:', enabled: false },
     ...recentItems,

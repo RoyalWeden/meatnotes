@@ -26,6 +26,8 @@ export default (() => {
         s !== "index" &&
         s !== "Search" &&
         s !== "All-Notes" &&
+        s !== "Verse-Chain" &&
+        s !== "Dashboard" &&
         !s.endsWith("/index")
       )
     })
@@ -47,7 +49,7 @@ export default (() => {
             <p class="folder-item-count">{totalCount} notes total</p>
             <div class="view-toggle">
               {/* Compact grid */}
-              <button class="view-btn" data-view-target="cards-sm" title="Compact grid">
+              <button class="view-btn" data-view-target="cards-sm" data-tooltip="Compact grid">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                   <rect x="1" y="1" width="3" height="3" rx=".6"/>
                   <rect x="5.5" y="1" width="3" height="3" rx=".6"/>
@@ -61,7 +63,7 @@ export default (() => {
                 </svg>
               </button>
               {/* Spacious grid */}
-              <button class="view-btn" data-view-target="cards-lg" title="Spacious grid">
+              <button class="view-btn" data-view-target="cards-lg" data-tooltip="Spacious grid">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                   <rect x="1" y="1" width="5.5" height="5.5" rx="1"/>
                   <rect x="7.5" y="1" width="5.5" height="5.5" rx="1"/>
@@ -70,7 +72,7 @@ export default (() => {
                 </svg>
               </button>
               {/* List */}
-              <button class="view-btn" data-view-target="list" title="List view">
+              <button class="view-btn" data-view-target="list" data-tooltip="List view">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="3" y="4" width="18" height="2.5" rx="1.25"/>
                   <rect x="3" y="10.75" width="18" height="2.5" rx="1.25"/>
@@ -86,7 +88,7 @@ export default (() => {
                 <a href={resolveRelative(fileData.slug!, prefix as FullSlug)} class="internal">
                   {label}
                 </a>
-                <button class="section-collapse-btn" aria-label="Toggle section" title="Collapse section">
+                <button class="section-collapse-btn" aria-label="Toggle section" data-tooltip="Collapse section">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"/>
                   </svg>

@@ -1,0 +1,112 @@
+// Global tooltip system
+#global-tooltip {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px) scale(0.96);
+  transition: opacity 0.15s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--light);
+  background: var(--dark);
+  padding: 5px 10px;
+  border-radius: 8px;
+  max-width: 240px;
+  line-height: 1.4;
+  white-space: pre-line;
+  backdrop-filter: blur(12px) saturate(180%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  font-family: var(--bodyFont);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  &.below {
+    transform: translateY(-4px) scale(0.96);
+    &.visible {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  // Small arrow
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+  }
+
+  &:not(.below)::after {
+    top: 100%;
+    border-top-color: var(--dark);
+  }
+
+  &.below::after {
+    bottom: 100%;
+    border-bottom-color: var(--dark);
+  }
+
+  // Rich tooltip (clickable links)
+  &.rich {
+    pointer-events: auto;
+    max-width: 300px;
+    padding: 6px 4px;
+    white-space: normal;
+
+    .tt-note-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tt-note-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--light);
+      font-size: 0.72rem;
+      transition: background 0.12s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        text-decoration: none;
+      }
+
+      .tt-note-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .tt-note-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .tt-section-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 4px 8px 2px;
+    }
+  }
+}
+
+// Touch devices: never show tooltips
+@media (pointer: coarse) {
+  #global-tooltip {
+    display: none !important;
+  }
+}

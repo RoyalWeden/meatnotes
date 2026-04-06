@@ -19,7 +19,7 @@ export default ((userOpts?: Partial<SearchOptions>) => {
     const searchPlaceholder = i18n(cfg.locale).components.search.searchBarPlaceholder
     return (
       <div class={classNames(displayClass, "search")}>
-        <button class="search-button">
+        <button class="search-button" data-tooltip="Open search">
           <svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7">
             <title>Search</title>
             <g class="search-path" fill="none">
@@ -43,19 +43,19 @@ export default ((userOpts?: Partial<SearchOptions>) => {
               />
             </div>
             <div class="search-filter-btns" role="group" aria-label="Search filter">
-              <button class="filter-btn active" data-filter="all">All</button>
-              <button class="filter-btn" data-filter="title">Title</button>
-              <button class="filter-btn" data-filter="content">Content</button>
-              <button class="filter-btn" data-filter="tags">Tags</button>
-              <button class="phrase-btn" id="search-phrase-btn" aria-pressed="false">Phrase</button>
+              <button class="filter-btn active" data-filter="all" data-tooltip="Search all fields">All</button>
+              <button class="filter-btn" data-filter="title" data-tooltip="Search titles only">Title</button>
+              <button class="filter-btn" data-filter="content" data-tooltip="Search content only">Content</button>
+              <button class="filter-btn" data-filter="tags" data-tooltip="Search tags only">Tags</button>
+              <button class="phrase-btn" id="search-phrase-btn" aria-pressed="false" data-tooltip="Toggle exact phrase matching">Phrase</button>
             </div>
             <div class="search-scope-row" role="group" aria-label="Scope filter">
               <span class="scope-label">In:</span>
-              <button class="scope-btn active" data-scope="all">All</button>
-              <button class="scope-btn" data-scope="idioms">Idioms</button>
-              <button class="scope-btn" data-scope="capture">Capture</button>
-              <button class="scope-btn" data-scope="progress">In Progress</button>
-              <button class="scope-btn" data-scope="complete">Complete</button>
+              <button class="scope-btn active" data-scope="all" data-tooltip="Search all sections">All</button>
+              <button class="scope-btn" data-scope="idioms" data-tooltip="Search idioms only">Idioms</button>
+              <button class="scope-btn" data-scope="capture" data-tooltip="Search capture notes">Capture</button>
+              <button class="scope-btn" data-scope="progress" data-tooltip="Search in-progress notes">In Progress</button>
+              <button class="scope-btn" data-scope="complete" data-tooltip="Search completed notes">Complete</button>
             </div>
             <div class="search-layout" data-preview={opts.enablePreview}></div>
           </div>

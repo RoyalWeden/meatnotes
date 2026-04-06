@@ -11,6 +11,17 @@ import { trieFromAllFiles } from "../../util/ctx"
 import { resolveRelative, isFolderPath } from "../../util/path"
 import { getDate, formatDate } from "../Date"
 
+function formatDailyTitle(slug: string, fallbackTitle: string): string {
+  if (slug.startsWith("Daily/")) {
+    const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+    if (m) {
+      const d = new Date(m[1] + "T12:00:00")
+      return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+    }
+  }
+  return fallbackTitle
+}
+
 interface FolderContentOptions {
   showFolderCount: boolean
   showSubfolders: boolean
@@ -76,6 +87,10 @@ export default ((opts?: Partial<FolderContentOptions>) => {
           }
         })
         .filter((page): page is QuartzPluginData & { childCount?: number } => page !== undefined)
+        .filter((page) => {
+          const s = page.slug ?? ""
+          return s !== "Verse-Chain" && s !== "Dashboard"
+        })
 
     const cssClasses: string[] = fileData.frontmatter?.cssclasses ?? []
     const classes = cssClasses.join(" ")
@@ -100,7 +115,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
             )}
             <div class="view-toggle">
               {/* Compact grid */}
-              <button class="view-btn" data-view-target="cards-sm" title="Compact grid">
+              <button class="view-btn" data-view-target="cards-sm" data-tooltip="Compact grid">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                   <rect x="1" y="1" width="3" height="3" rx=".6"/>
                   <rect x="5.5" y="1" width="3" height="3" rx=".6"/>
@@ -114,7 +129,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
                 </svg>
               </button>
               {/* Spacious grid */}
-              <button class="view-btn" data-view-target="cards-lg" title="Spacious grid">
+              <button class="view-btn" data-view-target="cards-lg" data-tooltip="Spacious grid">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
                   <rect x="1" y="1" width="5.5" height="5.5" rx="1"/>
                   <rect x="7.5" y="1" width="5.5" height="5.5" rx="1"/>
@@ -123,7 +138,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
                 </svg>
               </button>
               {/* List */}
-              <button class="view-btn" data-view-target="list" title="List view">
+              <button class="view-btn" data-view-target="list" data-tooltip="List view">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="3" y="4" width="18" height="2.5" rx="1.25"/>
                   <rect x="3" y="10.75" width="18" height="2.5" rx="1.25"/>
@@ -136,7 +151,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
           <div class="view-cards">
             <div class="cards-grid">
               {sortedPages.map((page) => {
-                const title = page.frontmatter?.title ?? ""
+                const title = formatDailyTitle(page.slug ?? "", page.frontmatter?.title ?? "")
                 const isFolder = isFolderPath(page.slug ?? "")
                 const childCount = (page as any).childCount as number | undefined
                 const date = getDate(cfg, page)
@@ -168,7 +183,7 @@ export default ((opts?: Partial<FolderContentOptions>) => {
           <div class="view-list">
             <ul class="folder-list">
               {sortedPages.map((page) => {
-                const title = page.frontmatter?.title ?? ""
+                const title = formatDailyTitle(page.slug ?? "", page.frontmatter?.title ?? "")
                 const isFolder = isFolderPath(page.slug ?? "")
                 const childCount = (page as any).childCount as number | undefined
                 const date = getDate(cfg, page)

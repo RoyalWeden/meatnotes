@@ -1451,7 +1451,7 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
   const groupRefSet = new Set(group.refs)
 
   for (const ref of group.refs) {
-    let entries = verseIndex.index[ref] ?? []
+    let entries = (verseIndex.index[ref] ?? []).filter(e => e.slug !== "_bg")
     if (currentFilter !== "all") entries = entries.filter(e => e.folder === currentFilter)
     for (const e of entries) {
       if (!seenSlugs.has(e.slug)) {
@@ -1578,7 +1578,7 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
 // ── Verse card rendering (single verse) ──
 function renderVerseCard(verseKey: string, baseUrl: string, degree: number, index: number): string {
   if (!verseIndex) return ""
-  let entries = verseIndex.index[verseKey] ?? []
+  let entries = (verseIndex.index[verseKey] ?? []).filter((e) => e.slug !== "_bg")
   if (currentFilter !== "all") entries = entries.filter((e) => e.folder === currentFilter)
 
   const noteCount = entries.length
@@ -1601,7 +1601,7 @@ function renderVerseCard(verseKey: string, baseUrl: string, degree: number, inde
   // Consolidate consecutive verses into ranges
   const rangeGroups = consolidateRanges(coVs)
   // "Why Connected" — build tooltip with shared note info
-  const myNoteSlugs = new Set((verseIndex.index[verseKey] ?? []).map(e => e.slug))
+  const myNoteSlugs = new Set((verseIndex.index[verseKey] ?? []).filter(e => e.slug !== "_bg").map(e => e.slug))
   const connChips = rangeGroups
     .map((g) => {
       const refsAttr = g.refs.length > 1 ? ` data-refs='${JSON.stringify(g.refs)}'` : ""
@@ -2243,7 +2243,7 @@ function buildExportMarkdown(query: string): string {
   const keys = findMatchingVerses(query)
   const lines: string[] = [`## Verse Chain: ${query}`, ""]
   for (const key of keys) {
-    const entries = verseIndex.index[key] ?? []
+    const entries = (verseIndex.index[key] ?? []).filter(e => e.slug !== "_bg")
     lines.push(`### ${key}`)
     const cached = getVerseFromCache(key)
     if (cached) lines.push(`> ${cached}`, "")

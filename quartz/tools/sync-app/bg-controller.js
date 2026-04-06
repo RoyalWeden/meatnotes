@@ -246,6 +246,10 @@ function handleBGMessage(data) {
       state.callbacks.rebuildMenu?.();
       notifyIfAllowed('BibleGateway Sync', `Imported ${result.notesCount} notes, ${result.newCount} new connections.`);
 
+      // Trigger a sync to commit and push the BG data
+      const { runSync } = require('./sync-runner');
+      runSync('BibleGateway sync: imported ' + result.notesCount + ' notes');
+
       // Close BG window after brief delay so user sees "Complete!" overlay
       if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
         setTimeout(() => {

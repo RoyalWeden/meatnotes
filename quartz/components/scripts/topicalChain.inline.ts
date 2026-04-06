@@ -146,7 +146,7 @@ function renderConnections(
 
   for (const ref of refs) {
     // Get notes for this verse, excluding current page
-    const notes = (index.index[ref] ?? []).filter((e) => e.slug !== currentSlug)
+    const notes = (index.index[ref] ?? []).filter((e) => e.slug !== "_bg" && e.slug !== currentSlug)
     const coVerses = (index.cooccurrence[ref] ?? []).filter((v) => !refs.has(v)).slice(0, 8)
 
     if (notes.length > 0 || coVerses.length > 0) {

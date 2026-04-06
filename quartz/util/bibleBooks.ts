@@ -417,7 +417,7 @@ export const bookGroupColors: Record<BookGroup, string> = {
 
 // --- Section classification (for note categorization) ---
 
-export type NoteSection = "capture" | "in-progress" | "idiom" | "complete" | "rebukes" | "daily"
+export type NoteSection = "capture" | "in-progress" | "idiom" | "complete" | "rebukes" | "daily" | "biblegateway"
 
 export function classifySlug(slug: string): NoteSection {
   if (slug.startsWith("Daily/")) return "daily"
@@ -436,6 +436,7 @@ export const sectionColors: Record<NoteSection, string> = {
   complete: "#22c55e",
   rebukes: "#ef4444",
   daily: "#3b82f6",
+  biblegateway: "#10b981",
 }
 
 export const sectionLabels: Record<NoteSection, string> = {
@@ -445,4 +446,5 @@ export const sectionLabels: Record<NoteSection, string> = {
   complete: "Complete",
   rebukes: "Rebukes",
   daily: "Daily",
+  biblegateway: "BibleGateway",
 }

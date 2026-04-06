@@ -2,7 +2,7 @@ import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } fro
 
 const BackToTop: QuartzComponent = (_props: QuartzComponentProps) => {
   return (
-    <button id="back-to-top" aria-label="Back to top">
+    <button id="back-to-top" class="pressable" aria-label="Back to top" data-tooltip="Back to top">
       ↑
     </button>
   )

@@ -1,6 +1,13 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+// Apple system font stack — overrides Inter from quartz.config.ts
+// Inter is still loaded as a fallback for OG image generation and non-Apple platforms
+:root {
+  --titleFont: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Inter", sans-serif;
+  --headerFont: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Inter", sans-serif;
+  --bodyFont: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Inter", sans-serif;
+  --codeFont: "SF Mono", ui-monospace, SFMono-Regular, "IBM Plex Mono", Menlo, monospace;
+}
 
 // ── Popover: hide navigation chrome + fix spacing ─────────────────────────────
 // Breadcrumbs and article title are only useful on the full page, not in hover previews
@@ -81,17 +88,8 @@ body[data-slug="index"] article > p > a:first-child {
     display: none !important;
   }
 
-  // Hide page title and darkmode from the mobile top bar
+  // Hide page title from the mobile top bar
   .sidebar.left .page-title {
-    display: none !important;
-  }
-
-  // Only hide darkmode in the flex-component (top bar) — not the clone in the drawer
-  .sidebar.left .flex-component button.darkmode {
-    display: none !important;
-  }
-
-  .sidebar.left .readermode {
     display: none !important;
   }
 
@@ -194,24 +192,10 @@ body[data-slug="index"] article > p > a:first-child {
   }
 }
 
-// Make darkmode and readermode buttons slightly larger on desktop for better discoverability
-// (.darkmode and .readermode are the button elements themselves)
-button.darkmode,
-button.readermode {
-  min-width: 2rem;
-  min-height: 2rem;
-}
-
 // On desktop, hide the MobileOnly search wrapper from the sidebar
 // (search is now in the top header on desktop)
 @media (min-width: 801px) {
   .sidebar.left > .flex-component > div:has(.search.mobile-only) {
-    display: none !important;
-  }
-
-  // Hide darkmode/readermode from sidebar on desktop — they're now in the header
-  .sidebar.left .flex-component button.darkmode,
-  .sidebar.left .flex-component button.readermode {
     display: none !important;
   }
 }
@@ -276,13 +260,6 @@ button.readermode {
     }
   }
 
-  // Darkmode and readermode icons scale with scroll
-  header button.darkmode,
-  header button.readermode {
-    transform: scale(calc(1 - var(--header-shrink, 0) * 0.25));
-    transform-origin: center;
-  }
-
   // Idiom button scales with scroll (same as search bar)
   header .idiom-search-button {
     height: calc(2.75rem - var(--header-shrink, 0) * 0.6875rem) !important;
@@ -342,26 +319,6 @@ button.readermode {
   font-weight: bold;
   color: var(--dark);
   text-decoration: none;
-}
-
-.mobile-drawer-icons {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-// The cloned darkmode button inside the drawer
-.mobile-drawer-darkmode button.darkmode {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: var(--dark);
-  min-width: 2rem;
-  min-height: 2rem;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
 }
 
 // Date search label shown when a date query is recognized

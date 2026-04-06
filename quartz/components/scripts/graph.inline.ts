@@ -143,8 +143,20 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     if (showTags) tags.forEach((tag) => neighbourhood.add(tag))
   }
 
+  function formatDailySlug(slug: string, title: string): string {
+    if (slug.startsWith("Daily/")) {
+      const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+      if (m) {
+        const d = new Date(m[1] + "T12:00:00")
+        return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+      }
+    }
+    return title
+  }
+
   const nodes = [...neighbourhood].map((url) => {
-    const text = url.startsWith("tags/") ? "#" + url.substring(5) : (data.get(url)?.title ?? url)
+    const rawTitle = data.get(url)?.title ?? url
+    const text = url.startsWith("tags/") ? "#" + url.substring(5) : formatDailySlug(url, rawTitle)
     return {
       id: url,
       text,

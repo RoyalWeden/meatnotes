@@ -8,7 +8,7 @@ export default (() => {
   const IdiomSearch: QuartzComponent = ({ displayClass }: QuartzComponentProps) => {
     return (
       <div class={classNames(displayClass, "idiom-search")}>
-        <button class="idiom-search-button" aria-label="Browse Hebrew Idioms">
+        <button class="idiom-search-button pressable" aria-label="Browse Hebrew Idioms" data-tooltip="Browse Hebrew Idioms">
           <svg
             role="img"
             xmlns="http://www.w3.org/2000/svg"

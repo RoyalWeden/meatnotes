@@ -10,7 +10,7 @@ const CustomFooter: QuartzComponent = (_props: QuartzComponentProps) => {
     <footer>
       <div class="footer-links">
         {Object.entries(links).map(([text, link]) => (
-          <a href={link as string} target="_blank" rel="noopener">{text}</a>
+          <a href={link as string} target="_blank" rel="noopener" data-tooltip={`Opens ${text}`}>{text}</a>
         ))}
       </div>
       <div class="footer-build">
@@ -64,29 +64,7 @@ footer {
   border-bottom: 1px dotted var(--gray);
   position: relative;
 }
-#build-time-display::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--light);
-  color: var(--dark);
-  border: 1px solid var(--lightgray);
-  border-radius: 6px;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.85rem;
-  font-family: inherit;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-  z-index: 100;
-}
-#build-time-display:hover::after {
-  opacity: 1;
-}
+/* Tooltip handled by global tooltip system via [data-tooltip] */
 `
 
 CustomFooter.afterDOMLoaded = `

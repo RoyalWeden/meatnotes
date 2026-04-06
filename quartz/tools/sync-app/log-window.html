@@ -17,6 +17,7 @@
       /* iOS Light Mode Palette */
       --bg: #f2f2f7;
       --card-bg: #ffffff;
+      --card-bg-rgb: 255, 255, 255;
       --card-border: rgba(0,0,0,0.06);
       --text: #1c1c1e;
       --text-secondary: #8e8e93;
@@ -87,6 +88,7 @@
     [data-theme="dark"] {
       --bg: #000000;
       --card-bg: #1c1c1e;
+      --card-bg-rgb: 28, 28, 30;
       --card-border: rgba(255,255,255,0.08);
       --text: #ffffff;
       --text-secondary: #8e8e93;
@@ -149,6 +151,7 @@
       [data-theme="system"] {
         --bg: #000000;
         --card-bg: #1c1c1e;
+        --card-bg-rgb: 28, 28, 30;
         --card-border: rgba(255,255,255,0.08);
         --text: #ffffff;
         --text-secondary: #8e8e93;
@@ -425,43 +428,7 @@
     }
     .pdf-force-btn:hover { background: rgba(255,149,10,0.25); }
 
-    /* ── Sync step pills ── */
-    .sync-steps {
-      display: none;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-bottom: 10px;
-      padding: 0;
-    }
-    .sync-steps.visible { display: flex; }
-    .step-pill {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      background: var(--surface);
-      color: var(--text-tertiary);
-      border: 1px solid var(--surface-border);
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .step-pill.active {
-      background: rgba(var(--accent-rgb), 0.12);
-      color: var(--accent);
-      border-color: rgba(var(--accent-rgb), 0.3);
-      animation: step-pulse 1.4s ease-in-out infinite;
-    }
-    .step-pill.done {
-      color: var(--text-secondary);
-      background: var(--surface);
-    }
-    @keyframes step-pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.65; }
-    }
+    /* (Old sync step pills removed — replaced by output-stage-bar) */
 
     /* ── Card pulse during sync ── */
     @keyframes card-sync-pulse {
@@ -792,7 +759,9 @@
       transition: color 0.3s ease;
     }
     .settings-rows {
-      background: var(--card-bg);
+      background: rgba(var(--card-bg-rgb, 255,255,255), 0.6);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
       border-radius: 14px;
       border: 1px solid var(--card-border);
       box-shadow: var(--card-shadow);
@@ -894,7 +863,7 @@
       padding: 6px 8px;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
-      border-radius: 8px;
+      border-radius: 12px;
       color: var(--input-text);
       font-size: 14px;
       text-align: center;
@@ -965,7 +934,7 @@
       padding: 6px 8px;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
-      border-radius: 8px;
+      border-radius: 12px;
       color: var(--input-text);
       font-size: 14px;
       text-align: center;
@@ -1702,13 +1671,72 @@
     }
 
     /* ── Output page ── */
-    .output-step-bar {
+    .output-stage-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
       flex-shrink: 0;
-      padding: 8px 12px 6px;
+      padding: 10px 12px 8px;
       border-bottom: 1px solid var(--surface-border);
-      min-height: 28px;
       background: var(--surface);
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, opacity 0.4s ease;
+    }
+    .output-stage-bar.hidden { opacity: 0.35; }
+    .output-stage-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .output-stage-pill.active {
+      background: rgba(var(--accent-rgb), 0.12);
+      color: var(--accent);
+      border-color: rgba(var(--accent-rgb), 0.25);
+      transform: scale(1.05);
+    }
+    .output-stage-pill.complete {
+      color: var(--green);
+    }
+    .output-stage-pill.error {
+      color: var(--red);
+    }
+    .output-stage-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      transition: background 0.25s, box-shadow 0.25s;
+      flex-shrink: 0;
+    }
+    .output-stage-pill.active .output-stage-dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.5);
+      animation: stage-dot-pulse 1.4s ease-in-out infinite;
+    }
+    .output-stage-pill.complete .output-stage-dot {
+      background: var(--green);
+    }
+    .output-stage-pill.error .output-stage-dot {
+      background: var(--red);
+    }
+    @keyframes stage-dot-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.5); }
+      50%      { opacity: 0.5; box-shadow: 0 0 2px rgba(var(--accent-rgb), 0.2); }
+    }
+    .output-stage-arrow {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin: 0 2px;
+      user-select: none;
     }
     .output-terminal {
       flex: 1;
@@ -1767,6 +1795,13 @@
     }
     .output-terminal-text::-webkit-scrollbar { width: 3px; }
     .output-terminal-text::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    /* Color-coded terminal lines */
+    .term-line.line-git { color: var(--blue); }
+    .term-line.line-lfs { color: #e5a200; }
+    .term-line.line-error { color: var(--red); }
+    .term-line.line-success { color: var(--green); }
+    .term-line.line-deploy { color: #af52de; }
+    .term-line.line-separator { color: var(--text-tertiary); opacity: 0.6; }
     @keyframes badge-bounce { 0%{transform:scale(1)} 40%{transform:scale(1.6)} 70%{transform:scale(0.88)} 100%{transform:scale(1)} }
 
     /* ── Status page mini-syncs ── */
@@ -1967,7 +2002,7 @@
     .page.entering .status-mini-entry:nth-child(3) { animation: item-slide-left 0.24s 0.22s ease both; }
 
     /* Output page */
-    .page.entering .output-step-bar {
+    .page.entering .output-stage-bar {
       animation: section-fade-up 0.22s ease both;
     }
     .page.entering .output-terminal {
@@ -2005,12 +2040,17 @@
     .status-mini-entry:nth-child(2) { animation: mini-entry-in 0.22s 0.06s ease both; }
     .status-mini-entry:nth-child(3) { animation: mini-entry-in 0.22s 0.12s ease both; }
 
-    /* ── Step pill entrance ── */
+    /* ── Stage pill entrance ── */
     @keyframes pill-pop-in {
       from { opacity: 0; transform: scale(0.75) translateY(4px); }
       to   { opacity: 1; transform: scale(1) translateY(0); }
     }
-    .step-pill { animation: pill-pop-in 0.18s ease both; }
+    .output-stage-pill { animation: pill-pop-in 0.18s ease both; }
+    .output-stage-pill:nth-child(1) { animation-delay: 0ms; }
+    .output-stage-pill:nth-child(3) { animation-delay: 30ms; }
+    .output-stage-pill:nth-child(5) { animation-delay: 60ms; }
+    .output-stage-pill:nth-child(7) { animation-delay: 90ms; }
+    .output-stage-pill:nth-child(9) { animation-delay: 120ms; }
 
     /* ── Empty state float ── */
     @keyframes empty-float {
@@ -2064,15 +2104,7 @@
       background-size: 180px 180px;
     }
 
-    /* ── Step pill stagger when batch-rendered ── */
-    .step-pill:nth-child(1) { animation-delay: 0ms;  }
-    .step-pill:nth-child(2) { animation-delay: 30ms; }
-    .step-pill:nth-child(3) { animation-delay: 60ms; }
-    .step-pill:nth-child(4) { animation-delay: 90ms; }
-    .step-pill:nth-child(5) { animation-delay: 120ms; }
-    .step-pill:nth-child(6) { animation-delay: 150ms; }
-    .step-pill:nth-child(7) { animation-delay: 180ms; }
-    .step-pill:nth-child(8) { animation-delay: 210ms; }
+    /* (stage pill stagger moved to .output-stage-pill rules above) */
 
     /* ── Status recent "see all" arrow bounce ── */
     .status-recent-link:hover::after {
@@ -2127,6 +2159,60 @@
       box-shadow: var(--tab-active-shadow);
       transition: left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1);
       z-index: 0;
+    }
+
+    /* ── Generic iOS segmented control ── */
+    .seg-control {
+      display: flex;
+      background: var(--tab-bg);
+      border-radius: 22px;
+      padding: 3px;
+      position: relative;
+      height: 36px;
+      gap: 0;
+      width: 100%;
+    }
+    .seg-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      position: relative;
+      z-index: 1;
+      min-height: 30px;
+      -webkit-app-region: no-drag;
+      white-space: nowrap;
+    }
+    .seg-btn:hover { color: var(--text); }
+    .seg-btn.active { color: var(--text); }
+    .seg-indicator {
+      position: absolute;
+      top: 3px;
+      height: 30px;
+      border-radius: 20px;
+      background: var(--tab-active-bg);
+      box-shadow: var(--tab-active-shadow);
+      transition: left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 0;
+    }
+    .seg-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      animation: seg-custom-in 0.2s ease both;
+    }
+    @keyframes seg-custom-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
   </style>
@@ -2256,11 +2342,31 @@
 
       <!-- Page 1: Output -->
       <div class="page" id="pageOutput">
-        <div class="output-step-bar" id="outputStepBar"></div>
+        <div class="output-stage-bar" id="outputStageBar">
+          <div class="output-stage-pill" data-stage="pull" title="Pull latest changes from remote">
+            <span class="output-stage-dot"></span>Pull
+          </div>
+          <div class="output-stage-arrow">→</div>
+          <div class="output-stage-pill" data-stage="commit" title="Stage and commit local changes">
+            <span class="output-stage-dot"></span>Commit
+          </div>
+          <div class="output-stage-arrow">→</div>
+          <div class="output-stage-pill" data-stage="push" title="Push commits to remote">
+            <span class="output-stage-dot"></span>Push
+          </div>
+          <div class="output-stage-arrow">→</div>
+          <div class="output-stage-pill" data-stage="lfs" title="Upload large files via Git LFS">
+            <span class="output-stage-dot"></span>LFS
+          </div>
+          <div class="output-stage-arrow">→</div>
+          <div class="output-stage-pill" data-stage="deploy" title="Deploy site via GitHub Actions">
+            <span class="output-stage-dot"></span>Deploy
+          </div>
+        </div>
         <div class="output-terminal">
           <div class="output-terminal-header">
             <span class="output-terminal-label" id="outputTerminalLabel">Last Output</span>
-            <button class="output-clear-btn" onclick="document.getElementById('syncTerminalText').innerHTML=''">Clear</button>
+            <button class="output-clear-btn" onclick="document.getElementById('syncTerminalText').innerHTML='';setActiveStage(null)">Clear</button>
           </div>
           <pre class="output-terminal-text" id="syncTerminalText"></pre>
         </div>
@@ -2295,9 +2401,15 @@
             <div class="settings-rows">
               <div class="settings-row" style="justify-content:center; padding: 12px 14px;">
                 <div class="theme-segment" id="themeSegment">
-                  <button class="theme-segment-btn active" data-theme="light" onclick="setTheme('light')">Light</button>
-                  <button class="theme-segment-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
-                  <button class="theme-segment-btn" data-theme="system" onclick="setTheme('system')">System</button>
+                  <button class="theme-segment-btn active" data-theme="light" onclick="setTheme('light')" title="Light mode">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  </button>
+                  <button class="theme-segment-btn" data-theme="dark" onclick="setTheme('dark')" title="Dark mode">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  </button>
+                  <button class="theme-segment-btn" data-theme="system" onclick="setTheme('system')" title="Match system">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  </button>
                   <span class="theme-segment-indicator" id="themeIndicator"></span>
                 </div>
               </div>
@@ -2308,29 +2420,21 @@
           <div class="settings-section">
             <div class="settings-section-title">Sync Interval</div>
             <div class="settings-rows">
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="interval" id="int15" value="900" onchange="applyInterval(900)">
-                <label class="settings-row-label" for="int15">15 minutes</label>
-              </div>
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="interval" id="int30" value="1800" onchange="applyInterval(1800)">
-                <label class="settings-row-label" for="int30">30 minutes</label>
-              </div>
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="interval" id="int60" value="3600" onchange="applyInterval(3600)">
-                <label class="settings-row-label" for="int60">1 hour</label>
-              </div>
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="interval" id="int120" value="7200" onchange="applyInterval(7200)">
-                <label class="settings-row-label" for="int120">2 hours</label>
-              </div>
-              <div class="settings-custom-row">
-                <input type="radio" class="settings-custom-radio" name="interval" id="intCustom" value="custom">
-                <label class="settings-custom-label" for="intCustom">Custom</label>
-                <input type="number" class="settings-custom-input" id="customIntervalInput"
-                       min="1" max="1440" placeholder="30"
-                       oninput="onCustomIntervalInput()" onfocus="selectCustomRadio()">
-                <span class="settings-custom-suffix">min</span>
+              <div class="settings-row" style="flex-direction:column;gap:10px;align-items:stretch;">
+                <div class="seg-control" id="intervalSegment">
+                  <button class="seg-btn" data-val="900" onclick="applyInterval(900)">15m</button>
+                  <button class="seg-btn" data-val="1800" onclick="applyInterval(1800)">30m</button>
+                  <button class="seg-btn" data-val="3600" onclick="applyInterval(3600)">1h</button>
+                  <button class="seg-btn" data-val="7200" onclick="applyInterval(7200)">2h</button>
+                  <button class="seg-btn" data-val="custom" onclick="selectCustomInterval()">Custom</button>
+                  <span class="seg-indicator" id="intervalIndicator"></span>
+                </div>
+                <div class="seg-custom-row" id="intervalCustomRow" style="display:none;">
+                  <input type="number" class="settings-custom-input" id="customIntervalInput"
+                         min="1" max="1440" placeholder="30"
+                         oninput="onCustomIntervalInput()">
+                  <span class="settings-custom-suffix">min</span>
+                </div>
               </div>
             </div>
           </div>
@@ -2339,17 +2443,13 @@
           <div class="settings-section">
             <div class="settings-section-title">Notifications</div>
             <div class="settings-rows">
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyAll" value="all" onchange="applyNotifyLevel('all')">
-                <label class="settings-row-label" for="notifyAll">All syncs</label>
-              </div>
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyErrors" value="errors" onchange="applyNotifyLevel('errors')">
-                <label class="settings-row-label" for="notifyErrors">Errors only</label>
-              </div>
-              <div class="settings-row">
-                <input type="radio" class="settings-radio" name="notifyLevel" id="notifyNever" value="never" onchange="applyNotifyLevel('never')">
-                <label class="settings-row-label" for="notifyNever">Never</label>
+              <div class="settings-row" style="justify-content:center;padding:12px 14px;">
+                <div class="seg-control" id="notifySegment">
+                  <button class="seg-btn" data-val="all" onclick="applyNotifyLevel('all')">All</button>
+                  <button class="seg-btn" data-val="errors" onclick="applyNotifyLevel('errors')">Errors</button>
+                  <button class="seg-btn" data-val="never" onclick="applyNotifyLevel('never')">Never</button>
+                  <span class="seg-indicator" id="notifyIndicator"></span>
+                </div>
               </div>
             </div>
           </div>
@@ -2384,6 +2484,29 @@
                   <input type="checkbox" id="loginItemToggle" onchange="applyLoginItem(this.checked)">
                   <span class="toggle-track"></span>
                 </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- BibleGateway -->
+          <div class="settings-section">
+            <div class="settings-section-title">BibleGateway</div>
+            <div class="settings-rows">
+              <div class="settings-custom-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                <span class="settings-custom-label">Email / Username</span>
+                <div class="token-input-row">
+                  <input type="text" class="token-input" id="bgUsernameInput" placeholder="you@example.com" autocomplete="off">
+                </div>
+              </div>
+              <div class="settings-custom-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+                <span class="settings-custom-label">Password</span>
+                <div class="token-input-row">
+                  <input type="password" class="token-input" id="bgPasswordInput" placeholder="••••••••">
+                  <button class="token-reveal-btn" onclick="toggleBGPasswordReveal()">👁</button>
+                  <button class="token-save-btn" id="bgSaveBtn" onclick="saveBGCredentials()">Save</button>
+                </div>
+                <div class="token-hint">Credentials are stored locally and used to auto-login during BG sync.</div>
+                <div class="bg-sync-status" id="bgSyncStatus"></div>
               </div>
             </div>
           </div>
@@ -2778,23 +2901,29 @@
         lfsBanner.classList.remove('visible');
       }
 
-      // Sync steps visibility — persist 5s after sync finishes with fade-out
-      document.getElementById('outputStepBar').classList.toggle('visible', s.isSyncing);
+      // Stage bar visibility — persist 5s after sync finishes with fade-out
+      if (s.isSyncing && !wasSyncing) {
+        resetStages();
+        document.getElementById('outputStageBar')?.classList.remove('hidden');
+      }
       if (!s.isSyncing && wasSyncing) {
-        // Mark any remaining active pills as done
-        document.querySelectorAll('.step-pill.active').forEach(el => {
-          el.classList.remove('active');
-          el.classList.add('done');
-        });
-        const stepsContainer = document.getElementById('outputStepBar');
+        // Mark all stages complete on finish
+        if (activeStage) completedStages.add(activeStage);
+        activeStage = null;
+        STAGE_ORDER.forEach(st => { if (!errorStages.has(st)) completedStages.add(st); });
+        renderStageBar();
+        // Fade out after 5s
+        const stageBar = document.getElementById('outputStageBar');
         setTimeout(() => {
-          stepsContainer.style.transition = 'opacity 0.5s';
-          stepsContainer.style.opacity = '0';
-          setTimeout(() => {
-            resetSteps();
-            stepsContainer.style.opacity = '';
-            stepsContainer.style.transition = '';
-          }, 500);
+          if (stageBar) {
+            stageBar.style.transition = 'opacity 0.5s';
+            stageBar.style.opacity = '0';
+            setTimeout(() => {
+              resetStages();
+              stageBar.style.opacity = '';
+              stageBar.style.transition = '';
+            }, 500);
+          }
         }, 5000);
       }
 
@@ -2877,49 +3006,89 @@
       else dot.classList.remove('dot-error');
     }
 
-    // ── Sync step pills ────────────────────────────────────────────────────
-    const SYNC_STEPS = [
-      { key: 'start',    match: /sync started/i,               label: '① Starting' },
-      { key: 'network',  match: /ping|No internet|checking/i,  label: '② Network check' },
-      { key: 'prepare',  match: /last-sync|Wrote/i,            label: '③ Preparing' },
-      { key: 'lfs',      match: /git lfs/i,                    label: '④ LFS files' },
-      { key: 'quartz',   match: /quartz sync|Running quartz/i, label: '⑤ Building & syncing' },
-      { key: 'compress', match: /compress/i,                   label: '⑥ Compressing' },
-      { key: 'push',     match: /Pushing|git push/i,           label: '⑦ Pushing' },
-      { key: 'done',     match: /completed successfully/i,     label: '✓ Done' },
+    // ── Stage indicator bar (Pull → Commit → Push → LFS → Deploy) ───────
+    const STAGE_ORDER = ['pull', 'commit', 'push', 'lfs', 'deploy'];
+    const STAGE_PATTERNS = [
+      { stage: 'pull',   match: /git pull|Pulling|sync started|fetching/i },
+      { stage: 'commit', match: /git add|Committing|commit -m|nothing to commit/i },
+      { stage: 'push',   match: /git push|Pushing/i },
+      { stage: 'lfs',    match: /git lfs|LFS|lfs pull|lfs fetch/i },
+      { stage: 'deploy', match: /deploy|Deploy Started|pages build/i },
     ];
 
-    let activeStepIdx = -1;
-    let completedSteps = new Set();
+    let activeStage = null;
+    let completedStages = new Set();
+    let errorStages = new Set();
 
-    function detectStep(chunk) {
-      for (let i = activeStepIdx + 1; i < SYNC_STEPS.length; i++) {
-        if (SYNC_STEPS[i].match.test(chunk)) {
-          if (activeStepIdx >= 0) completedSteps.add(SYNC_STEPS[activeStepIdx].key);
-          activeStepIdx = i;
-          renderSteps();
+    function setActiveStage(stageName) {
+      // Mark previous active as complete
+      if (activeStage && stageName !== activeStage) {
+        completedStages.add(activeStage);
+      }
+      activeStage = stageName;
+      renderStageBar();
+    }
+
+    function setStageError(stageName) {
+      errorStages.add(stageName);
+      renderStageBar();
+    }
+
+    function resetStages() {
+      activeStage = null;
+      completedStages.clear();
+      errorStages.clear();
+      renderStageBar();
+    }
+
+    function renderStageBar() {
+      STAGE_ORDER.forEach(stage => {
+        const pill = document.querySelector(`.output-stage-pill[data-stage="${stage}"]`);
+        if (!pill) return;
+        pill.classList.remove('active', 'complete', 'error');
+        if (errorStages.has(stage)) pill.classList.add('error');
+        else if (stage === activeStage) pill.classList.add('active');
+        else if (completedStages.has(stage)) pill.classList.add('complete');
+      });
+      const bar = document.getElementById('outputStageBar');
+      if (bar) bar.classList.toggle('hidden', !activeStage && completedStages.size === 0);
+    }
+
+    function detectStage(chunk) {
+      for (const { stage, match } of STAGE_PATTERNS) {
+        if (match.test(chunk)) {
+          const idx = STAGE_ORDER.indexOf(stage);
+          const activeIdx = activeStage ? STAGE_ORDER.indexOf(activeStage) : -1;
+          // Only advance forward (or set first stage)
+          if (idx >= activeIdx) {
+            setActiveStage(stage);
+          }
           break;
         }
       }
+      // Detect errors
+      if (/error|fatal|failed/i.test(chunk) && activeStage) {
+        setStageError(activeStage);
+      }
+      // Detect completion
+      if (/completed successfully|Sync complete/i.test(chunk)) {
+        if (activeStage) completedStages.add(activeStage);
+        activeStage = null;
+        // Mark all non-error stages as complete
+        STAGE_ORDER.forEach(s => { if (!errorStages.has(s)) completedStages.add(s); });
+        renderStageBar();
+      }
     }
 
-    function renderSteps() {
-      const container = document.getElementById('outputStepBar');
-      if (!container) return;
-      container.innerHTML = SYNC_STEPS.map((step, i) => {
-        let cls = 'step-pill';
-        if (i === activeStepIdx) cls += ' active';
-        else if (completedSteps.has(step.key)) cls += ' done';
-        const check = completedSteps.has(step.key) ? '✓ ' : '';
-        return `<div class="${cls}">${check}${step.label}</div>`;
-      }).join('');
-    }
-
-    function resetSteps() {
-      activeStepIdx = -1;
-      completedSteps.clear();
-      const container = document.getElementById('outputStepBar');
-      if (container) container.innerHTML = '';
+    // ── Color-coded line classification ────────────────────────────────────
+    function classifyLine(text) {
+      if (/error|fatal|failed|rejected/i.test(text)) return 'line-error';
+      if (/success|completed|up to date|done/i.test(text)) return 'line-success';
+      if (/─── Deploy/i.test(text)) return 'line-separator';
+      if (/deploy|pages build|workflow/i.test(text)) return 'line-deploy';
+      if (/\bgit lfs\b|LFS_STATUS|lfs pull|lfs fetch/i.test(text)) return 'line-lfs';
+      if (/\bgit\b|pull|push|commit|fetch|merge|rebase/i.test(text)) return 'line-git';
+      return '';
     }
 
     // ── Elapsed timer ──────────────────────────────────────────────────────
@@ -2948,7 +3117,7 @@
       const existingCursor = el.querySelector('.term-cursor');
       if (existingCursor) existingCursor.remove();
 
-      // Split chunk into lines and animate each
+      // Split chunk into lines, classify each for color coding
       const lines = chunk.split('\n');
       lines.forEach((line, idx) => {
         if (idx > 0) {
@@ -2957,7 +3126,8 @@
         }
         if (line.length > 0) {
           const span = document.createElement('span');
-          span.className = 'term-line';
+          const colorClass = classifyLine(line);
+          span.className = 'term-line' + (colorClass ? ' ' + colorClass : '');
           span.textContent = line;
           el.appendChild(span);
         }
@@ -3320,6 +3490,21 @@
         openDeployLogs();
       }
 
+      // Stream deploy status into output terminal
+      if (!wasInProgress && nowInProgress) {
+        setActiveStage('deploy');
+        appendTerminalChunk('\n─── Deploy Started (Run #' + (ds.runNumber || '') + ') ───\n');
+      }
+      if (wasInProgress && nowSuccess) {
+        appendTerminalChunk('─── Deploy Succeeded ───\n');
+        completedStages.add('deploy');
+        renderStageBar();
+      }
+      if (wasInProgress && nowFailed) {
+        appendTerminalChunk('─── Deploy Failed ───\n');
+        setStageError('deploy');
+      }
+
       // Start/stop refresh based on status
       if (nowInProgress && deployLogsOpen && !deployLogsRefreshTimer) {
         startDeployRefresh();
@@ -3659,16 +3844,48 @@
       }
 
       header.style.display = 'flex';
-      list.innerHTML = recent.map(e => {
-        const icon = e.status === 'success' ? '✅' : (e.status === 'error' ? '❌' : '⏭');
-        const detail = e.commitMessage || e.detail || 'Sync';
-        const time = formatDate(e.timestamp);
-        return `<div class="status-mini-entry" onclick="switchTab(TAB_HISTORY)">
-          <span class="status-mini-icon">${icon}</span>
-          <span class="status-mini-detail">${escHtml(detail)}</span>
-          <span class="status-mini-time">${time}</span>
-        </div>`;
-      }).join('');
+
+      // DOM-diff: compare by sync ID to avoid full re-render flash
+      const existingEls = list.querySelectorAll('.status-mini-entry');
+      const existingIds = Array.from(existingEls).map(el => el.dataset.syncId);
+      const newIds = recent.map(e => e.timestamp + '-' + (e.status || ''));
+
+      // If IDs match exactly, just update text (no DOM churn)
+      if (existingIds.length === newIds.length && existingIds.every((id, i) => id === newIds[i])) {
+        recent.forEach((e, i) => {
+          const el = existingEls[i];
+          const timeEl = el.querySelector('.status-mini-time');
+          if (timeEl) timeEl.textContent = formatDate(e.timestamp);
+        });
+        return;
+      }
+
+      // Build new entries, reusing existing DOM nodes where possible
+      const fragment = document.createDocumentFragment();
+      recent.forEach((e, i) => {
+        const syncId = e.timestamp + '-' + (e.status || '');
+        const existingIdx = existingIds.indexOf(syncId);
+        if (existingIdx !== -1) {
+          // Reuse existing node (no animation)
+          const el = existingEls[existingIdx];
+          el.style.animation = 'none';
+          fragment.appendChild(el);
+        } else {
+          // New entry — create with slide-in animation
+          const icon = e.status === 'success' ? '✅' : (e.status === 'error' ? '❌' : '⏭');
+          const detail = e.commitMessage || e.detail || 'Sync';
+          const time = formatDate(e.timestamp);
+          const div = document.createElement('div');
+          div.className = 'status-mini-entry';
+          div.dataset.syncId = syncId;
+          div.onclick = () => switchTab(TAB_HISTORY);
+          div.innerHTML = `<span class="status-mini-icon">${icon}</span><span class="status-mini-detail">${escHtml(detail)}</span><span class="status-mini-time">${time}</span>`;
+          div.style.animation = `mini-entry-in 0.22s ${i * 0.06}s ease both`;
+          fragment.appendChild(div);
+        }
+      });
+      list.innerHTML = '';
+      list.appendChild(fragment);
     }
 
     function toggleExpand(el) {
@@ -3694,23 +3911,23 @@
 
     // ── Settings ──────────────────────────────────────────────────────────
     async function loadSettingsIntoPanel() {
-      // Interval radios — use live status.intervalSeconds (no IPC needed)
+      // Interval segment — use live status.intervalSeconds (no IPC needed)
       const secs = status.intervalSeconds || 1800;
       const knownValues = [900, 1800, 3600, 7200];
       if (knownValues.includes(secs)) {
-        const radio = document.querySelector(`input[name="interval"][value="${secs}"]`);
-        if (radio) radio.checked = true;
+        updateSegment('intervalSegment', 'intervalIndicator', secs);
       } else {
-        document.getElementById('intCustom').checked = true;
+        updateSegment('intervalSegment', 'intervalIndicator', 'custom');
         document.getElementById('customIntervalInput').value = Math.round(secs / 60);
+        const customRow = document.getElementById('intervalCustomRow');
+        if (customRow) customRow.style.display = 'flex';
       }
 
       // Notification level + login item + quiet hours via IPC
       if (window.syncAPI) {
         const s = await window.syncAPI.getSettings();
         const level = s.notifyLevel || 'errors';
-        const radio = document.querySelector(`input[name="notifyLevel"][value="${level}"]`);
-        if (radio) radio.checked = true;
+        updateSegment('notifySegment', 'notifyIndicator', level);
         document.getElementById('loginItemToggle').checked = !!s.loginItem;
 
         // Quiet hours
@@ -3723,8 +3940,15 @@
         // GitHub token
         const tokenInput = document.getElementById('githubTokenInput');
         if (tokenInput) tokenInput.value = s.githubToken || '';
+
+        // BibleGateway credentials
+        const bgUser = document.getElementById('bgUsernameInput');
+        const bgPass = document.getElementById('bgPasswordInput');
+        if (bgUser) bgUser.value = s.bgUsername || '';
+        if (bgPass) bgPass.value = s.bgPassword || '';
+        updateBGSyncStatus(s);
       } else {
-        document.getElementById('notifyErrors').checked = true;
+        updateSegment('notifySegment', 'notifyIndicator', 'errors');
       }
 
       // Site version (1.FEAT.FIX from git history)
@@ -3742,6 +3966,40 @@
       if (input) input.type = input.type === 'password' ? 'text' : 'password';
     }
 
+    // ─��� BibleGateway credentials ──────────────────────────────────────────
+    function toggleBGPasswordReveal() {
+      const inp = document.getElementById('bgPasswordInput');
+      if (inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function saveBGCredentials() {
+      const username = document.getElementById('bgUsernameInput')?.value?.trim() || '';
+      const password = document.getElementById('bgPasswordInput')?.value || '';
+      if (window.syncAPI) {
+        window.syncAPI.saveSettings({ bgUsername: username, bgPassword: password });
+        const btn = document.getElementById('bgSaveBtn');
+        if (btn) {
+          btn.textContent = '✓';
+          btn.classList.add('saved');
+          setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('saved'); }, 2000);
+        }
+      }
+    }
+
+    function updateBGSyncStatus(settings) {
+      const el = document.getElementById('bgSyncStatus');
+      if (!el) return;
+      if (settings.lastBGSync) {
+        const d = new Date(settings.lastBGSync);
+        const fmt = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        el.textContent = `Last sync: ${fmt} · ${settings.bgNoteCount || 0} notes`;
+        el.style.color = 'var(--text-secondary)';
+      } else {
+        el.textContent = 'Never synced';
+        el.style.color = 'var(--text-tertiary)';
+      }
+    }
+
     function saveGithubToken() {
       const val = document.getElementById('githubTokenInput')?.value?.trim() || '';
       if (window.syncAPI) {
@@ -3755,6 +4013,21 @@
       }
     }
 
+    // ── Generic segmented control updater ───────────────────────────────
+    function updateSegment(containerId, indicatorId, val) {
+      const seg = document.getElementById(containerId);
+      const ind = document.getElementById(indicatorId);
+      if (!seg || !ind) return;
+      seg.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === String(val)));
+      const btn = seg.querySelector(`[data-val="${val}"]`);
+      if (btn) {
+        const segRect = seg.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        ind.style.left = (btnRect.left - segRect.left) + 'px';
+        ind.style.width = btnRect.width + 'px';
+      }
+    }
+
     function applyInterval(seconds) {
       if (window.syncAPI) window.syncAPI.setInterval(seconds);
       status.intervalSeconds = seconds;
@@ -3762,22 +4035,32 @@
         nextSyncAt = new Date(status.lastSyncTime).getTime() + seconds * 1000;
         startCountdown(seconds);
       }
+      updateSegment('intervalSegment', 'intervalIndicator', seconds);
+      const customRow = document.getElementById('intervalCustomRow');
+      if (customRow) customRow.style.display = 'none';
     }
 
-    function selectCustomRadio() {
-      document.getElementById('intCustom').checked = true;
+    function selectCustomInterval() {
+      updateSegment('intervalSegment', 'intervalIndicator', 'custom');
+      const customRow = document.getElementById('intervalCustomRow');
+      if (customRow) customRow.style.display = 'flex';
+      document.getElementById('customIntervalInput')?.focus();
     }
 
     function onCustomIntervalInput() {
-      document.getElementById('intCustom').checked = true;
       const mins = parseInt(document.getElementById('customIntervalInput').value, 10);
       if (!isNaN(mins) && mins >= 1) {
         applyInterval(mins * 60);
+        // Re-show custom as active since applyInterval sets the preset
+        updateSegment('intervalSegment', 'intervalIndicator', 'custom');
+        const customRow = document.getElementById('intervalCustomRow');
+        if (customRow) customRow.style.display = 'flex';
       }
     }
 
     function applyNotifyLevel(level) {
       if (window.syncAPI) window.syncAPI.saveSettings({ notifyLevel: level });
+      updateSegment('notifySegment', 'notifyIndicator', level);
     }
 
     function applyLoginItem(val) {
@@ -3839,7 +4122,7 @@
 
       window.syncAPI.onSyncOutput((chunk) => {
         appendTerminalChunk(chunk);
-        detectStep(chunk);
+        detectStage(chunk);
         showOutputBadge();
       });
 

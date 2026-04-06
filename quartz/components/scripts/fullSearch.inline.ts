@@ -613,7 +613,15 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
     doHighlight: boolean,
   ): string {
     const url = resolveUrl(slug)
-    const title = doHighlight ? highlightText(query, fileData.title ?? slug) : (fileData.title ?? slug)
+    let rawTitle = fileData.title ?? slug
+    if (slug.startsWith("Daily/")) {
+      const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+      if (m) {
+        const d = new Date(m[1] + "T12:00:00")
+        rawTitle = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+      }
+    }
+    const title = doHighlight ? highlightText(query, rawTitle) : rawTitle
     const dateStr = fileData.date
       ? new Date(fileData.date).toLocaleDateString(undefined, {
           year: "numeric",

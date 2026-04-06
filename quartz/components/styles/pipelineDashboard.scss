@@ -19,13 +19,13 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 .pd-stat-card {
   position: relative;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 16px;
   background: rgba(var(--light-rgb, 255, 255, 255), 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--lightgray) 60%, transparent);
   border-left: 4px solid var(--accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.03);
   animation: cardFadeIn 0.4s $spring both;
   transition: transform 0.2s $spring, box-shadow 0.2s;
 
@@ -74,7 +74,7 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 .pd-pipeline {
   display: flex;
   height: 24px;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--lightgray);
 }
@@ -117,8 +117,8 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
   padding: 0.75rem 0.5rem;
   background: rgba(var(--light-rgb, 255, 255, 255), 0.4);
-  border-radius: 10px;
-  border: 1px solid var(--lightgray);
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--lightgray) 60%, transparent);
 }
 
 .pd-streak-num {
@@ -137,6 +137,8 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 // ── Heatmap ──
 .pd-heatmap-wrap {
   margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  position: relative;
 }
 
 .pd-heatmap-label {
@@ -146,26 +148,348 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 6px;
 }
 
-.pd-heatmap {
+.pd-heatmap-container {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+
+.pd-heatmap-days {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding-top: 18px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--light);
+}
+
+.pd-heatmap-day-label {
+  font-size: 0.65rem;
+  color: var(--gray);
+  width: 28px;
+  text-align: right;
+  padding-right: 6px;
+  user-select: none;
+}
+
+.pd-heatmap-scroll {
   overflow-x: auto;
   scrollbar-width: none;
+  flex: 1;
+  min-width: 0;
+  position: relative;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-.pd-heatmap-svg {
-  display: block;
+.pd-heatmap-months {
+  position: relative;
+  height: 16px;
+  margin-bottom: 2px;
+}
 
-  rect {
-    transition: opacity 0.1s;
+.pd-heatmap-month-label {
+  position: absolute;
+  top: 0;
+  font-size: 0.65rem;
+  color: var(--gray);
+  user-select: none;
+  transition: left 0s;
+}
 
-    &:hover {
-      opacity: 0.8;
-      stroke: var(--darkgray);
-      stroke-width: 1;
+.pd-heatmap-grid {
+  display: flex;
+}
+
+.pd-heatmap-month {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.pd-heatmap-year-divider {
+  display: flex;
+  align-items: stretch;
+  padding: 0 4px;
+  flex-shrink: 0;
+
+  .pd-heatmap-year-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--gray);
+    letter-spacing: 0.05em;
+    border-left: 2px solid var(--lightgray);
+    padding-left: 4px;
+    user-select: none;
+  }
+}
+
+.pd-heatmap-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-heatmap-cell {
+  border-radius: 3px;
+  transition: transform 0.12s $spring, box-shadow 0.12s ease;
+  cursor: pointer;
+
+  &:hover:not(.future) {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 1px var(--darkgray);
+    z-index: 1;
+    position: relative;
+  }
+
+  &.future {
+    cursor: default;
+    background: transparent;
+  }
+
+  &.empty {
+    background: var(--lightgray);
+    opacity: 0.5;
+  }
+
+  &.today {
+    box-shadow: 0 0 0 2px var(--secondary);
+  }
+
+  &.level-1 { background: #9be9a8; }
+  &.level-2 { background: #40c463; }
+  &.level-3 { background: #30a14e; }
+  &.level-4 { background: #216e39; }
+
+  // Daily note only (no other activity) — subtle blue tint
+  &.daily-only {
+    background: #93c5fd;
+    opacity: 0.7;
+  }
+
+  // Daily note indicator dot — small circle in corner
+  &.has-daily {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #3b82f6;
+      box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.2);
     }
+  }
+}
+
+:root[saved-theme="dark"] {
+  .pd-heatmap-cell {
+    &.empty { background: rgba(255, 255, 255, 0.06); opacity: 1; }
+    &.level-1 { background: #0e4429; }
+    &.level-2 { background: #006d32; }
+    &.level-3 { background: #26a641; }
+    &.level-4 { background: #39d353; }
+
+    &.daily-only {
+      background: #1e3a5f;
+      opacity: 1;
+    }
+
+    &.has-daily::after {
+      background: #60a5fa;
+      box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+// ── "Back to Today" floating pill ──
+.pd-back-to-today {
+  position: absolute;
+  bottom: -32px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--secondary);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s $spring, opacity 0.15s ease;
+  z-index: 3;
+
+  &:hover { transform: scale(1.05); }
+  &:active { transform: scale(0.97); }
+
+  svg { flex-shrink: 0; }
+}
+
+// ── Day detail panel (slide-in from right) ──
+.pd-day-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.pd-day-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  max-width: 100vw;
+  z-index: 999;
+  background: var(--light);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(100%);
+  transition: transform 0.3s $ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.pd-day-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--lightgray);
+  flex-shrink: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+}
+
+.pd-day-panel-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gray);
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--lightgray);
+    color: var(--dark);
+  }
+}
+
+.pd-day-panel-body {
+  padding: 12px 20px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.pd-day-note {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid var(--lightgray);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s $spring;
+
+  &:hover {
+    background: color-mix(in srgb, var(--secondary) 6%, transparent);
+    border-color: color-mix(in srgb, var(--secondary) 30%, transparent);
+    transform: translateY(-1px);
+  }
+}
+
+.pd-day-note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pd-day-note-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dark);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-day-note-badge {
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: white;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pd-day-note-preview {
+  font-size: 0.78rem;
+  color: var(--gray);
+  margin-top: 4px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pd-day-note-tags {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.pd-day-tag {
+  font-size: 0.65rem;
+  color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary) 10%, transparent);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+// Mobile: full-width panel
+@media (max-width: 600px) {
+  .pd-day-panel {
+    width: 100vw;
+  }
+
+  .pd-back-to-today {
+    bottom: -28px;
   }
 }
 
@@ -194,13 +518,14 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  transition: background 0.15s;
+  padding: 8px 10px;
+  border-radius: 12px;
+  transition: background 0.15s, transform 0.15s $spring;
   animation: cardFadeIn 0.35s $spring both;
 
   &:hover {
     background: var(--lightgray);
+    transform: translateX(2px);
   }
 }
 
@@ -246,12 +571,13 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
-  border-radius: 8px;
-  transition: background 0.15s;
+  padding: 8px 10px;
+  border-radius: 12px;
+  transition: background 0.15s, transform 0.15s $spring;
 
   &:hover {
     background: var(--lightgray);
+    transform: translateX(2px);
   }
 }
 

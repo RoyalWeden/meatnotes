@@ -243,6 +243,45 @@ export function renderPage(
 
   const LeftComponent = (
     <div class="left sidebar">
+      {/* Icon rail — visible only when left sidebar is collapsed on desktop */}
+      <div class="sidebar-rail" aria-label="Navigation">
+        <a href="/All-Notes" class="sidebar-rail-icon" data-tooltip="All Notes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+            <line x1="9" y1="12" x2="15" y2="12"/>
+            <line x1="9" y1="16" x2="13" y2="16"/>
+          </svg>
+        </a>
+        <a href="/Books-and-PDFs" class="sidebar-rail-icon" data-tooltip="Books & PDFs">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </a>
+        <a href="/Verse-Chain" class="sidebar-rail-icon" data-tooltip="Verse Chain">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </a>
+        <a href="/Dashboard" class="sidebar-rail-icon" data-tooltip="Dashboard">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1"/>
+            <rect x="14" y="3" width="7" height="5" rx="1"/>
+            <rect x="14" y="12" width="7" height="9" rx="1"/>
+            <rect x="3" y="16" width="7" height="5" rx="1"/>
+          </svg>
+        </a>
+      </div>
+      {/* Collapse toggle — visible on hover */}
+      <button class="sidebar-toggle sidebar-toggle-left pressable" data-tooltip="Collapse sidebar [" aria-label="Collapse sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
       {left.map((BodyComponent) => (
         <BodyComponent {...componentData} />
       ))}
@@ -251,6 +290,11 @@ export function renderPage(
 
   const RightComponent = (
     <div class="right sidebar">
+      <button class="sidebar-toggle sidebar-toggle-right pressable" data-tooltip="Collapse sidebar ]" aria-label="Collapse sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
       {right.map((BodyComponent) => (
         <BodyComponent {...componentData} />
       ))}

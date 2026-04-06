@@ -514,11 +514,22 @@ export const BibleLinks: QuartzTransformerPlugin = () => {
         return result
       }
 
-      // Protect: YAML frontmatter block, fenced code blocks, inline code
-      const protectedRe = /^---[\s\S]*?^---[ \t]*\n|`{3}[\s\S]*?`{3}|`[^`\n]*`/gm
+      // Protect: fenced code blocks, inline code, and existing markdown links
+      // Frontmatter is handled separately — only at the very start of the file
+      const protectedRe = /`{3}[\s\S]*?`{3}|`[^`\n]*`|\[[^\]]*\]\([^)]*\)/gm
       const parts: string[] = []
       let lastIndex = 0
+
+      // Skip YAML frontmatter if it starts at position 0
+      const fmRe = /^---\n[\s\S]*?\n---[ \t]*\n/
+      const fmM = fmRe.exec(src)
+      if (fmM && fmM.index === 0) {
+        parts.push(fmM[0])
+        lastIndex = fmM[0].length
+      }
+
       let m: RegExpExecArray | null
+      protectedRe.lastIndex = lastIndex
       while ((m = protectedRe.exec(src)) !== null) {
         parts.push(linkify(src.slice(lastIndex, m.index)))
         parts.push(m[0])
@@ -547,12 +558,20 @@ export const BibleLinks: QuartzTransformerPlugin = () => {
                   href.includes("pseudepigrapha.com/jubilees") ||
                   href.includes("sacred-texts.com/bib/boe") ||
                   href.includes("earlychristianwritings.com/text/1clement")
+                const textParts: string[] = []
+                for (const child of node.children) {
+                  if (child.type === "text") textParts.push(child.value)
+                }
+                const linkText = textParts.join("")
+
                 if (isBibleLink) {
-                  const textParts: string[] = []
-                  for (const child of node.children) {
-                    if (child.type === "text") textParts.push(child.value)
+                  const ref = normalizeRef(linkText)
+                  if (ref) {
+                    node.properties["data-verse-ref"] = ref
                   }
-                  const linkText = textParts.join("")
+                } else if (!node.properties["data-verse-ref"]) {
+                  // Also tag links whose text looks like a Bible reference
+                  // (handles internal links, wikilinks, etc. on pages like "How to Read the Bible")
                   const ref = normalizeRef(linkText)
                   if (ref) {
                     node.properties["data-verse-ref"] = ref

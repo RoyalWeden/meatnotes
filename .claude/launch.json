@@ -10,8 +10,8 @@
     },
     {
       "name": "sync-app-ui",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["quartz/tools/sync-app/preview-server.mjs"],
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH && node quartz/tools/sync-app/preview-server.mjs"],
       "port": 4321,
       "autoPort": true
     }

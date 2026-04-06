@@ -119,29 +119,7 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
     .meta-sep {
       color: var(--gray);
     }
-    .meta-created::after, .meta-modified::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--light);
-      color: var(--dark);
-      border: 1px solid var(--lightgray);
-      border-radius: 6px;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.85rem;
-      font-family: inherit;
-      white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.15s ease;
-      z-index: 100;
-    }
-    .meta-created:hover::after, .meta-modified:hover::after {
-      opacity: 1;
-    }
+    /* Tooltips handled by global tooltip system via [data-tooltip] */
   `
 
   ContentMetadata.afterDOMLoaded = `

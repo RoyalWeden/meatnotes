@@ -4,7 +4,7 @@ import FolderContent from "./pages/FolderContent"
 import NotFound from "./pages/404"
 import ArticleTitle from "./ArticleTitle"
 import Darkmode from "./Darkmode"
-import ReaderMode from "./ReaderMode"
+
 import Head from "./Head"
 import PageTitle from "./PageTitle"
 import ContentMeta from "./ContentMeta"
@@ -43,6 +43,9 @@ export { default as ShortlinkButton } from "./ShortlinkButton"
 export { default as VerseChainExplorer } from "./VerseChainExplorer"
 export { default as PipelineDashboard } from "./PipelineDashboard"
 export { default as TopicalChain } from "./TopicalChain"
+export { default as Tooltip } from "./Tooltip"
+export { default as SidebarCollapse } from "./SidebarCollapse"
+export { default as MobileSettings } from "./MobileSettings"
 
 export {
   ArticleTitle,
@@ -50,7 +53,6 @@ export {
   TagContent,
   FolderContent,
   Darkmode,
-  ReaderMode,
   Head,
   PageTitle,
   ContentMeta,

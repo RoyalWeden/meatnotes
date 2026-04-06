@@ -5,6 +5,17 @@ import { i18n } from "../i18n"
 import { classNames } from "../util/lang"
 import OverflowListFactory from "./OverflowList"
 
+function formatDailyTitle(slug: string, fallbackTitle: string): string {
+  if (slug.startsWith("Daily/")) {
+    const m = slug.match(/(\d{4}-\d{2}-\d{2})/)
+    if (m) {
+      const d = new Date(m[1] + "T12:00:00")
+      return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+    }
+  }
+  return fallbackTitle
+}
+
 interface BacklinksOptions {
   hideWhenEmpty: boolean
 }
@@ -30,7 +41,7 @@ export default ((opts?: Partial<BacklinksOptions>) => {
     }
     return (
       <details class={classNames(displayClass, "backlinks")}>
-        <summary class="backlinks-summary">
+        <summary class="backlinks-summary" data-tooltip="Toggle backlinks">
           <h3>{i18n(cfg.locale).components.backlinks.title}</h3>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +63,7 @@ export default ((opts?: Partial<BacklinksOptions>) => {
             backlinkFiles.map((f) => (
               <li>
                 <a href={resolveRelative(fileData.slug!, f.slug!)} class="internal">
-                  {f.frontmatter?.title}
+                  {formatDailyTitle(f.slug ?? "", f.frontmatter?.title ?? "")}
                 </a>
               </li>
             ))

@@ -144,6 +144,16 @@ function createFolderNode(
     folderOuter.classList.add("open")
   }
 
+  // Count total leaf (file) nodes recursively for tooltip
+  function countFiles(n: FileTrieNode): number {
+    if (!n.isFolder) return 1
+    return n.children.reduce((sum, c) => sum + countFiles(c), 0)
+  }
+  const fileCount = countFiles(node)
+  if (fileCount > 0) {
+    folderContainer.setAttribute("data-tooltip", `${fileCount} note${fileCount !== 1 ? "s" : ""}`)
+  }
+
   for (const child of node.children) {
     const childNode = child.isFolder
       ? createFolderNode(currentSlug, child, opts)

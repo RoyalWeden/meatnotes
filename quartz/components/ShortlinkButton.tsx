@@ -14,8 +14,9 @@ const ShortlinkButton: QuartzComponent = ({ fileData, cfg }: QuartzComponentProp
   return (
     <button
       id="shortlink-btn"
+      class="pressable"
       aria-label="Copy short link"
-      title="Copy short link to this page"
+      data-tooltip="Copy short link"
       data-shortlink={shortUrl}
     >
       <svg

@@ -1,0 +1,127 @@
+@use "../../styles/variables" as *;
+
+// Only show on mobile
+.mobile-settings {
+  @media all and (min-width: 801px) {
+    display: none !important;
+  }
+}
+
+// ── Gear FAB ──
+.mobile-settings-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 300;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, var(--light) 85%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px color-mix(in srgb, var(--lightgray) 50%, transparent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--darkgray);
+  transition: transform $transition-normal $spring, box-shadow $transition-fast ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  & svg {
+    transition: transform 0.4s $ease-out;
+  }
+
+  &:hover svg {
+    transform: rotate(60deg);
+  }
+}
+
+// ── Backdrop ──
+.mobile-settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-normal ease;
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// ── Bottom Sheet ──
+.mobile-settings-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: var(--light);
+  border-radius: $radius-lg $radius-lg 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(100%);
+  transition: transform $transition-slow $ease-out;
+  padding: 0 24px 32px;
+  // Safe area padding for iOS
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+
+  &.open {
+    transform: translateY(0);
+  }
+}
+
+.mobile-settings-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--lightgray);
+  margin: 10px auto 20px;
+}
+
+.mobile-settings-title {
+  font-size: 0.75rem;
+  font-weight: $semiBoldWeight;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray);
+  margin: 0 0 12px;
+}
+
+// ── Theme toggle inside sheet — wider with labels ──
+.mobile-settings-sheet .theme-toggle {
+  width: 100%;
+  justify-content: center;
+  background: color-mix(in srgb, var(--lightgray) 40%, transparent);
+  padding: 4px;
+
+  .theme-toggle-btn {
+    flex: 1;
+    height: 36px;
+    gap: 6px;
+
+    & svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    & span {
+      font-size: 0.8rem;
+      font-weight: $semiBoldWeight;
+    }
+  }
+
+  .theme-toggle-pill {
+    height: 36px;
+    top: 4px;
+  }
+}

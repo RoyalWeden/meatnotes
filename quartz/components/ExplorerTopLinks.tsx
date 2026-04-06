@@ -2,7 +2,7 @@ import { QuartzComponent, QuartzComponentConstructor } from "./types"
 
 const ExplorerTopLinks: QuartzComponent = () => (
   <div class="explorer-top-links">
-    <a href="/All-Notes" class="explorer-top-link">
+    <a href="/All-Notes" class="explorer-top-link" data-tooltip="Browse all study notes">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
         <rect x="9" y="3" width="6" height="4" rx="1"/>
@@ -11,7 +11,7 @@ const ExplorerTopLinks: QuartzComponent = () => (
       </svg>
       All Notes
     </a>
-    <a href="/Books-and-PDFs" class="explorer-top-link">
+    <a href="/Books-and-PDFs" class="explorer-top-link" data-tooltip="Browse books and PDFs">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
@@ -20,14 +20,14 @@ const ExplorerTopLinks: QuartzComponent = () => (
       </svg>
       Books & PDFs
     </a>
-    <a href="/Verse-Chain" class="explorer-top-link">
+    <a href="/Verse-Chain" class="explorer-top-link" data-tooltip="Explore verse chains and connections">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
         <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
       </svg>
       Verse Chain
     </a>
-    <a href="/Dashboard" class="explorer-top-link">
+    <a href="/Dashboard" class="explorer-top-link" data-tooltip="View study dashboard">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="3" width="7" height="9" rx="1"/>
         <rect x="14" y="3" width="7" height="5" rx="1"/>
@@ -111,7 +111,7 @@ ExplorerTopLinks.afterDOMLoaded = `
 
     var div = document.createElement('div')
     div.className = 'explorer-top-links-mobile'
-    div.innerHTML = '<a href="/All-Notes" class="explorer-top-link">' +
+    div.innerHTML = '<a href="/All-Notes" class="explorer-top-link" data-tooltip="Browse all study notes">' +
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>' +
         '<rect x="9" y="3" width="6" height="4" rx="1"/>' +
@@ -120,7 +120,7 @@ ExplorerTopLinks.afterDOMLoaded = `
       '</svg>' +
       'All Notes' +
     '</a>' +
-    '<a href="/Books-and-PDFs" class="explorer-top-link" style="margin-top:0.35rem">' +
+    '<a href="/Books-and-PDFs" class="explorer-top-link" data-tooltip="Browse books and PDFs" style="margin-top:0.35rem">' +
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
         '<polyline points="14 2 14 8 20 8"/>' +
@@ -129,14 +129,14 @@ ExplorerTopLinks.afterDOMLoaded = `
       '</svg>' +
       'Books \\x26 PDFs' +
     '</a>' +
-    '<a href="/Verse-Chain" class="explorer-top-link" style="margin-top:0.35rem">' +
+    '<a href="/Verse-Chain" class="explorer-top-link" data-tooltip="Explore verse chains and connections" style="margin-top:0.35rem">' +
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>' +
         '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>' +
       '</svg>' +
       'Verse Chain' +
     '</a>' +
-    '<a href="/Dashboard" class="explorer-top-link" style="margin-top:0.35rem">' +
+    '<a href="/Dashboard" class="explorer-top-link" data-tooltip="View study dashboard" style="margin-top:0.35rem">' +
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<rect x="3" y="3" width="7" height="9" rx="1"/>' +
         '<rect x="14" y="3" width="7" height="5" rx="1"/>' +

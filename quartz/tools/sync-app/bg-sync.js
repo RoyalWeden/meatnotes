@@ -118,8 +118,8 @@ function buildExportScript(opts = {}) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(firstPage, 'text/html');
 
-    // Find pagination — look for last page number
-    const pageLinks = doc.querySelectorAll('.pagination a, .pager a, [data-page]');
+    // Find pagination — look for last page number (broadened selectors)
+    const pageLinks = doc.querySelectorAll('.pagination a, .pager a, [data-page], .page-numbers a, a[href*="page="], .paging a, nav.pagination a');
     if (pageLinks.length > 0) {
       for (const link of pageLinks) {
         const href = link.getAttribute('href') || '';
@@ -147,14 +147,45 @@ function buildExportScript(opts = {}) {
       const pageDoc = parser.parseFromString(html, 'text/html');
 
       // Extract notes — BG uses various selectors depending on version
-      const noteEls = pageDoc.querySelectorAll(
-        '.annotation-item, .note-item, [data-annotation-id], .user-annotation'
+      // Strategy 1: Try known annotation container selectors
+      let noteEls = pageDoc.querySelectorAll(
+        '.annotation-item, .note-item, [data-annotation-id], .user-annotation, .annotation-row, .note-row, .user-note, .activity-item'
       );
 
+      // Strategy 2: If nothing found, try table rows within annotation sections
+      if (noteEls.length === 0) {
+        noteEls = pageDoc.querySelectorAll('table tr[data-id], table.annotations tr, .annotations-table tr, .notes-container > div, .notes-list > li, .notes-list > div');
+      }
+
+      // Strategy 3: Broader fallback — look for any elements containing verse references
+      if (noteEls.length === 0) {
+        noteEls = pageDoc.querySelectorAll('[data-reference], [data-verse], .reference-container, .passage-display + .note');
+      }
+
+      // Log selector match counts for debugging
+      const selectorCounts = {
+        strategy1: pageDoc.querySelectorAll('.annotation-item, .note-item, [data-annotation-id], .user-annotation, .annotation-row, .note-row').length,
+        strategy2: pageDoc.querySelectorAll('table tr[data-id], .notes-container > div, .notes-list > li').length,
+        strategy3: pageDoc.querySelectorAll('[data-reference], [data-verse]').length,
+        allTables: pageDoc.querySelectorAll('table').length,
+        allListItems: pageDoc.querySelectorAll('li').length,
+        allAnchors: pageDoc.querySelectorAll('a[href*="passage"]').length,
+      };
+      console.log('BG selector counts page ' + pageNum + ':', JSON.stringify(selectorCounts));
+
       for (const noteEl of noteEls) {
-        const verseRef = noteEl.querySelector('.verse-ref, .annotation-verse, .reference')?.textContent?.trim();
-        const noteText = noteEl.querySelector('.note-text, .annotation-text, .note-content, .text')?.textContent?.trim();
-        const dateEl = noteEl.querySelector('.date, .annotation-date, time');
+        // Try multiple selector strategies for verse references
+        const verseRef = (
+          noteEl.querySelector('.verse-ref, .annotation-verse, .reference, .passage-ref, [data-reference]')?.textContent?.trim() ||
+          noteEl.querySelector('a[href*="passage"]')?.textContent?.trim() ||
+          noteEl.getAttribute('data-reference') ||
+          noteEl.getAttribute('data-verse')
+        );
+        const noteText = (
+          noteEl.querySelector('.note-text, .annotation-text, .note-content, .text, .body, .content')?.textContent?.trim() ||
+          noteEl.querySelector('td:nth-child(2), .note-body')?.textContent?.trim()
+        );
+        const dateEl = noteEl.querySelector('.date, .annotation-date, time, .timestamp');
         const date = dateEl?.getAttribute('datetime') || dateEl?.textContent?.trim();
 
         if (verseRef) {
@@ -162,6 +193,17 @@ function buildExportScript(opts = {}) {
           results.push(note);
           if (previewEl) previewEl.textContent = verseRef + ': ' + (noteText || '').slice(0, 60);
         }
+      }
+
+      // If still no notes found on first page, send debug info
+      if (noteEls.length === 0 && pageNum === 1) {
+        const bodySnippet = pageDoc.body?.innerHTML?.slice(0, 2000) || '(empty)';
+        console.log('BG: No note elements found on page 1. Body snippet:', bodySnippet);
+        sendProgress({
+          step: 'warning',
+          message: 'No note elements found on page ' + pageNum + '. Run Debug BG Sync to inspect.',
+          selectorCounts,
+        });
       }
 
       completed++;

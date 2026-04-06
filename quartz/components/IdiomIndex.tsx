@@ -90,7 +90,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
         </p>
         <div class="view-toggle">
           {/* Compact grid (3×3 dots) */}
-          <button class="view-btn" data-view-target="cards-sm" title="Compact grid">
+          <button class="view-btn" data-view-target="cards-sm" data-tooltip="Compact grid">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -110,7 +110,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
             </svg>
           </button>
           {/* Spacious grid (2×2 dots) */}
-          <button class="view-btn" data-view-target="cards-lg" title="Spacious grid">
+          <button class="view-btn" data-view-target="cards-lg" data-tooltip="Spacious grid">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -125,7 +125,7 @@ const IdiomIndex: QuartzComponent = ({ allFiles, fileData }: QuartzComponentProp
             </svg>
           </button>
           {/* List / accordion */}
-          <button class="view-btn" data-view-target="list" title="List view">
+          <button class="view-btn" data-view-target="list" data-tooltip="List view">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"

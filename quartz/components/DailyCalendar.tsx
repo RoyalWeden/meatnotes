@@ -5,25 +5,25 @@ const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
     <>
       <div id="daily-calendar">
         <div id="cal-nav">
-          <button id="cal-prev">←</button>
+          <button id="cal-prev" class="pressable" data-tooltip="Previous month">←</button>
           <span id="cal-title"></span>
-          <button id="cal-next">→</button>
+          <button id="cal-next" class="pressable" data-tooltip="Next month">→</button>
         </div>
         <div id="cal-grid"></div>
       </div>
-      <button id="cal-mobile-btn" aria-label="Open daily notes calendar">
+      <button id="cal-mobile-btn" class="pressable" aria-label="Open daily notes calendar" data-tooltip="Daily notes calendar">
         <span id="cal-btn-icon">📅</span>
         <span id="cal-btn-label">Daily Notes</span>
       </button>
       <div id="cal-mobile-overlay">
         <div id="cal-mobile-inner">
           <div id="cal-nav-mobile">
-            <button id="cal-prev-mobile">←</button>
+            <button id="cal-prev-mobile" data-tooltip="Previous month">←</button>
             <span id="cal-title-mobile"></span>
-            <button id="cal-next-mobile">→</button>
+            <button id="cal-next-mobile" data-tooltip="Next month">→</button>
           </div>
           <div id="cal-grid-mobile"></div>
-          <button id="cal-mobile-close">Close</button>
+          <button id="cal-mobile-close" data-tooltip="Close calendar">Close</button>
         </div>
       </div>
     </>
@@ -342,14 +342,19 @@ DailyCalendar.afterDOMLoaded = `
 
       const el = document.createElement('div')
       el.className = 'cal-day' + (isToday ? ' today' : '') + (isActive ? ' active' : '')
+      // Format tooltip date
+      var tipDate = new Date(year, month, d)
+      var tipStr = tipDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
       if (dates.includes(dateStr)) {
         el.classList.add('has-note')
         el.innerHTML = '<a href="/Daily/' + dateStr + '">' + d + '</a>'
+        el.setAttribute('data-tooltip', tipStr + '\\nHas daily note')
         el.onclick = function() {
           window.location.href = '/Daily/' + dateStr
         }
       } else {
         el.textContent = String(d)
+        el.setAttribute('data-tooltip', tipStr)
       }
       grid.appendChild(el)
     }
@@ -481,26 +486,6 @@ DailyCalendar.afterDOMLoaded = `
     titleEl.textContent = 'Bible Notes'
     header.appendChild(titleEl)
 
-    // Wrapper for darkmode + readermode icons
-    const iconsWrapper = document.createElement('div')
-    iconsWrapper.className = 'mobile-drawer-icons'
-
-    // .darkmode and .readermode are the buttons themselves (not wrappers)
-    const darkmodeBtn = document.querySelector('button.darkmode')
-    if (darkmodeBtn) {
-      const dmClone = darkmodeBtn.cloneNode(true)
-      dmClone.style.display = 'flex'
-      dmClone.style.alignItems = 'center'
-      dmClone.style.justifyContent = 'center'
-      dmClone.addEventListener('click', function() { darkmodeBtn.click() })
-      const dmWrapper = document.createElement('div')
-      dmWrapper.className = 'mobile-drawer-darkmode'
-      dmWrapper.title = 'Toggle dark/light mode'
-      dmWrapper.appendChild(dmClone)
-      iconsWrapper.appendChild(dmWrapper)
-    }
-
-    header.appendChild(iconsWrapper)
     explorerContent.insertBefore(header, explorerContent.firstChild)
   }
 

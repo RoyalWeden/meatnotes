@@ -37,13 +37,13 @@ export default (() => {
           </div>
           {/* Filter buttons row */}
           <div class="fs-filter-row" role="group" aria-label="Search filter">
-            <button class="fs-filter-btn active" data-filter="all">All</button>
-            <button class="fs-filter-btn" data-filter="title">Title</button>
-            <button class="fs-filter-btn" data-filter="content">Content</button>
-            <button class="fs-filter-btn" data-filter="tags">Tags</button>
-            <button class="fs-phrase-btn" id="fs-phrase-btn" aria-pressed="false">Phrase</button>
+            <button class="fs-filter-btn active" data-filter="all" data-tooltip="Search all fields">All</button>
+            <button class="fs-filter-btn" data-filter="title" data-tooltip="Search titles only">Title</button>
+            <button class="fs-filter-btn" data-filter="content" data-tooltip="Search content only">Content</button>
+            <button class="fs-filter-btn" data-filter="tags" data-tooltip="Search tags only">Tags</button>
+            <button class="fs-phrase-btn" id="fs-phrase-btn" aria-pressed="false" data-tooltip="Toggle exact phrase matching">Phrase</button>
             <div class="fs-filter-spacer"></div>
-            <select id="fs-sort" class="fs-sort-select">
+            <select id="fs-sort" class="fs-sort-select" data-tooltip="Sort results">
               <option value="relevance">Relevance</option>
               <option value="date-desc">Newest first</option>
               <option value="date-asc">Oldest first</option>
@@ -53,11 +53,11 @@ export default (() => {
           {/* Scope pills row */}
           <div class="fs-scope-row" id="fs-scope-row" role="group" aria-label="Scope filter">
             <span class="fs-scope-label">In:</span>
-            <button class="fs-scope-btn active" data-scope="all">All</button>
-            <button class="fs-scope-btn" data-scope="idioms">Idioms</button>
-            <button class="fs-scope-btn" data-scope="capture">Capture</button>
-            <button class="fs-scope-btn" data-scope="progress">In Progress</button>
-            <button class="fs-scope-btn" data-scope="complete">Complete</button>
+            <button class="fs-scope-btn active" data-scope="all" data-tooltip="Search all sections">All</button>
+            <button class="fs-scope-btn" data-scope="idioms" data-tooltip="Search idioms only">Idioms</button>
+            <button class="fs-scope-btn" data-scope="capture" data-tooltip="Search capture notes">Capture</button>
+            <button class="fs-scope-btn" data-scope="progress" data-tooltip="Search in-progress notes">In Progress</button>
+            <button class="fs-scope-btn" data-scope="complete" data-tooltip="Search completed notes">Complete</button>
           </div>
         </div>
         {/* Count + results */}

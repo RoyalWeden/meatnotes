@@ -6,9 +6,9 @@ const DailyNoteNav: QuartzComponent = ({ fileData }: QuartzComponentProps) => {
 
   return (
     <div id="daily-note-nav">
-      <a id="daily-prev" href="#">← prev</a>
+      <a id="daily-prev" href="#" data-tooltip="Previous daily note">← prev</a>
       <span id="daily-current"></span>
-      <a id="daily-next" href="#">next →</a>
+      <a id="daily-next" href="#" data-tooltip="Next daily note">next →</a>
     </div>
   )
 }

@@ -143,6 +143,7 @@ function runBGSync(opts = {}) {
       (function() {
         // Strategy 1: Look for annotation-specific elements (various BG versions)
         const annotationSelectors = [
+          'article.bible-item', '.bible-item', '.annotations-list',
           '.annotation-item', '.note-item', '[data-annotation-id]',
           '.user-annotation', '.user-annotations', '.annotation-list',
           '.notes-list', '.highlights-list', '.bookmark-list',
@@ -154,8 +155,8 @@ function runBGSync(opts = {}) {
 
         // Strategy 2: Look for pagination (means we have content)
         const hasPagination = !!(
-          document.querySelector('.pagination, .pager, [data-page], .page-numbers') ||
-          document.querySelector('a[href*="page="]')
+          document.querySelector('.info-viewer-pager, .pagination, .pager, [data-page], .page-numbers') ||
+          document.querySelector('a[href*="page="], a[href*="&i="]')
         );
 
         // Strategy 3: Look for logout link (means we're logged in)

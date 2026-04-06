@@ -2306,6 +2306,7 @@
       <div class="card-actions">
         <button class="btn btn-primary" id="syncBtn" onclick="clickSyncNow()">▶ Sync Now</button>
         <button class="btn-note" id="noteBtn" onclick="clickCommitNote()" title="Add a commit note">✎</button>
+        <button class="btn btn-secondary" id="bgSyncBtn" onclick="clickBGSync()">📖 BG Sync</button>
         <button class="btn btn-secondary" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
       </div>
       <div class="commit-msg-row" id="commitMsgRow">
@@ -2848,6 +2849,18 @@
       }
       syncBtnEl.disabled = s.isSyncing || s.isWaiting;
       document.getElementById('noteBtn').disabled = s.isSyncing || s.isWaiting;
+      // BG sync button: update state from status
+      const bgBtn = document.getElementById('bgSyncBtn');
+      if (bgBtn && s.bgSyncStatus) {
+        const bgBusy = s.bgSyncStatus === 'exporting' || s.bgSyncStatus === 'importing' || s.bgSyncStatus === 'login';
+        if (!bgBusy && bgBtn.classList.contains('btn-spinning')) {
+          bgBtn.classList.remove('btn-spinning');
+          bgBtn.innerHTML = s.bgSyncStatus === 'error' ? '❌ BG Sync' : '📖 BG Sync';
+          bgBtn.disabled = false;
+        } else if (bgBusy) {
+          bgBtn.disabled = true;
+        }
+      }
       const pauseBtn = document.getElementById('pauseBtn');
       pauseBtn.textContent = s.isPaused ? '▶ Resume' : '⏸ Pause';
       pauseBtn.disabled = s.isSyncing;
@@ -3166,6 +3179,37 @@
           btn.innerHTML = '▶ Sync Now';
         }
       }, 4000);
+    }
+
+    // BibleGateway sync button
+    function clickBGSync() {
+      const btn = document.getElementById('bgSyncBtn');
+      if (btn.disabled) return;
+      btn.innerHTML = '<span class="btn-spin-icon">⟳</span> BG…';
+      btn.classList.add('btn-spinning');
+      btn.disabled = true;
+      if (window.syncAPI) window.syncAPI.triggerBGSync();
+    }
+
+    // Listen for BG sync progress/completion to update button
+    if (window.syncAPI) {
+      window.syncAPI.onBGProgress((data) => {
+        const btn = document.getElementById('bgSyncBtn');
+        if (!btn) return;
+        if (data.step === 'fetch') {
+          btn.innerHTML = '<span class="btn-spin-icon">⟳</span> ' + (data.completed || 0) + '/' + (data.total || '?');
+        }
+      });
+      window.syncAPI.onBGComplete(() => {
+        const btn = document.getElementById('bgSyncBtn');
+        if (!btn) return;
+        btn.innerHTML = '✅ Done';
+        btn.classList.remove('btn-spinning');
+        setTimeout(() => {
+          btn.innerHTML = '📖 BG Sync';
+          btn.disabled = false;
+        }, 3000);
+      });
     }
 
     // Pencil button: toggle optional commit note

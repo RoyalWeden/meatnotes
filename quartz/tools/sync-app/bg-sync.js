@@ -118,15 +118,25 @@ function buildExportScript(opts = {}) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(firstPage, 'text/html');
 
-    // Find pagination — look for last page number (broadened selectors)
-    const pageLinks = doc.querySelectorAll('.pagination a, .pager a, [data-page], .page-numbers a, a[href*="page="], .paging a, nav.pagination a');
+    // Find pagination — BG uses .info-viewer-pager with ?iv=notes&i=<offset> params
+    const pageLinks = doc.querySelectorAll('.info-viewer-pager a, .info-viewer-footer a, .pagination a, .pager a, [data-page], .page-numbers a, a[href*="page="], a[href*="&i="], .paging a, nav.pagination a');
+    let maxOffset = 0;
     if (pageLinks.length > 0) {
       for (const link of pageLinks) {
         const href = link.getAttribute('href') || '';
+        // BG pagination uses &i=<offset> (e.g. &i=26, &i=51, ...)
+        const offsetMatch = href.match(/[?&]i=(\\d+)/);
+        if (offsetMatch) maxOffset = Math.max(maxOffset, parseInt(offsetMatch[1]));
         const pageMatch = href.match(/page=(\\d+)/);
         if (pageMatch) totalPages = Math.max(totalPages, parseInt(pageMatch[1]));
         const text = link.textContent?.trim();
         if (text && /^\\d+$/.test(text)) totalPages = Math.max(totalPages, parseInt(text));
+      }
+      // If we found offset-based pagination, calculate total pages from max offset
+      // BG shows 25 items per page, offset starts at 0
+      if (maxOffset > 0) {
+        const ITEMS_PER_PAGE = 25;
+        totalPages = Math.ceil((maxOffset + ITEMS_PER_PAGE) / ITEMS_PER_PAGE);
       }
     }
 
@@ -142,14 +152,16 @@ function buildExportScript(opts = {}) {
     let completed = 0;
     const processPage = async (pageNum) => {
       if (cancelled) return;
-      const url = BASE_URL + '&page=' + pageNum;
+      // BG uses offset-based pagination: &i=0, &i=25, &i=50, etc.
+      const offset = (pageNum - 1) * 25;
+      const url = BASE_URL + '&i=' + offset;
       const html = await fetchWithRetry(url);
       const pageDoc = parser.parseFromString(html, 'text/html');
 
-      // Extract notes — BG uses various selectors depending on version
-      // Strategy 1: Try known annotation container selectors
+      // Extract notes — BG uses article.bible-item elements
+      // Strategy 1: Current BG layout (as of 2026)
       let noteEls = pageDoc.querySelectorAll(
-        '.annotation-item, .note-item, [data-annotation-id], .user-annotation, .annotation-row, .note-row, .user-note, .activity-item'
+        'article.bible-item, .bible-item, .annotation-item, .note-item, [data-annotation-id], .user-annotation, .annotation-row, .note-row, .user-note, .activity-item'
       );
 
       // Strategy 2: If nothing found, try table rows within annotation sections
@@ -164,11 +176,10 @@ function buildExportScript(opts = {}) {
 
       // Log selector match counts for debugging
       const selectorCounts = {
+        bibleItems: pageDoc.querySelectorAll('article.bible-item').length,
         strategy1: pageDoc.querySelectorAll('.annotation-item, .note-item, [data-annotation-id], .user-annotation, .annotation-row, .note-row').length,
         strategy2: pageDoc.querySelectorAll('table tr[data-id], .notes-container > div, .notes-list > li').length,
         strategy3: pageDoc.querySelectorAll('[data-reference], [data-verse]').length,
-        allTables: pageDoc.querySelectorAll('table').length,
-        allListItems: pageDoc.querySelectorAll('li').length,
         allAnchors: pageDoc.querySelectorAll('a[href*="passage"]').length,
       };
       console.log('BG selector counts page ' + pageNum + ':', JSON.stringify(selectorCounts));
@@ -176,17 +187,22 @@ function buildExportScript(opts = {}) {
       for (const noteEl of noteEls) {
         // Try multiple selector strategies for verse references
         const verseRef = (
+          noteEl.querySelector('.bible-item-title a[href*="passage"]')?.textContent?.trim() ||
           noteEl.querySelector('.verse-ref, .annotation-verse, .reference, .passage-ref, [data-reference]')?.textContent?.trim() ||
           noteEl.querySelector('a[href*="passage"]')?.textContent?.trim() ||
           noteEl.getAttribute('data-reference') ||
           noteEl.getAttribute('data-verse')
         );
         const noteText = (
+          noteEl.querySelector('.bible-item-text')?.textContent?.trim() ||
           noteEl.querySelector('.note-text, .annotation-text, .note-content, .text, .body, .content')?.textContent?.trim() ||
           noteEl.querySelector('td:nth-child(2), .note-body')?.textContent?.trim()
         );
-        const dateEl = noteEl.querySelector('.date, .annotation-date, time, .timestamp');
-        const date = dateEl?.getAttribute('datetime') || dateEl?.textContent?.trim();
+        // Date: BG puts it in .bible-item-details like "April 4 at 3:29 PM | KJV  Delete Undo"
+        const dateEl = noteEl.querySelector('.bible-item-details, .date, .annotation-date, time, .timestamp');
+        let date = dateEl?.getAttribute('datetime') || dateEl?.textContent?.trim() || '';
+        // Clean up BG date format: strip " | KJV", "Delete", "Undo" suffixes
+        date = date.replace(/\\s*\\|\\s*\\w+$/, '').replace(/\\s*(Delete|Undo)\\s*/g, '').trim();
 
         if (verseRef) {
           const note = { verseRef, text: noteText || '', date: date || '' };

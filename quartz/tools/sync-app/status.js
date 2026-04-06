@@ -35,6 +35,7 @@ function buildStatusPayload() {
     lfsBandwidthLimit: settings.lfsBandwidthLimit || null,
     lfsSkipOnMetered: settings.lfsSkipOnMetered || false,
     isMetered: settings.isMetered || false,
+    bgSyncStatus: state.bgSyncStatus || 'idle',
   };
 }
 

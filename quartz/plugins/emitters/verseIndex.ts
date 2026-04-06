@@ -138,6 +138,16 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
                   existing.add(conn)
                 }
               }
+
+              // Add BG-only verses to the index so they're searchable
+              if (!index[verse]) {
+                index[verse] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+              }
+              for (const conn of connections as string[]) {
+                if (!index[conn]) {
+                  index[conn] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+                }
+              }
             }
           }
         }

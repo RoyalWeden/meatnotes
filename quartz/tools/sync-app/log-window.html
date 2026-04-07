@@ -1131,6 +1131,162 @@
     }
     .deploy-logs-load-btn:hover { background: var(--surface-hover); }
 
+    /* ── BG Progress Panel ── */
+    .bg-progress-panel {
+      margin: 0 12px;
+      background: var(--deploy-logs-bg);
+      border-radius: 14px;
+      border: 1px solid var(--surface-border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      flex-shrink: 0;
+      transition: max-height 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                  margin-bottom 0.3s ease,
+                  opacity 0.3s ease;
+    }
+    .bg-progress-panel.open {
+      max-height: 420px;
+      margin-bottom: 10px;
+      opacity: 1;
+    }
+    .bg-progress-header {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 5px;
+      border-bottom: 1px solid var(--surface-border);
+      gap: 8px;
+    }
+    .bg-progress-label {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .bg-progress-phase {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+    .bg-progress-phase.active {
+      background: rgba(52, 199, 89, 0.15);
+      color: #34c759;
+    }
+    .bg-progress-close {
+      font-size: 13px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      -webkit-app-region: no-drag;
+      transition: color 0.15s;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .bg-progress-close:hover { color: var(--text); }
+    .bg-progress-bar-wrap {
+      margin: 10px 12px 4px;
+      height: 4px;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bg-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #34c759;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .bg-progress-bar.indeterminate {
+      width: 30%;
+      animation: bg-bar-slide 1.2s ease-in-out infinite;
+    }
+    @keyframes bg-bar-slide {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+    .bg-progress-pct {
+      text-align: right;
+      padding: 0 12px 2px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #34c759;
+      font-variant-numeric: tabular-nums;
+    }
+    .bg-progress-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px 12px;
+      padding: 4px 12px 8px;
+    }
+    .bg-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .bg-stat-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+    .bg-stat-value {
+      font-size: 11px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+    .bg-activity-log {
+      max-height: 96px;
+      overflow-y: auto;
+      padding: 0 12px 8px;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      color: var(--text-secondary);
+    }
+    .bg-activity-log::-webkit-scrollbar { width: 3px; }
+    .bg-activity-log::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+    .bg-activity-entry {
+      padding: 1px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bg-activity-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .bg-activity-dot.has-notes { background: #34c759; }
+    .bg-activity-dot.no-notes  { background: var(--text-tertiary); }
+    .bg-activity-dot.error     { background: #ff3b30; }
+    .bg-activity-chapter {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bg-activity-count {
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .bg-activity-count.has-notes { color: #34c759; font-weight: 600; }
+    .bg-activity-count.no-notes  { color: var(--text-tertiary); }
+    .bg-activity-count.error     { color: #ff3b30; }
+
     /* ── Enhanced status dot morphing ── */
     .status-dot.paused {
       border-radius: 3px;
@@ -2332,6 +2488,54 @@
       </div>
     </div>
 
+    <!-- BibleGateway Sync Progress Panel -->
+    <div class="bg-progress-panel" id="bgProgressPanel">
+      <div class="bg-progress-header">
+        <span class="bg-progress-label">BibleGateway Sync</span>
+        <span class="bg-progress-phase" id="bgProgressPhase"></span>
+        <button class="bg-progress-close" onclick="closeBGProgress()">&#x2715;</button>
+      </div>
+      <div class="bg-progress-bar-wrap">
+        <div class="bg-progress-bar" id="bgProgressBar"></div>
+      </div>
+      <div class="bg-progress-pct" id="bgProgressPct">0%</div>
+      <div class="bg-progress-stats">
+        <div class="bg-stat">
+          <span class="bg-stat-label">Chapter</span>
+          <span class="bg-stat-value" id="bgStatChapter">--</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Progress</span>
+          <span class="bg-stat-value" id="bgStatProgress">0 / 0</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Notes Found</span>
+          <span class="bg-stat-value" id="bgStatNotes">0</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Expected</span>
+          <span class="bg-stat-value" id="bgStatExpected">--</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Speed</span>
+          <span class="bg-stat-value" id="bgStatSpeed">--</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">ETA</span>
+          <span class="bg-stat-value" id="bgStatETA">--</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Elapsed</span>
+          <span class="bg-stat-value" id="bgStatElapsed">0:00</span>
+        </div>
+        <div class="bg-stat">
+          <span class="bg-stat-label">Errors</span>
+          <span class="bg-stat-value" id="bgStatErrors">0</span>
+        </div>
+      </div>
+      <div class="bg-activity-log" id="bgActivityLog"></div>
+    </div>
+
     <!-- Mini recent syncs -->
     <div class="status-recent-header" id="statusRecentHeader" style="display:none;">
       <span class="status-recent-title">Recent Syncs</span>
@@ -3191,24 +3395,191 @@
       if (window.syncAPI) window.syncAPI.triggerBGSync();
     }
 
-    // Listen for BG sync progress/completion to update button
+    // ── BG Sync Progress Panel ──────────────────────────────────────────
+    const bgState = {
+      phase: null,
+      startTime: null,
+      totalChapters: 0,
+      completedChapters: 0,
+      totalExpectedNotes: 0,
+      notesCollected: 0,
+      errors: 0,
+      activityLog: [],
+      elapsedTimer: null,
+    };
+
+    function formatDuration(sec) {
+      if (!sec || sec < 0) return '--';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return m > 0 ? m + 'm ' + String(s).padStart(2, '0') + 's' : s + 's';
+    }
+
+    function openBGProgress() {
+      document.getElementById('bgProgressPanel').classList.add('open');
+    }
+
+    function closeBGProgress() {
+      document.getElementById('bgProgressPanel').classList.remove('open');
+      if (bgState.elapsedTimer) { clearInterval(bgState.elapsedTimer); bgState.elapsedTimer = null; }
+    }
+
+    function startElapsedTimer() {
+      if (bgState.elapsedTimer) clearInterval(bgState.elapsedTimer);
+      bgState.elapsedTimer = setInterval(() => {
+        if (!bgState.startTime) return;
+        const el = document.getElementById('bgStatElapsed');
+        if (el) el.textContent = formatDuration((Date.now() - bgState.startTime) / 1000);
+      }, 1000);
+    }
+
+    function addBGActivity(chapter, noteCount, isError) {
+      bgState.activityLog.unshift({ chapter, noteCount, isError });
+      if (bgState.activityLog.length > 8) bgState.activityLog.pop();
+      const log = document.getElementById('bgActivityLog');
+      if (!log) return;
+      log.innerHTML = bgState.activityLog.map(e => {
+        const dotClass = e.isError ? 'error' : (e.noteCount > 0 ? 'has-notes' : 'no-notes');
+        const countClass = e.isError ? 'error' : (e.noteCount > 0 ? 'has-notes' : 'no-notes');
+        const countText = e.isError ? 'error' : (e.noteCount + ' note' + (e.noteCount !== 1 ? 's' : ''));
+        return '<div class="bg-activity-entry">' +
+          '<span class="bg-activity-dot ' + dotClass + '"></span>' +
+          '<span class="bg-activity-chapter">' + e.chapter + '</span>' +
+          '<span class="bg-activity-count ' + countClass + '">' + countText + '</span>' +
+          '</div>';
+      }).join('');
+    }
+
+    function computeBGSpeedETA() {
+      if (!bgState.startTime || bgState.completedChapters < 2) return;
+      const elapsed = (Date.now() - bgState.startTime) / 1000;
+      const chapPerSec = bgState.completedChapters / elapsed;
+      const remaining = bgState.totalChapters - bgState.completedChapters;
+      const etaSec = remaining / chapPerSec;
+      const cpm = (chapPerSec * 60).toFixed(1);
+      const npm = ((bgState.notesCollected / elapsed) * 60).toFixed(1);
+      const speedEl = document.getElementById('bgStatSpeed');
+      const etaEl = document.getElementById('bgStatETA');
+      if (speedEl) speedEl.textContent = cpm + ' ch/min \u00b7 ' + npm + ' notes/min';
+      if (etaEl) etaEl.textContent = formatDuration(etaSec);
+    }
+
+    function updateBGButton(data) {
+      const btn = document.getElementById('bgSyncBtn');
+      if (!btn) return;
+      const step = data.step;
+      if (step === 'phase1-start' || step === 'phase1-fetch') {
+        btn.innerHTML = '<span class="btn-spin-icon">\u27F3</span> Scanning\u2026';
+      } else if (step === 'phase2-navigate' || step === 'phase2-result') {
+        btn.innerHTML = '<span class="btn-spin-icon">\u27F3</span> ' + (data.completed || 0) + '/' + (data.total || '?');
+      } else if (step === 'importing') {
+        btn.innerHTML = '<span class="btn-spin-icon">\u27F3</span> Importing\u2026';
+      } else if (step === 'complete') {
+        btn.innerHTML = '\u2705 Done';
+        btn.classList.remove('btn-spinning');
+        setTimeout(() => { btn.innerHTML = '\uD83D\uDCD6 BG Sync'; btn.disabled = false; }, 3000);
+      }
+    }
+
+    function updateBGProgressPanel(data) {
+      const step = data.step;
+      const phaseEl = document.getElementById('bgProgressPhase');
+      const barEl = document.getElementById('bgProgressBar');
+      const pctEl = document.getElementById('bgProgressPct');
+
+      if (step === 'phase1-start') {
+        bgState.phase = 'phase1';
+        bgState.errors = 0;
+        bgState.activityLog = [];
+        bgState.notesCollected = 0;
+        bgState.completedChapters = 0;
+        openBGProgress();
+        if (phaseEl) { phaseEl.textContent = 'Phase 1: Scanning'; phaseEl.classList.add('active'); }
+        if (barEl) { barEl.style.width = '0%'; barEl.classList.add('indeterminate'); }
+        if (pctEl) pctEl.textContent = 'Scanning\u2026';
+        document.getElementById('bgStatChapter').textContent = '--';
+        document.getElementById('bgStatProgress').textContent = 'Scanning pages\u2026';
+        document.getElementById('bgStatNotes').textContent = '0';
+        document.getElementById('bgStatExpected').textContent = '--';
+        document.getElementById('bgStatSpeed').textContent = '--';
+        document.getElementById('bgStatETA').textContent = '--';
+        document.getElementById('bgStatElapsed').textContent = '0:00';
+        document.getElementById('bgStatErrors').textContent = '0';
+        document.getElementById('bgActivityLog').innerHTML = '';
+
+      } else if (step === 'phase1-fetch') {
+        if (pctEl) pctEl.textContent = 'Page ' + (data.completed || 0) + '/' + (data.total || '?');
+        document.getElementById('bgStatNotes').textContent = String(data.noteCount || 0);
+
+      } else if (step === 'phase1-complete') {
+        if (phaseEl) phaseEl.textContent = 'Phase 1 Complete';
+        if (barEl) { barEl.classList.remove('indeterminate'); barEl.style.width = '100%'; }
+        if (pctEl) pctEl.textContent = (data.totalNotes || 0) + ' notes across ' + (data.chapters || 0) + ' chapters';
+        document.getElementById('bgStatExpected').textContent = String(data.totalNotes || 0);
+
+      } else if (step === 'phase2-start') {
+        bgState.phase = 'phase2';
+        bgState.totalChapters = data.total || 0;
+        bgState.totalExpectedNotes = data.totalExpectedNotes || 0;
+        bgState.startTime = data.phase2StartTime || Date.now();
+        bgState.completedChapters = 0;
+        bgState.notesCollected = 0;
+        startElapsedTimer();
+        if (phaseEl) { phaseEl.textContent = 'Phase 2: Extracting'; phaseEl.classList.add('active'); }
+        if (barEl) { barEl.classList.remove('indeterminate'); barEl.style.width = '0%'; }
+        if (pctEl) pctEl.textContent = '0%';
+        document.getElementById('bgStatProgress').textContent = '0 / ' + bgState.totalChapters;
+        document.getElementById('bgStatExpected').textContent = String(bgState.totalExpectedNotes);
+
+      } else if (step === 'phase2-navigate') {
+        document.getElementById('bgStatChapter').textContent = data.chapter || '--';
+        document.getElementById('bgStatProgress').textContent = (data.completed || 0) + ' / ' + (data.total || bgState.totalChapters);
+        if (barEl) barEl.style.width = (data.pct || 0) + '%';
+        if (pctEl) pctEl.textContent = (data.pct || 0) + '%';
+
+      } else if (step === 'phase2-result') {
+        bgState.completedChapters = data.completed || bgState.completedChapters + 1;
+        bgState.notesCollected = data.notesCollected || bgState.notesCollected;
+        document.getElementById('bgStatChapter').textContent = data.chapter || '--';
+        document.getElementById('bgStatProgress').textContent = bgState.completedChapters + ' / ' + (data.total || bgState.totalChapters);
+        document.getElementById('bgStatNotes').textContent = String(bgState.notesCollected);
+        if (barEl) barEl.style.width = (data.pct || 0) + '%';
+        if (pctEl) pctEl.textContent = (data.pct || 0) + '%';
+        addBGActivity(data.chapter || '--', data.chapterNotes || 0, false);
+        computeBGSpeedETA();
+
+      } else if (step === 'phase2-error') {
+        bgState.errors++;
+        document.getElementById('bgStatErrors').textContent = String(bgState.errors);
+        addBGActivity(data.chapter || '--', 0, true);
+
+      } else if (step === 'importing') {
+        bgState.phase = 'importing';
+        if (phaseEl) { phaseEl.textContent = 'Importing'; phaseEl.classList.add('active'); }
+        if (barEl) { barEl.classList.add('indeterminate'); barEl.style.width = '30%'; }
+        if (pctEl) pctEl.textContent = 'Importing notes\u2026';
+        if (bgState.elapsedTimer) { clearInterval(bgState.elapsedTimer); bgState.elapsedTimer = null; }
+
+      } else if (step === 'complete') {
+        bgState.phase = 'done';
+        if (phaseEl) { phaseEl.textContent = 'Complete'; phaseEl.classList.remove('active'); }
+        if (barEl) { barEl.classList.remove('indeterminate'); barEl.style.width = '100%'; }
+        const msg = data.message || (data.notesCount + ' notes, ' + data.connectionsCount + ' connections');
+        if (pctEl) pctEl.textContent = msg;
+        if (bgState.elapsedTimer) { clearInterval(bgState.elapsedTimer); bgState.elapsedTimer = null; }
+        setTimeout(() => closeBGProgress(), 5000);
+      }
+    }
+
+    // Listen for BG sync progress/completion
     if (window.syncAPI) {
       window.syncAPI.onBGProgress((data) => {
-        const btn = document.getElementById('bgSyncBtn');
-        if (!btn) return;
-        if (data.step === 'fetch') {
-          btn.innerHTML = '<span class="btn-spin-icon">⟳</span> ' + (data.completed || 0) + '/' + (data.total || '?');
-        }
+        updateBGButton(data);
+        updateBGProgressPanel(data);
       });
-      window.syncAPI.onBGComplete(() => {
-        const btn = document.getElementById('bgSyncBtn');
-        if (!btn) return;
-        btn.innerHTML = '✅ Done';
-        btn.classList.remove('btn-spinning');
-        setTimeout(() => {
-          btn.innerHTML = '📖 BG Sync';
-          btn.disabled = false;
-        }, 3000);
+      window.syncAPI.onBGComplete((data) => {
+        updateBGButton({ step: 'complete' });
+        updateBGProgressPanel({ step: 'complete', ...data });
       });
     }
 

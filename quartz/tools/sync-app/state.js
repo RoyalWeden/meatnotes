@@ -91,6 +91,8 @@ const state = {
   bgPhase2Current: '',        // Currently processing chapter
   bgPhase2Total: 0,           // Total chapters to process
   bgCollectedNotes: [],       // Accumulated Phase 2 results
+  bgPhase2StartTime: null,    // When Phase 2 began (Date.now())
+  bgPhase2ChapterStart: null, // When current chapter started (Date.now())
 
   // Site version cache
   cachedSiteVersion: null,

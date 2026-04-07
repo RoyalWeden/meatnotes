@@ -1,5 +1,10 @@
 'use strict';
 const { app, Tray } = require('electron');
+
+// Prevent multiple instances — if another instance is already running, quit this one.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+}
 const { state, loadSettings, saveSettings } = require('./state');
 const { makeIcon, refreshTrayAppearance } = require('./tray-ui');
 const { getLastSyncTime, getPlistInterval } = require('./time-helpers');

@@ -1286,6 +1286,46 @@
     .bg-activity-count.has-notes { color: #34c759; font-weight: 600; }
     .bg-activity-count.no-notes  { color: var(--text-tertiary); }
     .bg-activity-count.error     { color: #ff3b30; }
+    .bg-activity-entry { position: relative; }
+    .bg-activity-entry.has-preview { cursor: default; }
+    .bg-activity-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      padding: 8px 10px;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+      transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .bg-activity-entry:hover .bg-activity-tooltip {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .bg-tooltip-verse {
+      font-size: 10px;
+      font-weight: 600;
+      color: #34c759;
+      margin-bottom: 1px;
+    }
+    .bg-tooltip-text {
+      font-size: 10px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      word-break: break-word;
+      white-space: normal;
+    }
+    .bg-tooltip-note + .bg-tooltip-note {
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px solid var(--surface-border);
+    }
 
     /* ── Enhanced status dot morphing ── */
     .status-dot.paused {
@@ -3433,8 +3473,8 @@
       }, 1000);
     }
 
-    function addBGActivity(chapter, noteCount, isError) {
-      bgState.activityLog.unshift({ chapter, noteCount, isError });
+    function addBGActivity(chapter, noteCount, isError, notePreviews) {
+      bgState.activityLog.unshift({ chapter, noteCount, isError, notePreviews: notePreviews || [] });
       if (bgState.activityLog.length > 8) bgState.activityLog.pop();
       const log = document.getElementById('bgActivityLog');
       if (!log) return;
@@ -3442,12 +3482,28 @@
         const dotClass = e.isError ? 'error' : (e.noteCount > 0 ? 'has-notes' : 'no-notes');
         const countClass = e.isError ? 'error' : (e.noteCount > 0 ? 'has-notes' : 'no-notes');
         const countText = e.isError ? 'error' : (e.noteCount + ' note' + (e.noteCount !== 1 ? 's' : ''));
-        return '<div class="bg-activity-entry">' +
+        const hasPreview = e.notePreviews && e.notePreviews.length > 0;
+        let tooltip = '';
+        if (hasPreview) {
+          const notes = e.notePreviews.map(n =>
+            '<div class="bg-tooltip-note">' +
+              '<div class="bg-tooltip-verse">' + escapeHtml(n.verse) + '</div>' +
+              (n.text ? '<div class="bg-tooltip-text">' + escapeHtml(n.text) + '</div>' : '') +
+            '</div>'
+          ).join('');
+          tooltip = '<div class="bg-activity-tooltip">' + notes + '</div>';
+        }
+        return '<div class="bg-activity-entry' + (hasPreview ? ' has-preview' : '') + '">' +
           '<span class="bg-activity-dot ' + dotClass + '"></span>' +
           '<span class="bg-activity-chapter">' + e.chapter + '</span>' +
           '<span class="bg-activity-count ' + countClass + '">' + countText + '</span>' +
+          tooltip +
           '</div>';
       }).join('');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function computeBGSpeedETA() {
@@ -3545,13 +3601,13 @@
         document.getElementById('bgStatNotes').textContent = String(bgState.notesCollected);
         if (barEl) barEl.style.width = (data.pct || 0) + '%';
         if (pctEl) pctEl.textContent = (data.pct || 0) + '%';
-        addBGActivity(data.chapter || '--', data.chapterNotes || 0, false);
+        addBGActivity(data.chapter || '--', data.chapterNotes || 0, false, data.notePreviews);
         computeBGSpeedETA();
 
       } else if (step === 'phase2-error') {
         bgState.errors++;
         document.getElementById('bgStatErrors').textContent = String(bgState.errors);
-        addBGActivity(data.chapter || '--', 0, true);
+        addBGActivity(data.chapter || '--', 0, true, null);
 
       } else if (step === 'importing') {
         bgState.phase = 'importing';

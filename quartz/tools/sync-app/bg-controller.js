@@ -7,6 +7,7 @@ const { state, loadSettings, saveSettings, REPO_DIR } = require('./state');
 const { notifyIfAllowed, notifyError } = require('./tray-ui');
 const { buildPhase1Script, buildPhase2Script } = require('./bg-sync');
 const { importNotes } = require('./bg-import');
+const { isAgentLoaded, unloadAgent, loadAgent, invalidateAgentCache } = require('./plist-manager');
 
 /**
  * BibleGateway Sync Flow (Two-Phase):
@@ -93,6 +94,21 @@ function runBGSync(opts = {}) {
   state.bgPhase2Current = '';
   state.bgPhase2Total = 0;
   phase2ConsecutiveFailures = 0;
+
+  // Auto-pause quartz sync while BG sync is running to avoid conflicts
+  state.bgDidPauseAutoSync = false;
+  if (isAgentLoaded()) {
+    state.bgDidPauseAutoSync = true;
+    state.pausedRemainingMs = state.nextSyncAt ? Math.max(5000, state.nextSyncAt - Date.now()) : null;
+    saveSettings({ ...loadSettings(), pausedRemainingMs: state.pausedRemainingMs });
+    unloadAgent();
+    invalidateAgentCache();
+    clearTimeout(state.nextSyncTimer);
+    state.nextSyncTimer = null;
+    state.nextSyncAt = null;
+    console.log('[BG Sync] Auto-paused quartz sync');
+  }
+
   state.callbacks.rebuildMenu?.();
 
   state.bgSyncWindow = new BrowserWindow({
@@ -305,6 +321,7 @@ function runBGSync(opts = {}) {
       state.bgSyncStatus = 'idle';
       state.bgPhase = 'idle';
       state.callbacks.rebuildMenu?.();
+      resumeAutoSyncIfNeeded();
     }
   });
 }
@@ -316,6 +333,28 @@ function sendToLogWindow(channel, data) {
   if (state.logWindow && !state.logWindow.isDestroyed()) {
     state.logWindow.webContents.send(channel, data);
   }
+}
+
+/**
+ * Resume auto-sync if we paused it at the start of BG sync.
+ */
+function resumeAutoSyncIfNeeded() {
+  if (!state.bgDidPauseAutoSync) return;
+  state.bgDidPauseAutoSync = false;
+  try {
+    loadAgent();
+    invalidateAgentCache();
+    const s = loadSettings();
+    const remaining = s.pausedRemainingMs ?? undefined;
+    saveSettings({ ...s, pausedRemainingMs: null });
+    state.pausedRemainingMs = null;
+    const { scheduleNextSync } = require('./sync-runner');  // lazy to avoid circular
+    scheduleNextSync(remaining);
+    console.log('[BG Sync] Auto-resumed quartz sync');
+  } catch (e) {
+    console.error('[BG Sync] Failed to resume auto-sync:', e.message);
+  }
+  state.callbacks.rebuildMenu?.();
 }
 
 /**
@@ -410,8 +449,11 @@ function finalizeBGSync() {
       message: `Import complete: ${result.notesCount} notes, ${result.connectionsCount} connections`,
     });
 
+    // Resume auto-sync if we paused it
+    resumeAutoSyncIfNeeded();
+
     // Trigger a sync to commit and push the BG data
-    const { runSync } = require('./sync-runner');
+    const { runSync } = require('./sync-runner');  // lazy require to avoid circular at load time
     runSync('BibleGateway sync: imported ' + result.notesCount + ' notes');
 
     // Close BG window after brief delay
@@ -430,6 +472,7 @@ function finalizeBGSync() {
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.show();
     }
+    resumeAutoSyncIfNeeded();
   }
 }
 
@@ -497,6 +540,12 @@ function handleBGMessage(data) {
       `${n.verseRef}: ${(n.text || '').slice(0, 50)}${(n.text || '').length > 50 ? '...' : ''}`
     ).join(' | ');
 
+    // Individual note previews for tooltip display
+    const notePreviews = notes.slice(0, 5).map(n => ({
+      verse: n.verseRef || '',
+      text: (n.text || '').slice(0, 80) + ((n.text || '').length > 80 ? '...' : ''),
+    }));
+
     sendToLogWindow('bg-progress', {
       step: 'phase2-result',
       message: `${chapter}: ${notes.length} notes found`,
@@ -509,6 +558,7 @@ function handleBGMessage(data) {
       pct: Math.round((completed / state.bgPhase2Total) * 100),
       chapterDuration,
       phase2StartTime: state.bgPhase2StartTime,
+      notePreviews,
     });
 
     if (data.timeout) {

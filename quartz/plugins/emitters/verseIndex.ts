@@ -123,29 +123,70 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
       }
 
       // Merge .bg-connections.json if it exists
+      // Supports both new enriched format (with .connections object) and old flat format
       try {
         const bgPath = path.join(ctx.argv.directory, ".bg-connections.json")
         if (fs.existsSync(bgPath)) {
-          const bgData = JSON.parse(fs.readFileSync(bgPath, "utf-8"))
-          if (bgData && typeof bgData === "object") {
-            for (const [verse, connections] of Object.entries(bgData)) {
-              if (!Array.isArray(connections)) continue
-              if (!cooccurrence[verse]) cooccurrence[verse] = []
-              const existing = new Set(cooccurrence[verse])
-              for (const conn of connections as string[]) {
-                if (!existing.has(conn) && conn !== verse) {
-                  cooccurrence[verse].push(conn)
-                  existing.add(conn)
-                }
-              }
+          const bgRaw = JSON.parse(fs.readFileSync(bgPath, "utf-8"))
 
-              // Add BG-only verses to the index so they're searchable
-              if (!index[verse]) {
-                index[verse] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+          // Detect format: new enriched has a .connections object, old is flat {verse: string[]}
+          const bgConnections: Record<string, string[]> =
+            bgRaw?.connections && typeof bgRaw.connections === "object"
+              ? bgRaw.connections  // new enriched format
+              : bgRaw              // old flat format (backward compat)
+
+          if (bgConnections && typeof bgConnections === "object") {
+            // Helper: expand a BG connection ref (which may be a range or chapter) into
+            // individual verse keys for cooccurrence lookup
+            const expandBGRef = (ref: string): string[] => {
+              // Range: "Isaiah 6:9-10"
+              const rangeMatch = ref.match(/^(.+?)\s+(\d+):(\d+)-(\d+)$/)
+              if (rangeMatch) {
+                const vref: VerseRef = {
+                  book: rangeMatch[1],
+                  chapter: parseInt(rangeMatch[2]),
+                  verse: parseInt(rangeMatch[3]),
+                  endVerse: parseInt(rangeMatch[4]),
+                  raw: ref,
+                }
+                return expandRange(vref)
               }
+              // Single verse: "Hosea 8:11" — return as-is
+              if (ref.match(/^.+?\s+\d+:\d+$/)) return [ref]
+              // Chapter-only: "Ephesians 2" — return as-is (chapter-level entry)
+              return [ref]
+            }
+
+            for (const [verse, connections] of Object.entries(bgConnections)) {
+              if (!Array.isArray(connections)) continue
+
+              // Expand the source verse itself (it may also be a range/chapter)
+              const sourceKeys = expandBGRef(verse)
+
               for (const conn of connections as string[]) {
-                if (!index[conn]) {
-                  index[conn] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+                if (conn === verse) continue
+                const targetKeys = expandBGRef(conn)
+
+                // Create cooccurrence links between all expanded source keys and target keys
+                for (const sk of sourceKeys) {
+                  if (!cooccurrence[sk]) cooccurrence[sk] = []
+                  const existing = new Set(cooccurrence[sk])
+                  for (const tk of targetKeys) {
+                    if (!existing.has(tk) && tk !== sk) {
+                      cooccurrence[sk].push(tk)
+                      existing.add(tk)
+                    }
+                  }
+                  // Ensure expanded keys are in the index
+                  if (!index[sk]) {
+                    index[sk] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+                  }
+                }
+
+                for (const tk of targetKeys) {
+                  if (!index[tk]) {
+                    index[tk] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
+                  }
                 }
               }
             }

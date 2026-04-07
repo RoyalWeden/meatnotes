@@ -5,25 +5,39 @@ const os = require('os');
 const { BrowserWindow } = require('electron');
 const { state, loadSettings, saveSettings, REPO_DIR } = require('./state');
 const { notifyIfAllowed, notifyError } = require('./tray-ui');
-const { buildExportScript } = require('./bg-sync');
+const { buildPhase1Script, buildPhase2Script } = require('./bg-sync');
 const { importNotes } = require('./bg-import');
 
 /**
- * BibleGateway Sync Flow:
+ * BibleGateway Sync Flow (Two-Phase):
  *
  * 1. Opens a BrowserWindow to BG's annotations page (with persistent session)
  * 2. If stored credentials exist, auto-fills login form
  * 3. On page load, checks if user is logged in using multiple detection strategies
- * 4. If logged in: injects a postMessage→console.log relay, then injects the export script
- * 5. Export script crawls all annotation pages, sends progress/complete via postMessage
- * 6. The relay forwards postMessage events as console.log('BG:' + JSON.stringify(data))
- * 7. Main process listens for 'console-message' events prefixed with 'BG:'
- * 8. On complete: runs bg-import.js to write .bg-connections.json + BibleGateway Notes.md
- * 9. Saves sync timestamp and note count to settings
- * 10. Closes the BG window after a brief delay
+ * 4. If logged in: injects Phase 1 script (annotations inventory)
+ *
+ * Phase 1:
+ * 5. Crawls all annotation pages, collecting verseRef + date for each note
+ * 6. Groups notes by chapter, sends bg-phase1-complete with chapter list
+ *
+ * Phase 2:
+ * 7. For each chapter, navigates to /passage/?search=Chapter&version=KJV
+ * 8. Injects Phase 2 script to extract notes from "Your Content" sidebar
+ * 9. Collects actual note text (connections, observations) per verse
+ * 10. Rate-limits requests with 1.5s delay between chapters
+ *
+ * Import:
+ * 11. Runs bg-import.js to write .bg-connections.json (enriched JSON, no .md)
+ * 12. Saves sync timestamp and note count to settings
+ * 13. Triggers quartz sync to commit and push
+ * 14. Closes the BG window
  */
 
 const DEBUG_LOG_PATH = path.join(os.homedir(), 'Library', 'Logs', 'bg-debug-page.html');
+
+// Track consecutive Phase 2 failures for abort threshold
+let phase2ConsecutiveFailures = 0;
+const MAX_CONSECUTIVE_FAILURES = 5;
 
 function runBGSync(opts = {}) {
   if (state.bgSyncWindow) {
@@ -33,6 +47,12 @@ function runBGSync(opts = {}) {
 
   const debug = opts.debug || false;
   state.bgSyncStatus = 'login';
+  state.bgPhase = 'idle';
+  state.bgCollectedNotes = [];
+  state.bgPhase2Queue = [];
+  state.bgPhase2Current = '';
+  state.bgPhase2Total = 0;
+  phase2ConsecutiveFailures = 0;
   state.callbacks.rebuildMenu?.();
 
   state.bgSyncWindow = new BrowserWindow({
@@ -61,12 +81,10 @@ function runBGSync(opts = {}) {
         try {
           fs.writeFileSync(DEBUG_LOG_PATH, data.html || '(empty)');
           console.log(`[BG Debug] Page HTML saved to ${DEBUG_LOG_PATH}`);
-          if (state.logWindow && !state.logWindow.isDestroyed()) {
-            state.logWindow.webContents.send('bg-progress', {
-              step: 'debug',
-              message: `Debug HTML saved to ${DEBUG_LOG_PATH}`,
-            });
-          }
+          sendToLogWindow('bg-progress', {
+            step: 'debug',
+            message: `Debug HTML saved to ${DEBUG_LOG_PATH}`,
+          });
         } catch (e) {
           console.error('[BG Debug] Failed to save:', e.message);
         }
@@ -76,14 +94,21 @@ function runBGSync(opts = {}) {
     } catch {}
   });
 
-  // On each page load: inject the postMessage relay, then check for login
+  // On each page load: inject the postMessage relay, then check context
   state.bgSyncWindow.webContents.on('did-finish-load', async () => {
     if (!state.bgSyncWindow || state.bgSyncWindow.isDestroyed()) return;
 
-    // Step 1: Inject the postMessage → console.log relay
+    // Always inject the postMessage → console.log relay
     await state.bgSyncWindow.webContents.executeJavaScript(`
       window.addEventListener('message', (e) => {
-        if (e.data && (e.data.type === 'bg-progress' || e.data.type === 'bg-complete' || e.data.type === 'bg-error' || e.data.type === 'bg-debug')) {
+        if (e.data && (
+          e.data.type === 'bg-progress' ||
+          e.data.type === 'bg-complete' ||
+          e.data.type === 'bg-error' ||
+          e.data.type === 'bg-debug' ||
+          e.data.type === 'bg-phase1-complete' ||
+          e.data.type === 'bg-phase2-result'
+        )) {
           console.log('BG:' + JSON.stringify(e.data));
         }
       });
@@ -91,7 +116,15 @@ function runBGSync(opts = {}) {
 
     const url = state.bgSyncWindow.webContents.getURL();
 
-    // Step 2: If we're on a login page, try auto-login with stored credentials
+    // ── Phase 2: If we're on a passage page and in phase2, inject extraction script ──
+    if (state.bgPhase === 'phase2' && url.includes('/passage/')) {
+      console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
+      const script = buildPhase2Script(state.bgPhase2Current);
+      state.bgSyncWindow.webContents.executeJavaScript(script).catch(() => {});
+      return;
+    }
+
+    // ── Login flow: only for annotations/user pages ──
     if (!autoLoginAttempted) {
       const isLoginPage = await state.bgSyncWindow.webContents.executeJavaScript(`
         !!(document.querySelector('input[type="email"], input[name="email"], input[name="username"], #email, #username') &&
@@ -108,40 +141,36 @@ function runBGSync(opts = {}) {
               const emailInput = document.querySelector('input[type="email"], input[name="email"], input[name="username"], #email, #username');
               const passInput = document.querySelector('input[type="password"]');
               if (emailInput && passInput) {
-                emailInput.value = ${JSON.stringify(settings.bgUsername)};
+                emailInput.value = ${JSON.stringify(loadSettings().bgUsername)};
                 emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-                passInput.value = ${JSON.stringify(settings.bgPassword)};
+                passInput.value = ${JSON.stringify(loadSettings().bgPassword)};
                 passInput.dispatchEvent(new Event('input', { bubbles: true }));
-                // Find and click submit button
                 const submitBtn = document.querySelector('button[type="submit"], input[type="submit"], .login-btn, .sign-in-btn, button.btn-primary');
                 if (submitBtn) submitBtn.click();
               }
             })();
           `).catch(() => {});
-          // Wait for page to reload after login — the did-finish-load event will fire again
           return;
         }
-        // No stored credentials — user must log in manually
         state.bgSyncStatus = 'login';
         state.callbacks.rebuildMenu?.();
         return;
       }
     }
 
-    // Step 3: Check if we're on the annotations page
+    // ── Annotations page: check login then start Phase 1 ──
     if (!url.includes('/user/annotations') && !url.includes('/user/')) return;
 
-    // Step 4: If debug mode, capture the page HTML first
+    // Debug mode: capture HTML
     if (debug) {
       await state.bgSyncWindow.webContents.executeJavaScript(`
         window.postMessage({ type: 'bg-debug', html: document.documentElement.outerHTML.slice(0, 500000) }, '*');
       `).catch(() => {});
     }
 
-    // Step 5: Check if we're actually logged in using multiple detection strategies
+    // Check if logged in
     const loginState = await state.bgSyncWindow.webContents.executeJavaScript(`
       (function() {
-        // Strategy 1: Look for annotation-specific elements (various BG versions)
         const annotationSelectors = [
           'article.bible-item', '.bible-item', '.annotations-list',
           '.annotation-item', '.note-item', '[data-annotation-id]',
@@ -152,42 +181,21 @@ function runBGSync(opts = {}) {
           '.activity-item', '.activity-list',
         ];
         const hasAnnotations = annotationSelectors.some(s => document.querySelector(s));
-
-        // Strategy 2: Look for pagination (means we have content)
         const hasPagination = !!(
           document.querySelector('.info-viewer-pager, .pagination, .pager, [data-page], .page-numbers') ||
           document.querySelector('a[href*="page="], a[href*="&i="]')
         );
-
-        // Strategy 3: Look for logout link (means we're logged in)
         const hasLogout = !!(
           document.querySelector('a[href*="logout"], a[href*="sign-out"], .logout, .sign-out') ||
           document.querySelector('.user-menu, .user-dropdown, .account-menu')
         );
-
-        // Strategy 4: Check for empty state message (logged in but no notes)
         const hasEmptyState = !!(
           document.querySelector('.no-annotations, .empty-state, .no-results') ||
           document.body.textContent.includes('No annotations') ||
           document.body.textContent.includes('no notes')
         );
-
-        // Count potential note elements for debugging
-        const allLinks = document.querySelectorAll('a[href*="passage"]');
-        const allTables = document.querySelectorAll('table');
-        const allLists = document.querySelectorAll('ul, ol');
-
-        return {
-          hasAnnotations,
-          hasPagination,
-          hasLogout,
-          hasEmptyState,
-          passageLinks: allLinks.length,
-          tables: allTables.length,
-          lists: allLists.length,
-          url: window.location.href,
-          title: document.title,
-        };
+        return { hasAnnotations, hasPagination, hasLogout, hasEmptyState,
+          url: window.location.href, title: document.title };
       })();
     `).catch(() => ({ hasAnnotations: false, hasPagination: false, hasLogout: false, hasEmptyState: false }));
 
@@ -201,11 +209,18 @@ function runBGSync(opts = {}) {
       return;
     }
 
-    // Step 6: Start export — inject the crawling script
+    // Start Phase 1 — inject the annotations inventory script
     state.bgSyncStatus = 'exporting';
+    state.bgPhase = 'phase1';
     state.callbacks.rebuildMenu?.();
 
-    const script = buildExportScript();
+    console.log('[BG Sync] Phase 1: Starting annotations inventory...');
+    sendToLogWindow('bg-progress', {
+      step: 'phase1-start',
+      message: 'Phase 1: Scanning annotations listing...',
+    });
+
+    const script = buildPhase1Script();
     state.bgSyncWindow.webContents.executeJavaScript(script).catch(() => {});
   });
 
@@ -213,63 +228,232 @@ function runBGSync(opts = {}) {
     state.bgSyncWindow = null;
     if (state.bgSyncStatus === 'login' || state.bgSyncStatus === 'exporting') {
       state.bgSyncStatus = 'idle';
+      state.bgPhase = 'idle';
       state.callbacks.rebuildMenu?.();
     }
   });
+}
+
+/**
+ * Send data to the log window if it's open.
+ */
+function sendToLogWindow(channel, data) {
+  if (state.logWindow && !state.logWindow.isDestroyed()) {
+    state.logWindow.webContents.send(channel, data);
+  }
+}
+
+/**
+ * Process the next chapter in the Phase 2 queue.
+ * Navigates the BrowserWindow to the passage page for the chapter.
+ */
+function processPhase2Queue() {
+  if (!state.bgSyncWindow || state.bgSyncWindow.isDestroyed()) {
+    console.log('[BG Sync] Phase 2: Window closed, aborting');
+    finalizeBGSync();
+    return;
+  }
+
+  if (state.bgPhase2Queue.length === 0) {
+    console.log('[BG Sync] Phase 2: All chapters processed');
+    finalizeBGSync();
+    return;
+  }
+
+  const chapter = state.bgPhase2Queue.shift();
+  state.bgPhase2Current = chapter;
+
+  const completed = state.bgPhase2Total - state.bgPhase2Queue.length - 1;
+  const pct = Math.round((completed / state.bgPhase2Total) * 100);
+
+  console.log(`[BG Sync] Phase 2: Processing "${chapter}" (${completed + 1}/${state.bgPhase2Total})`);
+  sendToLogWindow('bg-progress', {
+    step: 'phase2-navigate',
+    message: `Phase 2: Loading ${chapter} (${completed + 1}/${state.bgPhase2Total})`,
+    chapter,
+    completed: completed + 1,
+    total: state.bgPhase2Total,
+    notesCollected: state.bgCollectedNotes.length,
+    pct,
+  });
+
+  // Navigate to the passage page — did-finish-load will inject Phase 2 script
+  const searchTerm = encodeURIComponent(chapter);
+  state.bgSyncWindow.loadURL(`https://www.biblegateway.com/passage/?search=${searchTerm}&version=KJV`);
+}
+
+/**
+ * Finalize the BG sync: run import, save settings, trigger quartz sync.
+ */
+function finalizeBGSync() {
+  state.bgSyncStatus = 'importing';
+  state.bgPhase = 'importing';
+  state.callbacks.rebuildMenu?.();
+
+  const contentDir = path.join(REPO_DIR, 'content');
+  const totalNotes = state.bgCollectedNotes.length;
+
+  console.log(`[BG Sync] Importing ${totalNotes} notes...`);
+  sendToLogWindow('bg-progress', {
+    step: 'importing',
+    message: `Importing ${totalNotes} notes into .bg-connections.json...`,
+  });
+
+  try {
+    const result = importNotes(state.bgCollectedNotes, contentDir);
+
+    // Save sync metadata
+    const settings = loadSettings();
+    settings.lastBGSync = new Date().toISOString();
+    settings.bgNoteCount = totalNotes;
+    saveSettings(settings);
+
+    state.bgSyncStatus = 'done';
+    state.bgPhase = 'idle';
+    state.callbacks.rebuildMenu?.();
+
+    // Detailed completion log
+    console.log(`[BG Sync] Import complete:`)
+    console.log(`  ${result.notesCount} notes, ${result.connectionsCount} verse connections`);
+    console.log(`  ${result.details.notesWithConnections} notes with connections`);
+    console.log(`  ${result.details.notesWithObservationsOnly} notes with observations only`);
+    console.log(`  ${result.details.notesWithNothing} notes with no parseable content`);
+
+    if (result.details.sampleConnections.length > 0) {
+      console.log('  Sample connections:');
+      for (const s of result.details.sampleConnections) {
+        console.log(`    ${s.verse} → ${s.connections.join(', ')}${s.observation ? ` (${s.observation})` : ''}`);
+      }
+    }
+
+    notifyIfAllowed('BibleGateway Sync',
+      `Imported ${result.notesCount} notes, ${result.connectionsCount} connections.`);
+
+    sendToLogWindow('bg-complete', {
+      ...result,
+      message: `Import complete: ${result.notesCount} notes, ${result.connectionsCount} connections`,
+    });
+
+    // Trigger a sync to commit and push the BG data
+    const { runSync } = require('./sync-runner');
+    runSync('BibleGateway sync: imported ' + result.notesCount + ' notes');
+
+    // Close BG window after brief delay
+    if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
+      setTimeout(() => {
+        if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) state.bgSyncWindow.close();
+      }, 2000);
+    }
+  } catch (e) {
+    state.bgSyncStatus = 'error';
+    state.bgPhase = 'idle';
+    state.callbacks.rebuildMenu?.();
+    notifyError('BibleGateway Sync', `Import failed: ${e.message}`);
+    console.error('[BG Sync] Import error:', e);
+  }
 }
 
 function handleBGMessage(data) {
   if (data.type === 'bg-progress') {
     state.bgProgress = { step: data.step, completed: data.completed || 0, total: data.total || 0 };
     state.bgNoteCount = data.noteCount || state.bgNoteCount;
-    // Push progress to log window if open
-    if (state.logWindow && !state.logWindow.isDestroyed()) {
-      state.logWindow.webContents.send('bg-progress', data);
+    sendToLogWindow('bg-progress', data);
+
+  } else if (data.type === 'bg-phase1-complete') {
+    // Phase 1 done — start Phase 2
+    const chapters = data.chapters || [];
+    const totalNotes = data.totalNotes || 0;
+
+    console.log(`[BG Sync] Phase 1 complete: ${totalNotes} notes across ${chapters.length} chapters`);
+    sendToLogWindow('bg-progress', {
+      step: 'phase1-complete',
+      message: `Phase 1 complete: ${totalNotes} notes across ${chapters.length} chapters`,
+      chapters: chapters.length,
+      totalNotes,
+    });
+
+    // Set up Phase 2 queue
+    state.bgPhase = 'phase2';
+    state.bgPhase2Queue = [...chapters];
+    state.bgPhase2Total = chapters.length;
+    state.bgCollectedNotes = [];
+    phase2ConsecutiveFailures = 0;
+
+    // Start processing chapters with a small delay
+    setTimeout(() => processPhase2Queue(), 1000);
+
+  } else if (data.type === 'bg-phase2-result') {
+    // Got notes for one chapter
+    const chapter = data.chapter || state.bgPhase2Current;
+    const notes = data.notes || [];
+    const completed = state.bgPhase2Total - state.bgPhase2Queue.length;
+
+    // Accumulate notes
+    state.bgCollectedNotes.push(...notes);
+    phase2ConsecutiveFailures = 0; // Reset on success
+
+    console.log(`[BG Sync] Phase 2: "${chapter}" → ${notes.length} notes (total: ${state.bgCollectedNotes.length})`);
+
+    // Show what connections are being found
+    const preview = notes.slice(0, 3).map(n =>
+      `${n.verseRef}: ${(n.text || '').slice(0, 50)}${(n.text || '').length > 50 ? '...' : ''}`
+    ).join(' | ');
+
+    sendToLogWindow('bg-progress', {
+      step: 'phase2-result',
+      message: `${chapter}: ${notes.length} notes found`,
+      chapter,
+      chapterNotes: notes.length,
+      completed,
+      total: state.bgPhase2Total,
+      notesCollected: state.bgCollectedNotes.length,
+      preview,
+      pct: Math.round((completed / state.bgPhase2Total) * 100),
+    });
+
+    if (data.timeout) {
+      console.log(`[BG Sync] Phase 2: "${chapter}" timed out (may have no notes)`);
     }
+
+    // Rate limit: wait 1.5s before next chapter
+    setTimeout(() => processPhase2Queue(), 1500);
+
+  } else if (data.type === 'bg-error') {
+    // Handle errors during Phase 2 — skip chapter and continue
+    if (state.bgPhase === 'phase2') {
+      phase2ConsecutiveFailures++;
+      console.error(`[BG Sync] Phase 2 error (${phase2ConsecutiveFailures}/${MAX_CONSECUTIVE_FAILURES}):`, data.message);
+
+      sendToLogWindow('bg-progress', {
+        step: 'phase2-error',
+        message: `Error on "${state.bgPhase2Current}": ${data.message}`,
+        chapter: state.bgPhase2Current,
+        consecutiveFailures: phase2ConsecutiveFailures,
+      });
+
+      if (phase2ConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        console.error('[BG Sync] Too many consecutive failures, aborting Phase 2');
+        notifyError('BibleGateway Sync',
+          `Aborted after ${MAX_CONSECUTIVE_FAILURES} consecutive errors. Importing ${state.bgCollectedNotes.length} notes collected so far.`);
+        finalizeBGSync();
+      } else {
+        // Skip this chapter, continue with next
+        setTimeout(() => processPhase2Queue(), 2000);
+      }
+    } else {
+      state.bgSyncStatus = 'error';
+      state.bgPhase = 'idle';
+      state.callbacks.rebuildMenu?.();
+      notifyError('BibleGateway Sync', data.message || 'Export failed');
+    }
+
   } else if (data.type === 'bg-complete') {
+    // Legacy single-phase complete — shouldn't fire in new flow but handle gracefully
     state.bgSyncStatus = 'importing';
     state.bgNoteCount = data.totalNotes || 0;
+    state.bgCollectedNotes = data.notes || [];
     state.callbacks.rebuildMenu?.();
-
-    // Run import: writes .bg-connections.json + BibleGateway Notes.md
-    const contentDir = path.join(REPO_DIR, 'content');
-    try {
-      const result = importNotes(data.notes, contentDir);
-
-      // Save sync metadata
-      const settings = loadSettings();
-      settings.lastBGSync = new Date().toISOString();
-      settings.bgNoteCount = data.totalNotes;
-      saveSettings(settings);
-
-      state.bgSyncStatus = 'done';
-      state.callbacks.rebuildMenu?.();
-      notifyIfAllowed('BibleGateway Sync', `Imported ${result.notesCount} notes, ${result.newCount} new connections.`);
-
-      // Trigger a sync to commit and push the BG data
-      const { runSync } = require('./sync-runner');
-      runSync('BibleGateway sync: imported ' + result.notesCount + ' notes');
-
-      // Close BG window after brief delay so user sees "Complete!" overlay
-      if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
-        setTimeout(() => {
-          if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) state.bgSyncWindow.close();
-        }, 2000);
-      }
-
-      // Push completion to log window
-      if (state.logWindow && !state.logWindow.isDestroyed()) {
-        state.logWindow.webContents.send('bg-complete', result);
-      }
-    } catch (e) {
-      state.bgSyncStatus = 'error';
-      state.callbacks.rebuildMenu?.();
-      notifyError('BibleGateway Sync', `Import failed: ${e.message}`);
-    }
-  } else if (data.type === 'bg-error') {
-    state.bgSyncStatus = 'error';
-    state.callbacks.rebuildMenu?.();
-    notifyError('BibleGateway Sync', data.message || 'Export failed');
+    finalizeBGSync();
   }
 }
 

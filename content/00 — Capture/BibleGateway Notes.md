@@ -1,9 +1,9 @@
 ---
 title: BibleGateway Notes
-date: 2026-04-06
+date: 2026-04-07
 ---
 
-> Imported 12788 notes from BibleGateway on 2026-04-06
+> Imported 12788 notes from BibleGateway on 2026-04-07
 
 ## Isaiah
 
@@ -1301,10 +1301,6 @@ date: 2026-04-06
 
 *November 25 at 6:47 PM | KJV*
 
-### Isaiah 5:1
-
-*March 27 at 10:10 AM | KJV*
-
 ### Isaiah 45:19
 
 *March 24 at 9:58 AM | KJV*
@@ -1313,21 +1309,9 @@ date: 2026-04-06
 
 *March 23 at 10:51 AM | KJV*
 
-### Isaiah 8:14
+### Isaiah 5:1
 
-*March 15 at 10:08 PM | KJV*
-
-### Isaiah 28:13
-
-*March 14 at 1:10 PM | KJV*
-
-### Isaiah 54:16
-
-*March 13 at 1:05 AM | KJV*
-
-### Isaiah 62:2
-
-*March 13 at 12:33 AM | KJV*
+*March 27 at 10:10 AM | KJV*
 
 ### Isaiah 42:19
 
@@ -1356,6 +1340,22 @@ date: 2026-04-06
 ### Isaiah 54:1
 
 *March 4 at 10:20 AM | KJV*
+
+### Isaiah 54:16
+
+*March 13 at 1:05 AM | KJV*
+
+### Isaiah 62:2
+
+*March 13 at 12:33 AM | KJV*
+
+### Isaiah 8:14
+
+*March 15 at 10:08 PM | KJV*
+
+### Isaiah 28:13
+
+*March 14 at 1:10 PM | KJV*
 
 ### Isaiah 57:17
 
@@ -1409,10 +1409,6 @@ date: 2026-04-06
 
 *January 24 at 10:11 PM | KJV*
 
-### Isaiah 44:20
-
-*January 14 at 8:58 PM | KJV*
-
 ### Isaiah 40:7
 
 *January 24 at 4:51 PM | KJV*
@@ -1429,29 +1425,9 @@ date: 2026-04-06
 
 *January 20 at 7:41 PM | KJV*
 
-### Isaiah 6:11
+### Isaiah 44:20
 
-*January 6 at 8:55 PM | KJV*
-
-### Isaiah 45:11
-
-*January 3 at 6:02 AM | KJV*
-
-### Isaiah 45:8
-
-*January 3 at 5:59 AM | KJV*
-
-### Isaiah 45:4
-
-*January 3 at 5:53 AM | KJV*
-
-### Isaiah 45:3
-
-*January 3 at 5:44 AM | KJV*
-
-### Isaiah 45:1
-
-*January 3 at 5:44 AM | KJV*
+*January 14 at 8:58 PM | KJV*
 
 ### Isaiah 6:9
 
@@ -1480,6 +1456,30 @@ date: 2026-04-06
 ### Isaiah 44:18
 
 *December 22 at 2:57 PM | KJV*
+
+### Isaiah 6:11
+
+*January 6 at 8:55 PM | KJV*
+
+### Isaiah 45:11
+
+*January 3 at 6:02 AM | KJV*
+
+### Isaiah 45:8
+
+*January 3 at 5:59 AM | KJV*
+
+### Isaiah 45:4
+
+*January 3 at 5:53 AM | KJV*
+
+### Isaiah 45:3
+
+*January 3 at 5:44 AM | KJV*
+
+### Isaiah 45:1
+
+*January 3 at 5:44 AM | KJV*
 
 ### Isaiah 58:13
 
@@ -1565,6 +1565,82 @@ date: 2026-04-06
 
 *November 14 at 9:25 AM | KJV*
 
+### Isaiah 59:19
+
+*November 13 at 10:04 PM | KJV*
+
+### Isaiah 59:20
+
+*November 13 at 10:00 PM | KJV*
+
+### Isaiah 49:6
+
+*November 13 at 10:31 AM | KJV*
+
+### Isaiah 49:4
+
+*November 13 at 10:26 AM | KJV*
+
+### Isaiah 49:2
+
+*November 13 at 10:25 AM | KJV*
+
+### Isaiah 47:10
+
+*November 13 at 10:02 AM | KJV*
+
+### Isaiah 47:1
+
+*November 13 at 10:00 AM | KJV*
+
+### Isaiah 44:5
+
+*November 13 at 9:34 AM | KJV*
+
+### Isaiah 43:23
+
+*November 12 at 10:43 AM | KJV*
+
+### Isaiah 37:3
+
+*November 12 at 9:22 AM | KJV*
+
+### Isaiah 39:1
+
+*November 12 at 9:19 AM | KJV*
+
+### Isaiah 38:1
+
+*November 12 at 9:19 AM | KJV*
+
+### Isaiah 37:1
+
+*November 12 at 9:18 AM | KJV*
+
+### Isaiah 36:1
+
+*November 12 at 9:16 AM | KJV*
+
+### Isaiah 51:11
+
+*November 11 at 10:49 AM | KJV*
+
+### Isaiah 35:10
+
+*November 11 at 10:47 AM | KJV*
+
+### Isaiah 31:7
+
+*November 11 at 10:19 AM | KJV*
+
+### Isaiah 29:1
+
+*November 11 at 9:40 AM | KJV*
+
+### Isaiah 28:29
+
+*November 11 at 9:37 AM | KJV*
+
 ### Isaiah 21:9
 
 *November 10 at 9:59 AM | KJV*
@@ -1645,82 +1721,6 @@ date: 2026-04-06
 
 *November 6 at 8:50 PM | KJV*
 
-### Isaiah 59:19
-
-*November 13 at 10:04 PM | KJV*
-
-### Isaiah 59:20
-
-*November 13 at 10:00 PM | KJV*
-
-### Isaiah 49:6
-
-*November 13 at 10:31 AM | KJV*
-
-### Isaiah 49:4
-
-*November 13 at 10:26 AM | KJV*
-
-### Isaiah 49:2
-
-*November 13 at 10:25 AM | KJV*
-
-### Isaiah 47:10
-
-*November 13 at 10:02 AM | KJV*
-
-### Isaiah 47:1
-
-*November 13 at 10:00 AM | KJV*
-
-### Isaiah 44:5
-
-*November 13 at 9:34 AM | KJV*
-
-### Isaiah 43:23
-
-*November 12 at 10:43 AM | KJV*
-
-### Isaiah 37:3
-
-*November 12 at 9:22 AM | KJV*
-
-### Isaiah 39:1
-
-*November 12 at 9:19 AM | KJV*
-
-### Isaiah 38:1
-
-*November 12 at 9:19 AM | KJV*
-
-### Isaiah 37:1
-
-*November 12 at 9:18 AM | KJV*
-
-### Isaiah 36:1
-
-*November 12 at 9:16 AM | KJV*
-
-### Isaiah 51:11
-
-*November 11 at 10:49 AM | KJV*
-
-### Isaiah 35:10
-
-*November 11 at 10:47 AM | KJV*
-
-### Isaiah 31:7
-
-*November 11 at 10:19 AM | KJV*
-
-### Isaiah 29:1
-
-*November 11 at 9:40 AM | KJV*
-
-### Isaiah 28:29
-
-*November 11 at 9:37 AM | KJV*
-
 ### Isaiah 61:9
 
 *November 6 at 10:27 AM | KJV*
@@ -1757,14 +1757,6 @@ date: 2026-04-06
 
 *October 31 at 10:13 PM | KJV*
 
-### Isaiah 56:4
-
-*October 26 at 1:55 AM | KJV*
-
-### Isaiah 59:17
-
-*October 23 at 8:05 PM | KJV*
-
 ### Isaiah 58:11
 
 *October 17 at 1:32 AM | KJV*
@@ -1772,6 +1764,14 @@ date: 2026-04-06
 ### Isaiah 58:14
 
 *October 17 at 1:19 AM | KJV*
+
+### Isaiah 56:4
+
+*October 26 at 1:55 AM | KJV*
+
+### Isaiah 59:17
+
+*October 23 at 8:05 PM | KJV*
 
 ### Isaiah 5:25
 
@@ -1913,26 +1913,6 @@ date: 2026-04-06
 
 *August 26 at 10:35 AM | KJV*
 
-### Isaiah 40:26
-
-*August 17 at 12:57 AM | KJV*
-
-### Isaiah 65:1
-
-*August 17 at 12:12 AM | KJV*
-
-### Isaiah 1:13
-
-*August 16 at 11:59 PM | KJV*
-
-### Isaiah 1:15
-
-*August 16 at 11:59 PM | KJV*
-
-### Isaiah 12:4
-
-*August 16 at 10:30 PM | KJV*
-
 ### Isaiah 62:10
 
 *August 19 at 9:27 PM | KJV*
@@ -1940,22 +1920,6 @@ date: 2026-04-06
 ### Isaiah 57:14
 
 *August 23 at 2:11 PM | KJV*
-
-### Isaiah 12:3
-
-*August 12 at 9:17 PM | KJV*
-
-### Isaiah 11:16
-
-*August 12 at 9:15 PM | KJV*
-
-### Isaiah 51:21
-
-*August 11 at 11:10 PM | KJV*
-
-### Isaiah 51:12
-
-*August 11 at 11:06 PM | KJV*
 
 ### Isaiah 28:11
 
@@ -1985,6 +1949,50 @@ date: 2026-04-06
 
 *August 13 at 11:02 PM | KJV*
 
+### Isaiah 12:3
+
+*August 12 at 9:17 PM | KJV*
+
+### Isaiah 11:16
+
+*August 12 at 9:15 PM | KJV*
+
+### Isaiah 51:21
+
+*August 11 at 11:10 PM | KJV*
+
+### Isaiah 51:12
+
+*August 11 at 11:06 PM | KJV*
+
+### Isaiah 40:26
+
+*August 17 at 12:57 AM | KJV*
+
+### Isaiah 65:1
+
+*August 17 at 12:12 AM | KJV*
+
+### Isaiah 1:13
+
+*August 16 at 11:59 PM | KJV*
+
+### Isaiah 1:15
+
+*August 16 at 11:59 PM | KJV*
+
+### Isaiah 12:4
+
+*August 16 at 10:30 PM | KJV*
+
+### Isaiah 61:3
+
+*August 6 at 9:51 AM | KJV*
+
+### Isaiah 62:1
+
+*August 3 at 10:23 AM | KJV*
+
 ### Isaiah 63:17
 
 *August 8 at 8:35 PM | KJV*
@@ -2012,14 +2020,6 @@ date: 2026-04-06
 ### Isaiah 8:4
 
 *August 7 at 4:04 PM | KJV*
-
-### Isaiah 61:3
-
-*August 6 at 9:51 AM | KJV*
-
-### Isaiah 62:1
-
-*August 3 at 10:23 AM | KJV*
 
 ### Isaiah 40:10
 
@@ -2173,18 +2173,6 @@ date: 2026-04-06
 
 *June 12 at 1:52 AM | KJV*
 
-### Isaiah 62:4
-
-*June 12 at 1:50 AM | KJV*
-
-### Isaiah 45:22
-
-*June 11 at 6:13 PM | KJV*
-
-### Isaiah 45:13
-
-*June 11 at 6:11 PM | KJV*
-
 ### Isaiah 30:18
 
 *June 10 at 1:28 PM | KJV*
@@ -2209,6 +2197,22 @@ date: 2026-04-06
 
 *June 5 at 10:06 PM | KJV*
 
+### Isaiah 62:4
+
+*June 12 at 1:50 AM | KJV*
+
+### Isaiah 45:22
+
+*June 11 at 6:13 PM | KJV*
+
+### Isaiah 45:13
+
+*June 11 at 6:11 PM | KJV*
+
+### Isaiah 66:16
+
+*May 12 at 10:11 PM | KJV*
+
 ### Isaiah 63:5
 
 *June 1 at 7:23 PM | KJV*
@@ -2229,14 +2233,6 @@ date: 2026-04-06
 
 *May 21 at 10:35 PM | KJV*
 
-### Isaiah 66:16
-
-*May 12 at 10:11 PM | KJV*
-
-### Isaiah 34:6
-
-*May 6 at 10:48 PM | KJV*
-
 ### Isaiah 40:6
 
 *May 3 at 12:54 AM | KJV*
@@ -2250,6 +2246,10 @@ date: 2026-04-06
 ### Isaiah 22:10
 
 *April 30 at 10:43 PM | KJV*
+
+### Isaiah 34:6
+
+*May 6 at 10:48 PM | KJV*
 
 ### Isaiah 11:3
 
@@ -2277,6 +2277,10 @@ date: 2026-04-06
 
 *April 5 at 8:46 PM | KJV*
 
+### Isaiah 53:6
+
+*March 23 at 9:50 PM | KJV*
+
 ### Isaiah 9:3
 
 *March 31 at 2:32 PM | KJV*
@@ -2288,10 +2292,6 @@ date: 2026-04-06
 ### Isaiah 54:10
 
 *March 24 at 10:11 PM | KJV*
-
-### Isaiah 53:6
-
-*March 23 at 9:50 PM | KJV*
 
 ### Isaiah 24:17
 
@@ -2305,6 +2305,10 @@ date: 2026-04-06
 
 *March 18 at 11:14 PM | KJV*
 
+### Isaiah 1:10
+
+*March 9 at 9:14 PM | KJV*
+
 ### Isaiah 54:12
 
 *March 18 at 10:44 PM | KJV*
@@ -2316,10 +2320,6 @@ date: 2026-04-06
 ### Isaiah 28:16
 
 *March 17 at 10:44 PM | KJV*
-
-### Isaiah 1:10
-
-*March 9 at 9:14 PM | KJV*
 
 ### Isaiah 13:10
 
@@ -2393,14 +2393,6 @@ date: 2026-04-06
 
 *January 22 at 8:52 PM | KJV*
 
-### Isaiah 47:6
-
-*January 12 at 4:42 AM | KJV*
-
-### Isaiah 44:12
-
-*January 12 at 12:38 AM | KJV*
-
 ### Isaiah 41:15
 
 *January 18 at 9:09 PM | KJV*
@@ -2428,6 +2420,14 @@ date: 2026-04-06
 ### Isaiah 5:19
 
 *January 17 at 9:09 PM | KJV*
+
+### Isaiah 47:6
+
+*January 12 at 4:42 AM | KJV*
+
+### Isaiah 44:12
+
+*January 12 at 12:38 AM | KJV*
 
 ### Isaiah 64:4
 
@@ -2513,18 +2513,6 @@ date: 2026-04-06
 
 *December 19 at 8:36 PM | KJV*
 
-### Isaiah 55:3
-
-*December 3 at 2:49 PM | KJV*
-
-### Isaiah 8:20
-
-*December 7 at 7:33 PM | KJV*
-
-### Isaiah 54:11
-
-*December 7 at 1:03 AM | KJV*
-
 ### Isaiah 29:15
 
 *December 19 at 8:22 PM | KJV*
@@ -2540,6 +2528,14 @@ date: 2026-04-06
 ### Isaiah 14:7
 
 *December 10 at 1:08 AM | KJV*
+
+### Isaiah 8:20
+
+*December 7 at 7:33 PM | KJV*
+
+### Isaiah 54:11
+
+*December 7 at 1:03 AM | KJV*
 
 ### Isaiah 41:6
 
@@ -2572,6 +2568,10 @@ date: 2026-04-06
 ### Isaiah 29:14
 
 *November 26 at 4:40 PM | KJV*
+
+### Isaiah 55:3
+
+*December 3 at 2:49 PM | KJV*
 
 ### Isaiah 59:1
 
@@ -2609,6 +2609,30 @@ date: 2026-04-06
 
 *October 15 at 1:11 AM | KJV*
 
+### Isaiah 40:14
+
+*October 6 at 10:13 PM | KJV*
+
+### Isaiah 55:7
+
+*October 6 at 6:51 PM | KJV*
+
+### Isaiah 66:18
+
+*October 6 at 4:02 PM | KJV*
+
+### Isaiah 41:25
+
+*October 4 at 5:13 PM | KJV*
+
+### Isaiah 41:26
+
+*October 4 at 5:13 PM | KJV*
+
+### Isaiah 41:23
+
+*October 4 at 5:09 PM | KJV*
+
 ### Isaiah 47:7
 
 *October 1 at 8:35 AM | KJV*
@@ -2644,30 +2668,6 @@ date: 2026-04-06
 ### Isaiah 28:20
 
 *September 27 at 10:24 AM | KJV*
-
-### Isaiah 40:14
-
-*October 6 at 10:13 PM | KJV*
-
-### Isaiah 55:7
-
-*October 6 at 6:51 PM | KJV*
-
-### Isaiah 66:18
-
-*October 6 at 4:02 PM | KJV*
-
-### Isaiah 41:25
-
-*October 4 at 5:13 PM | KJV*
-
-### Isaiah 41:26
-
-*October 4 at 5:13 PM | KJV*
-
-### Isaiah 41:23
-
-*October 4 at 5:09 PM | KJV*
 
 ### Isaiah 52:3
 
@@ -2709,6 +2709,18 @@ date: 2026-04-06
 
 *September 23 at 9:33 PM | KJV*
 
+### Isaiah 28:1
+
+*September 22 at 9:16 PM | KJV*
+
+### Isaiah 34:13
+
+*September 20 at 9:17 PM | KJV*
+
+### Isaiah 34:8
+
+*September 20 at 9:16 PM | KJV*
+
 ### Isaiah 32:4
 
 *September 23 at 9:28 PM | KJV*
@@ -2741,18 +2753,6 @@ date: 2026-04-06
 
 *September 22 at 9:58 PM | KJV*
 
-### Isaiah 28:1
-
-*September 22 at 9:16 PM | KJV*
-
-### Isaiah 34:13
-
-*September 20 at 9:17 PM | KJV*
-
-### Isaiah 34:8
-
-*September 20 at 9:16 PM | KJV*
-
 ### Isaiah 34:5
 
 *September 20 at 9:15 PM | KJV*
@@ -2769,10 +2769,6 @@ date: 2026-04-06
 
 *September 19 at 8:07 AM | KJV*
 
-### Isaiah 54:8
-
-*September 14 at 4:24 PM | KJV*
-
 ### Isaiah 58:7
 
 *September 10 at 4:22 PM | KJV*
@@ -2780,6 +2776,10 @@ date: 2026-04-06
 ### Isaiah 10:27
 
 *September 9 at 1:41 AM | KJV*
+
+### Isaiah 54:8
+
+*September 14 at 4:24 PM | KJV*
 
 ### Isaiah 6:7
 
@@ -2829,14 +2829,6 @@ date: 2026-04-06
 
 *September 2 at 2:04 AM | KJV*
 
-### Isaiah 61:1
-
-*August 31 at 4:37 PM | KJV*
-
-### Isaiah 66:19
-
-*August 31 at 4:23 PM | KJV*
-
 ### Isaiah 26:14
 
 *September 2 at 2:04 AM | KJV*
@@ -2857,6 +2849,18 @@ date: 2026-04-06
 
 *September 2 at 1:14 AM | KJV*
 
+### Isaiah 61:1
+
+*August 31 at 4:37 PM | KJV*
+
+### Isaiah 66:19
+
+*August 31 at 4:23 PM | KJV*
+
+### Isaiah 30:15
+
+*August 23 at 7:56 PM | KJV*
+
 ### Isaiah 4:3
 
 *August 27 at 4:25 PM | KJV*
@@ -2876,10 +2880,6 @@ date: 2026-04-06
 ### Isaiah 2:19
 
 *August 27 at 4:15 PM | KJV*
-
-### Isaiah 30:15
-
-*August 23 at 7:56 PM | KJV*
 
 ## 1 Samuel
 
@@ -4199,13 +4199,13 @@ date: 2026-04-06
 
 *July 17 at 9:39 PM | KJV*
 
-### 1 Samuel 2:10
-
-*July 9 at 9:40 AM | KJV*
-
 ### 1 Samuel 15:23
 
 *July 4 at 10:22 AM | KJV*
+
+### 1 Samuel 2:10
+
+*July 9 at 9:40 AM | KJV*
 
 ### 1 Samuel 21:4
 
@@ -5511,30 +5511,6 @@ date: 2026-04-06
 
 *March 24 at 10:41 AM | KJV*
 
-### Deuteronomy 33:19
-
-*March 24 at 10:53 AM | KJV*
-
-### Deuteronomy 32:47
-
-*March 24 at 10:47 AM | KJV*
-
-### Deuteronomy 32:43
-
-*March 24 at 10:46 AM | KJV*
-
-### Deuteronomy 32:35
-
-*March 24 at 10:44 AM | KJV*
-
-### Deuteronomy 32:30
-
-*March 24 at 10:42 AM | KJV*
-
-### Deuteronomy 32:19
-
-*March 24 at 10:36 AM | KJV*
-
 ### Deuteronomy 32:15
 
 *March 24 at 10:33 AM | KJV*
@@ -5587,6 +5563,38 @@ date: 2026-04-06
 
 *March 19 at 10:27 AM | KJV*
 
+### Deuteronomy 33:19
+
+*March 24 at 10:53 AM | KJV*
+
+### Deuteronomy 32:47
+
+*March 24 at 10:47 AM | KJV*
+
+### Deuteronomy 32:43
+
+*March 24 at 10:46 AM | KJV*
+
+### Deuteronomy 32:35
+
+*March 24 at 10:44 AM | KJV*
+
+### Deuteronomy 32:30
+
+*March 24 at 10:42 AM | KJV*
+
+### Deuteronomy 32:19
+
+*March 24 at 10:36 AM | KJV*
+
+### Deuteronomy 4:14
+
+*March 4 at 9:23 AM | KJV*
+
+### Deuteronomy 29:18
+
+*March 12 at 10:05 PM | KJV*
+
 ### Deuteronomy 4:9
 
 *March 18 at 9:50 AM | KJV*
@@ -5594,14 +5602,6 @@ date: 2026-04-06
 ### Deuteronomy 1:43
 
 *March 18 at 9:24 AM | KJV*
-
-### Deuteronomy 29:18
-
-*March 12 at 10:05 PM | KJV*
-
-### Deuteronomy 4:14
-
-*March 4 at 9:23 AM | KJV*
 
 ### Deuteronomy 20:19
 
@@ -5659,10 +5659,6 @@ date: 2026-04-06
 
 *August 17 at 12:29 AM | KJV*
 
-### Deuteronomy 14:2
-
-*July 25 at 9:48 AM | KJV*
-
 ### Deuteronomy 20:8
 
 *July 23 at 1:59 AM | KJV*
@@ -5670,6 +5666,10 @@ date: 2026-04-06
 ### Deuteronomy 9:23
 
 *July 22 at 10:47 PM | KJV*
+
+### Deuteronomy 14:2
+
+*July 25 at 9:48 AM | KJV*
 
 ### Deuteronomy 32:31
 
@@ -5695,14 +5695,6 @@ date: 2026-04-06
 
 *April 6 at 10:04 PM | KJV*
 
-### Deuteronomy 32:21
-
-*April 1 at 10:57 PM | KJV*
-
-### Deuteronomy 12:8
-
-*April 1 at 12:22 AM | KJV*
-
 ### Deuteronomy 31:24
 
 *March 24 at 9:36 PM | KJV*
@@ -5710,6 +5702,14 @@ date: 2026-04-06
 ### Deuteronomy 31:26
 
 *March 24 at 9:36 PM | KJV*
+
+### Deuteronomy 32:21
+
+*April 1 at 10:57 PM | KJV*
+
+### Deuteronomy 12:8
+
+*April 1 at 12:22 AM | KJV*
 
 ### Deuteronomy 33:11
 
@@ -5727,13 +5727,13 @@ date: 2026-04-06
 
 *March 19 at 7:54 PM | KJV*
 
-### Deuteronomy 33:2
-
-*March 18 at 11:01 PM | KJV*
-
 ### Deuteronomy 30:20
 
 *March 13 at 10:12 AM | KJV*
+
+### Deuteronomy 33:2
+
+*March 18 at 11:01 PM | KJV*
 
 ### Deuteronomy 30:19
 
@@ -6811,6 +6811,14 @@ date: 2026-04-06
 
 *March 27 at 10:01 AM | KJV*
 
+### Psalms 51:19
+
+*March 13 at 10:16 AM | KJV*
+
+### Psalms 40:4
+
+*March 10 at 11:35 PM | KJV*
+
 ### Psalms 27:8
 
 *March 14 at 1:29 PM | KJV*
@@ -6822,14 +6830,6 @@ date: 2026-04-06
 ### Psalms 27:4
 
 *March 14 at 1:13 PM | KJV*
-
-### Psalms 51:19
-
-*March 13 at 10:16 AM | KJV*
-
-### Psalms 40:4
-
-*March 10 at 11:35 PM | KJV*
 
 ### Psalms 15:5
 
@@ -6915,18 +6915,6 @@ date: 2026-04-06
 
 *January 24 at 4:51 PM | KJV*
 
-### Psalms 112:1
-
-*January 17 at 5:56 PM | KJV*
-
-### Psalms 109:10
-
-*January 17 at 5:32 PM | KJV*
-
-### Psalms 41:9
-
-*January 17 at 5:27 PM | KJV*
-
 ### Psalms 69:9
 
 *January 24 at 5:53 AM | KJV*
@@ -6938,6 +6926,18 @@ date: 2026-04-06
 ### Psalms 144:9
 
 *January 20 at 12:22 PM | KJV*
+
+### Psalms 112:1
+
+*January 17 at 5:56 PM | KJV*
+
+### Psalms 109:10
+
+*January 17 at 5:32 PM | KJV*
+
+### Psalms 41:9
+
+*January 17 at 5:27 PM | KJV*
 
 ### Psalms 90:10
 
@@ -6971,6 +6971,10 @@ date: 2026-04-06
 
 *November 14 at 8:07 PM | KJV*
 
+### Psalms 78:66
+
+*October 28 at 10:23 AM | KJV*
+
 ### Psalms 109:18
 
 *October 24 at 11:04 PM | KJV*
@@ -6990,10 +6994,6 @@ date: 2026-04-06
 ### Psalms 69:14
 
 *October 24 at 10:10 PM | KJV*
-
-### Psalms 78:66
-
-*October 28 at 10:23 AM | KJV*
 
 ### Psalms 69:8
 
@@ -7043,6 +7043,30 @@ date: 2026-04-06
 
 *August 25 at 9:23 PM | KJV*
 
+### Psalms 34:20
+
+*August 19 at 10:51 PM | KJV*
+
+### Psalms 119:176
+
+*August 19 at 9:53 PM | KJV*
+
+### Psalms 34:18
+
+*August 19 at 9:12 PM | KJV*
+
+### Psalms 34:11
+
+*August 18 at 10:26 PM | KJV*
+
+### Psalms 24:7
+
+*August 15 at 9:59 AM | KJV*
+
+### Psalms 51:15
+
+*August 13 at 10:52 PM | KJV*
+
 ### Psalms 34:3
 
 *August 18 at 10:23 PM | KJV*
@@ -7063,37 +7087,13 @@ date: 2026-04-06
 
 *August 16 at 2:33 PM | KJV*
 
-### Psalms 34:20
+### Psalms 112:6
 
-*August 19 at 10:51 PM | KJV*
-
-### Psalms 119:176
-
-*August 19 at 9:53 PM | KJV*
-
-### Psalms 34:18
-
-*August 19 at 9:12 PM | KJV*
-
-### Psalms 34:11
-
-*August 18 at 10:26 PM | KJV*
-
-### Psalms 51:15
-
-*August 13 at 10:52 PM | KJV*
-
-### Psalms 24:7
-
-*August 15 at 9:59 AM | KJV*
+*August 1 at 10:06 PM | KJV*
 
 ### Psalms 22:25
 
 *August 7 at 10:32 PM | KJV*
-
-### Psalms 112:6
-
-*August 1 at 10:06 PM | KJV*
 
 ### Psalms 19:11
 
@@ -7134,58 +7134,6 @@ date: 2026-04-06
 ### Psalms 140:3
 
 *July 16 at 8:53 AM | KJV*
-
-### Psalms 138:7
-
-*July 15 at 10:58 AM | KJV*
-
-### Psalms 138:2
-
-*July 15 at 10:53 AM | KJV*
-
-### Psalms 138:1
-
-*July 15 at 10:50 AM | KJV*
-
-### Psalms 137:1
-
-*July 15 at 10:50 AM | KJV*
-
-### Psalms 137:8
-
-*July 15 at 10:39 AM | KJV*
-
-### Psalms 135:7
-
-*July 15 at 10:04 AM | KJV*
-
-### Psalms 135:2
-
-*July 15 at 10:03 AM | KJV*
-
-### Psalms 135:14
-
-*July 15 at 10:02 AM | KJV*
-
-### Psalms 132:12
-
-*July 15 at 9:32 AM | KJV*
-
-### Psalms 132:11
-
-*July 15 at 9:30 AM | KJV*
-
-### Psalms 132:7
-
-*July 15 at 9:25 AM | KJV*
-
-### Psalms 132:6
-
-*July 15 at 8:46 AM | KJV*
-
-### Psalms 133:2
-
-*July 14 at 11:55 PM | KJV*
 
 ### Psalms 131:1
 
@@ -7263,6 +7211,58 @@ date: 2026-04-06
 
 *July 13 at 9:48 AM | KJV*
 
+### Psalms 138:7
+
+*July 15 at 10:58 AM | KJV*
+
+### Psalms 138:2
+
+*July 15 at 10:53 AM | KJV*
+
+### Psalms 138:1
+
+*July 15 at 10:50 AM | KJV*
+
+### Psalms 137:1
+
+*July 15 at 10:50 AM | KJV*
+
+### Psalms 137:8
+
+*July 15 at 10:39 AM | KJV*
+
+### Psalms 135:7
+
+*July 15 at 10:04 AM | KJV*
+
+### Psalms 135:2
+
+*July 15 at 10:03 AM | KJV*
+
+### Psalms 135:14
+
+*July 15 at 10:02 AM | KJV*
+
+### Psalms 132:12
+
+*July 15 at 9:32 AM | KJV*
+
+### Psalms 132:11
+
+*July 15 at 9:30 AM | KJV*
+
+### Psalms 132:7
+
+*July 15 at 9:25 AM | KJV*
+
+### Psalms 132:6
+
+*July 15 at 8:46 AM | KJV*
+
+### Psalms 133:2
+
+*July 14 at 11:55 PM | KJV*
+
 ### Psalms 79:7
 
 *July 12 at 6:09 AM | KJV*
@@ -7298,6 +7298,50 @@ date: 2026-04-06
 ### Psalms 118:8
 
 *July 10 at 10:18 AM | KJV*
+
+### Psalms 94:21
+
+*July 6 at 9:33 AM | KJV*
+
+### Psalms 85:2
+
+*July 5 at 7:46 PM | KJV*
+
+### Psalms 85:1
+
+*July 5 at 7:26 PM | KJV*
+
+### Psalms 79:5
+
+*July 4 at 11:03 AM | KJV*
+
+### Psalms 78:55
+
+*July 4 at 10:56 AM | KJV*
+
+### Psalms 78:65
+
+*July 4 at 10:51 AM | KJV*
+
+### Psalms 78:38
+
+*July 4 at 10:43 AM | KJV*
+
+### Psalms 78:9
+
+*July 4 at 10:18 AM | KJV*
+
+### Psalms 77:5
+
+*July 4 at 9:43 AM | KJV*
+
+### Psalms 76:4
+
+*July 4 at 9:38 AM | KJV*
+
+### Psalms 75:8
+
+*July 4 at 9:07 AM | KJV*
 
 ### Psalms 116:13
 
@@ -7358,50 +7402,6 @@ date: 2026-04-06
 ### Psalms 98:5
 
 *July 6 at 11:00 AM | KJV*
-
-### Psalms 94:21
-
-*July 6 at 9:33 AM | KJV*
-
-### Psalms 85:2
-
-*July 5 at 7:46 PM | KJV*
-
-### Psalms 85:1
-
-*July 5 at 7:26 PM | KJV*
-
-### Psalms 79:5
-
-*July 4 at 11:03 AM | KJV*
-
-### Psalms 78:55
-
-*July 4 at 10:56 AM | KJV*
-
-### Psalms 78:65
-
-*July 4 at 10:51 AM | KJV*
-
-### Psalms 78:38
-
-*July 4 at 10:43 AM | KJV*
-
-### Psalms 78:9
-
-*July 4 at 10:18 AM | KJV*
-
-### Psalms 77:5
-
-*July 4 at 9:43 AM | KJV*
-
-### Psalms 76:4
-
-*July 4 at 9:38 AM | KJV*
-
-### Psalms 75:8
-
-*July 4 at 9:07 AM | KJV*
 
 ### Psalms 72:6
 
@@ -7467,6 +7467,50 @@ date: 2026-04-06
 
 *July 1 at 10:34 AM | KJV*
 
+### Psalms 39:6
+
+*June 29 at 10:55 AM | KJV*
+
+### Psalms 37:37
+
+*June 29 at 10:42 AM | KJV*
+
+### Psalms 37:32
+
+*June 29 at 10:36 AM | KJV*
+
+### Psalms 37:31
+
+*June 29 at 10:35 AM | KJV*
+
+### Psalms 37:3
+
+*June 29 at 10:25 AM | KJV*
+
+### Psalms 36:4
+
+*June 29 at 9:48 AM | KJV*
+
+### Psalms 34:10
+
+*June 29 at 9:31 AM | KJV*
+
+### Psalms 34:14
+
+*June 29 at 9:28 AM | KJV*
+
+### Psalms 33:6
+
+*June 29 at 9:18 AM | KJV*
+
+### Psalms 44:17
+
+*June 28 at 5:54 PM | KJV*
+
+### Psalms 30:11
+
+*June 27 at 10:43 AM | KJV*
+
 ### Psalms 50:23
 
 *July 1 at 10:32 AM | KJV*
@@ -7530,50 +7574,6 @@ date: 2026-04-06
 ### Psalms 42:10
 
 *June 30 at 10:19 AM | KJV*
-
-### Psalms 39:6
-
-*June 29 at 10:55 AM | KJV*
-
-### Psalms 37:37
-
-*June 29 at 10:42 AM | KJV*
-
-### Psalms 37:32
-
-*June 29 at 10:36 AM | KJV*
-
-### Psalms 37:31
-
-*June 29 at 10:35 AM | KJV*
-
-### Psalms 37:3
-
-*June 29 at 10:25 AM | KJV*
-
-### Psalms 36:4
-
-*June 29 at 9:48 AM | KJV*
-
-### Psalms 34:10
-
-*June 29 at 9:31 AM | KJV*
-
-### Psalms 34:14
-
-*June 29 at 9:28 AM | KJV*
-
-### Psalms 33:6
-
-*June 29 at 9:18 AM | KJV*
-
-### Psalms 44:17
-
-*June 28 at 5:54 PM | KJV*
-
-### Psalms 30:11
-
-*June 27 at 10:43 AM | KJV*
 
 ### Psalms 28:3
 
@@ -7719,18 +7719,6 @@ date: 2026-04-06
 
 *June 19 at 10:22 PM | KJV*
 
-### Psalms 35:15
-
-*June 12 at 12:24 AM | KJV*
-
-### Psalms 40:8
-
-*June 11 at 12:44 PM | KJV*
-
-### Psalms 51:6
-
-*June 11 at 12:44 PM | KJV*
-
 ### Psalms 40:6
 
 *June 10 at 8:16 AM | KJV*
@@ -7746,6 +7734,46 @@ date: 2026-04-06
 ### Psalms 116:2
 
 *June 6 at 9:26 PM | KJV*
+
+### Psalms 35:15
+
+*June 12 at 12:24 AM | KJV*
+
+### Psalms 40:8
+
+*June 11 at 12:44 PM | KJV*
+
+### Psalms 51:6
+
+*June 11 at 12:44 PM | KJV*
+
+### Psalms 78:2
+
+*May 21 at 8:31 AM | KJV*
+
+### Psalms 78:8
+
+*May 21 at 8:29 AM | KJV*
+
+### Psalms 78:10
+
+*May 21 at 8:28 AM | KJV*
+
+### Psalms 31:22
+
+*May 14 at 10:20 AM | KJV*
+
+### Psalms 31:10
+
+*May 14 at 10:19 AM | KJV*
+
+### Psalms 31:12
+
+*May 14 at 10:18 AM | KJV*
+
+### Psalms 31:13
+
+*May 14 at 10:18 AM | KJV*
 
 ### Psalms 118:20
 
@@ -7786,34 +7814,6 @@ date: 2026-04-06
 ### Psalms 78:1
 
 *May 21 at 8:31 AM | KJV*
-
-### Psalms 78:2
-
-*May 21 at 8:31 AM | KJV*
-
-### Psalms 78:8
-
-*May 21 at 8:29 AM | KJV*
-
-### Psalms 78:10
-
-*May 21 at 8:28 AM | KJV*
-
-### Psalms 31:22
-
-*May 14 at 10:20 AM | KJV*
-
-### Psalms 31:10
-
-*May 14 at 10:19 AM | KJV*
-
-### Psalms 31:12
-
-*May 14 at 10:18 AM | KJV*
-
-### Psalms 31:13
-
-*May 14 at 10:18 AM | KJV*
 
 ### Psalms 68:1
 
@@ -7915,6 +7915,14 @@ date: 2026-04-06
 
 *January 14 at 9:18 PM | KJV*
 
+### Psalms 91:11
+
+*January 4 at 11:07 PM | KJV*
+
+### Psalms 91:10
+
+*January 4 at 11:06 PM | KJV*
+
 ### Psalms 89:34
 
 *December 26 at 9:29 PM | KJV*
@@ -7927,13 +7935,13 @@ date: 2026-04-06
 
 *December 26 at 9:23 PM | KJV*
 
-### Psalms 91:11
+### Psalms 135:8
 
-*January 4 at 11:07 PM | KJV*
+*December 17 at 8:26 PM | KJV*
 
-### Psalms 91:10
+### Psalms 18:6
 
-*January 4 at 11:06 PM | KJV*
+*November 24 at 4:12 AM | KJV*
 
 ### Psalms 24:4
 
@@ -7947,14 +7955,6 @@ date: 2026-04-06
 
 *December 2 at 2:53 AM | KJV*
 
-### Psalms 135:8
-
-*December 17 at 8:26 PM | KJV*
-
-### Psalms 18:6
-
-*November 24 at 4:12 AM | KJV*
-
 ### Psalms 75:3
 
 *November 15 at 8:38 PM | KJV*
@@ -7966,6 +7966,18 @@ date: 2026-04-06
 ### Psalms 77:20
 
 *November 3 at 11:24 PM | KJV*
+
+### Psalms 50:3
+
+*October 23 at 9:27 PM | KJV*
+
+### Psalms 18:26
+
+*October 23 at 12:54 AM | KJV*
+
+### Psalms 112:10
+
+*October 19 at 11:42 PM | KJV*
 
 ### Psalms 22:29
 
@@ -7987,6 +7999,10 @@ date: 2026-04-06
 
 *October 17 at 5:48 PM | KJV*
 
+### Psalms 91:4
+
+*October 6 at 9:42 PM | KJV*
+
 ### Psalms 18:8
 
 *October 14 at 10:47 AM | KJV*
@@ -8006,30 +8022,6 @@ date: 2026-04-06
 ### Psalms 22:6
 
 *October 13 at 12:54 AM | KJV*
-
-### Psalms 50:3
-
-*October 23 at 9:27 PM | KJV*
-
-### Psalms 18:26
-
-*October 23 at 12:54 AM | KJV*
-
-### Psalms 112:10
-
-*October 19 at 11:42 PM | KJV*
-
-### Psalms 40:3
-
-*September 27 at 10:50 PM | KJV*
-
-### Psalms 17:13
-
-*September 27 at 11:03 AM | KJV*
-
-### Psalms 91:4
-
-*October 6 at 9:42 PM | KJV*
 
 ### Psalms 2:9
 
@@ -8055,6 +8047,14 @@ date: 2026-04-06
 
 *October 1 at 9:50 PM | KJV*
 
+### Psalms 40:3
+
+*September 27 at 10:50 PM | KJV*
+
+### Psalms 17:13
+
+*September 27 at 11:03 AM | KJV*
+
 ### Psalms 15:4
 
 *September 26 at 5:10 PM | KJV*
@@ -8066,22 +8066,6 @@ date: 2026-04-06
 ### Psalms 94:8
 
 *September 24 at 11:18 PM | KJV*
-
-### Psalms 37:11
-
-*September 23 at 3:34 PM | KJV*
-
-### Psalms 37:2
-
-*September 23 at 3:33 PM | KJV*
-
-### Psalms 69:24
-
-*September 22 at 9:55 PM | KJV*
-
-### Psalms 69:32
-
-*September 22 at 9:55 PM | KJV*
 
 ### Psalms 69:28
 
@@ -8098,6 +8082,22 @@ date: 2026-04-06
 ### Psalms 15:2
 
 *September 21 at 5:24 PM | KJV*
+
+### Psalms 37:11
+
+*September 23 at 3:34 PM | KJV*
+
+### Psalms 37:2
+
+*September 23 at 3:33 PM | KJV*
+
+### Psalms 69:24
+
+*September 22 at 9:55 PM | KJV*
+
+### Psalms 69:32
+
+*September 22 at 9:55 PM | KJV*
 
 ### Psalms 14:3
 
@@ -8151,6 +8151,22 @@ date: 2026-04-06
 
 *September 13 at 10:09 PM | KJV*
 
+### Psalms 119:27
+
+*September 1 at 12:47 AM | KJV*
+
+### Psalms 69:27
+
+*August 31 at 8:21 PM | KJV*
+
+### Psalms 69:13
+
+*August 31 at 8:19 PM | KJV*
+
+### Psalms 69:2
+
+*August 31 at 8:18 PM | KJV*
+
 ### Psalms 69:7
 
 *August 31 at 8:10 PM | KJV*
@@ -8171,21 +8187,9 @@ date: 2026-04-06
 
 *August 31 at 4:51 PM | KJV*
 
-### Psalms 119:27
+### Psalms 32:7
 
-*September 1 at 12:47 AM | KJV*
-
-### Psalms 69:27
-
-*August 31 at 8:21 PM | KJV*
-
-### Psalms 69:13
-
-*August 31 at 8:19 PM | KJV*
-
-### Psalms 69:2
-
-*August 31 at 8:18 PM | KJV*
+*August 23 at 8:05 PM | KJV*
 
 ### Psalms 32:6
 
@@ -8194,10 +8198,6 @@ date: 2026-04-06
 ### Psalms 38:6
 
 *August 17 at 6:40 PM | KJV*
-
-### Psalms 32:7
-
-*August 23 at 8:05 PM | KJV*
 
 ### Psalms 18:10
 
@@ -10563,13 +10563,13 @@ date: 2026-04-06
 
 *March 28 at 8:14 PM | KJV*
 
-### Luke 4:12
-
-*March 19 at 10:02 AM | KJV*
-
 ### Luke 6:22
 
 *March 13 at 9:18 AM | KJV*
+
+### Luke 4:12
+
+*March 19 at 10:02 AM | KJV*
 
 ### Luke 14:5
 
@@ -10603,6 +10603,10 @@ date: 2026-04-06
 
 *January 6 at 9:16 PM | KJV*
 
+### Luke 17:10
+
+*November 13 at 9:42 AM | KJV*
+
 ### Luke 12:47
 
 *November 6 at 9:36 PM | KJV*
@@ -10614,10 +10618,6 @@ date: 2026-04-06
 ### Luke 12:33
 
 *November 6 at 9:35 PM | KJV*
-
-### Luke 17:10
-
-*November 13 at 9:42 AM | KJV*
 
 ### Luke 21:19
 
@@ -10711,14 +10711,6 @@ date: 2026-04-06
 
 *September 7 at 9:25 PM | KJV*
 
-### Luke 9:50
-
-*August 17 at 9:38 PM | KJV*
-
-### Luke 9:48
-
-*August 17 at 9:36 PM | KJV*
-
 ### Luke 15:20
 
 *August 15 at 10:04 PM | KJV*
@@ -10730,6 +10722,14 @@ date: 2026-04-06
 ### Luke 1:70
 
 *August 15 at 9:44 AM | KJV*
+
+### Luke 9:50
+
+*August 17 at 9:38 PM | KJV*
+
+### Luke 9:48
+
+*August 17 at 9:36 PM | KJV*
 
 ### Luke 12:19
 
@@ -10779,13 +10779,13 @@ date: 2026-04-06
 
 *June 16 at 1:38 PM | KJV*
 
-### Luke 10:35
-
-*May 7 at 10:51 AM | KJV*
-
 ### Luke 19:43
 
 *May 2 at 12:42 AM | KJV*
+
+### Luke 10:35
+
+*May 7 at 10:51 AM | KJV*
 
 ### Luke 15:21
 
@@ -10887,14 +10887,6 @@ date: 2026-04-06
 
 *January 21 at 2:04 PM | KJV*
 
-### Luke 13:6
-
-*January 12 at 9:20 PM | KJV*
-
-### Luke 10:15
-
-*January 12 at 4:21 AM | KJV*
-
 ### Luke 15:22
 
 *January 19 at 9:14 PM | KJV*
@@ -10919,6 +10911,14 @@ date: 2026-04-06
 
 *January 17 at 9:30 PM | KJV*
 
+### Luke 13:6
+
+*January 12 at 9:20 PM | KJV*
+
+### Luke 10:15
+
+*January 12 at 4:21 AM | KJV*
+
 ### Luke 12:56
 
 *January 11 at 1:32 AM | KJV*
@@ -10931,13 +10931,13 @@ date: 2026-04-06
 
 *January 10 at 9:11 PM | KJV*
 
-### Luke 21:20
-
-*January 3 at 3:11 AM | KJV*
-
 ### Luke 16:9
 
 *January 6 at 9:05 PM | KJV*
+
+### Luke 21:20
+
+*January 3 at 3:11 AM | KJV*
 
 ### Luke 12:38
 
@@ -10959,10 +10959,6 @@ date: 2026-04-06
 
 *November 20 at 9:48 PM | KJV*
 
-### Luke 23:51
-
-*October 18 at 6:46 PM | KJV*
-
 ### Luke 4:25
 
 *October 24 at 9:35 PM | KJV*
@@ -10970,6 +10966,10 @@ date: 2026-04-06
 ### Luke 1:48
 
 *October 23 at 12:53 AM | KJV*
+
+### Luke 23:51
+
+*October 18 at 6:46 PM | KJV*
 
 ### Luke 2:32
 
@@ -11713,10 +11713,6 @@ date: 2026-04-06
 
 *September 9 at 9:57 PM | KJV*
 
-### 1 Corinthians 14:22
-
-*August 16 at 10:39 PM | KJV*
-
 ### 1 Corinthians 7:5
 
 *August 20 at 10:42 AM | KJV*
@@ -11741,6 +11737,10 @@ date: 2026-04-06
 
 *August 14 at 11:28 PM | KJV*
 
+### 1 Corinthians 14:22
+
+*August 16 at 10:39 PM | KJV*
+
 ### 1 Corinthians 10:21
 
 *August 7 at 10:50 PM | KJV*
@@ -11749,14 +11749,6 @@ date: 2026-04-06
 
 *August 7 at 10:37 PM | KJV*
 
-### 1 Corinthians 3:13
-
-*July 23 at 11:07 PM | KJV*
-
-### 1 Corinthians 11:27
-
-*July 23 at 11:01 PM | KJV*
-
 ### 1 Corinthians 15:52
 
 *July 21 at 10:43 AM | KJV*
@@ -11764,6 +11756,14 @@ date: 2026-04-06
 ### 1 Corinthians 16:13
 
 *July 21 at 10:31 AM | KJV*
+
+### 1 Corinthians 3:13
+
+*July 23 at 11:07 PM | KJV*
+
+### 1 Corinthians 11:27
+
+*July 23 at 11:01 PM | KJV*
 
 ### 1 Corinthians 16:9
 
@@ -11873,13 +11873,13 @@ date: 2026-04-06
 
 *January 17 at 9:49 PM | KJV*
 
-### 1 Corinthians 2:12
-
-*January 2 at 10:51 PM | KJV*
-
 ### 1 Corinthians 6:2
 
 *January 5 at 8:30 PM | KJV*
+
+### 1 Corinthians 2:12
+
+*January 2 at 10:51 PM | KJV*
 
 ### 1 Corinthians 14:12
 
@@ -11921,10 +11921,6 @@ date: 2026-04-06
 
 *September 24 at 10:42 PM | KJV*
 
-### 1 Corinthians 9:1
-
-*August 29 at 10:14 PM | KJV*
-
 ### 1 Corinthians 1:6
 
 *August 31 at 8:46 PM | KJV*
@@ -11932,6 +11928,10 @@ date: 2026-04-06
 ### 1 Corinthians 1:8
 
 *August 31 at 8:46 PM | KJV*
+
+### 1 Corinthians 9:1
+
+*August 29 at 10:14 PM | KJV*
 
 ## Matthew
 
@@ -14575,18 +14575,6 @@ date: 2026-04-06
 
 *January 24 at 10:25 PM | KJV*
 
-### Matthew 25:32
-
-*January 19 at 10:04 AM | KJV*
-
-### Matthew 4:1
-
-*January 16 at 9:57 AM | KJV*
-
-### Matthew 21:14
-
-*January 14 at 9:46 PM | KJV*
-
 ### Matthew 10:25
 
 *January 24 at 6:35 AM | KJV*
@@ -14599,9 +14587,17 @@ date: 2026-04-06
 
 *January 20 at 7:56 PM | KJV*
 
-### Matthew 23:23
+### Matthew 25:32
 
-*January 5 at 3:04 PM | KJV*
+*January 19 at 10:04 AM | KJV*
+
+### Matthew 4:1
+
+*January 16 at 9:57 AM | KJV*
+
+### Matthew 21:14
+
+*January 14 at 9:46 PM | KJV*
 
 ### Matthew 21:12
 
@@ -14622,6 +14618,10 @@ date: 2026-04-06
 ### Matthew 13:16
 
 *January 6 at 9:17 PM | KJV*
+
+### Matthew 23:23
+
+*January 5 at 3:04 PM | KJV*
 
 ### Matthew 24:48
 
@@ -14667,14 +14667,6 @@ date: 2026-04-06
 
 *October 31 at 10:20 PM | KJV*
 
-### Matthew 6:17
-
-*October 31 at 10:18 PM | KJV*
-
-### Matthew 6:6
-
-*October 31 at 10:14 PM | KJV*
-
 ### Matthew 25:29
 
 *October 30 at 9:56 PM | KJV*
@@ -14694,6 +14686,14 @@ date: 2026-04-06
 ### Matthew 25:15
 
 *October 30 at 9:09 PM | KJV*
+
+### Matthew 6:17
+
+*October 31 at 10:18 PM | KJV*
+
+### Matthew 6:6
+
+*October 31 at 10:14 PM | KJV*
 
 ### Matthew 22:44
 
@@ -14819,14 +14819,6 @@ date: 2026-04-06
 
 *September 7 at 9:48 AM | KJV*
 
-### Matthew 25:34
-
-*August 17 at 12:44 AM | KJV*
-
-### Matthew 21:35
-
-*August 17 at 12:03 AM | KJV*
-
 ### Matthew 5:22
 
 *August 19 at 10:32 AM | KJV*
@@ -14839,10 +14831,6 @@ date: 2026-04-06
 
 *August 20 at 10:22 AM | KJV*
 
-### Matthew 10:42
-
-*August 13 at 9:28 PM | KJV*
-
 ### Matthew 5:26
 
 *August 15 at 10:33 PM | KJV*
@@ -14850,6 +14838,18 @@ date: 2026-04-06
 ### Matthew 10:13
 
 *August 15 at 10:20 AM | KJV*
+
+### Matthew 10:42
+
+*August 13 at 9:28 PM | KJV*
+
+### Matthew 25:34
+
+*August 17 at 12:44 AM | KJV*
+
+### Matthew 21:35
+
+*August 17 at 12:03 AM | KJV*
 
 ### Matthew 15:4
 
@@ -14867,6 +14867,14 @@ date: 2026-04-06
 
 *July 24 at 2:12 AM | KJV*
 
+### Matthew 19:20
+
+*July 19 at 5:41 PM | KJV*
+
+### Matthew 19:19
+
+*July 19 at 5:33 PM | KJV*
+
 ### Matthew 18:28
 
 *July 19 at 5:18 PM | KJV*
@@ -14882,14 +14890,6 @@ date: 2026-04-06
 ### Matthew 5:20
 
 *July 19 at 1:06 AM | KJV*
-
-### Matthew 19:20
-
-*July 19 at 5:41 PM | KJV*
-
-### Matthew 19:19
-
-*July 19 at 5:33 PM | KJV*
 
 ### Matthew 12:27
 
@@ -14919,10 +14919,6 @@ date: 2026-04-06
 
 *July 10 at 10:46 AM | KJV*
 
-### Matthew 23:33
-
-*July 7 at 9:58 PM | KJV*
-
 ### Matthew 13:6
 
 *July 5 at 8:40 PM | KJV*
@@ -14930,6 +14926,10 @@ date: 2026-04-06
 ### Matthew 24:22
 
 *July 4 at 9:57 AM | KJV*
+
+### Matthew 23:33
+
+*July 7 at 9:58 PM | KJV*
 
 ### Matthew 19:22
 
@@ -14943,6 +14943,10 @@ date: 2026-04-06
 
 *June 19 at 9:31 PM | KJV*
 
+### Matthew 24:29
+
+*June 7 at 8:34 PM | KJV*
+
 ### Matthew 5:18
 
 *June 12 at 1:44 AM | KJV*
@@ -14950,10 +14954,6 @@ date: 2026-04-06
 ### Matthew 5:14
 
 *June 12 at 1:43 AM | KJV*
-
-### Matthew 24:29
-
-*June 7 at 8:34 PM | KJV*
 
 ### Matthew 10:27
 
@@ -15075,6 +15075,10 @@ date: 2026-04-06
 
 *January 22 at 8:20 AM | KJV*
 
+### Matthew 24:3
+
+*January 17 at 8:29 PM | KJV*
+
 ### Matthew 24:18
 
 *January 13 at 5:51 PM | KJV*
@@ -15082,10 +15086,6 @@ date: 2026-04-06
 ### Matthew 24:40
 
 *January 13 at 5:48 PM | KJV*
-
-### Matthew 24:3
-
-*January 17 at 8:29 PM | KJV*
 
 ### Matthew 12:3
 
@@ -15143,6 +15143,30 @@ date: 2026-04-06
 
 *January 4 at 3:26 AM | KJV*
 
+### Matthew 24:24
+
+*December 11 at 5:23 PM | KJV*
+
+### Matthew 24:19
+
+*December 7 at 9:25 PM | KJV*
+
+### Matthew 10:38
+
+*December 4 at 5:35 PM | KJV*
+
+### Matthew 8:12
+
+*November 28 at 9:02 PM | KJV*
+
+### Matthew 25:26
+
+*November 28 at 9:00 PM | KJV*
+
+### Matthew 24:32
+
+*November 26 at 2:39 PM | KJV*
+
 ### Matthew 15:8
 
 *December 4 at 2:05 AM | KJV*
@@ -15167,30 +15191,6 @@ date: 2026-04-06
 
 *December 2 at 3:00 AM | KJV*
 
-### Matthew 24:19
-
-*December 7 at 9:25 PM | KJV*
-
-### Matthew 10:38
-
-*December 4 at 5:35 PM | KJV*
-
-### Matthew 24:24
-
-*December 11 at 5:23 PM | KJV*
-
-### Matthew 8:12
-
-*November 28 at 9:02 PM | KJV*
-
-### Matthew 25:26
-
-*November 28 at 9:00 PM | KJV*
-
-### Matthew 24:32
-
-*November 26 at 2:39 PM | KJV*
-
 ### Matthew 21:7
 
 *November 21 at 4:25 PM | KJV*
@@ -15207,14 +15207,6 @@ date: 2026-04-06
 
 *November 19 at 12:20 AM | KJV*
 
-### Matthew 16:2
-
-*October 14 at 8:12 PM | KJV*
-
-### Matthew 7:13
-
-*October 12 at 12:57 AM | KJV*
-
 ### Matthew 15:14
 
 *October 21 at 2:40 AM | KJV*
@@ -15227,9 +15219,21 @@ date: 2026-04-06
 
 *October 6 at 7:31 PM | KJV*
 
+### Matthew 16:2
+
+*October 14 at 8:12 PM | KJV*
+
+### Matthew 7:13
+
+*October 12 at 12:57 AM | KJV*
+
 ### Matthew 21:16
 
 *September 24 at 9:27 PM | KJV*
+
+### Matthew 7:15
+
+*September 20 at 9:27 PM | KJV*
 
 ### Matthew 11:28
 
@@ -15238,10 +15242,6 @@ date: 2026-04-06
 ### Matthew 11:29
 
 *September 22 at 10:08 PM | KJV*
-
-### Matthew 7:15
-
-*September 20 at 9:27 PM | KJV*
 
 ### Matthew 5:38
 
@@ -15267,14 +15267,6 @@ date: 2026-04-06
 
 *September 6 at 8:43 PM | KJV*
 
-### Matthew 5:19
-
-*August 27 at 4:08 AM | KJV*
-
-### Matthew 22:7
-
-*August 14 at 12:41 AM | KJV*
-
 ### Matthew 11:5
 
 *August 24 at 7:39 PM | KJV*
@@ -15286,6 +15278,14 @@ date: 2026-04-06
 ### Matthew 11:10
 
 *August 24 at 7:33 PM | KJV*
+
+### Matthew 5:19
+
+*August 27 at 4:08 AM | KJV*
+
+### Matthew 22:7
+
+*August 14 at 12:41 AM | KJV*
 
 ### Matthew 24:47
 
@@ -16917,13 +16917,13 @@ date: 2026-04-06
 
 *March 28 at 5:56 PM | KJV*
 
-### Acts 12:21
-
-*March 15 at 1:42 AM | KJV*
-
 ### Acts 15:17
 
 *March 3 at 7:47 PM | KJV*
+
+### Acts 12:21
+
+*March 15 at 1:42 AM | KJV*
 
 ### Acts 20:30
 
@@ -16949,10 +16949,6 @@ date: 2026-04-06
 
 *January 26 at 9:52 PM | KJV*
 
-### Acts 1:7
-
-*January 19 at 6:03 PM | KJV*
-
 ### Acts 1:18
 
 *January 21 at 6:34 PM | KJV*
@@ -16960,6 +16956,10 @@ date: 2026-04-06
 ### Acts 17:23
 
 *January 20 at 8:47 PM | KJV*
+
+### Acts 1:7
+
+*January 19 at 6:03 PM | KJV*
 
 ### Acts 15:10
 
@@ -16973,10 +16973,6 @@ date: 2026-04-06
 
 *October 31 at 9:52 AM | KJV*
 
-### Acts 28:26
-
-*October 24 at 9:40 AM | KJV*
-
 ### Acts 23:3
 
 *October 23 at 10:37 AM | KJV*
@@ -16988,6 +16984,10 @@ date: 2026-04-06
 ### Acts 9:14
 
 *October 22 at 9:09 AM | KJV*
+
+### Acts 28:26
+
+*October 24 at 9:40 AM | KJV*
 
 ### Acts 2:39
 
@@ -17113,6 +17113,14 @@ date: 2026-04-06
 
 *November 19 at 2:33 AM | KJV*
 
+### Acts 7:42
+
+*October 22 at 8:27 PM | KJV*
+
+### Acts 10:35
+
+*October 22 at 2:57 PM | KJV*
+
 ### Acts 22:14
 
 *October 16 at 9:48 PM | KJV*
@@ -17124,14 +17132,6 @@ date: 2026-04-06
 ### Acts 7:49
 
 *October 16 at 9:41 PM | KJV*
-
-### Acts 7:42
-
-*October 22 at 8:27 PM | KJV*
-
-### Acts 10:35
-
-*October 22 at 2:57 PM | KJV*
 
 ### Acts 15:19
 
@@ -17541,11 +17541,11 @@ date: 2026-04-06
 
 *March 2 at 8:44 PM | KJV*
 
-*March 2 at 8:49 PM | KJV*
-
 6 A son honoureth his father, and a servant his master: if then I be a father, where is mine honour? and if I be a master, where is my fear? saith the Lord of hosts unto you, O priests, that despise my name. And ye say, Wherein have we despised thy name?
 
 *March 2 at 8:44 PM | KJV*
+
+*March 2 at 8:49 PM | KJV*
 
 6 A son honoureth his father, and a servant his master: if then I be a father, where is mine honour? and if I be a master, where is my fear? saith the Lord of hosts unto you, O priests, that despise my name. And ye say, Wherein have we despised thy name?
 
@@ -18623,11 +18623,11 @@ date: 2026-04-06
 
 *March 8 at 5:15 AM | KJV*
 
+*February 21 at 5:24 AM | KJV*
+
 5 Even so then at this present time also there is a remnant according to the election of grace.
 
 *March 8 at 5:15 AM | KJV*
-
-*February 21 at 5:24 AM | KJV*
 
 5 Even so then at this present time also there is a remnant according to the election of grace.
 
@@ -19267,6 +19267,10 @@ date: 2026-04-06
 
 *March 3 at 10:32 AM | KJV*
 
+27 And he that searcheth the hearts knoweth what is the mind of the Spirit, because he maketh intercession for the saints according to the will of God.
+
+*March 3 at 10:32 AM | KJV*
+
 *March 3 at 10:33 AM | KJV*
 
 27 And he that searcheth the hearts knoweth what is the mind of the Spirit, because he maketh intercession for the saints according to the will of God.
@@ -19877,17 +19881,9 @@ date: 2026-04-06
 
 *March 3 at 10:32 AM | KJV*
 
-27 And he that searcheth the hearts knoweth what is the mind of the Spirit, because he maketh intercession for the saints according to the will of God.
+### Romans 8:14
 
-*March 3 at 10:32 AM | KJV*
-
-### Romans 14:5
-
-*March 14 at 4:53 AM | KJV*
-
-### Romans 14:1
-
-*March 14 at 4:51 AM | KJV*
+*March 4 at 10:26 AM | KJV*
 
 ### Romans 11:26
 
@@ -19897,9 +19893,13 @@ date: 2026-04-06
 
 *March 5 at 1:35 PM | KJV*
 
-### Romans 8:14
+### Romans 14:5
 
-*March 4 at 10:26 AM | KJV*
+*March 14 at 4:53 AM | KJV*
+
+### Romans 14:1
+
+*March 14 at 4:51 AM | KJV*
 
 ### Romans 14:22
 
@@ -19933,6 +19933,10 @@ date: 2026-04-06
 
 *November 9 at 9:59 AM | KJV*
 
+### Romans 1:32
+
+*October 30 at 9:24 PM | KJV*
+
 ### Romans 10:1
 
 *October 30 at 11:23 PM | KJV*
@@ -19944,10 +19948,6 @@ date: 2026-04-06
 ### Romans 11:25
 
 *October 30 at 11:12 PM | KJV*
-
-### Romans 1:32
-
-*October 30 at 9:24 PM | KJV*
 
 ### Romans 8:31
 
@@ -19973,10 +19973,6 @@ date: 2026-04-06
 
 *August 25 at 8:05 PM | KJV*
 
-### Romans 10:20
-
-*August 17 at 12:12 AM | KJV*
-
 ### Romans 12:16
 
 *August 13 at 10:57 PM | KJV*
@@ -19985,13 +19981,17 @@ date: 2026-04-06
 
 *August 12 at 1:01 PM | KJV*
 
-### Romans 10:4
+### Romans 10:20
 
-*August 8 at 9:50 AM | KJV*
+*August 17 at 12:12 AM | KJV*
 
 ### Romans 12:8
 
 *August 1 at 10:15 PM | KJV*
+
+### Romans 10:4
+
+*August 8 at 9:50 AM | KJV*
 
 ### Romans 2:24
 
@@ -20041,6 +20041,14 @@ date: 2026-04-06
 
 *June 12 at 9:55 AM | KJV*
 
+### Romans 1:8
+
+*June 10 at 4:08 PM | KJV*
+
+### Romans 3:12
+
+*June 4 at 10:07 PM | KJV*
+
 ### Romans 10:17
 
 *June 11 at 10:52 PM | KJV*
@@ -20057,13 +20065,21 @@ date: 2026-04-06
 
 *June 11 at 8:31 AM | KJV*
 
-### Romans 1:8
+### Romans 9:28
 
-*June 10 at 4:08 PM | KJV*
+*May 20 at 12:14 AM | KJV*
 
-### Romans 3:12
+### Romans 8:19
 
-*June 4 at 10:07 PM | KJV*
+*May 19 at 11:40 PM | KJV*
+
+### Romans 8:17
+
+*May 19 at 11:37 PM | KJV*
+
+### Romans 8:6
+
+*May 19 at 11:35 PM | KJV*
 
 ### Romans 3:10
 
@@ -20084,22 +20100,6 @@ date: 2026-04-06
 ### Romans 3:14
 
 *June 4 at 9:58 PM | KJV*
-
-### Romans 9:28
-
-*May 20 at 12:14 AM | KJV*
-
-### Romans 8:19
-
-*May 19 at 11:40 PM | KJV*
-
-### Romans 8:17
-
-*May 19 at 11:37 PM | KJV*
-
-### Romans 8:6
-
-*May 19 at 11:35 PM | KJV*
 
 ### Romans 11:32
 
@@ -20225,14 +20225,6 @@ date: 2026-04-06
 
 *January 7 at 8:23 PM | KJV*
 
-### Romans 11:11
-
-*January 3 at 3:24 AM | KJV*
-
-### Romans 2:16
-
-*December 19 at 8:50 PM | KJV*
-
 ### Romans 12:18
 
 *January 4 at 8:02 PM | KJV*
@@ -20241,13 +20233,21 @@ date: 2026-04-06
 
 *January 3 at 11:17 PM | KJV*
 
-### Romans 1:31
+### Romans 11:11
 
-*December 4 at 1:53 AM | KJV*
+*January 3 at 3:24 AM | KJV*
+
+### Romans 2:16
+
+*December 19 at 8:50 PM | KJV*
 
 ### Romans 5:9
 
 *December 6 at 8:43 PM | KJV*
+
+### Romans 1:31
+
+*December 4 at 1:53 AM | KJV*
 
 ### Romans 10:10
 
@@ -20273,14 +20273,6 @@ date: 2026-04-06
 
 *October 29 at 9:32 PM | KJV*
 
-### Romans 8:2
-
-*October 18 at 11:48 PM | KJV*
-
-### Romans 8:36
-
-*October 17 at 10:47 AM | KJV*
-
 ### Romans 10:14
 
 *October 24 at 8:49 PM | KJV*
@@ -20292,6 +20284,14 @@ date: 2026-04-06
 ### Romans 10:11
 
 *October 24 at 8:42 PM | KJV*
+
+### Romans 8:2
+
+*October 18 at 11:48 PM | KJV*
+
+### Romans 8:36
+
+*October 17 at 10:47 AM | KJV*
 
 ### Romans 12:1
 
@@ -20335,6 +20335,18 @@ date: 2026-04-06
 
 *August 31 at 8:32 PM | KJV*
 
+### Romans 3:31
+
+*August 25 at 10:23 PM | KJV*
+
+### Romans 2:15
+
+*August 25 at 8:58 PM | KJV*
+
+### Romans 1:17
+
+*August 22 at 8:29 PM | KJV*
+
 ### Romans 11:20
 
 *August 28 at 9:02 PM | KJV*
@@ -20366,18 +20378,6 @@ date: 2026-04-06
 ### Romans 15:2
 
 *August 21 at 9:39 PM | KJV*
-
-### Romans 3:31
-
-*August 25 at 10:23 PM | KJV*
-
-### Romans 2:15
-
-*August 25 at 8:58 PM | KJV*
-
-### Romans 1:17
-
-*August 22 at 8:29 PM | KJV*
 
 ## Numbers
 
@@ -21393,6 +21393,10 @@ date: 2026-04-06
 
 *December 26 at 8:33 PM | KJV*
 
+### Numbers 23:21
+
+*October 8 at 10:04 AM | KJV*
+
 ### Numbers 28:2
 
 *October 12 at 7:46 PM | KJV*
@@ -21400,10 +21404,6 @@ date: 2026-04-06
 ### Numbers 28:3
 
 *October 12 at 7:40 PM | KJV*
-
-### Numbers 23:21
-
-*October 8 at 10:04 AM | KJV*
 
 ## Revelation
 
@@ -22197,17 +22197,13 @@ date: 2026-04-06
 
 *July 27 at 5:28 PM | KJV*
 
-### Revelation 18:5
-
-*July 24 at 10:48 AM | KJV*
-
 ### Revelation 12:3
 
 *July 23 at 8:28 PM | KJV*
 
-### Revelation 2:7
+### Revelation 18:5
 
-*July 18 at 9:04 PM | KJV*
+*July 24 at 10:48 AM | KJV*
 
 ### Revelation 3:18
 
@@ -22221,6 +22217,14 @@ date: 2026-04-06
 
 *July 19 at 5:40 PM | KJV*
 
+### Revelation 2:7
+
+*July 18 at 9:04 PM | KJV*
+
+### Revelation 6:14
+
+*July 13 at 9:03 AM | KJV*
+
 ### Revelation 6:10
 
 *July 15 at 9:26 PM | KJV*
@@ -22228,10 +22232,6 @@ date: 2026-04-06
 ### Revelation 18:6
 
 *July 15 at 10:41 AM | KJV*
-
-### Revelation 6:14
-
-*July 13 at 9:03 AM | KJV*
 
 ### Revelation 1:13
 
@@ -22249,13 +22249,13 @@ date: 2026-04-06
 
 *July 2 at 10:34 PM | KJV*
 
-### Revelation 10:1
-
-*July 1 at 2:16 AM | KJV*
-
 ### Revelation 7:8
 
 *June 29 at 11:07 PM | KJV*
+
+### Revelation 10:1
+
+*July 1 at 2:16 AM | KJV*
 
 ### Revelation 3:20
 
@@ -22321,6 +22321,10 @@ date: 2026-04-06
 
 *May 9 at 11:39 PM | KJV*
 
+### Revelation 18:23
+
+*May 1 at 10:06 PM | KJV*
+
 ### Revelation 2:22
 
 *May 9 at 10:45 AM | KJV*
@@ -22365,10 +22369,6 @@ date: 2026-04-06
 
 *May 8 at 9:38 PM | KJV*
 
-### Revelation 18:23
-
-*May 1 at 10:06 PM | KJV*
-
 ### Revelation 3:3
 
 *April 18 at 12:50 PM | KJV*
@@ -22377,13 +22377,13 @@ date: 2026-04-06
 
 *April 18 at 12:01 AM | KJV*
 
-### Revelation 21:2
-
-*March 18 at 10:36 PM | KJV*
-
 ### Revelation 17:3
 
 *March 11 at 12:52 AM | KJV*
+
+### Revelation 21:2
+
+*March 18 at 10:36 PM | KJV*
 
 ### Revelation 14:7
 
@@ -22441,10 +22441,6 @@ date: 2026-04-06
 
 *December 7 at 10:50 PM | KJV*
 
-### Revelation 11:6
-
-*October 16 at 11:26 PM | KJV*
-
 ### Revelation 19:2
 
 *October 24 at 9:11 PM | KJV*
@@ -22452,6 +22448,10 @@ date: 2026-04-06
 ### Revelation 16:7
 
 *October 24 at 9:11 PM | KJV*
+
+### Revelation 11:6
+
+*October 16 at 11:26 PM | KJV*
 
 ### Revelation 12:5
 
@@ -24189,6 +24189,8 @@ date: 2026-04-06
 
 *June 10 at 5:37 PM | KJV*
 
+*June 10 at 5:37 PM | KJV*
+
 *August 30 at 10:49 PM | KJV*
 
 *June 10 at 5:37 PM | KJV*
@@ -24265,7 +24267,9 @@ date: 2026-04-06
 
 *June 10 at 5:37 PM | KJV*
 
-*June 10 at 5:37 PM | KJV*
+### Proverbs 6:6
+
+*March 6 at 10:38 PM | KJV*
 
 ### Proverbs 8:35
 
@@ -24274,10 +24278,6 @@ date: 2026-04-06
 ### Proverbs 25:16
 
 *March 14 at 4:52 AM | KJV*
-
-### Proverbs 6:6
-
-*March 6 at 10:38 PM | KJV*
 
 ### Proverbs 23:6
 
@@ -24298,6 +24298,10 @@ date: 2026-04-06
 ### Proverbs 8:36
 
 *August 30 at 9:37 PM | KJV*
+
+### Proverbs 25:14
+
+*August 15 at 9:21 PM | KJV*
 
 ### Proverbs 25:23
 
@@ -24323,9 +24327,13 @@ date: 2026-04-06
 
 *August 13 at 9:28 PM | KJV*
 
-### Proverbs 25:14
+### Proverbs 30:9
 
-*August 15 at 9:21 PM | KJV*
+*July 31 at 11:16 AM | KJV*
+
+### Proverbs 29:19
+
+*July 31 at 10:54 AM | KJV*
 
 ### Proverbs 30:27
 
@@ -24342,14 +24350,6 @@ date: 2026-04-06
 ### Proverbs 30:11
 
 *August 9 at 6:19 PM | KJV*
-
-### Proverbs 30:9
-
-*July 31 at 11:16 AM | KJV*
-
-### Proverbs 29:19
-
-*July 31 at 10:54 AM | KJV*
 
 ### Proverbs 20:27
 
@@ -24459,6 +24459,14 @@ date: 2026-04-06
 
 *May 9 at 11:37 AM | KJV*
 
+### Proverbs 3:10
+
+*May 6 at 9:44 AM | KJV*
+
+### Proverbs 1:28
+
+*May 6 at 9:28 AM | KJV*
+
 ### Proverbs 28:2
 
 *May 9 at 11:34 AM | KJV*
@@ -24470,14 +24478,6 @@ date: 2026-04-06
 ### Proverbs 19:12
 
 *May 7 at 10:48 AM | KJV*
-
-### Proverbs 3:10
-
-*May 6 at 9:44 AM | KJV*
-
-### Proverbs 1:28
-
-*May 6 at 9:28 AM | KJV*
 
 ### Proverbs 6:35
 
@@ -24535,6 +24535,10 @@ date: 2026-04-06
 
 *September 25 at 8:29 AM | KJV*
 
+### Proverbs 1:9
+
+*September 1 at 9:05 PM | KJV*
+
 ### Proverbs 8:34
 
 *August 30 at 10:50 PM | KJV*
@@ -24546,26 +24550,6 @@ date: 2026-04-06
 ### Proverbs 26:25
 
 *August 29 at 10:10 PM | KJV*
-
-### Proverbs 1:9
-
-*September 1 at 9:05 PM | KJV*
-
-### Proverbs 30:28
-
-*August 29 at 4:03 PM | KJV*
-
-### Proverbs 30:26
-
-*August 29 at 3:59 PM | KJV*
-
-### Proverbs 30:24
-
-*August 29 at 3:57 PM | KJV*
-
-### Proverbs 30:25
-
-*August 29 at 3:41 PM | KJV*
 
 ### Proverbs 10:30
 
@@ -24602,6 +24586,22 @@ date: 2026-04-06
 ### Proverbs 1:24
 
 *August 26 at 9:24 PM | KJV*
+
+### Proverbs 30:28
+
+*August 29 at 4:03 PM | KJV*
+
+### Proverbs 30:26
+
+*August 29 at 3:59 PM | KJV*
+
+### Proverbs 30:24
+
+*August 29 at 3:57 PM | KJV*
+
+### Proverbs 30:25
+
+*August 29 at 3:41 PM | KJV*
 
 ### Proverbs 7:19
 
@@ -25583,13 +25583,13 @@ date: 2026-04-06
 
 *March 2 at 9:24 PM | KJV*
 
-### James 5:14
-
-*January 5 at 9:51 AM | KJV*
-
 ### James 5:3
 
 *January 14 at 8:35 PM | KJV*
+
+### James 5:14
+
+*January 5 at 9:51 AM | KJV*
 
 ### James 1:17
 
@@ -25675,10 +25675,6 @@ date: 2026-04-06
 
 *June 28 at 6:34 PM | KJV*
 
-### James 5:1
-
-*June 19 at 9:22 PM | KJV*
-
 ### James 5:12
 
 *June 16 at 10:47 PM | KJV*
@@ -25746,6 +25742,10 @@ date: 2026-04-06
 ### James 5:10
 
 *June 16 at 9:59 AM | KJV*
+
+### James 5:1
+
+*June 19 at 9:22 PM | KJV*
 
 ### James 5:5
 
@@ -27825,6 +27825,14 @@ date: 2026-04-06
 
 *August 12 at 1:01 PM | KJV*
 
+### Genesis 37:24
+
+*July 20 at 11:59 PM | KJV*
+
+### Genesis 37:21
+
+*July 20 at 11:59 PM | KJV*
+
 ### Genesis 17:11
 
 *July 18 at 10:30 PM | KJV*
@@ -27848,14 +27856,6 @@ date: 2026-04-06
 ### Genesis 17:17
 
 *July 18 at 6:40 PM | KJV*
-
-### Genesis 37:24
-
-*July 20 at 11:59 PM | KJV*
-
-### Genesis 37:21
-
-*July 20 at 11:59 PM | KJV*
 
 ### Genesis 11:3
 
@@ -28885,10 +28885,6 @@ date: 2026-04-06
 
 *March 28 at 4:53 AM | KJV*
 
-### Jeremiah 14:17
-
-*March 28 at 4:54 AM | KJV*
-
 ### Jeremiah 4:13
 
 *March 22 at 1:28 AM | KJV*
@@ -28905,9 +28901,9 @@ date: 2026-04-06
 
 *March 22 at 12:50 AM | KJV*
 
-### Jeremiah 23:25
+### Jeremiah 14:17
 
-*March 2 at 8:48 PM | KJV*
+*March 28 at 4:54 AM | KJV*
 
 ### Jeremiah 31:15
 
@@ -28916,6 +28912,10 @@ date: 2026-04-06
 ### Jeremiah 3:21
 
 *February 19 at 1:23 PM | KJV*
+
+### Jeremiah 23:25
+
+*March 2 at 8:48 PM | KJV*
 
 ### Jeremiah 9:24
 
@@ -29241,10 +29241,6 @@ date: 2026-04-06
 
 *August 24 at 9:42 AM | KJV*
 
-### Jeremiah 16:21
-
-*August 16 at 10:30 PM | KJV*
-
 ### Jeremiah 31:11
 
 *August 19 at 10:41 AM | KJV*
@@ -29257,13 +29253,25 @@ date: 2026-04-06
 
 *August 20 at 9:55 AM | KJV*
 
+### Jeremiah 16:19
+
+*August 14 at 10:41 PM | KJV*
+
 ### Jeremiah 12:11
 
 *August 10 at 10:18 PM | KJV*
 
-### Jeremiah 16:19
+### Jeremiah 16:21
 
-*August 14 at 10:41 PM | KJV*
+*August 16 at 10:30 PM | KJV*
+
+### Jeremiah 31:13
+
+*August 6 at 9:51 AM | KJV*
+
+### Jeremiah 23:29
+
+*August 3 at 2:01 AM | KJV*
 
 ### Jeremiah 11:13
 
@@ -29280,14 +29288,6 @@ date: 2026-04-06
 ### Jeremiah 10:13
 
 *August 8 at 10:33 PM | KJV*
-
-### Jeremiah 31:13
-
-*August 6 at 9:51 AM | KJV*
-
-### Jeremiah 23:29
-
-*August 3 at 2:01 AM | KJV*
 
 ### Jeremiah 5:22
 
@@ -29309,13 +29309,13 @@ date: 2026-04-06
 
 *July 14 at 10:15 AM | KJV*
 
-### Jeremiah 1:11
-
-*July 8 at 10:35 AM | KJV*
-
 ### Jeremiah 33:20
 
 *July 6 at 9:47 AM | KJV*
+
+### Jeremiah 1:11
+
+*July 8 at 10:35 AM | KJV*
 
 ### Jeremiah 14:16
 
@@ -29341,13 +29341,13 @@ date: 2026-04-06
 
 *June 16 at 12:06 AM | KJV*
 
-### Jeremiah 23:28
-
-*May 22 at 12:30 PM | KJV*
-
 ### Jeremiah 17:4
 
 *May 13 at 12:24 AM | KJV*
+
+### Jeremiah 23:28
+
+*May 22 at 12:30 PM | KJV*
 
 ### Jeremiah 4:7
 
@@ -29495,6 +29495,14 @@ date: 2026-04-06
 
 *January 21 at 8:47 PM | KJV*
 
+### Jeremiah 9:2
+
+*January 13 at 6:31 PM | KJV*
+
+### Jeremiah 8:13
+
+*January 13 at 6:28 PM | KJV*
+
 ### Jeremiah 8:3
 
 *January 13 at 6:25 PM | KJV*
@@ -29535,17 +29543,33 @@ date: 2026-04-06
 
 *January 11 at 6:06 PM | KJV*
 
-### Jeremiah 9:2
-
-*January 13 at 6:31 PM | KJV*
-
-### Jeremiah 8:13
-
-*January 13 at 6:28 PM | KJV*
-
 ### Jeremiah 10:3
 
 *January 7 at 12:52 AM | KJV*
+
+### Jeremiah 1:13
+
+*December 6 at 8:50 PM | KJV*
+
+### Jeremiah 1:9
+
+*December 6 at 8:47 PM | KJV*
+
+### Jeremiah 1:8
+
+*December 6 at 8:46 PM | KJV*
+
+### Jeremiah 3:15
+
+*December 5 at 2:52 PM | KJV*
+
+### Jeremiah 23:39
+
+*November 26 at 10:21 PM | KJV*
+
+### Jeremiah 23:13
+
+*November 26 at 10:21 PM | KJV*
 
 ### Jeremiah 49:14
 
@@ -29574,30 +29598,6 @@ date: 2026-04-06
 ### Jeremiah 31:10
 
 *December 3 at 9:16 PM | KJV*
-
-### Jeremiah 1:13
-
-*December 6 at 8:50 PM | KJV*
-
-### Jeremiah 1:9
-
-*December 6 at 8:47 PM | KJV*
-
-### Jeremiah 1:8
-
-*December 6 at 8:46 PM | KJV*
-
-### Jeremiah 3:15
-
-*December 5 at 2:52 PM | KJV*
-
-### Jeremiah 23:39
-
-*November 26 at 10:21 PM | KJV*
-
-### Jeremiah 23:13
-
-*November 26 at 10:21 PM | KJV*
 
 ### Jeremiah 30:23
 
@@ -29643,6 +29643,10 @@ date: 2026-04-06
 
 *October 25 at 1:32 PM | KJV*
 
+### Jeremiah 50:6
+
+*October 22 at 9:02 PM | KJV*
+
 ### Jeremiah 33:15
 
 *October 15 at 3:17 PM | KJV*
@@ -29654,6 +29658,10 @@ date: 2026-04-06
 ### Jeremiah 8:7
 
 *October 14 at 8:25 PM | KJV*
+
+### Jeremiah 17:13
+
+*October 7 at 5:00 PM | KJV*
 
 ### Jeremiah 8:2
 
@@ -29703,22 +29711,6 @@ date: 2026-04-06
 
 *October 10 at 2:31 PM | KJV*
 
-### Jeremiah 50:6
-
-*October 22 at 9:02 PM | KJV*
-
-### Jeremiah 5:8
-
-*September 27 at 2:57 PM | KJV*
-
-### Jeremiah 5:3
-
-*September 27 at 2:48 PM | KJV*
-
-### Jeremiah 17:13
-
-*October 7 at 5:00 PM | KJV*
-
 ### Jeremiah 15:9
 
 *October 4 at 5:00 PM | KJV*
@@ -29730,6 +29722,14 @@ date: 2026-04-06
 ### Jeremiah 10:2
 
 *October 2 at 2:26 AM | KJV*
+
+### Jeremiah 5:8
+
+*September 27 at 2:57 PM | KJV*
+
+### Jeremiah 5:3
+
+*September 27 at 2:48 PM | KJV*
 
 ### Jeremiah 34:14
 
@@ -31189,6 +31189,10 @@ date: 2026-04-06
 
 *January 27 at 10:34 PM | KJV*
 
+### John 4:22
+
+*January 20 at 8:30 PM | KJV*
+
 ### John 12:44
 
 *January 18 at 9:49 PM | KJV*
@@ -31204,10 +31208,6 @@ date: 2026-04-06
 ### John 11:52
 
 *January 14 at 9:22 PM | KJV*
-
-### John 4:22
-
-*January 20 at 8:30 PM | KJV*
 
 ### John 1:51
 
@@ -31321,6 +31321,10 @@ date: 2026-04-06
 
 *August 25 at 9:19 PM | KJV*
 
+### John 1:1
+
+*August 13 at 9:23 PM | KJV*
+
 ### John 14:2
 
 *August 17 at 12:44 AM | KJV*
@@ -31328,10 +31332,6 @@ date: 2026-04-06
 ### John 20:29
 
 *August 17 at 12:14 AM | KJV*
-
-### John 1:1
-
-*August 13 at 9:23 PM | KJV*
 
 ### John 10:9
 
@@ -31385,14 +31385,6 @@ date: 2026-04-06
 
 *May 10 at 11:42 PM | KJV*
 
-### John 6:45
-
-*May 6 at 2:23 PM | KJV*
-
-### John 6:37
-
-*May 6 at 2:21 PM | KJV*
-
 ### John 12:35
 
 *May 6 at 10:07 AM | KJV*
@@ -31412,6 +31404,14 @@ date: 2026-04-06
 ### John 1:23
 
 *May 1 at 1:45 AM | KJV*
+
+### John 6:45
+
+*May 6 at 2:23 PM | KJV*
+
+### John 6:37
+
+*May 6 at 2:21 PM | KJV*
 
 ### John 17:22
 
@@ -31449,6 +31449,10 @@ date: 2026-04-06
 
 *January 7 at 2:01 AM | KJV*
 
+### John 15:9
+
+*January 4 at 12:48 AM | KJV*
+
 ### John 1:11
 
 *December 28 at 9:51 PM | KJV*
@@ -31460,10 +31464,6 @@ date: 2026-04-06
 ### John 12:38
 
 *December 20 at 11:28 PM | KJV*
-
-### John 15:9
-
-*January 4 at 12:48 AM | KJV*
 
 ### John 15:15
 
@@ -32171,10 +32171,6 @@ date: 2026-04-06
 
 *March 6 at 9:28 AM | KJV*
 
-### Galatians 6:5
-
-*March 6 at 9:37 AM | KJV*
-
 ### Galatians 5:15
 
 *March 4 at 10:33 AM | KJV*
@@ -32182,6 +32178,10 @@ date: 2026-04-06
 ### Galatians 4:27
 
 *March 4 at 10:20 AM | KJV*
+
+### Galatians 6:5
+
+*March 6 at 9:37 AM | KJV*
 
 ### Galatians 1:23
 
@@ -32255,6 +32255,14 @@ date: 2026-04-06
 
 *April 9 at 9:49 AM | KJV*
 
+### Galatians 3:24
+
+*March 24 at 9:55 PM | KJV*
+
+### Galatians 3:11
+
+*March 24 at 9:51 PM | KJV*
+
 ### Galatians 5:7
 
 *March 27 at 10:54 AM | KJV*
@@ -32266,14 +32274,6 @@ date: 2026-04-06
 ### Galatians 3:19
 
 *March 24 at 9:56 PM | KJV*
-
-### Galatians 3:24
-
-*March 24 at 9:55 PM | KJV*
-
-### Galatians 3:11
-
-*March 24 at 9:51 PM | KJV*
 
 ### Galatians 5:6
 
@@ -32291,10 +32291,6 @@ date: 2026-04-06
 
 *December 7 at 12:32 AM | KJV*
 
-### Galatians 3:12
-
-*October 18 at 11:53 PM | KJV*
-
 ### Galatians 3:9
 
 *October 18 at 11:58 PM | KJV*
@@ -32306,6 +32302,10 @@ date: 2026-04-06
 ### Galatians 3:14
 
 *October 18 at 11:54 PM | KJV*
+
+### Galatians 3:12
+
+*October 18 at 11:53 PM | KJV*
 
 ### Galatians 4:15
 
@@ -32322,10 +32322,6 @@ date: 2026-04-06
 ### Galatians 6:9
 
 *September 26 at 9:43 PM | KJV*
-
-### Galatians 5:3
-
-*September 11 at 12:32 AM | KJV*
 
 ### Galatians 4:24
 
@@ -32366,6 +32362,10 @@ date: 2026-04-06
 ### Galatians 1:7
 
 *September 8 at 9:07 PM | KJV*
+
+### Galatians 5:3
+
+*September 11 at 12:32 AM | KJV*
 
 ## 1 Peter
 
@@ -33701,18 +33701,6 @@ date: 2026-04-06
 
 *August 26 at 9:41 PM | KJV*
 
-### 1 Peter 2:24
-
-*August 18 at 9:57 PM | KJV*
-
-### 1 Peter 2:15
-
-*August 18 at 9:46 PM | KJV*
-
-### 1 Peter 2:5
-
-*August 18 at 9:12 PM | KJV*
-
 ### 1 Peter 2:8
 
 *August 19 at 9:25 PM | KJV*
@@ -33728,6 +33716,18 @@ date: 2026-04-06
 ### 1 Peter 3:6
 
 *August 18 at 10:43 PM | KJV*
+
+### 1 Peter 2:24
+
+*August 18 at 9:57 PM | KJV*
+
+### 1 Peter 2:15
+
+*August 18 at 9:46 PM | KJV*
+
+### 1 Peter 2:5
+
+*August 18 at 9:12 PM | KJV*
 
 ### 1 Peter 1:25
 
@@ -33813,21 +33813,13 @@ date: 2026-04-06
 
 *February 4 at 4:54 PM | KJV*
 
-### 1 Peter 2:10
-
-*October 11 at 3:43 PM | KJV*
-
 ### 1 Peter 3:4
 
 *October 23 at 10:22 PM | KJV*
 
-### 1 Peter 1:18
+### 1 Peter 2:10
 
-*September 13 at 12:53 AM | KJV*
-
-### 1 Peter 1:15
-
-*September 13 at 12:22 AM | KJV*
+*October 11 at 3:43 PM | KJV*
 
 ### 1 Peter 2:18
 
@@ -33844,6 +33836,14 @@ date: 2026-04-06
 ### 1 Peter 1:2
 
 *September 9 at 12:19 AM | KJV*
+
+### 1 Peter 1:18
+
+*September 13 at 12:53 AM | KJV*
+
+### 1 Peter 1:15
+
+*September 13 at 12:22 AM | KJV*
 
 ### 1 Peter 5:6
 
@@ -35171,14 +35171,6 @@ date: 2026-04-06
 
 *March 19 at 5:43 PM | KJV*
 
-### Hebrews 13:9
-
-*March 14 at 4:52 AM | KJV*
-
-### Hebrews 12:15
-
-*March 12 at 10:04 PM | KJV*
-
 ### Hebrews 11:34
 
 *March 4 at 9:17 PM | KJV*
@@ -35194,6 +35186,14 @@ date: 2026-04-06
 ### Hebrews 11:1
 
 *March 4 at 8:55 PM | KJV*
+
+### Hebrews 12:15
+
+*March 12 at 10:04 PM | KJV*
+
+### Hebrews 13:9
+
+*March 14 at 4:52 AM | KJV*
 
 ### Hebrews 4:7
 
@@ -35283,13 +35283,13 @@ date: 2026-04-06
 
 *August 25 at 9:32 PM | KJV*
 
-### Hebrews 11:33
-
-*August 18 at 9:58 PM | KJV*
-
 ### Hebrews 13:15
 
 *August 19 at 9:44 PM | KJV*
+
+### Hebrews 11:33
+
+*August 18 at 9:58 PM | KJV*
 
 ### Hebrews 13:17
 
@@ -35367,13 +35367,13 @@ date: 2026-04-06
 
 *April 4 at 9:10 PM | KJV*
 
-### Hebrews 3:1
-
-*March 16 at 2:04 AM | KJV*
-
 ### Hebrews 9:20
 
 *March 10 at 10:56 AM | KJV*
+
+### Hebrews 3:1
+
+*March 16 at 2:04 AM | KJV*
 
 ### Hebrews 13:7
 
@@ -35390,10 +35390,6 @@ date: 2026-04-06
 ### Hebrews 4:2
 
 *February 3 at 11:59 AM | KJV*
-
-### Hebrews 13:10
-
-*December 6 at 1:43 AM | KJV*
 
 ### Hebrews 10:1
 
@@ -35414,6 +35410,10 @@ date: 2026-04-06
 ### Hebrews 10:13
 
 *December 13 at 8:48 PM | KJV*
+
+### Hebrews 13:10
+
+*December 6 at 1:43 AM | KJV*
 
 ### Hebrews 2:10
 
@@ -35459,18 +35459,6 @@ date: 2026-04-06
 
 *August 29 at 5:33 PM | KJV*
 
-### Hebrews 9:19
-
-*August 29 at 5:26 PM | KJV*
-
-### Hebrews 9:9
-
-*August 29 at 2:21 AM | KJV*
-
-### Hebrews 12:24
-
-*August 21 at 9:55 PM | KJV*
-
 ### Hebrews 8:11
 
 *August 26 at 4:28 PM | KJV*
@@ -35499,6 +35487,18 @@ date: 2026-04-06
 
 *August 25 at 2:07 PM | KJV*
 
+### Hebrews 9:19
+
+*August 29 at 5:26 PM | KJV*
+
+### Hebrews 9:9
+
+*August 29 at 2:21 AM | KJV*
+
+### Hebrews 12:24
+
+*August 21 at 9:55 PM | KJV*
+
 ## Amos
 
 ### Amos 9:11
@@ -35519,15 +35519,15 @@ date: 2026-04-06
 
 *March 3 at 7:53 PM | KJV*
 
-11 In that day will I raise up the tabernacle of David that is fallen, and close up the breaches thereof; and I will raise up his ruins, and I will build it as in the days of old:
-
-*March 3 at 7:53 PM | KJV*
-
-11 In that day will I raise up the tabernacle of David that is fallen, and close up the breaches thereof; and I will raise up his ruins, and I will build it as in the days of old:
-
-*March 3 at 7:53 PM | KJV*
-
 *March 3 at 7:51 PM | KJV*
+
+11 In that day will I raise up the tabernacle of David that is fallen, and close up the breaches thereof; and I will raise up his ruins, and I will build it as in the days of old:
+
+*March 3 at 7:53 PM | KJV*
+
+11 In that day will I raise up the tabernacle of David that is fallen, and close up the breaches thereof; and I will raise up his ruins, and I will build it as in the days of old:
+
+*March 3 at 7:53 PM | KJV*
 
 11 In that day will I raise up the tabernacle of David that is fallen, and close up the breaches thereof; and I will raise up his ruins, and I will build it as in the days of old:
 
@@ -37481,13 +37481,13 @@ date: 2026-04-06
 
 *July 29 at 9:36 AM | KJV*
 
-### Amos 6:10
-
-*July 25 at 3:17 PM | KJV*
-
 ### Amos 3:3
 
 *July 23 at 9:56 AM | KJV*
+
+### Amos 6:10
+
+*July 25 at 3:17 PM | KJV*
 
 ### Amos 5:27
 
@@ -37544,6 +37544,642 @@ date: 2026-04-06
 ### Amos 3:5
 
 *August 26 at 9:51 PM | KJV*
+
+## 1 John
+
+### 1 John 5:8
+
+*March 24 at 10:16 AM | KJV*
+
+### 1 John 5:14
+
+*March 3 at 10:34 AM | KJV*
+
+### 1 John 3:22
+
+*March 6 at 10:13 AM | KJV*
+
+### 1 John 1:7
+
+*December 10 at 10:09 AM | KJV*
+
+### 1 John 3:16
+
+*September 8 at 10:23 PM | KJV*
+
+### 1 John 5:10
+
+*August 30 at 4:14 PM | KJV*
+
+### 1 John 4:6
+
+*August 30 at 4:11 PM | KJV*
+
+### 1 John 2:10
+
+*August 19 at 9:34 PM | KJV*
+
+### 1 John 2:27
+
+*August 14 at 9:52 AM | KJV*
+
+### 1 John 2:15
+
+*July 18 at 9:05 PM | KJV*
+
+### 1 John 3:13
+
+*May 19 at 11:43 PM | KJV*
+
+### 1 John 4:1
+
+*May 12 at 12:33 PM | KJV*
+
+### 1 John 3:7
+
+*May 22 at 11:10 PM | KJV*
+
+### 1 John 2:29
+
+*March 30 at 12:24 AM | KJV*
+
+### 1 John 2:5
+
+*March 30 at 12:22 AM | KJV*
+
+### 1 John 2:1
+
+*March 8 at 6:31 PM | KJV*
+
+### 1 John 2:22
+
+*February 20 at 12:31 PM | KJV*
+
+### 1 John 2:8
+
+*February 20 at 12:13 PM | KJV*
+
+### 1 John 2:3
+
+*February 20 at 11:47 AM | KJV*
+
+### 1 John 1:1
+
+*February 20 at 11:45 AM | KJV*
+
+### 1 John 1:8
+
+*February 20 at 11:42 AM | KJV*
+
+### 1 John 5:1
+
+*January 4 at 1:29 AM | KJV*
+
+### 1 John 4:3
+
+*January 4 at 1:17 AM | KJV*
+
+### 1 John 3:23
+
+*January 4 at 1:08 AM | KJV*
+
+### 1 John 3:17
+
+*January 4 at 1:05 AM | KJV*
+
+### 1 John 3:11
+
+*January 4 at 1:01 AM | KJV*
+
+### 1 John 3:8
+
+*January 4 at 1:00 AM | KJV*
+
+### 1 John 2:28
+
+*January 4 at 12:45 AM | KJV*
+
+### 1 John 1:6
+
+*January 3 at 11:17 PM | KJV*
+
+### 1 John 2:16
+
+*November 7 at 2:16 PM | KJV*
+
+### 1 John 1:10
+
+*October 21 at 9:43 AM | KJV*
+
+### 1 John 3:3
+
+*September 10 at 8:57 PM | KJV*
+
+### 1 John 1:9
+
+*September 10 at 8:54 PM | KJV*
+
+### 1 John 5:16
+
+*August 16 at 11:05 PM | KJV*
+
+## Ezekiel
+
+### Ezekiel 18:4
+
+*March 23 at 10:07 AM | KJV*
+
+### Ezekiel 34:14
+
+*March 27 at 9:22 AM | KJV*
+
+### Ezekiel 20:35
+
+*February 17 at 10:11 AM | KJV*
+
+### Ezekiel 28:2
+
+*January 20 at 8:17 PM | KJV*
+
+### Ezekiel 34:19
+
+*January 20 at 2:13 AM | KJV*
+
+### Ezekiel 33:33
+
+*December 24 at 10:03 AM | KJV*
+
+### Ezekiel 33:24
+
+*December 24 at 10:02 AM | KJV*
+
+### Ezekiel 31:13
+
+*December 24 at 9:38 AM | KJV*
+
+### Ezekiel 29:11
+
+*December 23 at 10:20 AM | KJV*
+
+### Ezekiel 29:4
+
+*December 23 at 10:15 AM | KJV*
+
+### Ezekiel 29:3
+
+*December 23 at 10:12 AM | KJV*
+
+### Ezekiel 29:5
+
+*December 23 at 10:11 AM | KJV*
+
+### Ezekiel 28:18
+
+*December 23 at 10:06 AM | KJV*
+
+### Ezekiel 28:14
+
+*December 23 at 10:00 AM | KJV*
+
+### Ezekiel 28:13
+
+*December 23 at 9:54 AM | KJV*
+
+### Ezekiel 27:30
+
+*December 23 at 9:41 AM | KJV*
+
+### Ezekiel 27:3
+
+*December 23 at 9:36 AM | KJV*
+
+### Ezekiel 26:21
+
+*December 23 at 9:33 AM | KJV*
+
+### Ezekiel 26:20
+
+*December 23 at 9:32 AM | KJV*
+
+### Ezekiel 26:17
+
+*December 23 at 9:29 AM | KJV*
+
+### Ezekiel 25:6
+
+*December 23 at 9:19 AM | KJV*
+
+### Ezekiel 21:26
+
+*December 22 at 10:10 AM | KJV*
+
+### Ezekiel 20:49
+
+*December 22 at 9:56 AM | KJV*
+
+### Ezekiel 18:2
+
+*December 22 at 9:23 AM | KJV*
+
+### Ezekiel 16:38
+
+*December 21 at 10:30 AM | KJV*
+
+### Ezekiel 22:26
+
+*December 26 at 9:21 AM | KJV*
+
+### Ezekiel 38:2
+
+*December 25 at 9:47 AM | KJV*
+
+### Ezekiel 37:27
+
+*December 25 at 9:40 AM | KJV*
+
+### Ezekiel 37:10
+
+*December 25 at 9:32 AM | KJV*
+
+### Ezekiel 35:2
+
+*December 24 at 10:46 AM | KJV*
+
+### Ezekiel 34:17
+
+*December 24 at 10:34 AM | KJV*
+
+### Ezekiel 16:15
+
+*December 21 at 10:03 AM | KJV*
+
+### Ezekiel 16:14
+
+*December 21 at 10:00 AM | KJV*
+
+### Ezekiel 16:7
+
+*December 21 at 9:51 AM | KJV*
+
+### Ezekiel 16:3
+
+*December 21 at 9:44 AM | KJV*
+
+### Ezekiel 8:17
+
+*December 16 at 10:39 AM | KJV*
+
+### Ezekiel 14:3
+
+*December 16 at 10:39 AM | KJV*
+
+### Ezekiel 13:16
+
+*December 16 at 10:32 AM | KJV*
+
+### Ezekiel 12:27
+
+*December 16 at 10:23 AM | KJV*
+
+### Ezekiel 11:19
+
+*December 16 at 10:10 AM | KJV*
+
+### Ezekiel 11:5
+
+*December 16 at 10:05 AM | KJV*
+
+### Ezekiel 7:14
+
+*December 16 at 9:21 AM | KJV*
+
+### Ezekiel 7:6
+
+*December 16 at 9:13 AM | KJV*
+
+### Ezekiel 33:32
+
+*December 9 at 10:28 AM | KJV*
+
+### Ezekiel 37:12
+
+*November 20 at 9:57 AM | KJV*
+
+### Ezekiel 36:20
+
+*November 19 at 8:21 PM | KJV*
+
+### Ezekiel 13:11
+
+*November 19 at 9:46 AM | KJV*
+
+### Ezekiel 13:5
+
+*November 19 at 9:38 AM | KJV*
+
+### Ezekiel 13:3
+
+*November 19 at 9:37 AM | KJV*
+
+### Ezekiel 10:11
+
+*September 17 at 10:17 PM | KJV*
+
+### Ezekiel 9:6
+
+*September 17 at 10:42 AM | KJV*
+
+### Ezekiel 23:7
+
+*September 9 at 10:14 PM | KJV*
+
+### Ezekiel 18:32
+
+*September 9 at 9:51 PM | KJV*
+
+### Ezekiel 37:26
+
+*September 4 at 9:36 PM | KJV*
+
+### Ezekiel 6:8
+
+*August 26 at 11:08 AM | KJV*
+
+### Ezekiel 10:2
+
+*August 22 at 10:33 AM | KJV*
+
+### Ezekiel 10:1
+
+*August 22 at 10:28 AM | KJV*
+
+### Ezekiel 27:6
+
+*August 10 at 9:26 PM | KJV*
+
+### Ezekiel 36:23
+
+*August 10 at 10:01 AM | KJV*
+
+### Ezekiel 1:16
+
+*July 30 at 9:53 AM | KJV*
+
+### Ezekiel 34:6
+
+*July 19 at 3:18 PM | KJV*
+
+### Ezekiel 34:2
+
+*July 18 at 11:00 PM | KJV*
+
+### Ezekiel 33:11
+
+*July 18 at 10:48 PM | KJV*
+
+### Ezekiel 3:26
+
+*July 15 at 10:36 AM | KJV*
+
+### Ezekiel 7:20
+
+*July 8 at 10:47 AM | KJV*
+
+### Ezekiel 7:15
+
+*July 8 at 10:41 AM | KJV*
+
+### Ezekiel 7:16
+
+*July 8 at 10:41 AM | KJV*
+
+### Ezekiel 20:8
+
+*July 6 at 10:14 AM | KJV*
+
+### Ezekiel 37:19
+
+*June 29 at 11:12 PM | KJV*
+
+### Ezekiel 20:23
+
+*June 28 at 7:53 PM | KJV*
+
+### Ezekiel 2:6
+
+*July 1 at 2:23 AM | KJV*
+
+### Ezekiel 1:28
+
+*July 1 at 2:17 AM | KJV*
+
+### Ezekiel 9:2
+
+*June 12 at 10:59 PM | KJV*
+
+### Ezekiel 28:24
+
+*June 12 at 11:18 AM | KJV*
+
+### Ezekiel 37:6
+
+*June 10 at 1:02 PM | KJV*
+
+### Ezekiel 37:8
+
+*June 10 at 1:02 PM | KJV*
+
+### Ezekiel 36:12
+
+*June 10 at 12:54 PM | KJV*
+
+### Ezekiel 32:2
+
+*June 7 at 8:31 PM | KJV*
+
+### Ezekiel 31:12
+
+*June 7 at 8:28 PM | KJV*
+
+### Ezekiel 30:13
+
+*June 7 at 8:26 PM | KJV*
+
+### Ezekiel 30:9
+
+*June 7 at 8:24 PM | KJV*
+
+### Ezekiel 24:21
+
+*June 4 at 12:57 PM | KJV*
+
+### Ezekiel 26:13
+
+*May 1 at 10:05 PM | KJV*
+
+### Ezekiel 28:7
+
+*May 1 at 9:56 PM | KJV*
+
+### Ezekiel 32:24
+
+*May 1 at 9:51 PM | KJV*
+
+### Ezekiel 36:24
+
+*May 6 at 10:51 PM | KJV*
+
+### Ezekiel 35:10
+
+*May 6 at 10:42 PM | KJV*
+
+### Ezekiel 35:3
+
+*May 6 at 10:39 PM | KJV*
+
+### Ezekiel 35:9
+
+*May 6 at 10:36 PM | KJV*
+
+### Ezekiel 34:16
+
+*May 6 at 10:07 PM | KJV*
+
+### Ezekiel 20:17
+
+*April 2 at 10:15 AM | KJV*
+
+### Ezekiel 16:28
+
+*March 11 at 12:05 AM | KJV*
+
+### Ezekiel 16:29
+
+*March 11 at 12:05 AM | KJV*
+
+### Ezekiel 16:37
+
+*March 10 at 8:09 PM | KJV*
+
+### Ezekiel 16:27
+
+*March 10 at 8:08 PM | KJV*
+
+### Ezekiel 16:19
+
+*March 10 at 8:07 PM | KJV*
+
+### Ezekiel 16:8
+
+*March 10 at 8:06 PM | KJV*
+
+### Ezekiel 23:42
+
+*January 26 at 9:51 PM | KJV*
+
+### Ezekiel 23:14
+
+*January 26 at 9:40 PM | KJV*
+
+### Ezekiel 18:8
+
+*December 2 at 2:09 AM | KJV*
+
+### Ezekiel 24:27
+
+*November 22 at 2:19 PM | KJV*
+
+### Ezekiel 36:17
+
+*November 14 at 1:47 PM | KJV*
+
+### Ezekiel 22:21
+
+*November 7 at 11:16 PM | KJV*
+
+### Ezekiel 34:13
+
+*November 18 at 8:48 PM | KJV*
+
+### Ezekiel 34:12
+
+*November 18 at 8:46 PM | KJV*
+
+### Ezekiel 34:8
+
+*November 18 at 8:45 PM | KJV*
+
+### Ezekiel 34:5
+
+*November 18 at 8:41 PM | KJV*
+
+### Ezekiel 34:28
+
+*November 18 at 8:21 PM | KJV*
+
+### Ezekiel 24:7
+
+*October 17 at 8:57 AM | KJV*
+
+### Ezekiel 16:55
+
+*October 6 at 10:20 PM | KJV*
+
+### Ezekiel 16:52
+
+*October 6 at 10:14 PM | KJV*
+
+### Ezekiel 16:49
+
+*October 6 at 9:49 PM | KJV*
+
+### Ezekiel 16:6
+
+*October 5 at 11:59 PM | KJV*
+
+### Ezekiel 8:3
+
+*October 13 at 7:10 PM | KJV*
+
+### Ezekiel 20:13
+
+*October 5 at 6:56 AM | KJV*
+
+### Ezekiel 20:11
+
+*October 5 at 6:51 AM | KJV*
+
+### Ezekiel 20:6
+
+*October 5 at 6:46 AM | KJV*
+
+### Ezekiel 20:48
+
+*September 16 at 8:55 PM | KJV*
+
+### Ezekiel 33:31
+
+*September 11 at 12:27 AM | KJV*
+
+### Ezekiel 16:4
+
+*September 14 at 2:57 AM | KJV*
+
+### Ezekiel 3:5
+
+*August 30 at 9:13 PM | KJV*
+
+### Ezekiel 2:10
+
+*August 30 at 9:07 PM | KJV*
+
+### Ezekiel 2:9
+
+*August 30 at 9:07 PM | KJV*
+
+### Ezekiel 1:24
+
+*August 12 at 12:09 PM | KJV*
 
 ## Mark
 
@@ -37699,641 +38335,711 @@ date: 2026-04-06
 
 *August 28 at 4:43 PM | KJV*
 
-## Ezekiel
+## Hosea
 
-### Ezekiel 34:14
+### Hosea 6:6
 
-*March 27 at 9:22 AM | KJV*
+*March 5 at 10:07 AM | KJV*
 
-### Ezekiel 18:4
+### Hosea 14:4
 
-*March 23 at 10:07 AM | KJV*
+*February 26 at 9:04 PM | KJV*
 
-### Ezekiel 20:35
+### Hosea 9:16
 
-*February 17 at 10:11 AM | KJV*
+*February 26 at 9:03 PM | KJV*
 
-### Ezekiel 28:2
+### Hosea 14:3
 
-*January 20 at 8:17 PM | KJV*
+*February 26 at 8:59 PM | KJV*
 
-### Ezekiel 34:19
+### Hosea 13:12
 
-*January 20 at 2:13 AM | KJV*
+*January 30 at 4:02 PM | KJV*
 
-### Ezekiel 22:26
+### Hosea 13:16
 
-*December 26 at 9:21 AM | KJV*
+*January 30 at 3:55 PM | KJV*
 
-### Ezekiel 38:2
+### Hosea 13:11
 
-*December 25 at 9:47 AM | KJV*
+*January 24 at 9:55 PM | KJV*
 
-### Ezekiel 37:27
+### Hosea 9:10
 
-*December 25 at 9:40 AM | KJV*
+*January 24 at 6:08 AM | KJV*
 
-### Ezekiel 37:10
+### Hosea 9:13
 
-*December 25 at 9:32 AM | KJV*
+*January 20 at 1:03 AM | KJV*
 
-### Ezekiel 35:2
+### Hosea 7:3
 
-*December 24 at 10:46 AM | KJV*
+*January 16 at 8:56 PM | KJV*
 
-### Ezekiel 34:17
+### Hosea 8:12
 
-*December 24 at 10:34 AM | KJV*
+*January 5 at 3:04 PM | KJV*
 
-### Ezekiel 33:33
+### Hosea 7:1
 
-*December 24 at 10:03 AM | KJV*
+*December 6 at 12:42 PM | KJV*
 
-### Ezekiel 33:24
+### Hosea 1:4
 
-*December 24 at 10:02 AM | KJV*
+*November 24 at 1:07 AM | KJV*
 
-### Ezekiel 31:13
+### Hosea 5:8
 
-*December 24 at 9:38 AM | KJV*
+*November 20 at 9:56 PM | KJV*
 
-### Ezekiel 29:11
+### Hosea 5:3
 
-*December 23 at 10:20 AM | KJV*
+*November 20 at 9:35 PM | KJV*
 
-### Ezekiel 29:4
+### Hosea 6:11
 
-*December 23 at 10:15 AM | KJV*
+*November 18 at 10:04 AM | KJV*
 
-### Ezekiel 29:3
+### Hosea 4:12
 
-*December 23 at 10:12 AM | KJV*
+*November 15 at 12:11 PM | KJV*
 
-### Ezekiel 29:5
+### Hosea 14:9
 
-*December 23 at 10:11 AM | KJV*
+*November 2 at 6:13 PM | KJV*
 
-### Ezekiel 28:18
+### Hosea 13:14
 
-*December 23 at 10:06 AM | KJV*
+*November 2 at 6:04 PM | KJV*
 
-### Ezekiel 28:14
+### Hosea 13:3
 
-*December 23 at 10:00 AM | KJV*
+*November 2 at 5:56 PM | KJV*
 
-### Ezekiel 28:13
+### Hosea 14:8
 
-*December 23 at 9:54 AM | KJV*
+*September 18 at 10:04 PM | KJV*
 
-### Ezekiel 27:30
+### Hosea 8:14
 
-*December 23 at 9:41 AM | KJV*
+*September 10 at 9:13 PM | KJV*
 
-### Ezekiel 27:3
+### Hosea 11:9
 
-*December 23 at 9:36 AM | KJV*
+*September 7 at 10:44 PM | KJV*
 
-### Ezekiel 26:21
+### Hosea 1:10
 
-*December 23 at 9:33 AM | KJV*
+*September 3 at 9:16 PM | KJV*
 
-### Ezekiel 26:20
+### Hosea 13:13
 
-*December 23 at 9:32 AM | KJV*
+*August 14 at 11:18 PM | KJV*
 
-### Ezekiel 26:17
+### Hosea 13:8
 
-*December 23 at 9:29 AM | KJV*
+*August 14 at 11:07 PM | KJV*
 
-### Ezekiel 25:6
+### Hosea 9:8
 
-*December 23 at 9:19 AM | KJV*
+*August 13 at 10:22 PM | KJV*
 
-### Ezekiel 21:26
+### Hosea 2:22
 
-*December 22 at 10:10 AM | KJV*
+*August 6 at 10:24 AM | KJV*
 
-### Ezekiel 20:49
+### Hosea 12:7
 
-*December 22 at 9:56 AM | KJV*
+*July 29 at 9:34 AM | KJV*
 
-### Ezekiel 18:2
+### Hosea 14:5
 
-*December 22 at 9:23 AM | KJV*
+*July 26 at 7:44 PM | KJV*
 
-### Ezekiel 16:38
+### Hosea 13:15
 
-*December 21 at 10:30 AM | KJV*
+*July 26 at 7:42 PM | KJV*
 
-### Ezekiel 16:15
+### Hosea 5:10
 
-*December 21 at 10:03 AM | KJV*
+*July 25 at 9:34 PM | KJV*
 
-### Ezekiel 16:14
+### Hosea 12:3
 
-*December 21 at 10:00 AM | KJV*
+*July 19 at 6:12 PM | KJV*
 
-### Ezekiel 16:7
+### Hosea 9:17
 
-*December 21 at 9:51 AM | KJV*
+*June 27 at 10:30 AM | KJV*
 
-### Ezekiel 16:3
+### Hosea 4:6
 
-*December 21 at 9:44 AM | KJV*
+*May 12 at 12:08 PM | KJV*
 
-### Ezekiel 8:17
+### Hosea 4:7
 
-*December 16 at 10:39 AM | KJV*
+*April 12 at 12:36 AM | KJV*
 
-### Ezekiel 14:3
+### Hosea 4:15
 
-*December 16 at 10:39 AM | KJV*
+*April 11 at 1:21 AM | KJV*
 
-### Ezekiel 13:16
+### Hosea 2:23
 
-*December 16 at 10:32 AM | KJV*
+*April 11 at 1:18 AM | KJV*
 
-### Ezekiel 12:27
+### Hosea 4:14
 
-*December 16 at 10:23 AM | KJV*
+*April 11 at 1:16 AM | KJV*
 
-### Ezekiel 11:19
+### Hosea 4:8
 
-*December 16 at 10:10 AM | KJV*
+*April 11 at 1:14 AM | KJV*
 
-### Ezekiel 11:5
+### Hosea 3:5
 
-*December 16 at 10:05 AM | KJV*
+*April 11 at 1:08 AM | KJV*
 
-### Ezekiel 7:14
+### Hosea 5:13
 
-*December 16 at 9:21 AM | KJV*
+*April 10 at 10:26 PM | KJV*
 
-### Ezekiel 7:6
+### Hosea 5:7
 
-*December 16 at 9:13 AM | KJV*
+*April 10 at 9:42 PM | KJV*
 
-### Ezekiel 33:32
+### Hosea 5:6
 
-*December 9 at 10:28 AM | KJV*
+*April 10 at 9:42 PM | KJV*
 
-### Ezekiel 37:12
+### Hosea 5:5
 
-*November 20 at 9:57 AM | KJV*
+*April 10 at 9:36 PM | KJV*
 
-### Ezekiel 36:20
+### Hosea 4:16
 
-*November 19 at 8:21 PM | KJV*
+*April 4 at 10:13 PM | KJV*
 
-### Ezekiel 13:11
+### Hosea 4:17
 
-*November 19 at 9:46 AM | KJV*
+*April 3 at 10:46 PM | KJV*
 
-### Ezekiel 13:5
+### Hosea 4:10
 
-*November 19 at 9:38 AM | KJV*
+*April 2 at 9:32 PM | KJV*
 
-### Ezekiel 13:3
+### Hosea 4:3
 
-*November 19 at 9:37 AM | KJV*
+*April 2 at 9:27 PM | KJV*
 
-### Ezekiel 10:11
+### Hosea 4:2
 
-*September 17 at 10:17 PM | KJV*
+*April 2 at 9:15 PM | KJV*
 
-### Ezekiel 9:6
+### Hosea 8:2
 
-*September 17 at 10:42 AM | KJV*
+*March 23 at 1:39 AM | KJV*
 
-### Ezekiel 23:7
+### Hosea 8:1
 
-*September 9 at 10:14 PM | KJV*
+*March 23 at 1:39 AM | KJV*
 
-### Ezekiel 18:32
+### Hosea 4:1
 
-*September 9 at 9:51 PM | KJV*
+*April 2 at 9:15 PM | KJV*
 
-### Ezekiel 37:26
+### Hosea 3:4
 
-*September 4 at 9:36 PM | KJV*
+*April 1 at 11:15 PM | KJV*
 
-### Ezekiel 6:8
+### Hosea 2:18
 
-*August 26 at 11:08 AM | KJV*
+*April 1 at 10:40 PM | KJV*
 
-### Ezekiel 10:2
+### Hosea 2:15
 
-*August 22 at 10:33 AM | KJV*
+*April 1 at 10:32 PM | KJV*
 
-### Ezekiel 10:1
+### Hosea 2:14
 
-*August 22 at 10:28 AM | KJV*
+*April 1 at 10:28 PM | KJV*
 
-### Ezekiel 27:6
+### Hosea 2:9
 
-*August 10 at 9:26 PM | KJV*
+*April 1 at 10:27 PM | KJV*
 
-### Ezekiel 36:23
+### Hosea 2:8
 
-*August 10 at 10:01 AM | KJV*
+*April 1 at 10:27 PM | KJV*
 
-### Ezekiel 1:16
+### Hosea 2:11
 
-*July 30 at 9:53 AM | KJV*
+*April 1 at 10:27 PM | KJV*
 
-### Ezekiel 34:6
+### Hosea 2:10
 
-*July 19 at 3:18 PM | KJV*
+*April 1 at 10:26 PM | KJV*
 
-### Ezekiel 34:2
+### Hosea 2:6
 
-*July 18 at 11:00 PM | KJV*
+*April 1 at 10:25 PM | KJV*
 
-### Ezekiel 33:11
+### Hosea 1:2
 
-*July 18 at 10:48 PM | KJV*
+*April 1 at 10:18 PM | KJV*
 
-### Ezekiel 3:26
+### Hosea 1:7
 
-*July 15 at 10:36 AM | KJV*
+*April 1 at 10:16 PM | KJV*
 
-### Ezekiel 7:20
+### Hosea 9:14
 
-*July 8 at 10:47 AM | KJV*
+*March 23 at 1:33 AM | KJV*
 
-### Ezekiel 7:15
+### Hosea 9:12
 
-*July 8 at 10:41 AM | KJV*
+*March 23 at 1:32 AM | KJV*
 
-### Ezekiel 7:16
+### Hosea 9:3
 
-*July 8 at 10:41 AM | KJV*
+*March 23 at 1:28 AM | KJV*
 
-### Ezekiel 20:8
+### Hosea 2:5
 
-*July 6 at 10:14 AM | KJV*
+*March 20 at 12:05 PM | KJV*
 
-### Ezekiel 2:6
+### Hosea 5:2
 
-*July 1 at 2:23 AM | KJV*
+*March 11 at 11:33 PM | KJV*
 
-### Ezekiel 1:28
+### Hosea 5:1
 
-*July 1 at 2:17 AM | KJV*
+*March 11 at 10:01 PM | KJV*
 
-### Ezekiel 37:19
+### Hosea 9:9
 
-*June 29 at 11:12 PM | KJV*
+*March 11 at 3:01 PM | KJV*
 
-### Ezekiel 20:23
+### Hosea 6:9
 
-*June 28 at 7:53 PM | KJV*
+*March 16 at 11:50 PM | KJV*
 
-### Ezekiel 9:2
+### Hosea 1:11
 
-*June 12 at 10:59 PM | KJV*
+*March 13 at 9:30 PM | KJV*
 
-### Ezekiel 28:24
+### Hosea 1:6
 
-*June 12 at 11:18 AM | KJV*
+*March 13 at 9:28 PM | KJV*
 
-### Ezekiel 37:6
+### Hosea 14:7
 
-*June 10 at 1:02 PM | KJV*
+*February 20 at 9:52 AM | KJV*
 
-### Ezekiel 37:8
+### Hosea 10:12
 
-*June 10 at 1:02 PM | KJV*
+*February 20 at 9:15 AM | KJV*
 
-### Ezekiel 36:12
+### Hosea 8:7
 
-*June 10 at 12:54 PM | KJV*
+*February 19 at 10:28 AM | KJV*
 
-### Ezekiel 32:2
+### Hosea 9:11
 
-*June 7 at 8:31 PM | KJV*
+*January 5 at 4:39 AM | KJV*
 
-### Ezekiel 31:12
+### Hosea 6:10
 
-*June 7 at 8:28 PM | KJV*
+*November 21 at 9:54 PM | KJV*
 
-### Ezekiel 30:13
+### Hosea 6:2
 
-*June 7 at 8:26 PM | KJV*
+*November 21 at 4:37 PM | KJV*
 
-### Ezekiel 30:9
+### Hosea 9:6
 
-*June 7 at 8:24 PM | KJV*
+*November 12 at 10:49 PM | KJV*
 
-### Ezekiel 24:21
+### Hosea 9:2
 
-*June 4 at 12:57 PM | KJV*
+*November 12 at 10:48 PM | KJV*
 
-### Ezekiel 36:24
+### Hosea 9:1
 
-*May 6 at 10:51 PM | KJV*
+*November 12 at 10:48 PM | KJV*
 
-### Ezekiel 35:10
+### Hosea 9:7
 
-*May 6 at 10:42 PM | KJV*
+*November 21 at 3:17 PM | KJV*
 
-### Ezekiel 35:3
+### Hosea 3:1
 
-*May 6 at 10:39 PM | KJV*
+*November 1 at 8:50 PM | KJV*
 
-### Ezekiel 35:9
+### Hosea 7:14
 
-*May 6 at 10:36 PM | KJV*
+*October 25 at 12:21 PM | KJV*
 
-### Ezekiel 34:16
+### Hosea 7:16
 
-*May 6 at 10:07 PM | KJV*
+*October 25 at 12:18 PM | KJV*
 
-### Ezekiel 26:13
+### Hosea 7:4
 
-*May 1 at 10:05 PM | KJV*
+*October 25 at 12:16 PM | KJV*
 
-### Ezekiel 28:7
+### Hosea 8:11
 
-*May 1 at 9:56 PM | KJV*
+*October 6 at 12:24 AM | KJV*
 
-### Ezekiel 32:24
+### Hosea 2:2
 
-*May 1 at 9:51 PM | KJV*
+*October 11 at 3:46 PM | KJV*
 
-### Ezekiel 20:17
+### Hosea 1:9
 
-*April 2 at 10:15 AM | KJV*
+*October 11 at 3:39 PM | KJV*
 
-### Ezekiel 16:28
+### Hosea 12:1
 
-*March 11 at 12:05 AM | KJV*
+*September 28 at 3:47 PM | KJV*
 
-### Ezekiel 16:29
+### Hosea 11:10
 
-*March 11 at 12:05 AM | KJV*
+*September 28 at 3:47 PM | KJV*
 
-### Ezekiel 16:37
+### Hosea 7:8
 
-*March 10 at 8:09 PM | KJV*
+*September 26 at 12:28 AM | KJV*
 
-### Ezekiel 16:27
+### Hosea 7:6
 
-*March 10 at 8:08 PM | KJV*
+*September 26 at 12:27 AM | KJV*
 
-### Ezekiel 16:19
+### Hosea 13:7
 
-*March 10 at 8:07 PM | KJV*
+*September 23 at 11:48 AM | KJV*
 
-### Ezekiel 16:8
+### Hosea 5:14
 
-*March 10 at 8:06 PM | KJV*
+*September 23 at 11:47 AM | KJV*
 
-### Ezekiel 23:42
+### Hosea 5:11
 
-*January 26 at 9:51 PM | KJV*
+*September 23 at 11:45 AM | KJV*
 
-### Ezekiel 23:14
+### Hosea 4:18
 
-*January 26 at 9:40 PM | KJV*
+*September 23 at 11:41 AM | KJV*
 
-### Ezekiel 18:8
+### Hosea 13:1
 
-*December 2 at 2:09 AM | KJV*
+*September 23 at 11:17 AM | KJV*
 
-### Ezekiel 24:27
+### Hosea 5:15
 
-*November 22 at 2:19 PM | KJV*
+*August 1 at 1:34 AM | KJV*
 
-### Ezekiel 36:17
+### Hosea 4:11
 
-*November 14 at 1:47 PM | KJV*
+*July 28 at 12:51 PM | KJV*
 
-### Ezekiel 22:21
+## Judges
 
-*November 7 at 11:16 PM | KJV*
+### Judges 15:4
 
-### Ezekiel 34:13
+*March 4 at 9:16 PM | KJV*
 
-*November 18 at 8:48 PM | KJV*
+### Judges 12:6
 
-### Ezekiel 34:12
+*June 19 at 10:57 PM | KJV*
 
-*November 18 at 8:46 PM | KJV*
+### Judges 12:1
 
-### Ezekiel 34:8
+*June 19 at 10:55 PM | KJV*
 
-*November 18 at 8:45 PM | KJV*
+## 2 Corinthians
 
-### Ezekiel 34:5
+### 2 Corinthians 3:7
 
-*November 18 at 8:41 PM | KJV*
+*March 4 at 10:44 AM | KJV*
 
-### Ezekiel 34:28
+### 2 Corinthians 8:16
 
-*November 18 at 8:21 PM | KJV*
+*August 1 at 11:13 PM | KJV*
 
-### Ezekiel 24:7
+### 2 Corinthians 9:10
 
-*October 17 at 8:57 AM | KJV*
+*August 1 at 9:59 PM | KJV*
 
-### Ezekiel 8:3
+### 2 Corinthians 9:5
 
-*October 13 at 7:10 PM | KJV*
+*August 1 at 9:44 PM | KJV*
 
-### Ezekiel 16:55
+### 2 Corinthians 9:7
 
-*October 6 at 10:20 PM | KJV*
+*August 10 at 8:19 PM | KJV*
 
-### Ezekiel 16:52
+### 2 Corinthians 13:3
 
-*October 6 at 10:14 PM | KJV*
+*July 23 at 10:23 AM | KJV*
 
-### Ezekiel 16:49
+### 2 Corinthians 11:7
 
-*October 6 at 9:49 PM | KJV*
+*July 23 at 10:03 AM | KJV*
 
-### Ezekiel 16:6
+### 2 Corinthians 11:12
 
-*October 5 at 11:59 PM | KJV*
+*July 23 at 10:02 AM | KJV*
 
-### Ezekiel 20:13
+### 2 Corinthians 11:2
 
-*October 5 at 6:56 AM | KJV*
+*July 23 at 9:56 AM | KJV*
 
-### Ezekiel 20:11
+### 2 Corinthians 11:4
 
-*October 5 at 6:51 AM | KJV*
+*July 23 at 9:53 AM | KJV*
 
-### Ezekiel 20:6
+### 2 Corinthians 9:9
 
-*October 5 at 6:46 AM | KJV*
+*July 23 at 9:33 AM | KJV*
 
-### Ezekiel 20:48
+### 2 Corinthians 9:6
 
-*September 16 at 8:55 PM | KJV*
+*July 23 at 9:31 AM | KJV*
 
-### Ezekiel 16:4
+### 2 Corinthians 8:15
 
-*September 14 at 2:57 AM | KJV*
+*July 23 at 9:30 AM | KJV*
 
-### Ezekiel 33:31
+### 2 Corinthians 6:18
 
-*September 11 at 12:27 AM | KJV*
+*July 22 at 10:58 AM | KJV*
 
-### Ezekiel 3:5
+### 2 Corinthians 6:2
 
-*August 30 at 9:13 PM | KJV*
+*July 22 at 10:39 AM | KJV*
 
-### Ezekiel 2:10
+### 2 Corinthians 5:19
 
-*August 30 at 9:07 PM | KJV*
+*July 22 at 10:36 AM | KJV*
 
-### Ezekiel 2:9
+### 2 Corinthians 4:18
 
-*August 30 at 9:07 PM | KJV*
+*July 22 at 10:29 AM | KJV*
 
-### Ezekiel 1:24
+### 2 Corinthians 2:13
 
-*August 12 at 12:09 PM | KJV*
+*July 22 at 9:51 AM | KJV*
 
-## 1 John
+### 2 Corinthians 1:8
 
-### 1 John 5:8
+*July 22 at 9:34 AM | KJV*
 
-*March 24 at 10:16 AM | KJV*
+### 2 Corinthians 3:3
 
-### 1 John 3:22
+*July 15 at 12:41 AM | KJV*
 
-*March 6 at 10:13 AM | KJV*
+### 2 Corinthians 3:17
 
-### 1 John 5:14
+*July 15 at 12:41 AM | KJV*
 
-*March 3 at 10:34 AM | KJV*
+### 2 Corinthians 3:13
 
-### 1 John 1:7
+*July 15 at 12:38 AM | KJV*
 
-*December 10 at 10:09 AM | KJV*
+### 2 Corinthians 4:17
 
-### 1 John 3:16
+*June 8 at 2:38 AM | KJV*
 
-*September 8 at 10:23 PM | KJV*
+### 2 Corinthians 4:13
 
-### 1 John 5:10
+*June 6 at 9:24 PM | KJV*
 
-*August 30 at 4:14 PM | KJV*
+### 2 Corinthians 4:6
 
-### 1 John 4:6
+*June 6 at 9:23 PM | KJV*
 
-*August 30 at 4:11 PM | KJV*
+### 2 Corinthians 10:1
 
-### 1 John 2:10
+*March 19 at 12:50 PM | KJV*
 
-*August 19 at 9:34 PM | KJV*
+### 2 Corinthians 6:17
 
-### 1 John 2:27
+*October 9 at 2:41 AM | KJV*
 
-*August 14 at 9:52 AM | KJV*
+### 2 Corinthians 10:4
 
-### 1 John 2:15
+*October 4 at 1:02 PM | KJV*
 
-*July 18 at 9:05 PM | KJV*
+### 2 Corinthians 10:17
 
-### 1 John 3:7
+*September 24 at 10:46 PM | KJV*
 
-*May 22 at 11:10 PM | KJV*
+### 2 Corinthians 6:16
 
-### 1 John 3:13
+*September 22 at 2:26 AM | KJV*
 
-*May 19 at 11:43 PM | KJV*
+### 2 Corinthians 1:17
 
-### 1 John 4:1
+*September 1 at 9:48 PM | KJV*
 
-*May 12 at 12:33 PM | KJV*
+## 2 Kings
 
-### 1 John 2:29
+### 2 Kings 17:30
 
-*March 30 at 12:24 AM | KJV*
+*March 9 at 9:33 AM | KJV*
 
-### 1 John 2:5
+### 2 Kings 9:35
 
-*March 30 at 12:22 AM | KJV*
+*February 7 at 6:08 PM | KJV*
 
-### 1 John 2:1
+### 2 Kings 2:9
 
-*March 8 at 6:31 PM | KJV*
+*December 10 at 10:37 AM | KJV*
 
-### 1 John 2:22
+### 2 Kings 4:3
 
-*February 20 at 12:31 PM | KJV*
+*November 13 at 11:45 PM | KJV*
 
-### 1 John 2:8
+### 2 Kings 6:17
 
-*February 20 at 12:13 PM | KJV*
+*October 4 at 8:27 PM | KJV*
 
-### 1 John 2:3
+### 2 Kings 21:1
 
-*February 20 at 11:47 AM | KJV*
+*October 4 at 4:41 PM | KJV*
 
-### 1 John 1:1
+## 2 Peter
 
-*February 20 at 11:45 AM | KJV*
+### 2 Peter 1:10
 
-### 1 John 1:8
+*March 8 at 5:15 AM | KJV*
 
-*February 20 at 11:42 AM | KJV*
+### 2 Peter 2:21
 
-### 1 John 1:6
+*February 27 at 8:56 PM | KJV*
 
-*January 3 at 11:17 PM | KJV*
+### 2 Peter 2:10
 
-### 1 John 5:1
+*February 14 at 11:25 AM | KJV*
 
-*January 4 at 1:29 AM | KJV*
+### 2 Peter 2:2
 
-### 1 John 4:3
+*February 14 at 11:22 AM | KJV*
 
-*January 4 at 1:17 AM | KJV*
+### 2 Peter 2:1
 
-### 1 John 3:23
+*January 22 at 8:38 PM | KJV*
 
-*January 4 at 1:08 AM | KJV*
+### 2 Peter 2:17
 
-### 1 John 3:17
+*January 15 at 1:07 PM | KJV*
 
-*January 4 at 1:05 AM | KJV*
+### 2 Peter 2:13
 
-### 1 John 3:11
+*July 25 at 10:01 PM | KJV*
 
-*January 4 at 1:01 AM | KJV*
+### 2 Peter 3:9
 
-### 1 John 3:8
+*July 14 at 10:53 PM | KJV*
 
-*January 4 at 1:00 AM | KJV*
+### 2 Peter 2:22
 
-### 1 John 2:28
+*July 14 at 10:39 PM | KJV*
 
-*January 4 at 12:45 AM | KJV*
+### 2 Peter 3:5
 
-### 1 John 2:16
+*June 29 at 9:18 AM | KJV*
 
-*November 7 at 2:16 PM | KJV*
+### 2 Peter 2:15
 
-### 1 John 1:10
+*June 25 at 9:55 AM | KJV*
 
-*October 21 at 9:43 AM | KJV*
+### 2 Peter 3:1
 
-### 1 John 3:3
+*June 12 at 2:14 AM | KJV*
 
-*September 10 at 8:57 PM | KJV*
+### 2 Peter 3:2
 
-### 1 John 1:9
+*May 28 at 10:14 PM | KJV*
 
-*September 10 at 8:54 PM | KJV*
+### 2 Peter 2:19
 
-### 1 John 5:16
+*May 9 at 11:10 PM | KJV*
 
-*August 16 at 11:05 PM | KJV*
+### 2 Peter 1:2
+
+*March 23 at 10:30 PM | KJV*
+
+### 2 Peter 3:8
+
+*March 18 at 10:57 PM | KJV*
+
+### 2 Peter 1:4
+
+*January 20 at 8:47 PM | KJV*
+
+### 2 Peter 3:11
+
+*October 25 at 12:53 PM | KJV*
+
+### 2 Peter 3:3
+
+*September 27 at 4:37 PM | KJV*
+
+### 2 Peter 3:4
+
+*September 27 at 4:19 PM | KJV*
+
+### 2 Peter 3:12
+
+*September 27 at 10:08 AM | KJV*
+
+### 2 Peter 3:10
+
+*September 26 at 4:46 PM | KJV*
+
+### 2 Peter 2:12
+
+*September 26 at 10:05 AM | KJV*
+
+### 2 Peter 2:11
+
+*September 26 at 10:04 AM | KJV*
+
+### 2 Peter 2:6
+
+*September 26 at 10:03 AM | KJV*
+
+### 2 Peter 2:4
+
+*September 26 at 10:02 AM | KJV*
+
+### 2 Peter 3:7
+
+*September 22 at 9:36 PM | KJV*
+
+### 2 Peter 3:6
+
+*September 22 at 9:17 PM | KJV*
+
+### 2 Peter 1:7
+
+*September 22 at 8:43 PM | KJV*
+
+### 2 Peter 3:13
+
+*September 20 at 9:32 PM | KJV*
+
+### 2 Peter 1:18
+
+*September 22 at 11:10 PM | KJV*
+
+### 2 Peter 1:9
+
+*September 22 at 11:10 PM | KJV*
 
 ## Zechariah
 
@@ -38549,711 +39255,101 @@ date: 2026-04-06
 
 *September 22 at 8:41 PM | KJV*
 
-## 2 Kings
+## 2 Timothy
 
-### 2 Kings 17:30
+### 2 Timothy 4:13
 
-*March 9 at 9:33 AM | KJV*
+*February 23 at 9:00 PM | KJV*
 
-### 2 Kings 9:35
+### 2 Timothy 3:3
 
-*February 7 at 6:08 PM | KJV*
+*January 24 at 5:42 AM | KJV*
 
-### 2 Kings 2:9
+### 2 Timothy 2:20
 
-*December 10 at 10:37 AM | KJV*
+*October 27 at 9:29 AM | KJV*
 
-### 2 Kings 4:3
+### 2 Timothy 2:26
 
-*November 13 at 11:45 PM | KJV*
+*August 14 at 10:45 AM | KJV*
 
-### 2 Kings 6:17
+### 2 Timothy 4:10
 
-*October 4 at 8:27 PM | KJV*
+*July 22 at 9:39 AM | KJV*
 
-### 2 Kings 21:1
+### 2 Timothy 2:4
 
-*October 4 at 4:41 PM | KJV*
+*July 20 at 11:05 PM | KJV*
 
-## 2 Peter
+### 2 Timothy 3:8
 
-### 2 Peter 1:10
+*July 19 at 3:52 PM | KJV*
 
-*March 8 at 5:15 AM | KJV*
+### 2 Timothy 4:1
 
-### 2 Peter 2:21
+*July 12 at 2:15 PM | KJV*
 
-*February 27 at 8:56 PM | KJV*
+### 2 Timothy 4:17
 
-### 2 Peter 2:10
+*April 8 at 12:27 AM | KJV*
 
-*February 14 at 11:25 AM | KJV*
+### 2 Timothy 4:5
 
-### 2 Peter 2:2
+*March 19 at 10:01 PM | KJV*
 
-*February 14 at 11:22 AM | KJV*
+### 2 Timothy 3:17
 
-### 2 Peter 2:17
+*December 5 at 8:20 AM | KJV*
 
-*January 15 at 1:07 PM | KJV*
+### 2 Timothy 4:3
 
-### 2 Peter 2:1
+*December 1 at 10:43 PM | KJV*
 
-*January 22 at 8:38 PM | KJV*
+### 2 Timothy 2:22
 
-### 2 Peter 2:13
+*August 28 at 8:40 PM | KJV*
 
-*July 25 at 10:01 PM | KJV*
+### 2 Timothy 3:6
 
-### 2 Peter 3:9
+*August 3 at 11:09 PM | KJV*
 
-*July 14 at 10:53 PM | KJV*
+## 2 Samuel
 
-### 2 Peter 2:22
+### 2 Samuel 23:6
 
-*July 14 at 10:39 PM | KJV*
+*February 21 at 5:46 AM | KJV*
 
-### 2 Peter 3:5
+### 2 Samuel 23:4
 
-*June 29 at 9:18 AM | KJV*
+*February 21 at 5:44 AM | KJV*
 
-### 2 Peter 2:15
+### 2 Samuel 22:30
 
-*June 25 at 9:55 AM | KJV*
+*October 1 at 8:16 PM | KJV*
 
-### 2 Peter 3:1
+### 2 Samuel 22:35
 
-*June 12 at 2:14 AM | KJV*
+*October 1 at 8:15 PM | KJV*
 
-### 2 Peter 3:2
+### 2 Samuel 23:7
 
-*May 28 at 10:14 PM | KJV*
+*July 1 at 9:35 AM | KJV*
 
-### 2 Peter 2:19
+### 2 Samuel 23:2
 
-*May 9 at 11:10 PM | KJV*
+*July 1 at 9:23 AM | KJV*
 
-### 2 Peter 1:2
+### 2 Samuel 22:25
 
-*March 23 at 10:30 PM | KJV*
+*January 25 at 6:29 PM | KJV*
 
-### 2 Peter 3:8
+### 2 Samuel 23:3
 
-*March 18 at 10:57 PM | KJV*
+*October 1 at 12:43 AM | KJV*
 
-### 2 Peter 1:4
+### 2 Samuel 22:2
 
-*January 20 at 8:47 PM | KJV*
-
-### 2 Peter 3:11
-
-*October 25 at 12:53 PM | KJV*
-
-### 2 Peter 3:3
-
-*September 27 at 4:37 PM | KJV*
-
-### 2 Peter 3:4
-
-*September 27 at 4:19 PM | KJV*
-
-### 2 Peter 3:12
-
-*September 27 at 10:08 AM | KJV*
-
-### 2 Peter 3:10
-
-*September 26 at 4:46 PM | KJV*
-
-### 2 Peter 2:12
-
-*September 26 at 10:05 AM | KJV*
-
-### 2 Peter 2:11
-
-*September 26 at 10:04 AM | KJV*
-
-### 2 Peter 2:6
-
-*September 26 at 10:03 AM | KJV*
-
-### 2 Peter 2:4
-
-*September 26 at 10:02 AM | KJV*
-
-### 2 Peter 1:18
-
-*September 22 at 11:10 PM | KJV*
-
-### 2 Peter 1:9
-
-*September 22 at 11:10 PM | KJV*
-
-### 2 Peter 3:7
-
-*September 22 at 9:36 PM | KJV*
-
-### 2 Peter 3:6
-
-*September 22 at 9:17 PM | KJV*
-
-### 2 Peter 1:7
-
-*September 22 at 8:43 PM | KJV*
-
-### 2 Peter 3:13
-
-*September 20 at 9:32 PM | KJV*
-
-## Hosea
-
-### Hosea 6:6
-
-*March 5 at 10:07 AM | KJV*
-
-### Hosea 14:4
-
-*February 26 at 9:04 PM | KJV*
-
-### Hosea 9:16
-
-*February 26 at 9:03 PM | KJV*
-
-### Hosea 14:3
-
-*February 26 at 8:59 PM | KJV*
-
-### Hosea 13:12
-
-*January 30 at 4:02 PM | KJV*
-
-### Hosea 13:16
-
-*January 30 at 3:55 PM | KJV*
-
-### Hosea 13:11
-
-*January 24 at 9:55 PM | KJV*
-
-### Hosea 7:3
-
-*January 16 at 8:56 PM | KJV*
-
-### Hosea 9:10
-
-*January 24 at 6:08 AM | KJV*
-
-### Hosea 9:13
-
-*January 20 at 1:03 AM | KJV*
-
-### Hosea 8:12
-
-*January 5 at 3:04 PM | KJV*
-
-### Hosea 7:1
-
-*December 6 at 12:42 PM | KJV*
-
-### Hosea 1:4
-
-*November 24 at 1:07 AM | KJV*
-
-### Hosea 5:8
-
-*November 20 at 9:56 PM | KJV*
-
-### Hosea 5:3
-
-*November 20 at 9:35 PM | KJV*
-
-### Hosea 6:11
-
-*November 18 at 10:04 AM | KJV*
-
-### Hosea 4:12
-
-*November 15 at 12:11 PM | KJV*
-
-### Hosea 14:9
-
-*November 2 at 6:13 PM | KJV*
-
-### Hosea 13:14
-
-*November 2 at 6:04 PM | KJV*
-
-### Hosea 13:3
-
-*November 2 at 5:56 PM | KJV*
-
-### Hosea 14:8
-
-*September 18 at 10:04 PM | KJV*
-
-### Hosea 8:14
-
-*September 10 at 9:13 PM | KJV*
-
-### Hosea 11:9
-
-*September 7 at 10:44 PM | KJV*
-
-### Hosea 1:10
-
-*September 3 at 9:16 PM | KJV*
-
-### Hosea 9:8
-
-*August 13 at 10:22 PM | KJV*
-
-### Hosea 13:13
-
-*August 14 at 11:18 PM | KJV*
-
-### Hosea 13:8
-
-*August 14 at 11:07 PM | KJV*
-
-### Hosea 2:22
-
-*August 6 at 10:24 AM | KJV*
-
-### Hosea 12:7
-
-*July 29 at 9:34 AM | KJV*
-
-### Hosea 14:5
-
-*July 26 at 7:44 PM | KJV*
-
-### Hosea 13:15
-
-*July 26 at 7:42 PM | KJV*
-
-### Hosea 5:10
-
-*July 25 at 9:34 PM | KJV*
-
-### Hosea 12:3
-
-*July 19 at 6:12 PM | KJV*
-
-### Hosea 9:17
-
-*June 27 at 10:30 AM | KJV*
-
-### Hosea 4:6
-
-*May 12 at 12:08 PM | KJV*
-
-### Hosea 4:7
-
-*April 12 at 12:36 AM | KJV*
-
-### Hosea 4:15
-
-*April 11 at 1:21 AM | KJV*
-
-### Hosea 2:23
-
-*April 11 at 1:18 AM | KJV*
-
-### Hosea 4:14
-
-*April 11 at 1:16 AM | KJV*
-
-### Hosea 4:8
-
-*April 11 at 1:14 AM | KJV*
-
-### Hosea 3:5
-
-*April 11 at 1:08 AM | KJV*
-
-### Hosea 5:13
-
-*April 10 at 10:26 PM | KJV*
-
-### Hosea 5:7
-
-*April 10 at 9:42 PM | KJV*
-
-### Hosea 5:6
-
-*April 10 at 9:42 PM | KJV*
-
-### Hosea 5:5
-
-*April 10 at 9:36 PM | KJV*
-
-### Hosea 4:16
-
-*April 4 at 10:13 PM | KJV*
-
-### Hosea 4:17
-
-*April 3 at 10:46 PM | KJV*
-
-### Hosea 4:10
-
-*April 2 at 9:32 PM | KJV*
-
-### Hosea 4:3
-
-*April 2 at 9:27 PM | KJV*
-
-### Hosea 4:2
-
-*April 2 at 9:15 PM | KJV*
-
-### Hosea 4:1
-
-*April 2 at 9:15 PM | KJV*
-
-### Hosea 3:4
-
-*April 1 at 11:15 PM | KJV*
-
-### Hosea 2:18
-
-*April 1 at 10:40 PM | KJV*
-
-### Hosea 2:15
-
-*April 1 at 10:32 PM | KJV*
-
-### Hosea 2:14
-
-*April 1 at 10:28 PM | KJV*
-
-### Hosea 2:9
-
-*April 1 at 10:27 PM | KJV*
-
-### Hosea 2:8
-
-*April 1 at 10:27 PM | KJV*
-
-### Hosea 2:11
-
-*April 1 at 10:27 PM | KJV*
-
-### Hosea 2:10
-
-*April 1 at 10:26 PM | KJV*
-
-### Hosea 2:6
-
-*April 1 at 10:25 PM | KJV*
-
-### Hosea 1:2
-
-*April 1 at 10:18 PM | KJV*
-
-### Hosea 1:7
-
-*April 1 at 10:16 PM | KJV*
-
-### Hosea 8:2
-
-*March 23 at 1:39 AM | KJV*
-
-### Hosea 8:1
-
-*March 23 at 1:39 AM | KJV*
-
-### Hosea 9:14
-
-*March 23 at 1:33 AM | KJV*
-
-### Hosea 9:12
-
-*March 23 at 1:32 AM | KJV*
-
-### Hosea 9:3
-
-*March 23 at 1:28 AM | KJV*
-
-### Hosea 2:5
-
-*March 20 at 12:05 PM | KJV*
-
-### Hosea 6:9
-
-*March 16 at 11:50 PM | KJV*
-
-### Hosea 1:11
-
-*March 13 at 9:30 PM | KJV*
-
-### Hosea 1:6
-
-*March 13 at 9:28 PM | KJV*
-
-### Hosea 5:2
-
-*March 11 at 11:33 PM | KJV*
-
-### Hosea 5:1
-
-*March 11 at 10:01 PM | KJV*
-
-### Hosea 9:9
-
-*March 11 at 3:01 PM | KJV*
-
-### Hosea 14:7
-
-*February 20 at 9:52 AM | KJV*
-
-### Hosea 10:12
-
-*February 20 at 9:15 AM | KJV*
-
-### Hosea 8:7
-
-*February 19 at 10:28 AM | KJV*
-
-### Hosea 9:11
-
-*January 5 at 4:39 AM | KJV*
-
-### Hosea 6:10
-
-*November 21 at 9:54 PM | KJV*
-
-### Hosea 6:2
-
-*November 21 at 4:37 PM | KJV*
-
-### Hosea 9:6
-
-*November 12 at 10:49 PM | KJV*
-
-### Hosea 9:2
-
-*November 12 at 10:48 PM | KJV*
-
-### Hosea 9:1
-
-*November 12 at 10:48 PM | KJV*
-
-### Hosea 9:7
-
-*November 21 at 3:17 PM | KJV*
-
-### Hosea 3:1
-
-*November 1 at 8:50 PM | KJV*
-
-### Hosea 7:14
-
-*October 25 at 12:21 PM | KJV*
-
-### Hosea 7:16
-
-*October 25 at 12:18 PM | KJV*
-
-### Hosea 7:4
-
-*October 25 at 12:16 PM | KJV*
-
-### Hosea 2:2
-
-*October 11 at 3:46 PM | KJV*
-
-### Hosea 1:9
-
-*October 11 at 3:39 PM | KJV*
-
-### Hosea 12:1
-
-*September 28 at 3:47 PM | KJV*
-
-### Hosea 11:10
-
-*September 28 at 3:47 PM | KJV*
-
-### Hosea 8:11
-
-*October 6 at 12:24 AM | KJV*
-
-### Hosea 7:8
-
-*September 26 at 12:28 AM | KJV*
-
-### Hosea 7:6
-
-*September 26 at 12:27 AM | KJV*
-
-### Hosea 13:7
-
-*September 23 at 11:48 AM | KJV*
-
-### Hosea 5:14
-
-*September 23 at 11:47 AM | KJV*
-
-### Hosea 5:11
-
-*September 23 at 11:45 AM | KJV*
-
-### Hosea 4:18
-
-*September 23 at 11:41 AM | KJV*
-
-### Hosea 13:1
-
-*September 23 at 11:17 AM | KJV*
-
-### Hosea 5:15
-
-*August 1 at 1:34 AM | KJV*
-
-### Hosea 4:11
-
-*July 28 at 12:51 PM | KJV*
-
-## Judges
-
-### Judges 15:4
-
-*March 4 at 9:16 PM | KJV*
-
-### Judges 12:6
-
-*June 19 at 10:57 PM | KJV*
-
-### Judges 12:1
-
-*June 19 at 10:55 PM | KJV*
-
-## 2 Corinthians
-
-### 2 Corinthians 3:7
-
-*March 4 at 10:44 AM | KJV*
-
-### 2 Corinthians 9:7
-
-*August 10 at 8:19 PM | KJV*
-
-### 2 Corinthians 8:16
-
-*August 1 at 11:13 PM | KJV*
-
-### 2 Corinthians 9:10
-
-*August 1 at 9:59 PM | KJV*
-
-### 2 Corinthians 9:5
-
-*August 1 at 9:44 PM | KJV*
-
-### 2 Corinthians 13:3
-
-*July 23 at 10:23 AM | KJV*
-
-### 2 Corinthians 11:7
-
-*July 23 at 10:03 AM | KJV*
-
-### 2 Corinthians 11:12
-
-*July 23 at 10:02 AM | KJV*
-
-### 2 Corinthians 11:2
-
-*July 23 at 9:56 AM | KJV*
-
-### 2 Corinthians 11:4
-
-*July 23 at 9:53 AM | KJV*
-
-### 2 Corinthians 9:9
-
-*July 23 at 9:33 AM | KJV*
-
-### 2 Corinthians 9:6
-
-*July 23 at 9:31 AM | KJV*
-
-### 2 Corinthians 8:15
-
-*July 23 at 9:30 AM | KJV*
-
-### 2 Corinthians 6:18
-
-*July 22 at 10:58 AM | KJV*
-
-### 2 Corinthians 6:2
-
-*July 22 at 10:39 AM | KJV*
-
-### 2 Corinthians 5:19
-
-*July 22 at 10:36 AM | KJV*
-
-### 2 Corinthians 4:18
-
-*July 22 at 10:29 AM | KJV*
-
-### 2 Corinthians 2:13
-
-*July 22 at 9:51 AM | KJV*
-
-### 2 Corinthians 1:8
-
-*July 22 at 9:34 AM | KJV*
-
-### 2 Corinthians 3:3
-
-*July 15 at 12:41 AM | KJV*
-
-### 2 Corinthians 3:17
-
-*July 15 at 12:41 AM | KJV*
-
-### 2 Corinthians 3:13
-
-*July 15 at 12:38 AM | KJV*
-
-### 2 Corinthians 4:17
-
-*June 8 at 2:38 AM | KJV*
-
-### 2 Corinthians 4:13
-
-*June 6 at 9:24 PM | KJV*
-
-### 2 Corinthians 4:6
-
-*June 6 at 9:23 PM | KJV*
-
-### 2 Corinthians 10:1
-
-*March 19 at 12:50 PM | KJV*
-
-### 2 Corinthians 6:17
-
-*October 9 at 2:41 AM | KJV*
-
-### 2 Corinthians 10:4
-
-*October 4 at 1:02 PM | KJV*
-
-### 2 Corinthians 10:17
-
-*September 24 at 10:46 PM | KJV*
-
-### 2 Corinthians 6:16
-
-*September 22 at 2:26 AM | KJV*
-
-### 2 Corinthians 1:17
-
-*September 1 at 9:48 PM | KJV*
+*August 31 at 5:14 PM | KJV*
 
 ## Ephesians
 
@@ -39378,102 +39474,6 @@ date: 2026-04-06
 ### Ephesians 6:13
 
 *August 31 at 4:43 PM | KJV*
-
-## 2 Timothy
-
-### 2 Timothy 4:13
-
-*February 23 at 9:00 PM | KJV*
-
-### 2 Timothy 3:3
-
-*January 24 at 5:42 AM | KJV*
-
-### 2 Timothy 2:20
-
-*October 27 at 9:29 AM | KJV*
-
-### 2 Timothy 2:26
-
-*August 14 at 10:45 AM | KJV*
-
-### 2 Timothy 4:10
-
-*July 22 at 9:39 AM | KJV*
-
-### 2 Timothy 3:8
-
-*July 19 at 3:52 PM | KJV*
-
-### 2 Timothy 2:4
-
-*July 20 at 11:05 PM | KJV*
-
-### 2 Timothy 4:1
-
-*July 12 at 2:15 PM | KJV*
-
-### 2 Timothy 4:17
-
-*April 8 at 12:27 AM | KJV*
-
-### 2 Timothy 4:5
-
-*March 19 at 10:01 PM | KJV*
-
-### 2 Timothy 3:17
-
-*December 5 at 8:20 AM | KJV*
-
-### 2 Timothy 4:3
-
-*December 1 at 10:43 PM | KJV*
-
-### 2 Timothy 2:22
-
-*August 28 at 8:40 PM | KJV*
-
-### 2 Timothy 3:6
-
-*August 3 at 11:09 PM | KJV*
-
-## 2 Samuel
-
-### 2 Samuel 23:6
-
-*February 21 at 5:46 AM | KJV*
-
-### 2 Samuel 23:4
-
-*February 21 at 5:44 AM | KJV*
-
-### 2 Samuel 22:30
-
-*October 1 at 8:16 PM | KJV*
-
-### 2 Samuel 22:35
-
-*October 1 at 8:15 PM | KJV*
-
-### 2 Samuel 23:7
-
-*July 1 at 9:35 AM | KJV*
-
-### 2 Samuel 23:2
-
-*July 1 at 9:23 AM | KJV*
-
-### 2 Samuel 22:25
-
-*January 25 at 6:29 PM | KJV*
-
-### 2 Samuel 23:3
-
-*October 1 at 12:43 AM | KJV*
-
-### 2 Samuel 22:2
-
-*August 31 at 5:14 PM | KJV*
 
 ## Habakkuk
 
@@ -39697,13 +39697,13 @@ date: 2026-04-06
 
 *November 22 at 10:03 PM | KJV*
 
-### Job 5:22
-
-*September 27 at 12:14 PM | KJV*
-
 ### Job 4:3
 
 *October 7 at 2:55 AM | KJV*
+
+### Job 5:22
+
+*September 27 at 12:14 PM | KJV*
 
 ### Job 5:19
 
@@ -40033,13 +40033,13 @@ date: 2026-04-06
 
 *July 22 at 10:57 PM | KJV*
 
-### Micah 4:2
-
-*July 1 at 10:06 AM | KJV*
-
 ### Micah 2:3
 
 *June 28 at 4:32 PM | KJV*
+
+### Micah 4:2
+
+*July 1 at 10:06 AM | KJV*
 
 ### Micah 7:20
 
@@ -40065,6 +40065,10 @@ date: 2026-04-06
 
 *March 20 at 10:15 PM | KJV*
 
+### Micah 7:3
+
+*March 12 at 10:46 PM | KJV*
+
 ### Micah 4:10
 
 *March 18 at 10:11 PM | KJV*
@@ -40080,10 +40084,6 @@ date: 2026-04-06
 ### Micah 3:12
 
 *March 18 at 9:18 PM | KJV*
-
-### Micah 7:3
-
-*March 12 at 10:46 PM | KJV*
 
 ### Micah 5:8
 
@@ -40241,10 +40241,6 @@ date: 2026-04-06
 
 *December 27 at 8:55 PM | KJV*
 
-### Daniel 10:16
-
-*December 6 at 8:49 PM | KJV*
-
 ### Daniel 7:8
 
 *December 15 at 1:47 AM | KJV*
@@ -40260,6 +40256,10 @@ date: 2026-04-06
 ### Daniel 9:25
 
 *December 11 at 9:58 AM | KJV*
+
+### Daniel 10:16
+
+*December 6 at 8:49 PM | KJV*
 
 ### Daniel 8:23
 
@@ -40355,6 +40355,14 @@ date: 2026-04-06
 
 *November 13 at 9:25 AM | KJV*
 
+### Philippians 4:10
+
+*October 18 at 8:15 AM | KJV*
+
+### Philippians 4:9
+
+*October 18 at 8:11 AM | KJV*
+
 ### Philippians 2:5
 
 *October 25 at 1:35 PM | KJV*
@@ -40370,14 +40378,6 @@ date: 2026-04-06
 ### Philippians 1:9
 
 *October 24 at 9:48 AM | KJV*
-
-### Philippians 4:10
-
-*October 18 at 8:15 AM | KJV*
-
-### Philippians 4:9
-
-*October 18 at 8:11 AM | KJV*
 
 ### Philippians 3:14
 
@@ -40462,26 +40462,6 @@ date: 2026-04-06
 ### Nahum 1:9
 
 *February 6 at 4:44 PM | KJV*
-
-## Nehemiah
-
-### Nehemiah 1:8
-
-*October 27 at 10:22 PM | KJV*
-
-### Nehemiah 4:19
-
-*October 27 at 10:55 PM | KJV*
-
-## Ezra
-
-### Ezra 6:11
-
-*October 23 at 10:28 PM | KJV*
-
-### Ezra 9:8
-
-*August 17 at 7:54 PM | KJV*
 
 ## Jonah
 
@@ -40572,6 +40552,26 @@ date: 2026-04-06
 ### 1 Kings 1:33
 
 *November 24 at 4:05 AM | KJV*
+
+## Nehemiah
+
+### Nehemiah 4:19
+
+*October 27 at 10:55 PM | KJV*
+
+### Nehemiah 1:8
+
+*October 27 at 10:22 PM | KJV*
+
+## Ezra
+
+### Ezra 6:11
+
+*October 23 at 10:28 PM | KJV*
+
+### Ezra 9:8
+
+*August 17 at 7:54 PM | KJV*
 
 ## Ecclesiastes
 

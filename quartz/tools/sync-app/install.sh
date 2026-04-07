@@ -11,6 +11,10 @@ echo "  Bible Notes Sync — Installer"
 echo "  ─────────────────────────────"
 echo ""
 
+echo "→ Installing app runtime dependencies..."
+cd "$SCRIPT_DIR"
+npm install --silent
+
 echo "→ Installing shell dependencies..."
 cd "$SHELL_DIR"
 npm install --silent

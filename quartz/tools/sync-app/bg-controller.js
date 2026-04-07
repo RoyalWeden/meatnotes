@@ -39,6 +39,18 @@ const DEBUG_LOG_PATH = path.join(os.homedir(), 'Library', 'Logs', 'bg-debug-page
 let phase2ConsecutiveFailures = 0;
 const MAX_CONSECUTIVE_FAILURES = 5;
 
+// Domains to block during Phase 2 (ads, analytics, tracking, social widgets)
+const BLOCKED_DOMAINS = [
+  'doubleclick.net', 'googlesyndication.com', 'googleadservices.com',
+  'google-analytics.com', 'googletagmanager.com', 'googletagservices.com',
+  'facebook.net', 'facebook.com/tr', 'fbcdn.net',
+  'hotjar.com', 'newrelic.com', 'nr-data.net', 'sentry.io',
+  'platform.twitter.com', 'platform.linkedin.com',
+  'amazon-adsystem.com', 'adnxs.com', 'adsrvr.org',
+  'scorecardresearch.com', 'quantserve.com', 'outbrain.com',
+  'taboola.com', 'moatads.com', 'chartbeat.com',
+];
+
 function runBGSync(opts = {}) {
   if (state.bgSyncWindow) {
     state.bgSyncWindow.focus();
@@ -65,6 +77,41 @@ function runBGSync(opts = {}) {
       nodeIntegration: false,
       contextIsolation: true,
     },
+  });
+
+  // Block unnecessary resources during Phase 2 to reduce CPU usage
+  const ses = state.bgSyncWindow.webContents.session;
+  ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
+    // Only block during Phase 2 — login and Phase 1 need full page
+    if (state.bgPhase !== 'phase2') {
+      callback({ cancel: false });
+      return;
+    }
+
+    const url = details.url;
+    const rt = details.resourceType;
+
+    // Always allow page navigation
+    if (rt === 'mainFrame' || rt === 'subFrame') {
+      callback({ cancel: false });
+      return;
+    }
+
+    // Block images, media, fonts unconditionally in Phase 2
+    if (rt === 'image' || rt === 'media' || rt === 'font') {
+      callback({ cancel: true });
+      return;
+    }
+
+    // Block third-party scripts (keep BG's own scripts for sidebar)
+    if (rt === 'script' && !url.includes('biblegateway.com')) {
+      callback({ cancel: true });
+      return;
+    }
+
+    // Block known ad/tracking domains for any remaining resource types
+    const blocked = BLOCKED_DOMAINS.some(d => url.includes(d));
+    callback({ cancel: blocked });
   });
 
   state.bgSyncWindow.loadURL('https://www.biblegateway.com/user/annotations/?iv=notes');
@@ -262,6 +309,7 @@ function processPhase2Queue() {
 
   const chapter = state.bgPhase2Queue.shift();
   state.bgPhase2Current = chapter;
+  state.bgPhase2ChapterStart = Date.now();
 
   const completed = state.bgPhase2Total - state.bgPhase2Queue.length - 1;
   const pct = Math.round((completed / state.bgPhase2Total) * 100);
@@ -350,6 +398,10 @@ function finalizeBGSync() {
     state.callbacks.rebuildMenu?.();
     notifyError('BibleGateway Sync', `Import failed: ${e.message}`);
     console.error('[BG Sync] Import error:', e);
+    // Show window again on error so user can see what happened
+    if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
+      state.bgSyncWindow.show();
+    }
   }
 }
 
@@ -377,7 +429,21 @@ function handleBGMessage(data) {
     state.bgPhase2Queue = [...chapters];
     state.bgPhase2Total = chapters.length;
     state.bgCollectedNotes = [];
+    state.bgPhase2StartTime = Date.now();
     phase2ConsecutiveFailures = 0;
+
+    // Hide the window during Phase 2 — user doesn't need to see passage pages
+    if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
+      state.bgSyncWindow.hide();
+    }
+
+    sendToLogWindow('bg-progress', {
+      step: 'phase2-start',
+      message: `Phase 2: Extracting notes from ${chapters.length} chapters`,
+      total: chapters.length,
+      totalExpectedNotes: totalNotes,
+      phase2StartTime: state.bgPhase2StartTime,
+    });
 
     // Start processing chapters with a small delay
     setTimeout(() => processPhase2Queue(), 1000);
@@ -392,7 +458,9 @@ function handleBGMessage(data) {
     state.bgCollectedNotes.push(...notes);
     phase2ConsecutiveFailures = 0; // Reset on success
 
-    console.log(`[BG Sync] Phase 2: "${chapter}" → ${notes.length} notes (total: ${state.bgCollectedNotes.length})`);
+    const chapterDuration = Date.now() - (state.bgPhase2ChapterStart || Date.now());
+
+    console.log(`[BG Sync] Phase 2: "${chapter}" → ${notes.length} notes (total: ${state.bgCollectedNotes.length}) [${chapterDuration}ms]`);
 
     // Show what connections are being found
     const preview = notes.slice(0, 3).map(n =>
@@ -409,6 +477,8 @@ function handleBGMessage(data) {
       notesCollected: state.bgCollectedNotes.length,
       preview,
       pct: Math.round((completed / state.bgPhase2Total) * 100),
+      chapterDuration,
+      phase2StartTime: state.bgPhase2StartTime,
     });
 
     if (data.timeout) {
@@ -429,6 +499,8 @@ function handleBGMessage(data) {
         message: `Error on "${state.bgPhase2Current}": ${data.message}`,
         chapter: state.bgPhase2Current,
         consecutiveFailures: phase2ConsecutiveFailures,
+        completed: state.bgPhase2Total - state.bgPhase2Queue.length,
+        total: state.bgPhase2Total,
       });
 
       if (phase2ConsecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {

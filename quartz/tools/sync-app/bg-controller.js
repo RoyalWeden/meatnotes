@@ -49,7 +49,35 @@ const BLOCKED_DOMAINS = [
   'amazon-adsystem.com', 'adnxs.com', 'adsrvr.org',
   'scorecardresearch.com', 'quantserve.com', 'outbrain.com',
   'taboola.com', 'moatads.com', 'chartbeat.com',
+  'pubmatic.com', 'rubiconproject.com', 'openx.net',
+  'casalemedia.com', 'indexexchange.com', 'sharethrough.com',
+  'criteo.com', 'bidswitch.net', 'demdex.net',
+  'rlcdn.com', 'bluekai.com', 'krxd.net',
+  'optimizely.com', 'segment.com', 'amplitude.com',
+  'branch.io', 'appsflyer.com', 'mxpnl.com',
 ];
+
+// CSS injected into Phase 2 pages to reduce rendering cost
+const PHASE2_LIGHTWEIGHT_CSS = `
+  /* Hide all visual content except sidebar */
+  .passage-text, .passage-content, .publisher-info-bottom,
+  .passage-other-trans, .footnotes, .crossrefs, .full-chap-link,
+  .passage-resources, .passage-tools-container, .bg-ad,
+  .ad-banner, [class*="ad-"], [id*="google_ads"], iframe,
+  .footer, header, nav, .top-bar, .navbar,
+  .sidebar-ad, .banner, video, img, svg:not(.arc-svg) {
+    display: none !important;
+  }
+  /* Kill all animations and transitions */
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-delay: 0s !important;
+  }
+  /* Simplify layout */
+  body { overflow: hidden !important; }
+`;
 
 function runBGSync(opts = {}) {
   if (state.bgSyncWindow) {
@@ -76,6 +104,10 @@ function runBGSync(opts = {}) {
       partition: 'persist:biblegateway',
       nodeIntegration: false,
       contextIsolation: true,
+      // Reduce GPU/CPU overhead
+      webgl: false,
+      enableWebSQL: false,
+      spellcheck: false,
     },
   });
 
@@ -103,13 +135,7 @@ function runBGSync(opts = {}) {
       return;
     }
 
-    // Block third-party scripts (keep BG's own scripts for sidebar)
-    if (rt === 'script' && !url.includes('biblegateway.com')) {
-      callback({ cancel: true });
-      return;
-    }
-
-    // Block known ad/tracking domains for any remaining resource types
+    // Block known ad/tracking domains (scripts, stylesheets, XHR, everything)
     const blocked = BLOCKED_DOMAINS.some(d => url.includes(d));
     callback({ cancel: blocked });
   });
@@ -166,6 +192,8 @@ function runBGSync(opts = {}) {
     // ── Phase 2: If we're on a passage page and in phase2, inject extraction script ──
     if (state.bgPhase === 'phase2' && url.includes('/passage/')) {
       console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
+      // Inject lightweight CSS to hide heavy visual elements and kill animations
+      state.bgSyncWindow.webContents.insertCSS(PHASE2_LIGHTWEIGHT_CSS).catch(() => {});
       const script = buildPhase2Script(state.bgPhase2Current);
       state.bgSyncWindow.webContents.executeJavaScript(script).catch(() => {});
       return;
@@ -433,8 +461,10 @@ function handleBGMessage(data) {
     phase2ConsecutiveFailures = 0;
 
     // Hide the window during Phase 2 — user doesn't need to see passage pages
+    // Keep backgroundThrottling off so our extraction timers aren't clamped
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.hide();
+      state.bgSyncWindow.webContents.setBackgroundThrottling(false);
     }
 
     sendToLogWindow('bg-progress', {

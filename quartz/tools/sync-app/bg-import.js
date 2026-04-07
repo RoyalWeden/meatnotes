@@ -1,7 +1,6 @@
 /**
  * BibleGateway import — processes exported notes into:
- *  1. content/.bg-connections.json — cross-reference data for verseIndex
- *  2. content/00 — Capture/BibleGateway Notes.md — readable note file
+ *  content/.bg-connections.json — enriched cross-reference data for verseIndex
  *
  * Can be used as a module from main.js or as a CLI:
  *   node bg-import.js --input ~/Downloads/bg-notes.json --content ./content
@@ -11,8 +10,7 @@ const fs = require('fs')
 const path = require('path')
 
 /**
- * Normalize a verse reference to a canonical form.
- * "John 3:16" → "John 3:16", "1 Cor 13:4" → "1 Corinthians 13:4"
+ * Canonical book name map. Keys are lowercase aliases, values are canonical names.
  */
 const bookAliases = {
   gen: 'Genesis', genesis: 'Genesis',
@@ -30,6 +28,7 @@ const bookAliases = {
   '1 chron': '1 Chronicles', '1chron': '1 Chronicles', '1 chronicles': '1 Chronicles',
   '2 chron': '2 Chronicles', '2chron': '2 Chronicles', '2 chronicles': '2 Chronicles',
   ezra: 'Ezra', neh: 'Nehemiah', nehemiah: 'Nehemiah',
+  esth: 'Esther', esther: 'Esther',
   job: 'Job', ps: 'Psalms', psa: 'Psalms', psalm: 'Psalms', psalms: 'Psalms',
   prov: 'Proverbs', pro: 'Proverbs', proverbs: 'Proverbs',
   eccl: 'Ecclesiastes', ecc: 'Ecclesiastes', ecclesiastes: 'Ecclesiastes',
@@ -75,10 +74,35 @@ const bookAliases = {
   '3 john': '3 John', '3john': '3 John',
   jude: 'Jude',
   rev: 'Revelation', revelation: 'Revelation',
+  // Apocrypha / Deuterocanonical
+  wisdom: 'Wisdom', 'wisdom of solomon': 'Wisdom',
+  sirach: 'Sirach', ecclesiasticus: 'Sirach',
+  tobit: 'Tobit', judith: 'Judith',
+  baruch: 'Baruch',
+  '1 macc': '1 Maccabees', '1macc': '1 Maccabees', '1 maccabees': '1 Maccabees',
+  '2 macc': '2 Maccabees', '2macc': '2 Maccabees', '2 maccabees': '2 Maccabees',
+  '1 esdras': '1 Esdras', '2 esdras': '2 Esdras',
 }
 
+// Build the regex for scanning verse references in freeform text.
+// Sort keys longest-first so "1 samuel" matches before "1 sam", etc.
+const _bookKeys = Object.keys(bookAliases).sort((a, b) => b.length - a.length)
+// Escape regex special chars in keys (handles entries like "1 sam")
+const _bookPattern = _bookKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+
+// The regex matches:  bookName  number(s)  with optional :verse(-verse) and/or ,number(s)
+// Examples matched: "hosea 8:11", "isaiah 6:9-10", "ephesians 2,5", "psalm 118", "1 cor 13:4"
+const _refRegex = new RegExp(
+  `(?:^|[^a-zA-Z])(${_bookPattern})\\s+(\\d+(?::\\d+(?:-\\d+)?)?(?:\\s*,\\s*\\d+)*)`,
+  'gi'
+)
+
+/**
+ * Normalize a single verse reference to canonical form.
+ * "hosea 8:11" → "Hosea 8:11", "1 cor 13:4" → "1 Corinthians 13:4"
+ */
 function normalizeRef(raw) {
-  const trimmed = raw.trim()
+  const trimmed = raw.trim().replace(/[.?!…]+$/, '')
   // Match "Book Ch:V" or "Book Ch:V-V"
   const m = trimmed.match(/^(.+?)\s+(\d+:\d+(?:-\d+)?)$/i)
   if (m) {
@@ -97,116 +121,174 @@ function normalizeRef(raw) {
 }
 
 /**
+ * Scan freeform text for all verse references.
+ * Returns { connections: string[], observations: string[] }
+ *
+ * "hosea 8:11; ephesians 2,5; covering -> weave spider web" →
+ *   connections: ["Hosea 8:11", "Ephesians 2", "Ephesians 5"]
+ *   observations: ["covering -> weave spider web"]
+ *
+ * Comma after a chapter number (without colon) = multiple chapters:
+ *   "ephesians 2,5" → ["Ephesians 2", "Ephesians 5"]
+ * Colon = verse:
+ *   "ephesians 2:5" → ["Ephesians 2:5"]
+ */
+function parseNoteText(text) {
+  if (!text || !text.trim()) return { connections: [], observations: [] }
+
+  const connections = []
+  const matchRanges = [] // track character positions of matches
+
+  // Reset regex state
+  _refRegex.lastIndex = 0
+  let match
+  while ((match = _refRegex.exec(text)) !== null) {
+    const bookRaw = match[1]
+    const numPart = match[2]
+    const bookKey = bookRaw.toLowerCase().trim()
+    const canonical = bookAliases[bookKey]
+    if (!canonical) continue
+
+    // Track the position of this match in the original text
+    // match[0] may start with a non-alpha char due to the lookbehind
+    const fullMatchStart = match.index + (match[0].length - match[1].length - match[2].length - 1)
+    const fullMatchEnd = match.index + match[0].length
+    matchRanges.push([Math.max(0, match.index), fullMatchEnd])
+
+    if (numPart.includes(':')) {
+      // Has a colon: it's a verse or verse range (e.g., "8:11" or "6:9-10")
+      connections.push(`${canonical} ${numPart}`)
+    } else if (numPart.includes(',')) {
+      // Has comma(s) but no colon: multiple chapters (e.g., "2,5" → ch 2 and ch 5)
+      const chapters = numPart.split(/\s*,\s*/)
+      for (const ch of chapters) {
+        if (ch.trim()) connections.push(`${canonical} ${ch.trim()}`)
+      }
+    } else {
+      // Plain chapter number
+      connections.push(`${canonical} ${numPart}`)
+    }
+  }
+
+  // Build observations from text that isn't part of any verse reference match
+  const observations = []
+  if (matchRanges.length > 0) {
+    // Sort ranges by start position
+    matchRanges.sort((a, b) => a[0] - b[0])
+
+    // Collect text segments between/around matches
+    const segments = []
+    let pos = 0
+    for (const [start, end] of matchRanges) {
+      if (start > pos) segments.push(text.slice(pos, start))
+      pos = end
+    }
+    if (pos < text.length) segments.push(text.slice(pos))
+
+    // Clean up each segment and filter out empty/separator-only ones
+    for (const seg of segments) {
+      const cleaned = seg.replace(/^[\s;,]+|[\s;,]+$/g, '').trim()
+      if (cleaned && cleaned.length > 1) {
+        observations.push(cleaned)
+      }
+    }
+  } else {
+    // No verse refs found — the entire text is an observation
+    const trimmed = text.trim()
+    if (trimmed) observations.push(trimmed)
+  }
+
+  return { connections, observations }
+}
+
+/**
  * Import BG notes into the content directory.
  * @param {Array} notes - Array of { verseRef, text, date }
  * @param {string} contentDir - Path to the content directory
- * @returns {{ connectionsCount: number, notesCount: number, newCount: number }}
+ * @returns {{ connectionsCount: number, notesCount: number, newCount: number, details: object }}
  */
 function importNotes(notes, contentDir) {
   if (!notes || notes.length === 0) {
-    return { connectionsCount: 0, notesCount: 0, newCount: 0 }
+    return { connectionsCount: 0, notesCount: 0, newCount: 0, details: {} }
   }
 
-  // Build connections map: verse → set of other verses from same note session
-  const connections = {}
-  // Group notes by verse
-  const byVerse = new Map()
+  const output = {
+    lastSync: new Date().toISOString(),
+    noteCount: notes.length,
+    notes: [],
+    connections: {},
+  }
+
+  const sampleConnections = [] // for progress reporting
 
   for (const note of notes) {
-    const ref = normalizeRef(note.verseRef)
-    if (!byVerse.has(ref)) byVerse.set(ref, [])
-    byVerse.get(ref).push(note)
-  }
+    const verse = normalizeRef(note.verseRef)
+    const { connections, observations } = parseNoteText(note.text || '')
 
-  // Cross-reference: verses that appear close together (by date) are connected
-  const sortedNotes = [...notes].sort((a, b) => {
-    const da = a.date ? new Date(a.date).getTime() : 0
-    const db = b.date ? new Date(b.date).getTime() : 0
-    return da - db
-  })
+    output.notes.push({
+      verse,
+      date: note.date || '',
+      text: note.text || '',
+      connections,
+      observations,
+    })
 
-  // Simple heuristic: notes within 1 hour of each other are "related"
-  const HOUR = 60 * 60 * 1000
-  for (let i = 0; i < sortedNotes.length; i++) {
-    const a = sortedNotes[i]
-    const aRef = normalizeRef(a.verseRef)
-    const aTime = a.date ? new Date(a.date).getTime() : 0
-    if (!aTime) continue
+    // Build bidirectional connections map
+    if (connections.length > 0) {
+      if (!output.connections[verse]) output.connections[verse] = []
+      const existingSet = new Set(output.connections[verse])
 
-    if (!connections[aRef]) connections[aRef] = new Set()
+      for (const conn of connections) {
+        // Forward: verse → conn
+        if (!existingSet.has(conn) && conn !== verse) {
+          output.connections[verse].push(conn)
+          existingSet.add(conn)
+        }
 
-    for (let j = i + 1; j < sortedNotes.length; j++) {
-      const b = sortedNotes[j]
-      const bTime = b.date ? new Date(b.date).getTime() : 0
-      if (!bTime) continue
-      if (bTime - aTime > HOUR) break
+        // Reverse: conn → verse
+        if (conn !== verse) {
+          if (!output.connections[conn]) output.connections[conn] = []
+          const reverseSet = new Set(output.connections[conn])
+          if (!reverseSet.has(verse)) {
+            output.connections[conn].push(verse)
+          }
+        }
+      }
 
-      const bRef = normalizeRef(b.verseRef)
-      if (aRef !== bRef) {
-        connections[aRef].add(bRef)
-        if (!connections[bRef]) connections[bRef] = new Set()
-        connections[bRef].add(aRef)
+      // Collect sample for progress
+      if (sampleConnections.length < 10) {
+        sampleConnections.push({
+          verse,
+          connections: connections.slice(0, 5),
+          observation: observations[0] || null,
+        })
       }
     }
   }
 
-  // Load existing connections and merge
+  // Sort connection arrays for consistency
+  for (const key of Object.keys(output.connections)) {
+    output.connections[key].sort()
+  }
+
+  // Write the enriched JSON
   const bgPath = path.join(contentDir, '.bg-connections.json')
-  let existing = {}
-  try {
-    if (fs.existsSync(bgPath)) {
-      existing = JSON.parse(fs.readFileSync(bgPath, 'utf-8'))
-    }
-  } catch {}
+  fs.writeFileSync(bgPath, JSON.stringify(output, null, 2))
 
-  let newCount = 0
-  const merged = { ...existing }
-  for (const [verse, conns] of Object.entries(connections)) {
-    const existingSet = new Set(merged[verse] || [])
-    const before = existingSet.size
-    for (const c of conns) existingSet.add(c)
-    merged[verse] = [...existingSet].sort()
-    newCount += existingSet.size - before
-  }
-
-  fs.writeFileSync(bgPath, JSON.stringify(merged, null, 2))
-
-  // Generate BibleGateway Notes markdown
-  const captureDir = path.join(contentDir, '00 — Capture')
-  if (!fs.existsSync(captureDir)) {
-    fs.mkdirSync(captureDir, { recursive: true })
-  }
-
-  const now = new Date().toISOString().slice(0, 10)
-  let md = `---\ntitle: BibleGateway Notes\ndate: ${now}\n---\n\n`
-  md += `> Imported ${notes.length} notes from BibleGateway on ${now}\n\n`
-
-  // Group by book for readability
-  const byBook = new Map()
-  for (const [ref, noteList] of byVerse) {
-    const book = ref.replace(/\s+\d.*/, '')
-    if (!byBook.has(book)) byBook.set(book, [])
-    byBook.get(book).push({ ref, notes: noteList })
-  }
-
-  for (const [book, entries] of byBook) {
-    md += `## ${book}\n\n`
-    for (const { ref, notes: noteList } of entries) {
-      md += `### ${ref}\n\n`
-      for (const n of noteList) {
-        if (n.text) md += `${n.text}\n\n`
-        if (n.date) md += `*${n.date}*\n\n`
-      }
-    }
-  }
-
-  const mdPath = path.join(captureDir, 'BibleGateway Notes.md')
-  fs.writeFileSync(mdPath, md)
+  const totalConnections = Object.keys(output.connections).length
+  const notesWithConnections = output.notes.filter(n => n.connections.length > 0).length
+  const notesWithObservationsOnly = output.notes.filter(n => n.connections.length === 0 && n.observations.length > 0).length
 
   return {
-    connectionsCount: Object.keys(merged).length,
+    connectionsCount: totalConnections,
     notesCount: notes.length,
-    newCount,
+    newCount: totalConnections,
+    details: {
+      notesWithConnections,
+      notesWithObservationsOnly,
+      notesWithNothing: notes.length - notesWithConnections - notesWithObservationsOnly,
+      sampleConnections,
+    },
   }
 }
 
@@ -227,7 +309,18 @@ if (require.main === module) {
   const data = JSON.parse(fs.readFileSync(inputFile, 'utf-8'))
   const notes = Array.isArray(data) ? data : data.notes || []
   const result = importNotes(notes, contentDir)
-  console.log(`Imported ${result.notesCount} notes, ${result.connectionsCount} connections (${result.newCount} new)`)
+
+  console.log(`Imported ${result.notesCount} notes, ${result.connectionsCount} verse connections`)
+  console.log(`  ${result.details.notesWithConnections} notes with verse connections`)
+  console.log(`  ${result.details.notesWithObservationsOnly} notes with observations only`)
+  console.log(`  ${result.details.notesWithNothing} notes with no parseable content`)
+
+  if (result.details.sampleConnections.length > 0) {
+    console.log('\nSample connections:')
+    for (const s of result.details.sampleConnections) {
+      console.log(`  ${s.verse} → ${s.connections.join(', ')}${s.observation ? ` (${s.observation})` : ''}`)
+    }
+  }
 }
 
-module.exports = { importNotes, normalizeRef }
+module.exports = { importNotes, normalizeRef, parseNoteText, bookAliases }

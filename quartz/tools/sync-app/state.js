@@ -86,6 +86,11 @@ const state = {
   bgSyncStatus: 'idle',
   bgNoteCount: 0,
   bgProgress: { step: '', completed: 0, total: 0 },
+  bgPhase: 'idle',            // 'idle' | 'phase1' | 'phase2' | 'importing'
+  bgPhase2Queue: [],          // Chapters remaining to process
+  bgPhase2Current: '',        // Currently processing chapter
+  bgPhase2Total: 0,           // Total chapters to process
+  bgCollectedNotes: [],       // Accumulated Phase 2 results
 
   // Site version cache
   cachedSiteVersion: null,

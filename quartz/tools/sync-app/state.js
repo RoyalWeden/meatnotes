@@ -93,6 +93,7 @@ const state = {
   bgCollectedNotes: [],       // Accumulated Phase 2 results
   bgPhase2StartTime: null,    // When Phase 2 began (Date.now())
   bgPhase2ChapterStart: null, // When current chapter started (Date.now())
+  bgDidPauseAutoSync: false,  // True if BG sync auto-paused the quartz sync
 
   // Site version cache
   cachedSiteVersion: null,

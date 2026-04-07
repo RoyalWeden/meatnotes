@@ -7,6 +7,7 @@ const { state, loadSettings, saveSettings, REPO_DIR } = require('./state');
 const { notifyIfAllowed, notifyError } = require('./tray-ui');
 const { buildPhase1Script, buildPhase2Script } = require('./bg-sync');
 const { importNotes } = require('./bg-import');
+const { isAgentLoaded, unloadAgent, loadAgent, invalidateAgentCache } = require('./plist-manager');
 
 /**
  * BibleGateway Sync Flow (Two-Phase):
@@ -49,7 +50,35 @@ const BLOCKED_DOMAINS = [
   'amazon-adsystem.com', 'adnxs.com', 'adsrvr.org',
   'scorecardresearch.com', 'quantserve.com', 'outbrain.com',
   'taboola.com', 'moatads.com', 'chartbeat.com',
+  'pubmatic.com', 'rubiconproject.com', 'openx.net',
+  'casalemedia.com', 'indexexchange.com', 'sharethrough.com',
+  'criteo.com', 'bidswitch.net', 'demdex.net',
+  'rlcdn.com', 'bluekai.com', 'krxd.net',
+  'optimizely.com', 'segment.com', 'amplitude.com',
+  'branch.io', 'appsflyer.com', 'mxpnl.com',
 ];
+
+// CSS injected into Phase 2 pages to reduce rendering cost
+const PHASE2_LIGHTWEIGHT_CSS = `
+  /* Hide all visual content except sidebar */
+  .passage-text, .passage-content, .publisher-info-bottom,
+  .passage-other-trans, .footnotes, .crossrefs, .full-chap-link,
+  .passage-resources, .passage-tools-container, .bg-ad,
+  .ad-banner, [class*="ad-"], [id*="google_ads"], iframe,
+  .footer, header, nav, .top-bar, .navbar,
+  .sidebar-ad, .banner, video, img, svg:not(.arc-svg) {
+    display: none !important;
+  }
+  /* Kill all animations and transitions */
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-delay: 0s !important;
+  }
+  /* Simplify layout */
+  body { overflow: hidden !important; }
+`;
 
 function runBGSync(opts = {}) {
   if (state.bgSyncWindow) {
@@ -65,6 +94,21 @@ function runBGSync(opts = {}) {
   state.bgPhase2Current = '';
   state.bgPhase2Total = 0;
   phase2ConsecutiveFailures = 0;
+
+  // Auto-pause quartz sync while BG sync is running to avoid conflicts
+  state.bgDidPauseAutoSync = false;
+  if (isAgentLoaded()) {
+    state.bgDidPauseAutoSync = true;
+    state.pausedRemainingMs = state.nextSyncAt ? Math.max(5000, state.nextSyncAt - Date.now()) : null;
+    saveSettings({ ...loadSettings(), pausedRemainingMs: state.pausedRemainingMs });
+    unloadAgent();
+    invalidateAgentCache();
+    clearTimeout(state.nextSyncTimer);
+    state.nextSyncTimer = null;
+    state.nextSyncAt = null;
+    console.log('[BG Sync] Auto-paused quartz sync');
+  }
+
   state.callbacks.rebuildMenu?.();
 
   state.bgSyncWindow = new BrowserWindow({
@@ -76,6 +120,10 @@ function runBGSync(opts = {}) {
       partition: 'persist:biblegateway',
       nodeIntegration: false,
       contextIsolation: true,
+      // Reduce GPU/CPU overhead
+      webgl: false,
+      enableWebSQL: false,
+      spellcheck: false,
     },
   });
 
@@ -103,13 +151,7 @@ function runBGSync(opts = {}) {
       return;
     }
 
-    // Block third-party scripts (keep BG's own scripts for sidebar)
-    if (rt === 'script' && !url.includes('biblegateway.com')) {
-      callback({ cancel: true });
-      return;
-    }
-
-    // Block known ad/tracking domains for any remaining resource types
+    // Block known ad/tracking domains (scripts, stylesheets, XHR, everything)
     const blocked = BLOCKED_DOMAINS.some(d => url.includes(d));
     callback({ cancel: blocked });
   });
@@ -166,6 +208,8 @@ function runBGSync(opts = {}) {
     // ── Phase 2: If we're on a passage page and in phase2, inject extraction script ──
     if (state.bgPhase === 'phase2' && url.includes('/passage/')) {
       console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
+      // Inject lightweight CSS to hide heavy visual elements and kill animations
+      state.bgSyncWindow.webContents.insertCSS(PHASE2_LIGHTWEIGHT_CSS).catch(() => {});
       const script = buildPhase2Script(state.bgPhase2Current);
       state.bgSyncWindow.webContents.executeJavaScript(script).catch(() => {});
       return;
@@ -277,6 +321,7 @@ function runBGSync(opts = {}) {
       state.bgSyncStatus = 'idle';
       state.bgPhase = 'idle';
       state.callbacks.rebuildMenu?.();
+      resumeAutoSyncIfNeeded();
     }
   });
 }
@@ -288,6 +333,28 @@ function sendToLogWindow(channel, data) {
   if (state.logWindow && !state.logWindow.isDestroyed()) {
     state.logWindow.webContents.send(channel, data);
   }
+}
+
+/**
+ * Resume auto-sync if we paused it at the start of BG sync.
+ */
+function resumeAutoSyncIfNeeded() {
+  if (!state.bgDidPauseAutoSync) return;
+  state.bgDidPauseAutoSync = false;
+  try {
+    loadAgent();
+    invalidateAgentCache();
+    const s = loadSettings();
+    const remaining = s.pausedRemainingMs ?? undefined;
+    saveSettings({ ...s, pausedRemainingMs: null });
+    state.pausedRemainingMs = null;
+    const { scheduleNextSync } = require('./sync-runner');  // lazy to avoid circular
+    scheduleNextSync(remaining);
+    console.log('[BG Sync] Auto-resumed quartz sync');
+  } catch (e) {
+    console.error('[BG Sync] Failed to resume auto-sync:', e.message);
+  }
+  state.callbacks.rebuildMenu?.();
 }
 
 /**
@@ -382,8 +449,11 @@ function finalizeBGSync() {
       message: `Import complete: ${result.notesCount} notes, ${result.connectionsCount} connections`,
     });
 
+    // Resume auto-sync if we paused it
+    resumeAutoSyncIfNeeded();
+
     // Trigger a sync to commit and push the BG data
-    const { runSync } = require('./sync-runner');
+    const { runSync } = require('./sync-runner');  // lazy require to avoid circular at load time
     runSync('BibleGateway sync: imported ' + result.notesCount + ' notes');
 
     // Close BG window after brief delay
@@ -402,6 +472,7 @@ function finalizeBGSync() {
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.show();
     }
+    resumeAutoSyncIfNeeded();
   }
 }
 
@@ -433,8 +504,10 @@ function handleBGMessage(data) {
     phase2ConsecutiveFailures = 0;
 
     // Hide the window during Phase 2 — user doesn't need to see passage pages
+    // Keep backgroundThrottling off so our extraction timers aren't clamped
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.hide();
+      state.bgSyncWindow.webContents.setBackgroundThrottling(false);
     }
 
     sendToLogWindow('bg-progress', {
@@ -467,6 +540,12 @@ function handleBGMessage(data) {
       `${n.verseRef}: ${(n.text || '').slice(0, 50)}${(n.text || '').length > 50 ? '...' : ''}`
     ).join(' | ');
 
+    // Individual note previews for tooltip display
+    const notePreviews = notes.slice(0, 5).map(n => ({
+      verse: n.verseRef || '',
+      text: (n.text || '').slice(0, 80) + ((n.text || '').length > 80 ? '...' : ''),
+    }));
+
     sendToLogWindow('bg-progress', {
       step: 'phase2-result',
       message: `${chapter}: ${notes.length} notes found`,
@@ -479,6 +558,7 @@ function handleBGMessage(data) {
       pct: Math.round((completed / state.bgPhase2Total) * 100),
       chapterDuration,
       phase2StartTime: state.bgPhase2StartTime,
+      notePreviews,
     });
 
     if (data.timeout) {

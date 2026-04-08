@@ -194,8 +194,21 @@ function buildPhase1Script(opts = {}) {
         let date = dateEl?.getAttribute('datetime') || dateEl?.textContent?.trim() || '';
         date = date.replace(/\\s*\\|\\s*\\w+$/, '').replace(/\\s*(Delete|Undo)\\s*/g, '').trim();
 
+        // Annotation type: "note", "highlight", "favorite" (bookmark)
+        const noteType = noteEl.getAttribute('data-note_type') || 'unknown';
+
+        // For highlights, extract the verse text directly from the listing page.
+        // Highlights have their text available here; written notes don't (need Phase 2).
+        let text = '';
+        if (noteType === 'highlight') {
+          const excerptEl = noteEl.querySelector('.highlight-excerpt, .bible-item-text');
+          if (excerptEl) {
+            text = (excerptEl.textContent || '').trim();
+          }
+        }
+
         if (verseRef) {
-          inventory.push({ verseRef, date });
+          inventory.push({ verseRef, date, noteType, text });
           if (previewEl) previewEl.textContent = verseRef;
         }
       }
@@ -240,13 +253,36 @@ function buildPhase1Script(opts = {}) {
     }
 
     const chapters = Object.keys(chapterMap);
-    updateUI('Phase 1 complete!', 100, inventory.length + ' notes across ' + chapters.length + ' chapters');
+
+    // Separate chapters that have written notes (need Phase 2 to get text)
+    // from chapters that only have highlights/favorites (text already extracted).
+    const noteChapters = [];  // Chapters with at least one "note" type → need Phase 2
+    const highlightNotes = []; // Highlights with text already extracted from listing
+    for (const ch of chapters) {
+      const items = chapterMap[ch];
+      let hasWrittenNotes = false;
+      for (const item of items) {
+        if (item.noteType === 'note') {
+          hasWrittenNotes = true;
+        }
+        if (item.noteType === 'highlight' && item.text) {
+          highlightNotes.push({ verseRef: item.verseRef, date: item.date, text: item.text });
+        }
+      }
+      if (hasWrittenNotes) noteChapters.push(ch);
+    }
+
+    updateUI('Phase 1 complete!', 100,
+      inventory.length + ' annotations across ' + chapters.length + ' chapters' +
+      ' (' + noteChapters.length + ' with notes, ' + highlightNotes.length + ' highlights)');
 
     // Send Phase 1 results back to main process
     window.postMessage({
       type: 'bg-phase1-complete',
       inventory,
-      chapters,
+      chapters,       // ALL chapters (for display)
+      noteChapters,   // Only chapters with written notes (for Phase 2 queue)
+      highlightNotes, // Highlights with text already extracted
       chapterMap,
       totalPages,
       totalNotes: inventory.length,
@@ -403,10 +439,11 @@ function buildPhase2Script(chapter, opts = {}) {
         }
       }
 
-      // Strategy 3: Check for "no notes" empty state
+      // Strategy 3: Check for "no notes" / empty state
       const sidebarText = (document.querySelector('.sticky-resources') || document.querySelector('.resources.flex-5') || {}).textContent || '';
       const lower = sidebarText.toLowerCase();
-      if (lower.includes('no notes') || lower.includes('no content') || lower.includes('you haven\\'t')) {
+      if (lower.includes('no notes') || lower.includes('no content') ||
+          lower.includes('you haven\\'t') || lower.includes('highlight a verse to start')) {
         sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
         return;
       }

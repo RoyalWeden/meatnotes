@@ -581,43 +581,65 @@ function handleBGMessage(data) {
 
   } else if (data.type === 'bg-phase1-complete') {
     // Phase 1 done — start Phase 2
-    const chapters = data.chapters || [];
+    const allChapters = data.chapters || [];
+    const noteChapters = data.noteChapters || allChapters; // fallback: use all if not provided
+    const highlightNotes = data.highlightNotes || [];
     const totalNotes = data.totalNotes || 0;
 
-    console.log(`[BG Sync] Phase 1 complete: ${totalNotes} notes across ${chapters.length} chapters`);
+    console.log(`[BG Sync] Phase 1 complete: ${totalNotes} annotations across ${allChapters.length} chapters`);
+    console.log(`[BG Sync]   → ${noteChapters.length} chapters with written notes (need Phase 2)`);
+    console.log(`[BG Sync]   → ${highlightNotes.length} highlights extracted directly`);
+
     sendToLogWindow('bg-progress', {
       step: 'phase1-complete',
-      message: `Phase 1 complete: ${totalNotes} notes across ${chapters.length} chapters`,
-      chapters: chapters.length,
+      message: `Phase 1 complete: ${totalNotes} annotations across ${allChapters.length} chapters ` +
+        `(${noteChapters.length} with notes, ${highlightNotes.length} highlights)`,
+      chapters: allChapters.length,
+      noteChapters: noteChapters.length,
+      highlightCount: highlightNotes.length,
       totalNotes,
     });
 
-    // Set up Phase 2 queue
+    // Set up Phase 2 queue — only chapters with written notes (not highlight-only)
     state.bgPhase = 'phase2';
-    state.bgPhase2Queue = [...chapters];
-    state.bgPhase2Total = chapters.length;
-    state.bgCollectedNotes = [];
+    state.bgPhase2Queue = [...noteChapters];
+    state.bgPhase2Total = noteChapters.length;
     state.bgPhase2StartTime = Date.now();
     phase2ConsecutiveFailures = 0;
+
+    // Pre-populate collected notes with highlights extracted from Phase 1.
+    // Highlights have their verse text available on the annotations listing page,
+    // so they don't need Phase 2 page navigation.
+    state.bgCollectedNotes = [...highlightNotes];
+    if (highlightNotes.length > 0) {
+      console.log(`[BG Sync] Pre-loaded ${highlightNotes.length} highlights from Phase 1`);
+    }
 
     // Hide the Phase 1 window — Phase 2 will use a separate hidden window
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.hide();
     }
 
+    // If there are no note chapters, skip Phase 2 entirely
+    if (noteChapters.length === 0) {
+      console.log('[BG Sync] No written-note chapters to process — skipping Phase 2');
+      finalizeBGSync();
+      return;
+    }
+
     // Create hidden BrowserWindow for Phase 2.
     // Uses show:false with normal Chromium rendering — required because BG's
     // React app needs standard rendering to switch tabs and fetch notes data.
-    // (Offscreen rendering at 1 FPS prevented React from activating the notes tab.)
     state.bgPhase2Window = createPhase2Window();
     console.log('[BG Sync] Created hidden window for Phase 2');
 
     sendToLogWindow('bg-progress', {
       step: 'phase2-start',
-      message: `Phase 2: Extracting notes from ${chapters.length} chapters`,
-      total: chapters.length,
+      message: `Phase 2: Extracting notes from ${noteChapters.length} chapters (${highlightNotes.length} highlights already collected)`,
+      total: noteChapters.length,
       totalExpectedNotes: totalNotes,
       phase2StartTime: state.bgPhase2StartTime,
+      highlightsPreloaded: highlightNotes.length,
     });
 
     // Start processing chapters with a small delay

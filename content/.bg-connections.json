@@ -1,160 +1,194 @@
 {
-  "lastSync": "2026-04-08T03:00:01.958Z",
+  "lastSync": "2026-04-08T03:23:13.408Z",
   "noteCount": 9,
   "notes": [
     {
-      "verse": "Jeremiah 4:3",
-      "date": "2024/09/03",
-      "text": "thorns -> covetousness; \nhosea 10:12-13",
+      "verse": "1 Corinthians 15:25",
+      "date": "2025/07/21",
+      "text": "psalm 110:1",
       "connections": [
-        "Hosea 10:12-13"
+        "Psalms 110:1"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "1 Corinthians 15:27",
+      "date": "2025/11/02",
+      "text": "psalm 8:6, hebrews 2:8",
+      "connections": [
+        "Psalms 8:6",
+        "Hebrews 2:8"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "1 Corinthians 15:32",
+      "date": "2025/09/09",
+      "text": "isaiah 56; isaiah 22:12-14; wisdom 2:1",
+      "connections": [
+        "Isaiah 56",
+        "Isaiah 22:12-14",
+        "Wisdom 2:1"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "1 Corinthians 15:34",
+      "date": "2025/07/21",
+      "text": "isaiah 52:1?",
+      "connections": [
+        "Isaiah 52:1"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "1 Corinthians 15:45",
+      "date": "2025/06/12",
+      "text": "genesis 2:7",
+      "connections": [
+        "Genesis 2:7"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "1 Corinthians 15:51",
+      "date": "2026/04/07",
+      "text": "psalm 60:1 (lxx)",
+      "connections": [
+        "Psalms 60:1"
       ],
       "observations": [
-        "thorns -> covetousness"
+        "(lxx)"
       ]
     },
     {
-      "verse": "Jeremiah 4:7",
-      "date": "2025/05/01",
-      "text": "ezekiel 28:7",
+      "verse": "1 Corinthians 15:52",
+      "date": "2025/07/21",
+      "text": "7th trump; 1 thessalonians 4; \n\nezekiel 37..",
       "connections": [
-        "Ezekiel 28:7"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:9",
-      "date": "2025/06/15",
-      "text": "habakkuk 1:5",
-      "connections": [
-        "Habakkuk 1:5"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:10",
-      "date": "2025/04/08",
-      "text": "hebrews 4:12",
-      "connections": [
-        "Hebrews 4:12"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:11",
-      "date": "2025/01/23",
-      "text": "jeremiah 12:12",
-      "connections": [
-        "Jeremiah 12:12"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:13",
-      "date": "2026/03/21",
-      "text": "isaiah 66",
-      "connections": [
-        "Isaiah 66"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:22",
-      "date": "2025/11/18",
-      "text": "good -> jeremiah 6:16; zeal of god but not according to knowledge; \n\nhosea 4:6, hosea 6:6",
-      "connections": [
-        "Jeremiah 6:16",
-        "Hosea 4:6",
-        "Hosea 6:6"
+        "1 Thessalonians 4",
+        "Ezekiel 37"
       ],
       "observations": [
-        "good ->",
-        "zeal of god but not according to knowledge"
+        "7th trump",
+        ".."
       ]
     },
     {
-      "verse": "Jeremiah 4:28",
-      "date": "2024/10/25",
-      "text": "matthew 24",
+      "verse": "1 Corinthians 15:54",
+      "date": "2025/11/02",
+      "text": "quotes isaiah 25(:8) [septuagint] -> revelation 7:13-17; \n\nisaiah 22:13-14 (→ isaiah 56)",
       "connections": [
-        "Matthew 24"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "Jeremiah 4:30",
-      "date": "2025/04/14",
-      "text": "ezekiel 16; \nthe lovers = ephraim, will despise judah",
-      "connections": [
-        "Ezekiel 16"
+        "Isaiah 25",
+        "Revelation 7:13-17",
+        "Isaiah 22:13-14",
+        "Isaiah 56"
       ],
       "observations": [
-        "the lovers = ephraim, will despise judah"
+        "quotes",
+        "(:8) [septuagint] ->",
+        "(→"
+      ]
+    },
+    {
+      "verse": "1 Corinthians 15:55",
+      "date": "2025/08/14",
+      "text": "quotes hosea 13:14 (septuagint); \n\npsalm 89:48..?",
+      "connections": [
+        "Hosea 13:14",
+        "Psalms 89:48"
+      ],
+      "observations": [
+        "quotes",
+        "(septuagint)",
+        "..?"
       ]
     }
   ],
   "connections": {
-    "Jeremiah 4:3": [
-      "Hosea 10:12-13"
+    "1 Corinthians 15:25": [
+      "Psalms 110:1"
     ],
-    "Hosea 10:12-13": [
-      "Jeremiah 4:3"
+    "Psalms 110:1": [
+      "1 Corinthians 15:25"
     ],
-    "Jeremiah 4:7": [
-      "Ezekiel 28:7"
+    "1 Corinthians 15:27": [
+      "Hebrews 2:8",
+      "Psalms 8:6"
     ],
-    "Ezekiel 28:7": [
-      "Jeremiah 4:7"
+    "Psalms 8:6": [
+      "1 Corinthians 15:27"
     ],
-    "Jeremiah 4:9": [
-      "Habakkuk 1:5"
+    "Hebrews 2:8": [
+      "1 Corinthians 15:27"
     ],
-    "Habakkuk 1:5": [
-      "Jeremiah 4:9"
+    "1 Corinthians 15:32": [
+      "Isaiah 22:12-14",
+      "Isaiah 56",
+      "Wisdom 2:1"
     ],
-    "Jeremiah 4:10": [
-      "Hebrews 4:12"
+    "Isaiah 56": [
+      "1 Corinthians 15:32",
+      "1 Corinthians 15:54"
     ],
-    "Hebrews 4:12": [
-      "Jeremiah 4:10"
+    "Isaiah 22:12-14": [
+      "1 Corinthians 15:32"
     ],
-    "Jeremiah 4:11": [
-      "Jeremiah 12:12"
+    "Wisdom 2:1": [
+      "1 Corinthians 15:32"
     ],
-    "Jeremiah 12:12": [
-      "Jeremiah 4:11"
+    "1 Corinthians 15:34": [
+      "Isaiah 52:1"
     ],
-    "Jeremiah 4:13": [
-      "Isaiah 66"
+    "Isaiah 52:1": [
+      "1 Corinthians 15:34"
     ],
-    "Isaiah 66": [
-      "Jeremiah 4:13"
+    "1 Corinthians 15:45": [
+      "Genesis 2:7"
     ],
-    "Jeremiah 4:22": [
-      "Hosea 4:6",
-      "Hosea 6:6",
-      "Jeremiah 6:16"
+    "Genesis 2:7": [
+      "1 Corinthians 15:45"
     ],
-    "Jeremiah 6:16": [
-      "Jeremiah 4:22"
+    "1 Corinthians 15:51": [
+      "Psalms 60:1"
     ],
-    "Hosea 4:6": [
-      "Jeremiah 4:22"
+    "Psalms 60:1": [
+      "1 Corinthians 15:51"
     ],
-    "Hosea 6:6": [
-      "Jeremiah 4:22"
+    "1 Corinthians 15:52": [
+      "1 Thessalonians 4",
+      "Ezekiel 37"
     ],
-    "Jeremiah 4:28": [
-      "Matthew 24"
+    "1 Thessalonians 4": [
+      "1 Corinthians 15:52"
     ],
-    "Matthew 24": [
-      "Jeremiah 4:28"
+    "Ezekiel 37": [
+      "1 Corinthians 15:52"
     ],
-    "Jeremiah 4:30": [
-      "Ezekiel 16"
+    "1 Corinthians 15:54": [
+      "Isaiah 22:13-14",
+      "Isaiah 25",
+      "Isaiah 56",
+      "Revelation 7:13-17"
     ],
-    "Ezekiel 16": [
-      "Jeremiah 4:30"
+    "Isaiah 25": [
+      "1 Corinthians 15:54"
+    ],
+    "Revelation 7:13-17": [
+      "1 Corinthians 15:54"
+    ],
+    "Isaiah 22:13-14": [
+      "1 Corinthians 15:54"
+    ],
+    "1 Corinthians 15:55": [
+      "Hosea 13:14",
+      "Psalms 89:48"
+    ],
+    "Hosea 13:14": [
+      "1 Corinthians 15:55"
+    ],
+    "Psalms 89:48": [
+      "1 Corinthians 15:55"
     ]
   }
 }

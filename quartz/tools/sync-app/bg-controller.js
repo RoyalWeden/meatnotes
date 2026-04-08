@@ -175,10 +175,17 @@ async function handlePhase2PageLoad(webContents) {
  * properly switch tabs and fetch notes data.
  */
 function createPhase2Window() {
+  // BG's React app requires a visible window to fetch and render notes.
+  // Using show:false prevents React from populating the sidebar.
+  // Instead, position the window off-screen so it's technically "shown"
+  // but not visible to the user.
   const win = new BrowserWindow({
-    show: false,
+    show: true,
+    x: -2000,     // Off-screen position
+    y: -2000,
     width: 1200,   // Wide enough for sidebar to render in BG's layout
     height: 800,
+    skipTaskbar: true,  // Don't show in taskbar/dock
     webPreferences: {
       partition: 'persist:biblegateway',
       nodeIntegration: false,
@@ -294,7 +301,6 @@ function runBGSync(opts = {}) {
     await injectMessageRelay(state.bgSyncWindow.webContents);
 
     const url = state.bgSyncWindow.webContents.getURL();
-    console.log(`[BG Sync] did-finish-load: ${url.substring(0, 120)} (phase=${state.bgPhase}, loginAttempted=${autoLoginAttempted})`);
 
     // Phase 2 is handled by the hidden Phase 2 window — skip here
     if (state.bgPhase === 'phase2') return;
@@ -334,10 +340,7 @@ function runBGSync(opts = {}) {
     }
 
     // ── Annotations page: check login then start Phase 1 ──
-    if (!url.includes('/user/annotations') && !url.includes('/user/')) {
-      console.log(`[BG Sync] Skipping non-user page: ${url.substring(0, 120)}`);
-      return;
-    }
+    if (!url.includes('/user/annotations') && !url.includes('/user/')) return;
 
     // Debug mode: capture HTML
     if (debug) {

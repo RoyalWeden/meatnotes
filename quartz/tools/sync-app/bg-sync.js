@@ -272,21 +272,6 @@ function buildPhase1Script(opts = {}) {
       if (hasWrittenNotes) noteChapters.push(ch);
     }
 
-    // Debug: log noteType distribution
-    const typeCount = {};
-    for (const item of inventory) {
-      typeCount[item.noteType] = (typeCount[item.noteType] || 0) + 1;
-    }
-    console.log('BG:' + JSON.stringify({
-      type: 'bg-debug', dbg: 'phase1-types',
-      typeCount, total: inventory.length,
-      noteChaptersCount: noteChapters.length,
-      highlightNotesCount: highlightNotes.length,
-      sampleItems: inventory.slice(0, 5).map(function(i) {
-        return { ref: i.verseRef, type: i.noteType, text: (i.text || '').substring(0, 40) };
-      }),
-    }));
-
     updateUI('Phase 1 complete!', 100,
       inventory.length + ' annotations across ' + chapters.length + ' chapters' +
       ' (' + noteChapters.length + ' with notes, ' + highlightNotes.length + ' highlights)');
@@ -385,8 +370,6 @@ function buildPhase2Script(chapter, opts = {}) {
       await new Promise(r => setTimeout(r, 200));
     }
 
-    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step1', found: !!notesTab, elapsed: Date.now()-mountStart}));
-
     if (!notesTab) {
       sendResult({
         chapter: CHAPTER, notes: [], timeout: true,
@@ -400,8 +383,6 @@ function buildPhase2Script(chapter, opts = {}) {
     const borderW = parseFloat(tabStyle.borderBottomWidth) || 0;
     const isActive = borderW >= 2;
 
-    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step2', borderW, isActive}));
-
     if (!isActive) {
       const innerLink = notesTab.querySelector('a');
       if (innerLink) {
@@ -413,84 +394,89 @@ function buildPhase2Script(chapter, opts = {}) {
       }
       notesTab.click();
       await new Promise(r => setTimeout(r, 1500));
-      // Re-check after click
-      const newBorderW = parseFloat(window.getComputedStyle(notesTab).borderBottomWidth) || 0;
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step2-after-click', newBorderW}));
     }
 
     // ── Step 3: Poll for notes content in sidebar ──
-    // FIRST: Log all h3/h4 headings for debugging
-    const allHeadings = document.querySelectorAll('h3, h4');
-    const headingInfo = Array.from(allHeadings).map(function(h) {
-      return {
-        tag: h.tagName,
-        text: h.textContent.trim().substring(0, 60),
-        parentTag: h.parentElement ? h.parentElement.tagName : null,
-        parentClass: h.parentElement ? h.parentElement.className.substring(0, 60) : null,
-        hasSibling: !!h.nextElementSibling,
-        sibTag: h.nextElementSibling ? h.nextElementSibling.tagName : null,
-      };
-    });
-    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'all-headings', headings: headingInfo}));
+    //
+    // BG React rendering timeline:
+    //   1. Page loads → .sidebar-notes div exists with placeholder text
+    //      "Highlight a verse to start making notes."
+    //   2. React mounts → h3 text changes to "Your Notes" (empty or not)
+    //   3. React loads data → sibling div gets populated with note blocks
+    //      (each note block is a div with span + span + div children)
+    //
+    // We must NOT bail out at step 2 — we need to wait for step 3 to
+    // either populate note children OR confirm it's genuinely empty.
 
     let notesContainer = null;
     let containerFoundBy = '';
     const startTime = Date.now();
+
     while (Date.now() - startTime < MAX_WAIT) {
-      // Strategy 1: Look for heading with note-related text.
-      // BG React renders the sidebar asynchronously — the h3 text
-      // changes from empty to "Your Notes" once React has loaded data.
-      // By waiting for the heading text, we ensure React has rendered.
+      // Look for the "Your Notes" heading
       const headings = document.querySelectorAll('h3, h4, .notes-heading');
       for (const h of headings) {
         const text = (h.textContent || '').trim().toLowerCase();
         if (text.includes('your notes') || text.includes('your content') || text === 'notes') {
-          notesContainer = h.nextElementSibling;
-          containerFoundBy = 'strategy1-heading(' + text + ')';
-          if (notesContainer) break;
+          const sib = h.nextElementSibling;
+          if (!sib) continue;
+
+          // Check if sibling has actual note children (div blocks with spans)
+          const childDivs = sib.querySelectorAll(':scope > div');
+          const hasNoteBlocks = Array.from(childDivs).some(function(d) {
+            return d.querySelectorAll('span').length >= 2;
+          });
+
+          if (hasNoteBlocks) {
+            // Notes have loaded — use this container
+            notesContainer = sib;
+            containerFoundBy = 'heading-with-notes(' + text + ',' + childDivs.length + ' divs)';
+            break;
+          }
+
+          // The sibling exists but has no note blocks yet.
+          // Check if it's a definitive empty state vs still loading:
+          const sibText = (sib.textContent || '').trim().toLowerCase();
+          if (sibText.includes('highlight a verse') || sibText.includes('no notes') || sibText === '') {
+            // Could still be loading — only treat as empty after a grace period.
+            // React needs time to fetch and render notes data.
+            if (Date.now() - startTime > 5000) {
+              // Waited 5s after page load with heading visible but no notes → genuinely empty
+              console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-empty-confirmed',
+                elapsed: Date.now()-startTime, text: sibText.substring(0, 100)}));
+              sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
+              return;
+            }
+            // Otherwise keep polling — notes may still load
+          }
         }
       }
       if (notesContainer) break;
 
-      // Strategy 2: Look for note-like content in .sticky-resources
+      // Fallback: Look for note-like content in .sticky-resources
       const stickyRes = document.querySelector('.sticky-resources .sidebar-box');
       if (stickyRes) {
-        const spinner = stickyRes.querySelector('svg[name="spinner"], .spin.spinner');
         const spans = stickyRes.querySelectorAll('span');
-        if (!spinner && spans.length > 2) {
+        if (spans.length > 4) {
+          // Multiple spans likely means notes are rendered
           notesContainer = stickyRes;
-          containerFoundBy = 'strategy2-sticky-spans(' + spans.length + ')';
+          containerFoundBy = 'sticky-spans(' + spans.length + ')';
           break;
         }
-        const innerH = stickyRes.querySelector('h3, h4');
-        if (innerH && innerH.nextElementSibling) {
-          notesContainer = innerH.nextElementSibling;
-          containerFoundBy = 'strategy2-sticky-heading';
-          break;
-        }
-      }
-
-      // Strategy 3: Check for "no notes" / empty state
-      const sidebarText = (document.querySelector('.sticky-resources') || document.querySelector('.resources.flex-5') || {}).textContent || '';
-      const lower = sidebarText.toLowerCase();
-      if (lower.includes('no notes') || lower.includes('no content') ||
-          lower.includes('you haven\\'t') || lower.includes('highlight a verse to start')) {
-        console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-empty-state', text: lower.substring(0, 200)}));
-        sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
-        return;
       }
 
       await new Promise(r => setTimeout(r, POLL_INTERVAL));
     }
 
-    // Log container details
-    if (notesContainer) {
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-container', foundBy: containerFoundBy,
-        tag: notesContainer.tagName, cls: (notesContainer.className || '').substring(0,60),
-        childCount: notesContainer.children.length,
-        innerHTML: notesContainer.innerHTML.substring(0, 800)}));
-    } else {
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-no-container', elapsed: Date.now()-startTime}));
+    // Log container details for first chapter only
+    if (IS_FIRST) {
+      if (notesContainer) {
+        console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-container', foundBy: containerFoundBy,
+          childCount: notesContainer.children.length,
+          innerHTML: notesContainer.innerHTML.substring(0, 500)}));
+      } else {
+        console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-no-container', elapsed: Date.now()-startTime}));
+      }
     }
 
     // Capture debug HTML for first chapter
@@ -509,18 +495,9 @@ function buildPhase2Script(chapter, opts = {}) {
       ).innerHTML || '(sidebar not found)';
       sendResult({
         chapter: CHAPTER, notes: [], timeout: true,
-        reason: 'notes container not found after tab click',
+        reason: 'notes container not found after polling',
         sidebarSnippet: sidebarHTML.substring(0, 500),
       });
-      return;
-    }
-
-    // Check if container is empty state (no actual notes)
-    const containerText = (notesContainer.textContent || '').trim().toLowerCase();
-    if (containerText.includes('highlight a verse to start') ||
-        containerText === '' || containerText.includes('no notes')) {
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-empty-container', text: containerText.substring(0, 100)}));
-      sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
       return;
     }
 
@@ -529,18 +506,6 @@ function buildPhase2Script(chapter, opts = {}) {
     // individual note blocks as direct child divs.
     const notes = [];
     const allChildren = notesContainer.querySelectorAll(':scope > div');
-
-    // Log raw child structure for debugging
-    const childDebug = Array.from(notesContainer.children).slice(0, 15).map(function(c) {
-      return {
-        tag: c.tagName,
-        childCount: c.children.length,
-        spanCount: c.querySelectorAll(':scope > span').length,
-        divCount: c.querySelectorAll(':scope > div').length,
-        text: c.textContent.trim().substring(0, 100),
-      };
-    });
-    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-children', divCount: allChildren.length, children: childDebug}));
 
     for (const block of allChildren) {
       const spans = block.querySelectorAll(':scope > span');
@@ -589,20 +554,14 @@ function buildPhase2Script(chapter, opts = {}) {
       }
     }
 
-    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-primary-result', noteCount: notes.length,
-      sample: notes.slice(0,3).map(function(n){ return n.verseRef + ': ' + (n.text||'').substring(0,40); })}));
-
     // If the block structure didn't match, try a more flexible approach
     if (notes.length === 0 && notesContainer.children.length > 0) {
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-fallback-start'}));
       const walker = document.createTreeWalker(notesContainer, NodeFilter.SHOW_ELEMENT);
       let currentNote = {};
       let node;
-      let walkCount = 0;
       while (node = walker.nextNode()) {
         const text = (node.textContent || '').trim();
         if (!text) continue;
-        walkCount++;
 
         if (text.match(/^\\d{4}\\/\\d{2}\\/\\d{2}$/) || text.match(/^[A-Z][a-z]+ \\d+/)) {
           if (currentNote.verseRef) notes.push({ ...currentNote });
@@ -618,7 +577,6 @@ function buildPhase2Script(chapter, opts = {}) {
         }
       }
       if (currentNote.verseRef) notes.push({ ...currentNote });
-      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-fallback-result', walkCount, noteCount: notes.length}));
     }
 
     sendResult({ chapter: CHAPTER, notes, noteCount: notes.length });

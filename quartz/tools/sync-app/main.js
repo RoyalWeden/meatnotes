@@ -87,14 +87,6 @@ app.whenReady().then(() => {
     }
   }, 10_000);
 
-  // CLI flag: --bg-sync auto-triggers BibleGateway sync after startup
-  if (process.argv.includes('--bg-sync')) {
-    console.log('[Main] --bg-sync flag detected, auto-triggering BG sync in 3s...');
-    setTimeout(() => {
-      const { runBGSync } = require('./bg-controller');
-      runBGSync();
-    }, 3000);
-  }
 });
 
 app.on('window-all-closed', (e) => e.preventDefault());

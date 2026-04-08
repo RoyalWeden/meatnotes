@@ -45,6 +45,10 @@ export const sharedPageComponents: SharedLayout = {
       condition: (page) => page.fileData.slug === "Verse-Chain",
     }),
     Component.ConditionalRender({
+      component: Component.BibleReader(),
+      condition: (page) => page.fileData.slug === "Bible-Reader",
+    }),
+    Component.ConditionalRender({
       component: Component.PipelineDashboard(),
       condition: (page) => page.fileData.slug === "Dashboard",
     }),
@@ -73,6 +77,8 @@ const explorerConfig = {
       node.displayName !== "Books & PDFs" &&
       node.displayName !== "Verse-Chain" &&
       node.displayName !== "Verse Chain" &&
+      node.displayName !== "Bible-Reader" &&
+      node.displayName !== "Bible Reader" &&
       node.displayName !== "Dashboard"
     )
   },
@@ -97,19 +103,19 @@ export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
       component: Component.Breadcrumbs(),
-      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.ContentMeta(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.TagList(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
     }),
     Component.ConditionalRender({
       component: Component.RebukePanel(),
@@ -144,7 +150,7 @@ export const defaultContentPageLayout: PageLayout = {
   right: [
     Component.ConditionalRender({
       component: Component.Graph(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "index",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "index",
     }),
     Component.ConditionalRender({
       component: Component.DesktopOnly(Component.TableOfContents()),
@@ -158,6 +164,7 @@ export const defaultContentPageLayout: PageLayout = {
         page.fileData.slug !== "index" &&
         page.fileData.slug !== "Search" &&
         page.fileData.slug !== "Verse-Chain" &&
+        page.fileData.slug !== "Bible-Reader" &&
         page.fileData.slug !== "Dashboard" &&
         page.fileData.slug !== "All-Notes" &&
         page.fileData.slug !== "Books-and-PDFs",

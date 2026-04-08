@@ -293,6 +293,7 @@ interface FlowColumn {
 
 let flowColumns: FlowColumn[] = []
 let isMobile = false
+let mobileActiveCol = 0
 
 // ── Range Consolidation ──
 // Groups consecutive verse refs from the same book+chapter into ranges
@@ -387,14 +388,21 @@ function init() {
   const input = document.getElementById("vc-input") as HTMLInputElement
   const acList = document.getElementById("vc-autocomplete") as HTMLUListElement
   const historyEl = document.getElementById("vc-history") as HTMLElement
-  const filtersEl = document.getElementById("vc-filters") as HTMLElement
+  const filterSelect = document.getElementById("vc-filter-select") as HTMLSelectElement
   const countEl = document.getElementById("vc-count") as HTMLElement
   const flowEl = document.getElementById("vc-flow") as HTMLElement
-  const contextSteps = document.getElementById("vc-context-steps") as HTMLElement
-  const exportBtn = document.getElementById("vc-export") as HTMLButtonElement
+  const contextSelect = document.getElementById("vc-context-select") as HTMLSelectElement
   const clearBtn = document.getElementById("vc-input-clear") as HTMLButtonElement
 
   if (!input || !flowEl) return
+
+  // Clear stale state from previous SPA navigation
+  flowEl.innerHTML = '<svg id="vc-lines" class="vc-lines"></svg>'
+  if (countEl) countEl.textContent = ""
+  if (historyEl) historyEl.innerHTML = ""
+  input.value = ""
+  mobileActiveCol = 0
+  removeMobileNav()
 
   // Search clear button
   const updateClearBtn = () => {
@@ -418,23 +426,40 @@ function init() {
   isMobile = window.matchMedia("(max-width: 799px)").matches
 
   // Respond to resize
-  const mqHandler = (e: MediaQueryListEvent) => { isMobile = e.matches }
+  const mqHandler = (e: MediaQueryListEvent) => {
+    isMobile = e.matches
+    mobileActiveCol = Math.min(mobileActiveCol, Math.max(0, flowColumns.length - 1))
+    updateMobileView()
+  }
   const mq = window.matchMedia("(max-width: 799px)")
   mq.addEventListener("change", mqHandler)
+
+  // Swipe-right to go back on mobile
+  let touchStartX = 0, touchDeltaX = 0
+  flowEl.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX
+    touchDeltaX = 0
+  }, { passive: true })
+  flowEl.addEventListener("touchmove", (e) => {
+    touchDeltaX = e.touches[0].clientX - touchStartX
+  }, { passive: true })
+  flowEl.addEventListener("touchend", () => {
+    if (touchDeltaX > 80 && mobileActiveCol > 0 && isMobile) {
+      mobileActiveCol--
+      updateMobileView("back")
+    }
+  })
 
   // Load index
   loadVerseIndex(baseUrl).then(() => {
     renderHistory(historyEl, input)
-    updateFilterCounts(filtersEl)
 
     const params = new URLSearchParams(window.location.search)
     const v = params.get("v")
     const f = params.get("f")
     if (f) {
       currentFilter = f
-      filtersEl?.querySelectorAll(".vc-filter-chip").forEach((btn) => {
-        btn.classList.toggle("active", (btn as HTMLElement).dataset.filter === f)
-      })
+      if (filterSelect) filterSelect.value = f
     }
     if (v) {
       input.value = v
@@ -489,6 +514,11 @@ function init() {
           input.value = ref
           closeAc(acList)
           executeSearch(ref, flowEl, countEl, historyEl, input, baseUrl)
+        } else {
+          // No item highlighted — search with raw input
+          const q = input.value.trim()
+          closeAc(acList)
+          if (q) executeSearch(q, flowEl, countEl, historyEl, input, baseUrl)
         }
         return
       } else if (e.key === "Escape") {
@@ -497,8 +527,8 @@ function init() {
       }
     } else if (e.key === "Enter") {
       const q = input.value.trim()
+      closeAc(acList)
       if (q) {
-        closeAc(acList)
         executeSearch(q, flowEl, countEl, historyEl, input, baseUrl)
       }
     } else if (e.key === "Escape") {
@@ -510,23 +540,15 @@ function init() {
     }
   }
 
-  const onFilterClick = (e: Event) => {
-    const btn = (e.target as HTMLElement).closest(".vc-filter-chip") as HTMLElement | null
-    if (!btn) return
-    filtersEl.querySelectorAll(".vc-filter-chip").forEach((b) => b.classList.remove("active"))
-    btn.classList.add("active")
-    currentFilter = btn.dataset.filter || "all"
+  const onFilterChange = () => {
+    currentFilter = filterSelect?.value || "all"
     const q = input.value.trim()
     if (q) runSearch(q, flowEl, countEl, baseUrl)
     updateUrl(q)
   }
 
-  const onContextStep = (e: Event) => {
-    const btn = (e.target as HTMLElement).closest(".vc-context-step") as HTMLElement | null
-    if (!btn) return
-    contextSteps?.querySelectorAll(".vc-context-step").forEach((b) => b.classList.remove("active"))
-    btn.classList.add("active")
-    globalContext = parseInt(btn.dataset.ctx || "0")
+  const onContextChange = () => {
+    globalContext = parseInt(contextSelect?.value || "0")
     // Re-fetch all expanded cards with new context
     flowEl.querySelectorAll(".vc-card.expanded").forEach((card) => {
       const el = card as HTMLElement
@@ -545,20 +567,6 @@ function init() {
           textEl.classList.remove("vc-shimmer")
         }
       })
-    })
-  }
-
-  const onExport = () => {
-    const q = input.value.trim()
-    if (!q || !verseIndex) return
-    const md = buildExportMarkdown(q)
-    navigator.clipboard.writeText(md).then(() => {
-      showToast("Copied to clipboard")
-      const exportBtn = document.getElementById("vc-export")
-      if (exportBtn) {
-        exportBtn.setAttribute("data-tooltip", "Copied!")
-        setTimeout(() => exportBtn.setAttribute("data-tooltip", "Copy as Markdown"), 2000)
-      }
     })
   }
 
@@ -833,6 +841,10 @@ function init() {
       const colEl = closeBtn.closest(".vc-column") as HTMLElement
       const colIdx = parseInt(colEl?.dataset.colIdx || "0")
       removeColumnsFrom(colIdx, flowEl)
+      if (isMobile) {
+        mobileActiveCol = Math.max(0, colIdx - 1)
+        updateMobileView("back")
+      }
       return
     }
 
@@ -927,7 +939,13 @@ function init() {
     }
     const sharedPdfs = (verseIndex.pdfConnections?.[ref] ?? []).filter(p => parentPdfs.has(p))
 
-    if (sharedNotes.length === 0 && sharedPdfs.length === 0) return
+    if (sharedNotes.length === 0 && sharedPdfs.length === 0) {
+      // Set plain tooltip for next hover cycle (no race since we set it lazily)
+      if (!chip.hasAttribute("data-tooltip")) {
+        chip.setAttribute("data-tooltip", "Explore connections")
+      }
+      return
+    }
 
     const noteLinks = sharedNotes.map(n => {
       const color = sectionColors[n.folder] ?? "#8b8b8b"
@@ -941,8 +959,6 @@ function init() {
 
     const html = `<div class="tt-section-label">Shared in</div><div class="tt-note-list">${[...noteLinks, ...pdfLinks].join("")}</div>`
 
-    // Remove data-tooltip to prevent plain text tooltip
-    chip.removeAttribute("data-tooltip")
     window.__tooltip?.show(chip, "", html)
   }, true)
 
@@ -990,9 +1006,8 @@ function init() {
   input.addEventListener("keydown", onKeydown)
   acList?.addEventListener("click", onAcClick)
   document.addEventListener("click", onDocClick)
-  filtersEl?.addEventListener("click", onFilterClick)
-  contextSteps?.addEventListener("click", onContextStep)
-  exportBtn?.addEventListener("click", onExport)
+  filterSelect?.addEventListener("change", onFilterChange)
+  contextSelect?.addEventListener("change", onContextChange)
   window.addEventListener("popstate", onPopstate)
 
   window.addCleanup?.(() => {
@@ -1000,14 +1015,15 @@ function init() {
     input.removeEventListener("keydown", onKeydown)
     acList?.removeEventListener("click", onAcClick)
     document.removeEventListener("click", onDocClick)
-    filtersEl?.removeEventListener("click", onFilterClick)
-    contextSteps?.removeEventListener("click", onContextStep)
-    exportBtn?.removeEventListener("click", onExport)
+    filterSelect?.removeEventListener("change", onFilterChange)
+    contextSelect?.removeEventListener("change", onContextChange)
     window.removeEventListener("popstate", onPopstate)
     bcEl?.removeEventListener("click", onBcClick)
     mq.removeEventListener("change", mqHandler)
     clearTimeout(debounceTimer)
     clearTimeout(previewTimeout)
+    document.removeEventListener("nav", init)
+    document.removeEventListener("nav", injectChainIcons)
   })
 }
 
@@ -1194,10 +1210,9 @@ function runSearch(query: string, flowEl: HTMLElement, countEl: HTMLElement, bas
   }
 
   const filtered = filterBySection(matchingKeys)
-  updateFilterCountsForResults(matchingKeys)
 
   let totalNotes = 0
-  for (const key of filtered) totalNotes += verseIndex.index[key]?.length ?? 0
+  for (const key of filtered) totalNotes += (verseIndex.index[key] ?? []).filter(e => e.slug !== "_bg").length
   countEl.textContent = `${filtered.length} verse${filtered.length !== 1 ? "s" : ""} · ${totalNotes} note${totalNotes !== 1 ? "s" : ""}`
 
   // Build horizontal flow: Column 0 = searched verses, Column 1 = 1st-degree connections
@@ -1215,7 +1230,7 @@ function runSearch(query: string, flowEl: HTMLElement, countEl: HTMLElement, bas
     }
   }
   if (firstDegree.size > 0) {
-    const cappedFirst = Array.from(firstDegree).slice(0, 15)
+    const cappedFirst = Array.from(firstDegree).slice(0, 50)
     addColumn(flowEl, 1, filtered[0], cappedFirst, baseUrl)
   }
 
@@ -1278,6 +1293,74 @@ function clearFlow(flowEl: HTMLElement) {
   // Hide onboarding
   const onboarding = document.getElementById("vc-onboarding")
   if (onboarding) onboarding.style.display = "none"
+}
+
+// ── Mobile drill-down helpers ──
+
+function updateMobileView(direction: "forward" | "back" = "forward") {
+  if (!isMobile) {
+    // Desktop: show all columns
+    flowColumns.forEach(c => { c.el.style.display = ""; c.el.classList.remove("vc-mobile-slide-in", "vc-mobile-slide-back") })
+    removeMobileNav()
+    return
+  }
+  // Mobile: show only active column
+  flowColumns.forEach((c, i) => {
+    if (i === mobileActiveCol) {
+      c.el.style.display = ""
+      c.el.classList.remove("vc-mobile-slide-in", "vc-mobile-slide-back")
+      // Trigger animation
+      void c.el.offsetWidth // Force reflow
+      c.el.classList.add(direction === "forward" ? "vc-mobile-slide-in" : "vc-mobile-slide-back")
+    } else {
+      c.el.style.display = "none"
+      c.el.classList.remove("vc-mobile-slide-in", "vc-mobile-slide-back")
+    }
+  })
+  updateMobileNav()
+}
+
+function updateMobileNav() {
+  const flowEl = document.getElementById("vc-flow")
+  if (!flowEl) return
+  let navEl = document.querySelector(".vc-mobile-nav") as HTMLElement | null
+  if (!isMobile || flowColumns.length === 0) {
+    navEl?.remove()
+    return
+  }
+  if (!navEl) {
+    navEl = document.createElement("div")
+    navEl.className = "vc-mobile-nav"
+    flowEl.parentElement?.insertBefore(navEl, flowEl)
+  }
+  const col = flowColumns[mobileActiveCol]
+  const showBack = mobileActiveCol > 0
+  const prevCol = showBack ? flowColumns[mobileActiveCol - 1] : null
+  const prevLabel = prevCol?.parentRef ?? prevCol?.searchLabel ?? ""
+  const currentLabel = col.parentRef
+    ? col.parentRef
+    : col.searchLabel ?? "Results"
+
+  navEl.innerHTML = `
+    ${showBack ? `<button class="vc-mobile-back pressable">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      ${escHtml(prevLabel)}
+    </button>` : ""}
+    <span class="vc-mobile-nav-title">${escHtml(currentLabel)}</span>
+    ${col.degree > 0 ? `<span class="vc-mobile-depth-pill">Depth ${col.degree}</span>` : ""}
+  `
+  // Back button handler
+  const backBtn = navEl.querySelector(".vc-mobile-back")
+  backBtn?.addEventListener("click", () => {
+    if (mobileActiveCol > 0) {
+      mobileActiveCol--
+      updateMobileView("back")
+    }
+  })
+}
+
+function removeMobileNav() {
+  document.querySelector(".vc-mobile-nav")?.remove()
 }
 
 function addColumn(
@@ -1361,8 +1444,12 @@ function addColumn(
   // Update breadcrumbs
   updateBreadcrumbs()
 
-  // Scroll to new column on desktop
-  if (!isMobile && degree > 0) {
+  // Mobile drill-down: show only the new column
+  if (isMobile) {
+    mobileActiveCol = flowColumns.length - 1
+    updateMobileView("forward")
+  } else if (degree > 0) {
+    // Desktop: scroll to new column
     setTimeout(() => col.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }), 100)
   }
 }
@@ -1383,7 +1470,7 @@ function expandConnection(ref: string, fromColIdx: number, flowEl: HTMLElement, 
   removeColumnsFrom(fromColIdx + 1, flowEl)
 
   // Get connections for this verse
-  const coVs = (verseIndex.cooccurrence[ref] ?? []).slice(0, 15)
+  const coVs = (verseIndex.cooccurrence[ref] ?? []).slice(0, 50)
   if (coVs.length === 0) return
 
   const degree = (flowColumns[fromColIdx]?.degree ?? 0) + 1
@@ -1408,7 +1495,7 @@ function expandConnectionMulti(refs: string[], fromColIdx: number, flowEl: HTMLE
     }
   }
 
-  const connList = Array.from(allConns).slice(0, 20)
+  const connList = Array.from(allConns).slice(0, 50)
   if (connList.length === 0) return
 
   const degree = (flowColumns[fromColIdx]?.degree ?? 0) + 1
@@ -1449,8 +1536,10 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
   const seenSlugs = new Set<string>()
   const allCoVs = new Set<string>()
   const groupRefSet = new Set(group.refs)
+  let groupHasBg = false
 
   for (const ref of group.refs) {
+    if ((verseIndex.index[ref] ?? []).some(e => e.slug === "_bg")) groupHasBg = true
     let entries = (verseIndex.index[ref] ?? []).filter(e => e.slug !== "_bg")
     if (currentFilter !== "all") entries = entries.filter(e => e.folder === currentFilter)
     for (const e of entries) {
@@ -1466,7 +1555,8 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
   }
 
   const noteCount = allEntries.length
-  const coVsList = Array.from(allCoVs).slice(0, 12)
+  const coVsList = Array.from(allCoVs).slice(0, 50)
+  const bgConnCount = groupHasBg ? coVsList.length : 0
   const isSearched = degree === 0
 
   const notePills = allEntries
@@ -1500,7 +1590,7 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
           tooltip = `Shared in: ${noteNames.slice(0, 4).join(", ")} +${noteNames.length - 4} more`
         }
       }
-      return `<button class="vc-conn-chip pressable" data-ref="${firstRef}"${refsAttr} data-tooltip="${escHtml(tooltip)}">${g.label}</button>`
+      return `<button class="vc-conn-chip pressable" data-ref="${firstRef}"${refsAttr}>${g.label}</button>`
     })
     .join("")
 
@@ -1522,7 +1612,12 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
 
   const noteBadge = noteCount > 0
     ? `<span class="vc-note-badge" data-tooltip="${noteCount} note${noteCount !== 1 ? "s" : ""} reference this verse" data-entries='${JSON.stringify(allEntries.map(e => ({ title: e.title, slug: e.slug, folder: e.folder })))}'>${noteCount} note${noteCount !== 1 ? "s" : ""}</span>`
-    : `<span class="vc-note-badge empty" data-tooltip="No notes reference this verse">0 notes</span>`
+    : bgConnCount > 0
+      ? `<span class="vc-note-badge bg-only" data-tooltip="No user notes yet — ${bgConnCount} BibleGateway cross-references">0 notes</span>`
+      : `<span class="vc-note-badge empty" data-tooltip="No notes reference this verse">0 notes</span>`
+  const bgBadge = groupHasBg
+    ? `<span class="vc-bg-badge" data-tooltip="${bgConnCount} BibleGateway cross-reference${bgConnCount !== 1 ? "s" : ""}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>BG</span>`
+    : ""
 
   const connCount = coVsList.length
   const connLabel = connCount > 0 ? `→ ${connCount} connections` : ""
@@ -1561,6 +1656,7 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
       <span class="vc-card-ref">${group.label}</span>
       <span class="vc-card-badges">
         ${noteBadge}
+        ${bgBadge}
         ${connLabel ? `<span class="vc-conn-count" data-tooltip="${connCount} connected verse${connCount !== 1 ? "s" : ""} found">${connLabel}</span>` : ""}
       </span>
     </div>
@@ -1578,11 +1674,13 @@ function renderGroupedCard(group: RangeGroup, baseUrl: string, degree: number, i
 // ── Verse card rendering (single verse) ──
 function renderVerseCard(verseKey: string, baseUrl: string, degree: number, index: number): string {
   if (!verseIndex) return ""
+  const hasBg = (verseIndex.index[verseKey] ?? []).some(e => e.slug === "_bg")
   let entries = (verseIndex.index[verseKey] ?? []).filter((e) => e.slug !== "_bg")
   if (currentFilter !== "all") entries = entries.filter((e) => e.folder === currentFilter)
 
   const noteCount = entries.length
-  const coVs = (verseIndex.cooccurrence[verseKey] ?? []).slice(0, 12)
+  const coVs = (verseIndex.cooccurrence[verseKey] ?? []).slice(0, 50)
+  const bgConnCount = hasBg ? coVs.length : 0
   const isSearched = degree === 0
 
   const notePills = entries
@@ -1623,7 +1721,7 @@ function renderVerseCard(verseKey: string, baseUrl: string, degree: number, inde
           tooltip = `Shared in: ${allNames.slice(0, 4).join(", ")} +${allNames.length - 4} more`
         }
       }
-      return `<button class="vc-conn-chip pressable" data-ref="${firstRef}"${refsAttr} data-tooltip="${escHtml(tooltip)}">${g.label}</button>`
+      return `<button class="vc-conn-chip pressable" data-ref="${firstRef}"${refsAttr}>${g.label}</button>`
     })
     .join("")
 
@@ -1642,7 +1740,12 @@ function renderVerseCard(verseKey: string, baseUrl: string, degree: number, inde
 
   const noteBadge = noteCount > 0
     ? `<span class="vc-note-badge" data-tooltip="${noteCount} note${noteCount !== 1 ? "s" : ""} reference this verse" data-entries='${JSON.stringify(entries.map(e => ({ title: e.title, slug: e.slug, folder: e.folder })))}'>${noteCount} note${noteCount !== 1 ? "s" : ""}</span>`
-    : `<span class="vc-note-badge empty" data-tooltip="No notes reference this verse">0 notes</span>`
+    : bgConnCount > 0
+      ? `<span class="vc-note-badge bg-only" data-tooltip="No user notes yet — ${bgConnCount} BibleGateway cross-references">0 notes</span>`
+      : `<span class="vc-note-badge empty" data-tooltip="No notes reference this verse">0 notes</span>`
+  const bgBadge = hasBg
+    ? `<span class="vc-bg-badge" data-tooltip="${bgConnCount} BibleGateway cross-reference${bgConnCount !== 1 ? "s" : ""}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>BG</span>`
+    : ""
 
   const connCount = coVs.length
   const connLabel = connCount > 0 ? `→ ${connCount} connections` : ""
@@ -1682,6 +1785,7 @@ function renderVerseCard(verseKey: string, baseUrl: string, degree: number, inde
       <span class="vc-card-ref">${verseKey}</span>
       <span class="vc-card-badges">
         ${noteBadge}
+        ${bgBadge}
         ${connLabel ? `<span class="vc-conn-count" data-tooltip="${connCount} connected verse${connCount !== 1 ? "s" : ""} found">${connLabel}</span>` : ""}
       </span>
     </div>
@@ -1741,14 +1845,15 @@ function renderEmpty(message: string, suggestions: string[]): string {
 function renderOnboarding(): string {
   return `<div class="vc-onboarding" id="vc-onboarding">
     <div class="vc-onboarding-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
     </div>
+    <div class="vc-onboarding-text">Search any verse to explore connections across your study notes</div>
     <div class="vc-onboarding-steps">
-      <div class="vc-onboarding-step"><span class="vc-onboarding-num">1</span> Search a verse to see which of your study notes reference it</div>
-      <div class="vc-onboarding-step"><span class="vc-onboarding-num">2</span> Click any connected verse to explore deeper</div>
-      <div class="vc-onboarding-step"><span class="vc-onboarding-num">3</span> Use the context slider to see surrounding verses</div>
+      <div class="vc-onboarding-step"><span class="vc-onboarding-num">1</span> Search a verse to see which notes reference it</div>
+      <div class="vc-onboarding-step"><span class="vc-onboarding-num">2</span> Click connected verses to explore deeper</div>
+      <div class="vc-onboarding-step"><span class="vc-onboarding-num">3</span> Use the context slider to see surrounding text</div>
     </div>
-    <div class="vc-onboarding-examples">Try: <button class="vc-empty-link" data-ref="John 3:16">John 3:16</button> · <button class="vc-empty-link" data-ref="Psalm 23:1">Psalm 23:1</button> · <button class="vc-empty-link" data-ref="Isaiah 53:5">Isaiah 53:5</button></div>
+    <div class="vc-onboarding-examples">Try: <button class="vc-empty-link" data-ref="John 3:16">John 3:16</button> <button class="vc-empty-link" data-ref="Psalm 23:1">Psalm 23:1</button> <button class="vc-empty-link" data-ref="Isaiah 53:5">Isaiah 53:5</button> <button class="vc-empty-link" data-ref="Romans 8:28">Romans 8:28</button></div>
   </div>`
 }
 
@@ -2184,41 +2289,6 @@ function findSuggestions(query: string): string[] {
   return []
 }
 
-function updateFilterCounts(filtersEl: HTMLElement) {
-  if (!filtersEl || !verseIndex) return
-  filtersEl.querySelectorAll(".vc-filter-chip").forEach((btn) => {
-    const filter = (btn as HTMLElement).dataset.filter
-    if (filter === "all") return
-    let count = 0
-    for (const entries of Object.values(verseIndex!.index)) count += entries.filter((e) => e.folder === filter).length
-    const countSpan = btn.querySelector(".chip-count")
-    if (countSpan) countSpan.textContent = `(${count})`
-    else if (count > 0) btn.innerHTML += ` <span class="chip-count">(${count})</span>`
-  })
-}
-
-function updateFilterCountsForResults(matchingKeys: string[]) {
-  if (!verseIndex) return
-  const filtersEl = document.getElementById("vc-filters")
-  if (!filtersEl) return
-  filtersEl.querySelectorAll(".vc-filter-chip").forEach((btn) => {
-    const filter = (btn as HTMLElement).dataset.filter
-    if (filter === "all") {
-      let total = 0
-      for (const key of matchingKeys) total += verseIndex!.index[key]?.length ?? 0
-      const cs = btn.querySelector(".chip-count")
-      if (cs) cs.textContent = `(${total})`
-      else btn.innerHTML += ` <span class="chip-count">(${total})</span>`
-      return
-    }
-    let count = 0
-    for (const key of matchingKeys) count += (verseIndex!.index[key] ?? []).filter((e) => e.folder === filter).length
-    const cs = btn.querySelector(".chip-count")
-    if (cs) cs.textContent = `(${count})`
-    else if (count > 0) btn.innerHTML += ` <span class="chip-count">(${count})</span>`
-  })
-}
-
 // ── URL ──
 function updateUrl(query: string) {
   const params = new URLSearchParams()
@@ -2235,40 +2305,6 @@ function updateUrl(query: string) {
   if (newUrl !== window.location.pathname + window.location.search) {
     history.pushState(null, "", newUrl)
   }
-}
-
-// ── Export ──
-function buildExportMarkdown(query: string): string {
-  if (!verseIndex) return ""
-  const keys = findMatchingVerses(query)
-  const lines: string[] = [`## Verse Chain: ${query}`, ""]
-  for (const key of keys) {
-    const entries = (verseIndex.index[key] ?? []).filter(e => e.slug !== "_bg")
-    lines.push(`### ${key}`)
-    const cached = getVerseFromCache(key)
-    if (cached) lines.push(`> ${cached}`, "")
-    if (entries.length > 0) {
-      lines.push(`Cited in ${entries.length} note${entries.length !== 1 ? "s" : ""}:`)
-      for (const e of entries) lines.push(`- [[${e.slug}]] · ${sectionLabels[e.folder] ?? e.folder}`)
-    }
-    const coVs = verseIndex.cooccurrence[key] ?? []
-    if (coVs.length > 0) lines.push("", `Connected verses: ${coVs.join(" · ")}`)
-    lines.push("")
-  }
-  return lines.join("\n")
-}
-
-// ── Toast ──
-function showToast(message: string) {
-  let toast = document.querySelector(".vc-toast") as HTMLElement
-  if (!toast) {
-    toast = document.createElement("div")
-    toast.className = "vc-toast"
-    document.body.appendChild(toast)
-  }
-  toast.textContent = message
-  toast.classList.add("show")
-  setTimeout(() => toast.classList.remove("show"), 2000)
 }
 
 // ── Chain icons on verse links (global) ──

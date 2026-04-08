@@ -17,11 +17,18 @@ export interface VerseIndexEntry {
   folder: NoteSection
 }
 
+export interface BGNote {
+  text: string
+  observations: string[]
+  date: string
+}
+
 export interface VerseIndexData {
   index: Record<string, VerseIndexEntry[]>
   cooccurrence: Record<string, string[]>
   connectionStrength?: Record<string, Record<string, number>>
   pdfConnections?: Record<string, string[]>
+  bgNotes?: Record<string, BGNote>
 }
 
 export const BibleVerseIndex: QuartzEmitterPlugin = () => {
@@ -183,7 +190,16 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
                   }
                 }
 
+                // Reverse: target→source cooccurrence links (bidirectional)
                 for (const tk of targetKeys) {
+                  if (!cooccurrence[tk]) cooccurrence[tk] = []
+                  const existingTk = new Set(cooccurrence[tk])
+                  for (const sk of sourceKeys) {
+                    if (!existingTk.has(sk) && sk !== tk) {
+                      cooccurrence[tk].push(sk)
+                      existingTk.add(sk)
+                    }
+                  }
                   if (!index[tk]) {
                     index[tk] = [{ slug: "_bg", title: "BibleGateway", folder: "biblegateway" as NoteSection }]
                   }
@@ -196,11 +212,34 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
         // Silently skip if .bg-connections.json is missing or malformed
       }
 
+      // Extract BG notes (text/observations from .bg-connections.json)
+      const bgNotes: Record<string, BGNote> = {}
+      try {
+        const bgPath = path.join(ctx.argv.directory, ".bg-connections.json")
+        if (fs.existsSync(bgPath)) {
+          const bgRaw = JSON.parse(fs.readFileSync(bgPath, "utf-8"))
+          const notes = bgRaw?.notes
+          if (Array.isArray(notes)) {
+            for (const note of notes) {
+              const verse = note?.verse as string | undefined
+              const text = (note?.text as string | undefined) ?? ""
+              const observations = (note?.observations as string[] | undefined) ?? []
+              if (verse && (text || observations.length > 0)) {
+                bgNotes[verse] = { text, observations, date: (note?.date as string) ?? "" }
+              }
+            }
+          }
+        }
+      } catch {
+        // Silently skip
+      }
+
       const data: VerseIndexData = {
         index,
         cooccurrence,
         ...(Object.keys(connectionStrength).length > 0 ? { connectionStrength } : {}),
         ...(Object.keys(pdfConnections).length > 0 ? { pdfConnections } : {}),
+        ...(Object.keys(bgNotes).length > 0 ? { bgNotes } : {}),
       }
 
       const fp = joinSegments("static", "verseIndex") as FullSlug

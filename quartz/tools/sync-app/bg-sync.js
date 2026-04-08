@@ -265,12 +265,12 @@ function buildPhase1Script(opts = {}) {
  * Phase 2 — Per-chapter note extraction.
  *
  * Injected after navigating to a BG passage page with &tab=notes (e.g.,
- * /passage/?search=Isaiah+30&version=KJV&tab=notes). The notes sidebar
- * loads directly — no tab click needed. Uses adaptive polling to wait
- * for the "Your Notes" heading, then extracts all note blocks.
+ * /passage/?search=Isaiah+30&version=KJV&tab=notes). BG's React app may
+ * not auto-switch to the notes tab from the URL param alone, so this script
+ * actively clicks the notes tab after React mounts, then polls for notes.
  *
  * BG sidebar note structure (observed 2026):
- *   <h3>Your Notes</h3>
+ *   <h3>Your Notes</h3>   (or similar heading — BG uses "Your Content" label)
  *   <div>
  *     <div style="margin: 4px 0px 8px;">
  *       <span style="color: rgb(178, 178, 178);">2026/01/20</span>  ← date
@@ -281,13 +281,17 @@ function buildPhase1Script(opts = {}) {
  *   </div>
  *
  * @param {string} chapter - Chapter identifier, e.g. "Isaiah 30"
+ * @param {object} [opts] - Options
+ * @param {boolean} [opts.isFirstChapter] - Whether to capture debug HTML
  * @returns {string} JavaScript to execute in the BrowserWindow
  */
-function buildPhase2Script(chapter) {
+function buildPhase2Script(chapter, opts = {}) {
+  const isFirstChapter = opts.isFirstChapter || false;
   return `
 (async function bgPhase2() {
   const CHAPTER = ${JSON.stringify(chapter)};
-  const MAX_WAIT = 8000; // ms to wait for sidebar content
+  const IS_FIRST = ${isFirstChapter};
+  const MAX_WAIT = 15000; // ms to wait for notes content (increased for tab-click latency)
   const POLL_INTERVAL = 300; // ms between checks
 
   function sendResult(data) {
@@ -298,13 +302,11 @@ function buildPhase2Script(chapter) {
     window.postMessage({ type: 'bg-error', ...data }, '*');
   }
 
-  // No tab-click needed: controller navigates directly to &tab=notes.
-  // Use adaptive polling — check for "Your Notes" heading every POLL_INTERVAL ms.
-  // This is much faster than fixed waits when notes load quickly.
+  function sendDebug(data) {
+    window.postMessage({ type: 'bg-debug', ...data }, '*');
+  }
 
   // Network interceptor: capture fetch/XHR URLs for API discovery.
-  // This logs what endpoints BG calls when loading sidebar data,
-  // so a future optimization can call the API directly instead of loading pages.
   const _intercepted = [];
   const _origFetch = window.fetch;
   window.fetch = function(url, opts) {
@@ -318,24 +320,93 @@ function buildPhase2Script(chapter) {
   };
 
   try {
+    // ── Step 1: Wait for React sidebar to mount ──
+    // BG renders the tab bar via React. We need it to exist before clicking.
+    let notesTab = null;
+    const mountStart = Date.now();
+    while (Date.now() - mountStart < 10000) {
+      notesTab = document.querySelector('li[data-tab="notes"]');
+      if (notesTab) break;
+      // Also check for the sidebar menu as a whole
+      if (document.querySelector('.sidebar-menu, ul.sidebar-menu')) {
+        notesTab = document.querySelector('li[data-tab="notes"]');
+        if (notesTab) break;
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+
+    if (!notesTab) {
+      sendResult({
+        chapter: CHAPTER, notes: [], timeout: true,
+        reason: 'React sidebar never mounted (li[data-tab=notes] not found)',
+      });
+      return;
+    }
+
+    // ── Step 2: Activate the notes tab if not already active ──
+    // BG may not auto-switch to notes despite &tab=notes in URL.
+    // Check if the notes tab is active via its border-bottom style.
+    const tabStyle = window.getComputedStyle(notesTab);
+    const borderW = parseFloat(tabStyle.borderBottomWidth) || 0;
+    const isActive = borderW >= 2; // Active tab has 2px solid border
+
+    if (!isActive) {
+      // Neutralize the <a> inside the <li> to prevent full-page navigation.
+      // The <a> has an href that would navigate and destroy this script.
+      const innerLink = notesTab.querySelector('a');
+      if (innerLink) {
+        innerLink.removeAttribute('href');
+        innerLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }, true); // capture phase
+      }
+
+      // Click the <li> to trigger React's tab-switch handler
+      notesTab.click();
+
+      // Give React time to process the click, switch state, and fetch notes
+      await new Promise(r => setTimeout(r, 1500));
+    }
+
+    // ── Step 3: Poll for notes content in sidebar ──
     let notesContainer = null;
     const startTime = Date.now();
     while (Date.now() - startTime < MAX_WAIT) {
-      // Look for "Your Notes" heading
+      // Strategy 1: Look for heading containing relevant text
       const headings = document.querySelectorAll('h3, h4, .notes-heading');
       for (const h of headings) {
-        if ((h.textContent || '').trim().toLowerCase().includes('your notes')) {
-          // The notes container is the next sibling element
+        const text = (h.textContent || '').trim().toLowerCase();
+        if (text.includes('your notes') || text.includes('your content') || text === 'notes') {
           notesContainer = h.nextElementSibling;
-          break;
+          if (notesContainer) break;
         }
       }
       if (notesContainer) break;
 
-      // Also check for a no-notes state
-      const bodyText = document.body.textContent || '';
-      if (bodyText.includes('No notes') || bodyText.includes('no notes found')) {
-        // No notes for this chapter — send empty result
+      // Strategy 2: Look for note-like content in .sticky-resources
+      const stickyRes = document.querySelector('.sticky-resources .sidebar-box');
+      if (stickyRes) {
+        // Check if spinner is gone and real content appeared
+        const spinner = stickyRes.querySelector('svg[name="spinner"], .spin.spinner');
+        const spans = stickyRes.querySelectorAll('span');
+        if (!spinner && spans.length > 2) {
+          // Found non-spinner content with multiple spans (likely notes)
+          notesContainer = stickyRes;
+          break;
+        }
+        // Check for a heading inside the sidebar-box
+        const innerH = stickyRes.querySelector('h3, h4');
+        if (innerH && innerH.nextElementSibling) {
+          notesContainer = innerH.nextElementSibling;
+          break;
+        }
+      }
+
+      // Strategy 3: Check for "no notes" empty state
+      const sidebarText = (document.querySelector('.sticky-resources') || document.querySelector('.resources.flex-5') || {}).textContent || '';
+      const lower = sidebarText.toLowerCase();
+      if (lower.includes('no notes') || lower.includes('no content') || lower.includes('you haven\\'t')) {
         sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
         return;
       }
@@ -343,13 +414,30 @@ function buildPhase2Script(chapter) {
       await new Promise(r => setTimeout(r, POLL_INTERVAL));
     }
 
+    // Capture debug HTML for first chapter (after tab click + polling)
+    if (IS_FIRST) {
+      try {
+        const html = document.documentElement.outerHTML.slice(0, 500000);
+        sendDebug({ html });
+      } catch (e) { /* ignore */ }
+    }
+
     if (!notesContainer) {
-      // Timed out waiting for notes — could be no notes or page structure changed
-      sendResult({ chapter: CHAPTER, notes: [], timeout: true });
+      // Timed out — include sidebar snippet for debugging
+      const sidebarHTML = (
+        document.querySelector('.sticky-resources') ||
+        document.querySelector('.resources.flex-5') ||
+        {}
+      ).innerHTML || '(sidebar not found)';
+      sendResult({
+        chapter: CHAPTER, notes: [], timeout: true,
+        reason: 'notes container not found after tab click',
+        sidebarSnippet: sidebarHTML.substring(0, 500),
+      });
       return;
     }
 
-    // Extract individual note blocks
+    // ── Step 4: Extract individual note blocks ──
     // Each note block is a child div with: date span, verse span, text div
     const notes = [];
     const noteBlocks = notesContainer.querySelectorAll(':scope > div');
@@ -411,14 +499,13 @@ function buildPhase2Script(chapter) {
 
     sendResult({ chapter: CHAPTER, notes, noteCount: notes.length });
 
-    // Report intercepted network requests for API discovery (first chapter only)
+    // ── Step 5: Report intercepted network requests for API discovery ──
     if (_intercepted.length > 0) {
-      window.postMessage({
-        type: 'bg-debug',
+      sendDebug({
         interceptedRequests: _intercepted.filter(r =>
           r.url.includes('biblegateway') || r.url.startsWith('/')
         ),
-      }, '*');
+      });
     }
 
   } catch (e) {

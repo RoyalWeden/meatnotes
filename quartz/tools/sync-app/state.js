@@ -93,7 +93,7 @@ const state = {
   bgCollectedNotes: [],       // Accumulated Phase 2 results
   bgPhase2StartTime: null,    // When Phase 2 began (Date.now())
   bgPhase2ChapterStart: null, // When current chapter started (Date.now())
-  bgPhase2Window: null,       // Offscreen BrowserWindow for Phase 2 extraction
+  bgPhase2Window: null,       // Hidden BrowserWindow for Phase 2 extraction
   bgPhase2InjectedUrl: null,  // Last URL where Phase 2 script was injected (prevents re-injection)
   bgDidPauseAutoSync: false,  // True if BG sync auto-paused the quartz sync
 

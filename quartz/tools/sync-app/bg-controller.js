@@ -58,15 +58,18 @@ const BLOCKED_DOMAINS = [
   'branch.io', 'appsflyer.com', 'mxpnl.com',
 ];
 
-// CSS injected into Phase 2 pages to reduce rendering cost
+// CSS injected into Phase 2 pages to reduce rendering cost.
+// IMPORTANT: Keep sidebar structure intact — BG's React needs it for tab switching.
 const PHASE2_LIGHTWEIGHT_CSS = `
-  /* Hide all visual content except sidebar */
+  /* Hide heavy visual content but keep sidebar intact */
   .passage-text, .passage-content, .publisher-info-bottom,
   .passage-other-trans, .footnotes, .crossrefs, .full-chap-link,
   .passage-resources, .passage-tools-container, .bg-ad,
   .ad-banner, [class*="ad-"], [id*="google_ads"], iframe,
-  .footer, header, nav, .top-bar, .navbar,
-  .sidebar-ad, .banner, video, img, svg:not(.arc-svg) {
+  .footer, header, .top-bar, .navbar,
+  .sidebar-ad, .banner, video, img,
+  .other-resources, .recommendations-products-row,
+  .passage-bottom-ad, .sponsor-ad {
     display: none !important;
   }
   /* Kill all animations and transitions */
@@ -94,9 +97,11 @@ function bgConsoleMessageHandler(_event, _level, message) {
           const apiFile = DEBUG_LOG_PATH.replace('.html', '-api.json');
           fs.writeFileSync(apiFile, JSON.stringify(data.interceptedRequests, null, 2));
           console.log(`[BG Debug] Intercepted API requests saved to ${apiFile}`);
-        } else {
-          fs.writeFileSync(DEBUG_LOG_PATH, data.html || '(empty)');
-          console.log(`[BG Debug] Page HTML saved to ${DEBUG_LOG_PATH}`);
+        } else if (data.html) {
+          // Phase 2 script captures HTML after tab-click — save to phase2 debug path
+          const phase2Path = DEBUG_LOG_PATH.replace('.html', '-phase2.html');
+          fs.writeFileSync(phase2Path, data.html);
+          console.log(`[BG Debug] Phase 2 page HTML saved to ${phase2Path}`);
         }
         sendToLogWindow('bg-progress', { step: 'debug', message: 'Debug data saved' });
       } catch (e) {
@@ -132,7 +137,7 @@ function injectMessageRelay(webContents) {
 
 /**
  * Handle did-finish-load for Phase 2 passage pages.
- * Works with both the main window and the offscreen window.
+ * Works with both the main window and the hidden Phase 2 window.
  */
 async function handlePhase2PageLoad(webContents) {
   const url = webContents.getURL();
@@ -147,38 +152,32 @@ async function handlePhase2PageLoad(webContents) {
 
   console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
 
-  // Capture debug HTML for the first chapter to diagnose any DOM mismatches
-  const completed = state.bgPhase2Total - state.bgPhase2Queue.length - 1;
-  if (completed === 0) {
-    const debugPath = DEBUG_LOG_PATH.replace('.html', '-phase2.html');
-    webContents.executeJavaScript(
-      `document.documentElement.outerHTML.slice(0, 500000)`
-    ).then(html => {
-      try {
-        fs.writeFileSync(debugPath, html || '(empty)');
-        console.log(`[BG Debug] Phase 2 page HTML saved to ${debugPath}`);
-      } catch (e) { console.error('[BG Debug] Failed to save Phase 2 HTML:', e.message); }
-    }).catch(() => {});
-  }
-
-  // Inject lightweight CSS to hide heavy visual elements and kill animations
+  // Inject lightweight CSS to hide heavy visual elements and kill animations.
+  // NOTE: CSS is injected BEFORE the Phase 2 script. The script handles its
+  // own debug HTML capture (after React mounts and tab-click) for better diagnostics.
   webContents.insertCSS(PHASE2_LIGHTWEIGHT_CSS).catch(() => {});
-  const script = buildPhase2Script(state.bgPhase2Current);
+
+  // Track whether this is the first chapter (for debug capture inside the script)
+  const completed = state.bgPhase2Total - state.bgPhase2Queue.length - 1;
+  const script = buildPhase2Script(state.bgPhase2Current, { isFirstChapter: completed === 0 });
   webContents.executeJavaScript(script).catch(() => {});
   return true;
 }
 
 /**
- * Create an offscreen BrowserWindow for Phase 2.
+ * Create a hidden BrowserWindow for Phase 2.
  * Shares the authenticated session via the same partition.
- * Uses software rendering at 1 FPS to minimize CPU/GPU usage.
+ * Uses show:false for invisible rendering with normal Chromium pipeline —
+ * this is required because BG's React app needs standard rendering to
+ * properly switch tabs and fetch notes data.
  */
-function createPhase2OffscreenWindow() {
+function createPhase2Window() {
   const win = new BrowserWindow({
     show: false,
+    width: 1200,   // Wide enough for sidebar to render in BG's layout
+    height: 800,
     webPreferences: {
       partition: 'persist:biblegateway',
-      offscreen: true,
       nodeIntegration: false,
       contextIsolation: true,
       webgl: false,
@@ -186,10 +185,6 @@ function createPhase2OffscreenWindow() {
       spellcheck: false,
     },
   });
-
-  // Offscreen rendering requires a paint listener, even if we ignore the output
-  win.webContents.on('paint', () => {});
-  win.webContents.setFrameRate(1);
 
   // Ad/tracking blocking is already registered on the shared session
   // (persist:biblegateway) by the main window — no need to register again.
@@ -297,7 +292,7 @@ function runBGSync(opts = {}) {
 
     const url = state.bgSyncWindow.webContents.getURL();
 
-    // Phase 2 is handled by the offscreen window — skip here
+    // Phase 2 is handled by the hidden Phase 2 window — skip here
     if (state.bgPhase === 'phase2') return;
 
     // ── Login flow: only for annotations/user pages ──
@@ -402,7 +397,7 @@ function runBGSync(opts = {}) {
 
   state.bgSyncWindow.on('closed', () => {
     state.bgSyncWindow = null;
-    // Also clean up offscreen Phase 2 window if it exists
+    // Also clean up hidden Phase 2 window if it exists
     if (state.bgPhase2Window && !state.bgPhase2Window.isDestroyed()) {
       state.bgPhase2Window.close();
       state.bgPhase2Window = null;
@@ -500,11 +495,11 @@ function finalizeBGSync() {
   state.bgPhase = 'importing';
   state.callbacks.rebuildMenu?.();
 
-  // Destroy the offscreen Phase 2 window if it exists
+  // Destroy the hidden Phase 2 window if it exists
   if (state.bgPhase2Window && !state.bgPhase2Window.isDestroyed()) {
     state.bgPhase2Window.close();
     state.bgPhase2Window = null;
-    console.log('[BG Sync] Destroyed offscreen Phase 2 window');
+    console.log('[BG Sync] Destroyed hidden Phase 2 window');
   }
 
   const contentDir = path.join(REPO_DIR, 'content');
@@ -605,16 +600,17 @@ function handleBGMessage(data) {
     state.bgPhase2StartTime = Date.now();
     phase2ConsecutiveFailures = 0;
 
-    // Hide the Phase 1 window — Phase 2 will use a separate offscreen window
+    // Hide the Phase 1 window — Phase 2 will use a separate hidden window
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.hide();
     }
 
-    // Create offscreen BrowserWindow for Phase 2.
-    // This uses software rendering at 1 FPS, bypassing the GPU compositor
-    // entirely and dramatically reducing CPU usage compared to a hidden window.
-    state.bgPhase2Window = createPhase2OffscreenWindow();
-    console.log('[BG Sync] Created offscreen window for Phase 2');
+    // Create hidden BrowserWindow for Phase 2.
+    // Uses show:false with normal Chromium rendering — required because BG's
+    // React app needs standard rendering to switch tabs and fetch notes data.
+    // (Offscreen rendering at 1 FPS prevented React from activating the notes tab.)
+    state.bgPhase2Window = createPhase2Window();
+    console.log('[BG Sync] Created hidden window for Phase 2');
 
     sendToLogWindow('bg-progress', {
       step: 'phase2-start',
@@ -668,7 +664,11 @@ function handleBGMessage(data) {
     });
 
     if (data.timeout) {
-      console.log(`[BG Sync] Phase 2: "${chapter}" timed out (may have no notes)`);
+      const reason = data.reason || 'unknown';
+      console.log(`[BG Sync] Phase 2: "${chapter}" timed out — ${reason}`);
+      if (data.sidebarSnippet) {
+        console.log(`[BG Debug] Sidebar snippet: ${data.sidebarSnippet.substring(0, 200)}`);
+      }
     }
 
     // Rate limit: wait 1.5s before next chapter

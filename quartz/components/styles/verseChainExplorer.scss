@@ -26,6 +26,7 @@ $section-colors: (
 
 .vc-input {
   width: 100%;
+  box-sizing: border-box;
   padding: 14px 40px 14px 18px;
   font-size: 1.1rem;
   border: 1px solid var(--lightgray);
@@ -155,86 +156,21 @@ $section-colors: (
   flex-wrap: wrap;
 }
 
-.vc-filters {
-  display: flex;
-  gap: 3px;
-  overflow-x: auto;
-  flex: 1;
-  scrollbar-width: none;
-  background: var(--lightgray);
-  border-radius: 10px;
-  padding: 3px;
-  &::-webkit-scrollbar { display: none; }
-}
-
-.vc-filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
+.vc-dropdown {
+  appearance: none;
+  padding: 6px 28px 6px 10px;
   font-size: 0.8rem;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--darkgray);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s $ease;
-
-  &::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  @each $name, $color in $section-colors {
-    &[data-filter="#{$name}"]::before { background: $color; }
-  }
-
-  &[data-filter="all"]::before { display: none; }
-
-  &.active {
-    background: var(--light);
-    color: var(--dark);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    font-weight: 600;
-    &::before { opacity: 1; }
-  }
-
-  .chip-count { font-size: 0.75em; opacity: 0.8; }
-}
-
-.vc-actions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.vc-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
+  font-weight: 500;
   border: 1px solid color-mix(in srgb, var(--lightgray) 80%, transparent);
   border-radius: 10px;
-  background: rgba(var(--light-rgb, 255, 255, 255), 0.6);
+  background: rgba(var(--light-rgb, 255, 255, 255), 0.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center / 12px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  color: var(--darkgray);
+  color: var(--dark);
   cursor: pointer;
-  transition: all 0.2s $spring;
-
-  &:hover { background: var(--lightgray); transform: scale(1.05); }
-  &:active { transform: scale(0.95); }
-  &[aria-pressed="true"], &.active {
-    background: var(--secondary);
-    color: var(--light);
-    border-color: var(--secondary);
-  }
+  transition: border-color 0.15s ease;
+  &:focus { border-color: var(--secondary); outline: none; }
+  &:hover { border-color: color-mix(in srgb, var(--lightgray) 100%, transparent); }
 }
 
 // ── Count ──
@@ -474,6 +410,28 @@ $section-colors: (
     cursor: default;
     &:hover { transform: none; box-shadow: none; }
   }
+
+  &.bg-only {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+    cursor: default;
+    &:hover { transform: none; box-shadow: none; }
+  }
+}
+
+.vc-bg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  white-space: nowrap;
+
+  svg { opacity: 0.8; }
 }
 
 .vc-conn-count {
@@ -624,38 +582,7 @@ $section-colors: (
   }
 }
 
-.vc-context-steps {
-  display: inline-flex;
-  background: color-mix(in srgb, var(--lightgray) 60%, transparent);
-  border-radius: 999px;
-  padding: 2px;
-  gap: 0;
-}
-
-.vc-context-step {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 24px;
-  padding: 0 6px;
-  border: none;
-  background: none;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--gray);
-  transition: color 0.15s ease, background 0.15s ease;
-
-  &:hover:not(.active) { color: var(--darkgray); }
-
-  &.active {
-    background: var(--light);
-    color: var(--dark);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-}
+// context dropdown uses .vc-dropdown styles above
 
 // ── Connection strength badge ──
 .vc-strength {
@@ -1071,53 +998,126 @@ $section-colors: (
 a[data-verse-ref]:hover + .verse-chain-btn,
 .verse-chain-btn:hover { opacity: 1; }
 
-// ── Toast ──
-.vc-toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  padding: 8px 16px;
-  background: var(--dark);
-  color: var(--light);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.2s, transform 0.3s $spring;
-  pointer-events: none;
-
-  &.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
 // ═══════════════════════════════════════════════════════════════
 // MOBILE — vertical stack
 // ═══════════════════════════════════════════════════════════════
 @media (max-width: 799px) {
-  .verse-chain { padding: 0 0.5rem; }
+  .verse-chain { padding: 0 0.75rem; }
 
-  .vc-input {
-    font-size: 1rem;
-    padding: 0.6rem 0.75rem;
+  // Sticky frosted-glass search wrapper
+  .vc-search-wrap {
+    max-width: 100%;
     position: sticky;
     top: 0;
     z-index: 40;
+    background: rgba(var(--light-rgb, 255, 255, 255), 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 0.75rem;
+    margin: 0 -0.75rem 0.75rem;
   }
 
+  .vc-input {
+    font-size: 16px; // Prevents iOS auto-zoom
+    padding: 0.6rem 2.5rem 0.6rem 0.75rem;
+    position: static; // Sticky moved to wrapper
+  }
+
+  // Controls row compact
+  .vc-controls { gap: 6px; }
+  .vc-dropdown {
+    font-size: 0.75rem;
+    padding: 8px 24px 8px 8px;
+    min-height: 36px; // iOS tap target
+  }
+
+  // Drill-down: one column at a time
   .vc-flow {
     flex-direction: column;
     overflow-x: visible;
-    gap: 12px;
+    gap: 0;
   }
 
   .vc-column {
-    width: 100%;
-
-    // Indent deeper columns
-    &[data-degree="1"] { padding-left: 0.5rem; border-left: 2px solid var(--lightgray); }
-    &[data-degree="2"] { padding-left: 1rem; border-left: 2px solid var(--lightgray); }
-    &[data-degree="3"] { padding-left: 1.5rem; border-left: 2px solid var(--lightgray); }
+    width: 100% !important;
+    padding-left: 0 !important;
+    border-left: none !important;
   }
+
+  // Mobile navigation bar (iOS UINavigationController style)
+  .vc-mobile-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0.75rem;
+    position: sticky;
+    top: 52px; // Below sticky search
+    z-index: 35;
+    background: rgba(var(--light-rgb, 255, 255, 255), 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    margin: 0 -0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--lightgray) 60%, transparent);
+  }
+
+  .vc-mobile-back {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: var(--secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    svg { width: 16px; height: 16px; }
+  }
+
+  .vc-mobile-nav-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--darkgray);
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vc-mobile-depth-pill {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    color: var(--secondary);
+    flex-shrink: 0;
+  }
+
+  // Slide animations for drill-down
+  .vc-column.vc-mobile-slide-in {
+    animation: mobileSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .vc-column.vc-mobile-slide-back {
+    animation: mobileSlideBack 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes mobileSlideIn {
+    from { opacity: 0; transform: translateX(40%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes mobileSlideBack {
+    from { opacity: 0; transform: translateX(-40%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  // Column header compact
+  .vc-expand-all, .vc-collapse-all { display: none; }
 
   .vc-note-pill { font-size: 0.75rem; }
   .vc-card-header { padding: 0.5rem 0.6rem; }
@@ -1130,9 +1130,25 @@ a[data-verse-ref]:hover + .verse-chain-btn,
     svg { width: 16px; height: 16px; }
   }
 
+  // History chips fade edge
+  .vc-history {
+    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  }
+
   .vc-breadcrumbs { display: none !important; }
   .vc-onboarding { padding: 2rem 1rem; }
   .vc-onboarding-steps { gap: 12px; }
+
+  // Safe area + touch feedback
+  .verse-chain {
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+  }
+
+  .vc-card, .vc-conn-chip {
+    -webkit-tap-highlight-color: transparent;
+    &:active { transform: scale(0.97); transition: transform 80ms ease; }
+  }
 }
 
 // ── Breadcrumb trail (Phase 7A) ──
@@ -1239,35 +1255,42 @@ a[data-verse-ref]:hover + .verse-chain-btn,
   opacity: 0.7;
 }
 
-// ── Onboarding (Phase 7E) ──
+// ── Onboarding ──
 .vc-onboarding {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 3rem 2rem;
+  gap: 12px;
+  padding: 48px 20px;
   text-align: center;
+  color: var(--gray);
   animation: cardFadeIn 0.4s $spring both;
 }
 
 .vc-onboarding-icon {
-  color: var(--secondary);
-  opacity: 0.6;
+  opacity: 0.3;
+}
+
+.vc-onboarding-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--gray);
 }
 
 .vc-onboarding-steps {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   text-align: left;
-  max-width: 360px;
+  max-width: 340px;
+  margin-top: 4px;
 }
 
 .vc-onboarding-step {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--darkgray);
   line-height: 1.5;
 }
@@ -1276,25 +1299,42 @@ a[data-verse-ref]:hover + .verse-chain-btn,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--secondary) 12%, transparent);
+  background: rgba(var(--secondary-rgb, 100, 100, 255), 0.1);
   color: var(--secondary);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .vc-onboarding-examples {
-  font-size: 0.8rem;
-  color: var(--gray);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
   margin-top: 8px;
 
   .vc-empty-link {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     display: inline-flex;
-    margin: 2px;
+    margin: 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(var(--secondary-rgb, 100, 100, 255), 0.08);
+    color: var(--secondary);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 150ms, transform 150ms $spring;
+
+    &:hover {
+      background: rgba(var(--secondary-rgb, 100, 100, 255), 0.15);
+      transform: scale(1.05);
+    }
   }
 }
 
@@ -1413,13 +1453,10 @@ a[data-verse-ref]:hover + .verse-chain-btn,
     background: color-mix(in srgb, var(--secondary) 15%, transparent);
   }
 
-  .vc-filter-chip {
-    background: rgba(255, 255, 255, 0.06);
+  .vc-dropdown {
+    background: rgba(255, 255, 255, 0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center / 12px;
     border-color: rgba(255, 255, 255, 0.08);
-
-    &.active {
-      background: rgba(255, 255, 255, 0.12);
-    }
+    color: var(--light);
   }
 
   .vc-history-chip {
@@ -1441,14 +1478,6 @@ a[data-verse-ref]:hover + .verse-chain-btn,
     border-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(16px) brightness(1.2);
     -webkit-backdrop-filter: blur(16px) brightness(1.2);
-  }
-
-  .vc-context-step {
-    background: rgba(255, 255, 255, 0.04);
-
-    .pressable.active {
-      background: rgba(255, 255, 255, 0.15);
-    }
   }
 
   .vc-autocomplete {
@@ -1495,13 +1524,4 @@ a[data-verse-ref]:hover + .verse-chain-btn,
     border-color: rgba(255, 255, 255, 0.06);
   }
 
-  .vc-action-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .vc-toast {
-    background: rgba(50, 50, 54, 0.95);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
 }

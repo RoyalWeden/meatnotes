@@ -24,33 +24,26 @@ export default (() => {
         {/* History chips */}
         <div id="vc-history" class="vc-history" aria-label="Search history"></div>
 
-        {/* Controls row: filter chips + context slider + export */}
+        {/* Controls row: filter dropdown + context dropdown */}
         <div class="vc-controls">
-          <div class="vc-filters" id="vc-filters" role="group" aria-label="Section filter">
-            <button class="vc-filter-chip pressable active" data-filter="all" data-tooltip="Show all sections">All</button>
-            <button class="vc-filter-chip pressable" data-filter="idiom" data-tooltip="Bible idiom notes">Idioms</button>
-            <button class="vc-filter-chip pressable" data-filter="capture" data-tooltip="Quick captures">Capture</button>
-            <button class="vc-filter-chip pressable" data-filter="in-progress" data-tooltip="In-progress studies">In Progress</button>
-            <button class="vc-filter-chip pressable" data-filter="complete" data-tooltip="Completed studies">Complete</button>
-            <button class="vc-filter-chip pressable" data-filter="daily" data-tooltip="Daily journal notes">Daily</button>
-          </div>
-          <div class="vc-actions">
-            <div class="vc-global-context" id="vc-global-context" data-tooltip="Verse context — how many surrounding verses to show">
-              <span class="vc-context-label">Context</span>
-              <div class="vc-context-step pressables" id="vc-context-steps">
-                <button class="vc-context-step pressable active" data-ctx="0" data-tooltip="Verse text only">0</button>
-                <button class="vc-context-step pressable" data-ctx="1" data-tooltip="Show ±1 surrounding verse">&plusmn;1</button>
-                <button class="vc-context-step pressable" data-ctx="2" data-tooltip="Show ±2 surrounding verses">&plusmn;2</button>
-                <button class="vc-context-step pressable" data-ctx="3" data-tooltip="Show ±3 surrounding verses">&plusmn;3</button>
-                <button class="vc-context-step pressable" data-ctx="5" data-tooltip="Show ±5 surrounding verses">&plusmn;5</button>
-                <button class="vc-context-step pressable" data-ctx="-1" data-tooltip="Show full chapter">Ch</button>
-              </div>
-            </div>
-            <button id="vc-export" class="vc-action-btn pressable" data-tooltip="Copy as Markdown">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-              </svg>
-            </button>
+          <select id="vc-filter-select" class="vc-dropdown" aria-label="Section filter">
+            <option value="all">All Sections</option>
+            <option value="idiom">Idioms</option>
+            <option value="capture">Capture</option>
+            <option value="in-progress">In Progress</option>
+            <option value="complete">Complete</option>
+            <option value="daily">Daily</option>
+          </select>
+          <div class="vc-global-context">
+            <span class="vc-context-label">Context</span>
+            <select id="vc-context-select" class="vc-dropdown" aria-label="Verse context">
+              <option value="0">Exact</option>
+              <option value="1">&plusmn;1</option>
+              <option value="2">&plusmn;2</option>
+              <option value="3">&plusmn;3</option>
+              <option value="5">&plusmn;5</option>
+              <option value="-1">Chapter</option>
+            </select>
           </div>
         </div>
 

@@ -39,6 +39,12 @@
   &:hover svg {
     transform: rotate(60deg);
   }
+
+  &.hidden-by-picker {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.2s ease;
+  }
 }
 
 // ── Backdrop ──

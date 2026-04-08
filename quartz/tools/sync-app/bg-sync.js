@@ -264,10 +264,10 @@ function buildPhase1Script(opts = {}) {
 /**
  * Phase 2 — Per-chapter note extraction.
  *
- * Injected after navigating to a BG passage page (e.g.,
- * /passage/?search=Isaiah+30&version=KJV). Switches the right sidebar
- * to "Your Content", waits for notes to load, then extracts all note
- * blocks under the <h3>Your Notes</h3> heading.
+ * Injected after navigating to a BG passage page with &tab=notes (e.g.,
+ * /passage/?search=Isaiah+30&version=KJV&tab=notes). The notes sidebar
+ * loads directly — no tab click needed. Uses adaptive polling to wait
+ * for the "Your Notes" heading, then extracts all note blocks.
  *
  * BG sidebar note structure (observed 2026):
  *   <h3>Your Notes</h3>
@@ -287,7 +287,8 @@ function buildPhase2Script(chapter) {
   return `
 (async function bgPhase2() {
   const CHAPTER = ${JSON.stringify(chapter)};
-  const MAX_WAIT = 12000; // ms to wait for sidebar content
+  const MAX_WAIT = 8000; // ms to wait for sidebar content
+  const POLL_INTERVAL = 300; // ms between checks
 
   function sendResult(data) {
     window.postMessage({ type: 'bg-phase2-result', ...data }, '*');
@@ -297,51 +298,26 @@ function buildPhase2Script(chapter) {
     window.postMessage({ type: 'bg-error', ...data }, '*');
   }
 
-  // Wait for page to be fully loaded
-  await new Promise(r => setTimeout(r, 1500));
+  // No tab-click needed: controller navigates directly to &tab=notes.
+  // Use adaptive polling — check for "Your Notes" heading every POLL_INTERVAL ms.
+  // This is much faster than fixed waits when notes load quickly.
+
+  // Network interceptor: capture fetch/XHR URLs for API discovery.
+  // This logs what endpoints BG calls when loading sidebar data,
+  // so a future optimization can call the API directly instead of loading pages.
+  const _intercepted = [];
+  const _origFetch = window.fetch;
+  window.fetch = function(url, opts) {
+    if (typeof url === 'string') _intercepted.push({ type: 'fetch', url: url.substring(0, 300) });
+    return _origFetch.apply(this, arguments);
+  };
+  const _origXHROpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url) {
+    if (typeof url === 'string') _intercepted.push({ type: 'xhr', method, url: url.substring(0, 300) });
+    return _origXHROpen.apply(this, arguments);
+  };
 
   try {
-    // Step 1: Switch sidebar to "Your Content" tab
-    // Look for tab links and click the one with "Your Content"
-    const tabSelectors = [
-      '.sidebar-toggle a', '.passage-resources-toggle a',
-      '[role="tab"]', '.tab-nav a', '.tab-link',
-      '.resource-tab a', '.sidebar-tab',
-      '.passage-tools a', '.right-tools a',
-    ];
-
-    let tabClicked = false;
-    for (const sel of tabSelectors) {
-      const tabs = document.querySelectorAll(sel);
-      for (const tab of tabs) {
-        const text = (tab.textContent || '').trim().toLowerCase();
-        if (text.includes('your content') || text.includes('my content') || text.includes('your notes')) {
-          tab.click();
-          tabClicked = true;
-          break;
-        }
-      }
-      if (tabClicked) break;
-    }
-
-    // Also try clicking by aria-label or data attributes
-    if (!tabClicked) {
-      const allLinks = document.querySelectorAll('a, button');
-      for (const el of allLinks) {
-        const text = (el.textContent || '').trim().toLowerCase();
-        const label = (el.getAttribute('aria-label') || '').toLowerCase();
-        if (text.includes('your content') || label.includes('your content')) {
-          el.click();
-          tabClicked = true;
-          break;
-        }
-      }
-    }
-
-    // Wait for the sidebar content to load
-    await new Promise(r => setTimeout(r, 1000));
-
-    // Step 2: Wait for notes to appear under "Your Notes" heading
     let notesContainer = null;
     const startTime = Date.now();
     while (Date.now() - startTime < MAX_WAIT) {
@@ -364,7 +340,7 @@ function buildPhase2Script(chapter) {
         return;
       }
 
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, POLL_INTERVAL));
     }
 
     if (!notesContainer) {
@@ -373,7 +349,7 @@ function buildPhase2Script(chapter) {
       return;
     }
 
-    // Step 3: Extract individual note blocks
+    // Extract individual note blocks
     // Each note block is a child div with: date span, verse span, text div
     const notes = [];
     const noteBlocks = notesContainer.querySelectorAll(':scope > div');
@@ -434,6 +410,16 @@ function buildPhase2Script(chapter) {
     }
 
     sendResult({ chapter: CHAPTER, notes, noteCount: notes.length });
+
+    // Report intercepted network requests for API discovery (first chapter only)
+    if (_intercepted.length > 0) {
+      window.postMessage({
+        type: 'bg-debug',
+        interceptedRequests: _intercepted.filter(r =>
+          r.url.includes('biblegateway') || r.url.startsWith('/')
+        ),
+      }, '*');
+    }
 
   } catch (e) {
     sendError({ message: 'Phase 2 error (' + CHAPTER + '): ' + e.message });

@@ -80,6 +80,131 @@ const PHASE2_LIGHTWEIGHT_CSS = `
   body { overflow: hidden !important; }
 `;
 
+/**
+ * Shared console-message handler for BG windows.
+ * Parses 'BG:' prefixed JSON messages and routes to handleBGMessage().
+ */
+function bgConsoleMessageHandler(_event, _level, message) {
+  if (!message.startsWith('BG:')) return;
+  try {
+    const data = JSON.parse(message.slice(3));
+    if (data.type === 'bg-debug') {
+      try {
+        if (data.interceptedRequests) {
+          const apiFile = DEBUG_LOG_PATH.replace('.html', '-api.json');
+          fs.writeFileSync(apiFile, JSON.stringify(data.interceptedRequests, null, 2));
+          console.log(`[BG Debug] Intercepted API requests saved to ${apiFile}`);
+        } else {
+          fs.writeFileSync(DEBUG_LOG_PATH, data.html || '(empty)');
+          console.log(`[BG Debug] Page HTML saved to ${DEBUG_LOG_PATH}`);
+        }
+        sendToLogWindow('bg-progress', { step: 'debug', message: 'Debug data saved' });
+      } catch (e) {
+        console.error('[BG Debug] Failed to save:', e.message);
+      }
+      return;
+    }
+    handleBGMessage(data);
+  } catch (e) {
+    console.error('[BG Sync] Failed to parse message:', message.slice(0, 200), e.message);
+  }
+}
+
+/**
+ * Inject the postMessage → console.log relay into a BrowserWindow.
+ */
+function injectMessageRelay(webContents) {
+  return webContents.executeJavaScript(`
+    window.addEventListener('message', (e) => {
+      if (e.data && (
+        e.data.type === 'bg-progress' ||
+        e.data.type === 'bg-complete' ||
+        e.data.type === 'bg-error' ||
+        e.data.type === 'bg-debug' ||
+        e.data.type === 'bg-phase1-complete' ||
+        e.data.type === 'bg-phase2-result'
+      )) {
+        console.log('BG:' + JSON.stringify(e.data));
+      }
+    });
+  `).catch(() => {});
+}
+
+/**
+ * Handle did-finish-load for Phase 2 passage pages.
+ * Works with both the main window and the offscreen window.
+ */
+async function handlePhase2PageLoad(webContents) {
+  const url = webContents.getURL();
+  if (state.bgPhase !== 'phase2' || !url.includes('/passage/')) return false;
+
+  // Guard: don't re-inject if we already injected for this exact URL.
+  if (state.bgPhase2InjectedUrl === url) {
+    console.log(`[BG Sync] Phase 2: Skipping duplicate injection for "${state.bgPhase2Current}"`);
+    return true;
+  }
+  state.bgPhase2InjectedUrl = url;
+
+  console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
+
+  // Capture debug HTML for the first chapter to diagnose any DOM mismatches
+  const completed = state.bgPhase2Total - state.bgPhase2Queue.length - 1;
+  if (completed === 0) {
+    const debugPath = DEBUG_LOG_PATH.replace('.html', '-phase2.html');
+    webContents.executeJavaScript(
+      `document.documentElement.outerHTML.slice(0, 500000)`
+    ).then(html => {
+      try {
+        fs.writeFileSync(debugPath, html || '(empty)');
+        console.log(`[BG Debug] Phase 2 page HTML saved to ${debugPath}`);
+      } catch (e) { console.error('[BG Debug] Failed to save Phase 2 HTML:', e.message); }
+    }).catch(() => {});
+  }
+
+  // Inject lightweight CSS to hide heavy visual elements and kill animations
+  webContents.insertCSS(PHASE2_LIGHTWEIGHT_CSS).catch(() => {});
+  const script = buildPhase2Script(state.bgPhase2Current);
+  webContents.executeJavaScript(script).catch(() => {});
+  return true;
+}
+
+/**
+ * Create an offscreen BrowserWindow for Phase 2.
+ * Shares the authenticated session via the same partition.
+ * Uses software rendering at 1 FPS to minimize CPU/GPU usage.
+ */
+function createPhase2OffscreenWindow() {
+  const win = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      partition: 'persist:biblegateway',
+      offscreen: true,
+      nodeIntegration: false,
+      contextIsolation: true,
+      webgl: false,
+      enableWebSQL: false,
+      spellcheck: false,
+    },
+  });
+
+  // Offscreen rendering requires a paint listener, even if we ignore the output
+  win.webContents.on('paint', () => {});
+  win.webContents.setFrameRate(1);
+
+  // Ad/tracking blocking is already registered on the shared session
+  // (persist:biblegateway) by the main window — no need to register again.
+
+  // Wire up message relay
+  win.webContents.on('console-message', bgConsoleMessageHandler);
+  win.webContents.on('did-finish-load', async () => {
+    if (win.isDestroyed()) return;
+    await injectMessageRelay(win.webContents);
+    await handlePhase2PageLoad(win.webContents);
+  });
+
+  return win;
+}
+
 function runBGSync(opts = {}) {
   if (state.bgSyncWindow) {
     state.bgSyncWindow.focus();
@@ -161,59 +286,19 @@ function runBGSync(opts = {}) {
   let autoLoginAttempted = false;
 
   // Listen for BG messages relayed via console.log
-  state.bgSyncWindow.webContents.on('console-message', (_event, _level, message) => {
-    if (!message.startsWith('BG:')) return;
-    try {
-      const data = JSON.parse(message.slice(3));
-      if (data.type === 'bg-debug') {
-        // Save debug HTML to file
-        try {
-          fs.writeFileSync(DEBUG_LOG_PATH, data.html || '(empty)');
-          console.log(`[BG Debug] Page HTML saved to ${DEBUG_LOG_PATH}`);
-          sendToLogWindow('bg-progress', {
-            step: 'debug',
-            message: `Debug HTML saved to ${DEBUG_LOG_PATH}`,
-          });
-        } catch (e) {
-          console.error('[BG Debug] Failed to save:', e.message);
-        }
-        return;
-      }
-      handleBGMessage(data);
-    } catch {}
-  });
+  state.bgSyncWindow.webContents.on('console-message', bgConsoleMessageHandler);
 
   // On each page load: inject the postMessage relay, then check context
   state.bgSyncWindow.webContents.on('did-finish-load', async () => {
     if (!state.bgSyncWindow || state.bgSyncWindow.isDestroyed()) return;
 
     // Always inject the postMessage → console.log relay
-    await state.bgSyncWindow.webContents.executeJavaScript(`
-      window.addEventListener('message', (e) => {
-        if (e.data && (
-          e.data.type === 'bg-progress' ||
-          e.data.type === 'bg-complete' ||
-          e.data.type === 'bg-error' ||
-          e.data.type === 'bg-debug' ||
-          e.data.type === 'bg-phase1-complete' ||
-          e.data.type === 'bg-phase2-result'
-        )) {
-          console.log('BG:' + JSON.stringify(e.data));
-        }
-      });
-    `).catch(() => {});
+    await injectMessageRelay(state.bgSyncWindow.webContents);
 
     const url = state.bgSyncWindow.webContents.getURL();
 
-    // ── Phase 2: If we're on a passage page and in phase2, inject extraction script ──
-    if (state.bgPhase === 'phase2' && url.includes('/passage/')) {
-      console.log(`[BG Sync] Phase 2: Loaded passage page for "${state.bgPhase2Current}"`);
-      // Inject lightweight CSS to hide heavy visual elements and kill animations
-      state.bgSyncWindow.webContents.insertCSS(PHASE2_LIGHTWEIGHT_CSS).catch(() => {});
-      const script = buildPhase2Script(state.bgPhase2Current);
-      state.bgSyncWindow.webContents.executeJavaScript(script).catch(() => {});
-      return;
-    }
+    // Phase 2 is handled by the offscreen window — skip here
+    if (state.bgPhase === 'phase2') return;
 
     // ── Login flow: only for annotations/user pages ──
     if (!autoLoginAttempted) {
@@ -317,6 +402,11 @@ function runBGSync(opts = {}) {
 
   state.bgSyncWindow.on('closed', () => {
     state.bgSyncWindow = null;
+    // Also clean up offscreen Phase 2 window if it exists
+    if (state.bgPhase2Window && !state.bgPhase2Window.isDestroyed()) {
+      state.bgPhase2Window.close();
+      state.bgPhase2Window = null;
+    }
     if (state.bgSyncStatus === 'login' || state.bgSyncStatus === 'exporting') {
       state.bgSyncStatus = 'idle';
       state.bgPhase = 'idle';
@@ -362,7 +452,8 @@ function resumeAutoSyncIfNeeded() {
  * Navigates the BrowserWindow to the passage page for the chapter.
  */
 function processPhase2Queue() {
-  if (!state.bgSyncWindow || state.bgSyncWindow.isDestroyed()) {
+  const win = state.bgPhase2Window || state.bgSyncWindow;
+  if (!win || win.isDestroyed()) {
     console.log('[BG Sync] Phase 2: Window closed, aborting');
     finalizeBGSync();
     return;
@@ -392,9 +483,13 @@ function processPhase2Queue() {
     pct,
   });
 
-  // Navigate to the passage page — did-finish-load will inject Phase 2 script
+  // Navigate to the passage page with &tab=notes so the sidebar notes load directly.
+  // Previously we loaded without &tab=notes and tried to click the "Your Content"
+  // tab via JS injection, but that tab is a regular <a> link that triggers full
+  // page navigation — destroying the extraction script before it can send results.
   const searchTerm = encodeURIComponent(chapter);
-  state.bgSyncWindow.loadURL(`https://www.biblegateway.com/passage/?search=${searchTerm}&version=KJV`);
+  state.bgPhase2InjectedUrl = null; // Reset injection guard for new chapter
+  win.loadURL(`https://www.biblegateway.com/passage/?search=${searchTerm}&version=KJV&tab=notes`);
 }
 
 /**
@@ -404,6 +499,13 @@ function finalizeBGSync() {
   state.bgSyncStatus = 'importing';
   state.bgPhase = 'importing';
   state.callbacks.rebuildMenu?.();
+
+  // Destroy the offscreen Phase 2 window if it exists
+  if (state.bgPhase2Window && !state.bgPhase2Window.isDestroyed()) {
+    state.bgPhase2Window.close();
+    state.bgPhase2Window = null;
+    console.log('[BG Sync] Destroyed offscreen Phase 2 window');
+  }
 
   const contentDir = path.join(REPO_DIR, 'content');
   const totalNotes = state.bgCollectedNotes.length;
@@ -503,12 +605,16 @@ function handleBGMessage(data) {
     state.bgPhase2StartTime = Date.now();
     phase2ConsecutiveFailures = 0;
 
-    // Hide the window during Phase 2 — user doesn't need to see passage pages
-    // Keep backgroundThrottling off so our extraction timers aren't clamped
+    // Hide the Phase 1 window — Phase 2 will use a separate offscreen window
     if (state.bgSyncWindow && !state.bgSyncWindow.isDestroyed()) {
       state.bgSyncWindow.hide();
-      state.bgSyncWindow.webContents.setBackgroundThrottling(false);
     }
+
+    // Create offscreen BrowserWindow for Phase 2.
+    // This uses software rendering at 1 FPS, bypassing the GPU compositor
+    // entirely and dramatically reducing CPU usage compared to a hidden window.
+    state.bgPhase2Window = createPhase2OffscreenWindow();
+    console.log('[BG Sync] Created offscreen window for Phase 2');
 
     sendToLogWindow('bg-progress', {
       step: 'phase2-start',

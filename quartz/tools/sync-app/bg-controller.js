@@ -93,15 +93,18 @@ function bgConsoleMessageHandler(_event, _level, message) {
     const data = JSON.parse(message.slice(3));
     if (data.type === 'bg-debug') {
       try {
+        if (data.dbg) {
+          // Step-by-step debug logging from Phase 2 script
+          console.log(`[BG Debug] ${data.dbg}:`, JSON.stringify(data, null, 2).substring(0, 2000));
+        }
         if (data.interceptedRequests) {
           const apiFile = DEBUG_LOG_PATH.replace('.html', '-api.json');
           fs.writeFileSync(apiFile, JSON.stringify(data.interceptedRequests, null, 2));
           console.log(`[BG Debug] Intercepted API requests saved to ${apiFile}`);
         } else if (data.html) {
-          // Phase 2 script captures HTML after tab-click — save to phase2 debug path
           const phase2Path = DEBUG_LOG_PATH.replace('.html', '-phase2.html');
           fs.writeFileSync(phase2Path, data.html);
-          console.log(`[BG Debug] Phase 2 page HTML saved to ${phase2Path}`);
+          console.log(`[BG Debug] Phase 2 page HTML saved to ${phase2Path} (${data.html.length} chars)`);
         }
         sendToLogWindow('bg-progress', { step: 'debug', message: 'Debug data saved' });
       } catch (e) {
@@ -291,6 +294,7 @@ function runBGSync(opts = {}) {
     await injectMessageRelay(state.bgSyncWindow.webContents);
 
     const url = state.bgSyncWindow.webContents.getURL();
+    console.log(`[BG Sync] did-finish-load: ${url.substring(0, 120)} (phase=${state.bgPhase}, loginAttempted=${autoLoginAttempted})`);
 
     // Phase 2 is handled by the hidden Phase 2 window — skip here
     if (state.bgPhase === 'phase2') return;
@@ -330,7 +334,10 @@ function runBGSync(opts = {}) {
     }
 
     // ── Annotations page: check login then start Phase 1 ──
-    if (!url.includes('/user/annotations') && !url.includes('/user/')) return;
+    if (!url.includes('/user/annotations') && !url.includes('/user/')) {
+      console.log(`[BG Sync] Skipping non-user page: ${url.substring(0, 120)}`);
+      return;
+    }
 
     // Debug mode: capture HTML
     if (debug) {

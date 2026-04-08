@@ -1,194 +1,1341 @@
 {
-  "lastSync": "2026-04-08T03:23:13.408Z",
-  "noteCount": 9,
+  "lastSync": "2026-04-08T07:34:16.455Z",
+  "noteCount": 87,
   "notes": [
     {
-      "verse": "1 Corinthians 15:25",
-      "date": "2025/07/21",
-      "text": "psalm 110:1",
+      "verse": "Matthew 13:3",
+      "date": "2025/10/30",
+      "text": "mark 4:13‼️",
       "connections": [
-        "Psalms 110:1"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "1 Corinthians 15:27",
-      "date": "2025/11/02",
-      "text": "psalm 8:6, hebrews 2:8",
-      "connections": [
-        "Psalms 8:6",
-        "Hebrews 2:8"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "1 Corinthians 15:32",
-      "date": "2025/09/09",
-      "text": "isaiah 56; isaiah 22:12-14; wisdom 2:1",
-      "connections": [
-        "Isaiah 56",
-        "Isaiah 22:12-14",
-        "Wisdom 2:1"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "1 Corinthians 15:34",
-      "date": "2025/07/21",
-      "text": "isaiah 52:1?",
-      "connections": [
-        "Isaiah 52:1"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "1 Corinthians 15:45",
-      "date": "2025/06/12",
-      "text": "genesis 2:7",
-      "connections": [
-        "Genesis 2:7"
-      ],
-      "observations": []
-    },
-    {
-      "verse": "1 Corinthians 15:51",
-      "date": "2026/04/07",
-      "text": "psalm 60:1 (lxx)",
-      "connections": [
-        "Psalms 60:1"
+        "Mark 4:13"
       ],
       "observations": [
-        "(lxx)"
+        "‼️"
       ]
     },
     {
-      "verse": "1 Corinthians 15:52",
-      "date": "2025/07/21",
-      "text": "7th trump; 1 thessalonians 4; \n\nezekiel 37..",
+      "verse": "Matthew 13:6",
+      "date": "2025/07/05",
+      "text": "isaiah 40",
       "connections": [
-        "1 Thessalonians 4",
-        "Ezekiel 37"
+        "Isaiah 40"
       ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:11",
+      "date": "2025/10/30",
+      "text": "matthew 19:11, matthew 25:15",
+      "connections": [
+        "Matthew 19:11",
+        "Matthew 25:15"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:13",
+      "date": "2026/03/25",
+      "text": "isaiah 28",
+      "connections": [
+        "Isaiah 28"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:14",
+      "date": "2025/01/05",
+      "text": "isaiah 6",
+      "connections": [
+        "Isaiah 6"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:15",
+      "date": "2026/02/15",
+      "text": "psalm 115, 135",
+      "connections": [
+        "Psalms 115",
+        "Psalms 135"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:16",
+      "date": "2026/01/06",
+      "text": "luke 10:23",
+      "connections": [
+        "Luke 10:23"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:19",
+      "date": "2026/02/05",
+      "text": "jubilees 11:10-12",
+      "connections": [],
       "observations": [
-        "7th trump",
-        ".."
+        "jubilees 11:10-12"
       ]
     },
     {
-      "verse": "1 Corinthians 15:54",
-      "date": "2025/11/02",
-      "text": "quotes isaiah 25(:8) [septuagint] -> revelation 7:13-17; \n\nisaiah 22:13-14 (→ isaiah 56)",
+      "verse": "Matthew 13:20",
+      "date": "2026/03/25",
+      "text": "acts 17:10-11",
       "connections": [
-        "Isaiah 25",
-        "Revelation 7:13-17",
-        "Isaiah 22:13-14",
-        "Isaiah 56"
+        "Acts 17:10-11"
       ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:21",
+      "date": "2025/10/30",
+      "text": "offend = stumble",
+      "connections": [],
       "observations": [
-        "quotes",
-        "(:8) [septuagint] ->",
-        "(→"
+        "offend = stumble"
       ]
     },
     {
-      "verse": "1 Corinthians 15:55",
-      "date": "2025/08/14",
-      "text": "quotes hosea 13:14 (septuagint); \n\npsalm 89:48..?",
+      "verse": "Matthew 13:23",
+      "date": "2025/01/05",
+      "text": "fruit = the people",
+      "connections": [],
+      "observations": [
+        "fruit = the people"
+      ]
+    },
+    {
+      "verse": "Matthew 13:31",
+      "date": "2025/09/11",
+      "text": "smallest seed that makes a tree; ezekiel 17:22-24; \n\nmatthew 17:20",
       "connections": [
-        "Hosea 13:14",
-        "Psalms 89:48"
+        "Ezekiel 17:22-24",
+        "Matthew 17:20"
       ],
       "observations": [
-        "quotes",
-        "(septuagint)",
-        "..?"
+        "smallest seed that makes a tree"
+      ]
+    },
+    {
+      "verse": "Matthew 13:32",
+      "date": "2026/03/25",
+      "text": "baruch 5 → trees; \n\nezekiel 31...",
+      "connections": [
+        "Baruch 5",
+        "Ezekiel 31"
+      ],
+      "observations": [
+        "→ trees",
+        "..."
+      ]
+    },
+    {
+      "verse": "Matthew 13:33",
+      "date": "2026/02/15",
+      "text": "three measures of meal = 10 ephahs; this is 10 northern tribes;\n\nzechariah 5;\n\n1 corinthians 5:6-8; \n\nthree = three types of leaven (pharisees, saducees, herod)",
+      "connections": [
+        "Zechariah 5",
+        "1 Corinthians 5:6-8"
+      ],
+      "observations": [
+        "three measures of meal = 10 ephahs; this is 10 northern tribes",
+        "three = three types of leaven (pharisees, saducees, herod)"
+      ]
+    },
+    {
+      "verse": "Matthew 13:35",
+      "date": "2025/01/05",
+      "text": "psalm 78",
+      "connections": [
+        "Psalms 78"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:44",
+      "date": "2026/03/25",
+      "text": "sirach 40:18; matthew 6:21",
+      "connections": [
+        "Sirach 40:18",
+        "Matthew 6:21"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:46",
+      "date": "2025/05/08",
+      "text": "buys the inheritance...",
+      "connections": [],
+      "observations": [
+        "buys the inheritance..."
+      ]
+    },
+    {
+      "verse": "Matthew 13:49",
+      "date": "2026/03/27",
+      "text": "malachi 3:18, hebrews 5",
+      "connections": [
+        "Malachi 3:18",
+        "Hebrews 5"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Matthew 13:52",
+      "date": "2025/09/11",
+      "text": "meat in due season; \n\nmatthew 24:45",
+      "connections": [
+        "Matthew 24:45"
+      ],
+      "observations": [
+        "meat in due season"
+      ]
+    },
+    {
+      "verse": "Isaiah 11:2",
+      "date": "2025/07/28",
+      "text": "the seven spirits of God; \nluke 4:18; \n1 corinthians 12:4-11",
+      "connections": [
+        "Luke 4:18",
+        "1 Corinthians 12:4-11"
+      ],
+      "observations": [
+        "the seven spirits of God"
+      ]
+    },
+    {
+      "verse": "Isaiah 11:3",
+      "date": "2025/04/23",
+      "text": "john 8:15",
+      "connections": [
+        "John 8:15"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 11:4",
+      "date": "2025/02/08",
+      "text": "leviticus 19:15",
+      "connections": [
+        "Leviticus 19:15"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 11:5",
+      "date": "2025/11/09",
+      "text": "ephesians 6:14",
+      "connections": [
+        "Ephesians 6:14"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 11:11",
+      "date": "2026/02/26",
+      "text": "calling the 2nd time for ephraim?",
+      "connections": [],
+      "observations": [
+        "calling the 2nd time for ephraim?"
+      ]
+    },
+    {
+      "verse": "Isaiah 11:16",
+      "date": "2025/08/12",
+      "text": "2nd exodus",
+      "connections": [],
+      "observations": [
+        "2nd exodus"
+      ]
+    },
+    {
+      "verse": "Ezekiel 20:6",
+      "date": "2024/10/05",
+      "text": "land full of people that don’t despise the word of God, repentance is the milk, first understanding prophecy is honey, sweet in mouth",
+      "connections": [],
+      "observations": [
+        "land full of people that don’t despise the word of God, repentance is the milk, first understanding prophecy is honey, sweet in mouth"
+      ]
+    },
+    {
+      "verse": "Ezekiel 20:8",
+      "date": "2025/07/06",
+      "text": "fury = wrath (sware in my wrath - psalm 95)",
+      "connections": [
+        "Psalms 95"
+      ],
+      "observations": [
+        "fury = wrath (sware in my wrath -"
+      ]
+    },
+    {
+      "verse": "Ezekiel 20:11",
+      "date": "2024/10/05",
+      "text": "romans 10, leviticus 18",
+      "connections": [
+        "Romans 10",
+        "Leviticus 18"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 20:13",
+      "date": "2024/10/05",
+      "text": "repeats leviticus 18 again",
+      "connections": [
+        "Leviticus 18"
+      ],
+      "observations": [
+        "repeats",
+        "again"
+      ]
+    },
+    {
+      "verse": "Ezekiel 20:17",
+      "date": "2025/04/02",
+      "text": "as a man spares his only son?",
+      "connections": [],
+      "observations": [
+        "as a man spares his only son?"
+      ]
+    },
+    {
+      "verse": "Ezekiel 20:23",
+      "date": "2025/06/28",
+      "text": "deuteronomy 32:26",
+      "connections": [
+        "Deuteronomy 32:26"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 20:35",
+      "date": "2026/02/17",
+      "text": "hosea 2",
+      "connections": [
+        "Hosea 2"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 20:48",
+      "date": "2024/09/16",
+      "text": "isaiah 66",
+      "connections": [
+        "Isaiah 66"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 20:49",
+      "date": "2025/12/22",
+      "text": "sounds like yeshua",
+      "connections": [],
+      "observations": [
+        "sounds like yeshua"
+      ]
+    },
+    {
+      "verse": "Hebrews 3:1",
+      "date": "2025/03/15",
+      "text": "1 thessalonians 5:27",
+      "connections": [
+        "1 Thessalonians 5:27"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hebrews 3:5",
+      "date": "2025/08/29",
+      "text": "numbers 12:7; matthew 24:45/luke 12:42",
+      "connections": [
+        "Numbers 12:7",
+        "Matthew 24:45",
+        "Luke 12:42"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hebrews 3:7",
+      "date": "2024/09/09",
+      "text": "psalm 95",
+      "connections": [
+        "Psalms 95"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hebrews 3:8",
+      "date": "2025/08/29",
+      "text": "exodus 17",
+      "connections": [
+        "Exodus 17"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hebrews 3:17",
+      "date": "2025/08/29",
+      "text": "numbers 14",
+      "connections": [
+        "Numbers 14"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hebrews 3:18",
+      "date": "2026/02/15",
+      "text": "psalm 78:22",
+      "connections": [
+        "Psalms 78:22"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Job 34:20",
+      "date": "2026/02/14",
+      "text": "isaiah 57:1-2",
+      "connections": [
+        "Isaiah 57:1-2"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Job 34:37",
+      "date": "2025/02/24",
+      "text": "1 samuel 15:23; lamentations 2:15",
+      "connections": [
+        "1 Samuel 15:23",
+        "Lamentations 2:15"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:1",
+      "date": "2025/03/22",
+      "text": "hosea 6:7",
+      "connections": [
+        "Hosea 6:7"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:2",
+      "date": "2025/03/22",
+      "text": "matthew 7:23",
+      "connections": [
+        "Matthew 7:23"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:7",
+      "date": "2025/02/19",
+      "text": "matthew 21:19, mark 11:13-14",
+      "connections": [
+        "Matthew 21:19",
+        "Mark 11:13-14"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:11",
+      "date": "2024/10/05",
+      "text": "jeremiah 14:10-12",
+      "connections": [
+        "Jeremiah 14:10-12"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:12",
+      "date": "2026/01/05",
+      "text": "matthew 23:23",
+      "connections": [
+        "Matthew 23:23"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Hosea 8:14",
+      "date": "2025/09/10",
+      "text": "isaiah 9:9-10",
+      "connections": [
+        "Isaiah 9:9-10"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 44:5",
+      "date": "2025/11/13",
+      "text": "subscribe hand → keep 10 commandments",
+      "connections": [],
+      "observations": [
+        "subscribe hand → keep 10 commandments"
+      ]
+    },
+    {
+      "verse": "Isaiah 44:12",
+      "date": "2025/01/11",
+      "text": "isaiah 55",
+      "connections": [
+        "Isaiah 55"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 44:18",
+      "date": "2025/12/22",
+      "text": "isaiah 6; conscience seared",
+      "connections": [
+        "Isaiah 6"
+      ],
+      "observations": [
+        "conscience seared"
+      ]
+    },
+    {
+      "verse": "Isaiah 44:20",
+      "date": "2026/01/14",
+      "text": "matthew 5:30",
+      "connections": [
+        "Matthew 5:30"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 44:22",
+      "date": "2025/12/13",
+      "text": "colossians 2:14",
+      "connections": [
+        "Colossians 2:14"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 36:12",
+      "date": "2025/06/10",
+      "text": "mountain of israel (v1) = people of israel",
+      "connections": [],
+      "observations": [
+        "mountain of israel (v1) = people of israel"
+      ]
+    },
+    {
+      "verse": "Ezekiel 36:17",
+      "date": "2024/11/14",
+      "text": "house of israel = woman that gives birth to manchild, leviticus 12:2",
+      "connections": [
+        "Leviticus 12:2"
+      ],
+      "observations": [
+        "house of israel = woman that gives birth to manchild"
+      ]
+    },
+    {
+      "verse": "Ezekiel 36:20",
+      "date": "2025/11/19",
+      "text": "jeremiah 12:16; romans 2:24",
+      "connections": [
+        "Jeremiah 12:16",
+        "Romans 2:24"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 36:23",
+      "date": "2025/08/10",
+      "text": "john 17:6",
+      "connections": [
+        "John 17:6"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Ezekiel 36:24",
+      "date": "2025/05/06",
+      "text": "jeremiah 3:14",
+      "connections": [
+        "Jeremiah 3:14"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Philippians 2:5",
+      "date": "2025/10/25",
+      "text": "1 corinthians 2:16",
+      "connections": [
+        "1 Corinthians 2:16"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Philippians 2:10",
+      "date": "2025/11/13",
+      "text": "v10-11 → isaiah 45",
+      "connections": [
+        "Isaiah 45"
+      ],
+      "observations": [
+        "v10-11 →"
+      ]
+    },
+    {
+      "verse": "Philippians 2:13",
+      "date": "2025/06/11",
+      "text": "psalm 51 - built the walls of jerusalem (raising the 144k)",
+      "connections": [
+        "Psalms 51"
+      ],
+      "observations": [
+        "- built the walls of jerusalem (raising the 144k)"
+      ]
+    },
+    {
+      "verse": "Philippians 2:14",
+      "date": "2024/09/16",
+      "text": "murmurings in the wilderness",
+      "connections": [],
+      "observations": [
+        "murmurings in the wilderness"
+      ]
+    },
+    {
+      "verse": "Philippians 2:15",
+      "date": "2024/09/16",
+      "text": "deuteronomy 32",
+      "connections": [
+        "Deuteronomy 32"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 21:6",
+      "date": "2025/09/24",
+      "text": "ezekiel 33:2",
+      "connections": [
+        "Ezekiel 33:2"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 21:8",
+      "date": "2025/11/10",
+      "text": "proverbs 22:13",
+      "connections": [
+        "Proverbs 22:13"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 21:9",
+      "date": "2025/11/10",
+      "text": "jeremiah 50,51; \n\nsong of solomon 3",
+      "connections": [
+        "Jeremiah 50",
+        "Jeremiah 51",
+        "Song of Solomon 3"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Isaiah 21:10",
+      "date": "2025/09/24",
+      "text": "threshingfloor",
+      "connections": [],
+      "observations": [
+        "threshingfloor"
+      ]
+    },
+    {
+      "verse": "Isaiah 21:11",
+      "date": "2025/09/24",
+      "text": "dumah (septuagint) = idumea; \n\nseir (strongs) = a mountain of idumaea",
+      "connections": [],
+      "observations": [
+        "dumah (septuagint) = idumea; \n\nseir (strongs) = a mountain of idumaea"
+      ]
+    },
+    {
+      "verse": "Luke 22:20",
+      "date": "2025/04/12",
+      "text": "new testament = refreshed covenant",
+      "connections": [],
+      "observations": [
+        "new testament = refreshed covenant"
+      ]
+    },
+    {
+      "verse": "Luke 22:37",
+      "date": "2025/09/18",
+      "text": "isaiah 53",
+      "connections": [
+        "Isaiah 53"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Luke 22:47",
+      "date": "2025/10/20",
+      "text": "proverbs 27:5-6",
+      "connections": [
+        "Proverbs 27:5-6"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:2",
+      "date": "2025/05/08",
+      "text": "\"strengthen the things which remain\" -> hebrews 8:13 the old covenant; \n\nphilippians 3:13-15; \n\nready to die -> luke 7:2",
+      "connections": [
+        "Hebrews 8:13",
+        "Philippians 3:13-15",
+        "Luke 7:2"
+      ],
+      "observations": [
+        "\"strengthen the things which remain\" ->",
+        "the old covenant",
+        "ready to die ->"
+      ]
+    },
+    {
+      "verse": "Revelation 3:3",
+      "date": "2025/04/18",
+      "text": "1 thessalonians 5:1",
+      "connections": [
+        "1 Thessalonians 5:1"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:7",
+      "date": "2025/06/11",
+      "text": "philadelphia = brotherly love; isaiah 22",
+      "connections": [
+        "Isaiah 22"
+      ],
+      "observations": [
+        "philadelphia = brotherly love"
+      ]
+    },
+    {
+      "verse": "Revelation 3:8",
+      "date": "2025/06/11",
+      "text": "amos 7; john 10 - door",
+      "connections": [
+        "Amos 7",
+        "John 10"
+      ],
+      "observations": [
+        "- door"
+      ]
+    },
+    {
+      "verse": "Revelation 3:9",
+      "date": "2025/06/11",
+      "text": "isaiah 49:23",
+      "connections": [
+        "Isaiah 49:23"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:11",
+      "date": "2025/06/11",
+      "text": "titus vs. john mark - 2 timothy 4",
+      "connections": [
+        "2 Timothy 4"
+      ],
+      "observations": [
+        "titus vs. john mark -"
+      ]
+    },
+    {
+      "verse": "Revelation 3:12",
+      "date": "2025/06/11",
+      "text": "isaiah 62",
+      "connections": [
+        "Isaiah 62"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:14",
+      "date": "2025/07/19",
+      "text": "colossians 1:15",
+      "connections": [
+        "Colossians 1:15"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:15",
+      "date": "2025/05/09",
+      "text": "jubilees 8:30",
+      "connections": [],
+      "observations": [
+        "jubilees 8:30"
+      ]
+    },
+    {
+      "verse": "Revelation 3:16",
+      "date": "2025/06/21",
+      "text": "hot = manchild;\ncold = woman in wilderness;\nlukewarm = ephraim (spue out = captivity/heavy bondage)",
+      "connections": [],
+      "observations": [
+        "hot = manchild;\ncold = woman in wilderness;\nlukewarm = ephraim (spue out = captivity/heavy bondage)"
+      ]
+    },
+    {
+      "verse": "Revelation 3:17",
+      "date": "2025/07/19",
+      "text": "need of nothing = i sit queen; hosea 12:8",
+      "connections": [
+        "Hosea 12:8"
+      ],
+      "observations": [
+        "need of nothing = i sit queen"
+      ]
+    },
+    {
+      "verse": "Revelation 3:18",
+      "date": "2025/07/19",
+      "text": "john 9:6,11",
+      "connections": [
+        "John 9:6,11"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:19",
+      "date": "2025/05/09",
+      "text": "hebrews 12, job 5:17",
+      "connections": [
+        "Hebrews 12",
+        "Job 5:17"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Revelation 3:20",
+      "date": "2025/06/21",
+      "text": "song of Solomon 5:1-2; colossians 4:3",
+      "connections": [
+        "Song of Solomon 5:1-2",
+        "Colossians 4:3"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Psalms 33:6",
+      "date": "2025/06/29",
+      "text": "2 peter 3:5",
+      "connections": [
+        "2 Peter 3:5"
+      ],
+      "observations": []
+    },
+    {
+      "verse": "Genesis 48:16",
+      "date": "2024/09/03",
+      "text": "ephraim is a multitude of nations",
+      "connections": [],
+      "observations": [
+        "ephraim is a multitude of nations"
       ]
     }
   ],
   "connections": {
-    "1 Corinthians 15:25": [
-      "Psalms 110:1"
+    "Matthew 13:3": [
+      "Mark 4:13"
     ],
-    "Psalms 110:1": [
-      "1 Corinthians 15:25"
+    "Mark 4:13": [
+      "Matthew 13:3"
     ],
-    "1 Corinthians 15:27": [
-      "Hebrews 2:8",
-      "Psalms 8:6"
+    "Matthew 13:6": [
+      "Isaiah 40"
     ],
-    "Psalms 8:6": [
-      "1 Corinthians 15:27"
+    "Isaiah 40": [
+      "Matthew 13:6"
     ],
-    "Hebrews 2:8": [
-      "1 Corinthians 15:27"
+    "Matthew 13:11": [
+      "Matthew 19:11",
+      "Matthew 25:15"
     ],
-    "1 Corinthians 15:32": [
-      "Isaiah 22:12-14",
-      "Isaiah 56",
-      "Wisdom 2:1"
+    "Matthew 19:11": [
+      "Matthew 13:11"
     ],
-    "Isaiah 56": [
-      "1 Corinthians 15:32",
-      "1 Corinthians 15:54"
+    "Matthew 25:15": [
+      "Matthew 13:11"
     ],
-    "Isaiah 22:12-14": [
-      "1 Corinthians 15:32"
+    "Matthew 13:13": [
+      "Isaiah 28"
     ],
-    "Wisdom 2:1": [
-      "1 Corinthians 15:32"
+    "Isaiah 28": [
+      "Matthew 13:13"
     ],
-    "1 Corinthians 15:34": [
-      "Isaiah 52:1"
+    "Matthew 13:14": [
+      "Isaiah 6"
     ],
-    "Isaiah 52:1": [
-      "1 Corinthians 15:34"
+    "Isaiah 6": [
+      "Isaiah 44:18",
+      "Matthew 13:14"
     ],
-    "1 Corinthians 15:45": [
-      "Genesis 2:7"
+    "Matthew 13:15": [
+      "Psalms 115",
+      "Psalms 135"
     ],
-    "Genesis 2:7": [
-      "1 Corinthians 15:45"
+    "Psalms 115": [
+      "Matthew 13:15"
     ],
-    "1 Corinthians 15:51": [
-      "Psalms 60:1"
+    "Psalms 135": [
+      "Matthew 13:15"
     ],
-    "Psalms 60:1": [
-      "1 Corinthians 15:51"
+    "Matthew 13:16": [
+      "Luke 10:23"
     ],
-    "1 Corinthians 15:52": [
-      "1 Thessalonians 4",
-      "Ezekiel 37"
+    "Luke 10:23": [
+      "Matthew 13:16"
     ],
-    "1 Thessalonians 4": [
-      "1 Corinthians 15:52"
+    "Matthew 13:20": [
+      "Acts 17:10-11"
     ],
-    "Ezekiel 37": [
-      "1 Corinthians 15:52"
+    "Acts 17:10-11": [
+      "Matthew 13:20"
     ],
-    "1 Corinthians 15:54": [
-      "Isaiah 22:13-14",
-      "Isaiah 25",
-      "Isaiah 56",
-      "Revelation 7:13-17"
+    "Matthew 13:31": [
+      "Ezekiel 17:22-24",
+      "Matthew 17:20"
     ],
-    "Isaiah 25": [
-      "1 Corinthians 15:54"
+    "Ezekiel 17:22-24": [
+      "Matthew 13:31"
     ],
-    "Revelation 7:13-17": [
-      "1 Corinthians 15:54"
+    "Matthew 17:20": [
+      "Matthew 13:31"
     ],
-    "Isaiah 22:13-14": [
-      "1 Corinthians 15:54"
+    "Matthew 13:32": [
+      "Baruch 5",
+      "Ezekiel 31"
     ],
-    "1 Corinthians 15:55": [
-      "Hosea 13:14",
-      "Psalms 89:48"
+    "Baruch 5": [
+      "Matthew 13:32"
     ],
-    "Hosea 13:14": [
-      "1 Corinthians 15:55"
+    "Ezekiel 31": [
+      "Matthew 13:32"
     ],
-    "Psalms 89:48": [
-      "1 Corinthians 15:55"
+    "Matthew 13:33": [
+      "1 Corinthians 5:6-8",
+      "Zechariah 5"
+    ],
+    "Zechariah 5": [
+      "Matthew 13:33"
+    ],
+    "1 Corinthians 5:6-8": [
+      "Matthew 13:33"
+    ],
+    "Matthew 13:35": [
+      "Psalms 78"
+    ],
+    "Psalms 78": [
+      "Matthew 13:35"
+    ],
+    "Matthew 13:44": [
+      "Matthew 6:21",
+      "Sirach 40:18"
+    ],
+    "Sirach 40:18": [
+      "Matthew 13:44"
+    ],
+    "Matthew 6:21": [
+      "Matthew 13:44"
+    ],
+    "Matthew 13:49": [
+      "Hebrews 5",
+      "Malachi 3:18"
+    ],
+    "Malachi 3:18": [
+      "Matthew 13:49"
+    ],
+    "Hebrews 5": [
+      "Matthew 13:49"
+    ],
+    "Matthew 13:52": [
+      "Matthew 24:45"
+    ],
+    "Matthew 24:45": [
+      "Hebrews 3:5",
+      "Matthew 13:52"
+    ],
+    "Isaiah 11:2": [
+      "1 Corinthians 12:4-11",
+      "Luke 4:18"
+    ],
+    "Luke 4:18": [
+      "Isaiah 11:2"
+    ],
+    "1 Corinthians 12:4-11": [
+      "Isaiah 11:2"
+    ],
+    "Isaiah 11:3": [
+      "John 8:15"
+    ],
+    "John 8:15": [
+      "Isaiah 11:3"
+    ],
+    "Isaiah 11:4": [
+      "Leviticus 19:15"
+    ],
+    "Leviticus 19:15": [
+      "Isaiah 11:4"
+    ],
+    "Isaiah 11:5": [
+      "Ephesians 6:14"
+    ],
+    "Ephesians 6:14": [
+      "Isaiah 11:5"
+    ],
+    "Ezekiel 20:8": [
+      "Psalms 95"
+    ],
+    "Psalms 95": [
+      "Ezekiel 20:8",
+      "Hebrews 3:7"
+    ],
+    "Ezekiel 20:11": [
+      "Leviticus 18",
+      "Romans 10"
+    ],
+    "Romans 10": [
+      "Ezekiel 20:11"
+    ],
+    "Leviticus 18": [
+      "Ezekiel 20:11",
+      "Ezekiel 20:13"
+    ],
+    "Ezekiel 20:13": [
+      "Leviticus 18"
+    ],
+    "Ezekiel 20:23": [
+      "Deuteronomy 32:26"
+    ],
+    "Deuteronomy 32:26": [
+      "Ezekiel 20:23"
+    ],
+    "Ezekiel 20:35": [
+      "Hosea 2"
+    ],
+    "Hosea 2": [
+      "Ezekiel 20:35"
+    ],
+    "Ezekiel 20:48": [
+      "Isaiah 66"
+    ],
+    "Isaiah 66": [
+      "Ezekiel 20:48"
+    ],
+    "Hebrews 3:1": [
+      "1 Thessalonians 5:27"
+    ],
+    "1 Thessalonians 5:27": [
+      "Hebrews 3:1"
+    ],
+    "Hebrews 3:5": [
+      "Luke 12:42",
+      "Matthew 24:45",
+      "Numbers 12:7"
+    ],
+    "Numbers 12:7": [
+      "Hebrews 3:5"
+    ],
+    "Luke 12:42": [
+      "Hebrews 3:5"
+    ],
+    "Hebrews 3:7": [
+      "Psalms 95"
+    ],
+    "Hebrews 3:8": [
+      "Exodus 17"
+    ],
+    "Exodus 17": [
+      "Hebrews 3:8"
+    ],
+    "Hebrews 3:17": [
+      "Numbers 14"
+    ],
+    "Numbers 14": [
+      "Hebrews 3:17"
+    ],
+    "Hebrews 3:18": [
+      "Psalms 78:22"
+    ],
+    "Psalms 78:22": [
+      "Hebrews 3:18"
+    ],
+    "Job 34:20": [
+      "Isaiah 57:1-2"
+    ],
+    "Isaiah 57:1-2": [
+      "Job 34:20"
+    ],
+    "Job 34:37": [
+      "1 Samuel 15:23",
+      "Lamentations 2:15"
+    ],
+    "1 Samuel 15:23": [
+      "Job 34:37"
+    ],
+    "Lamentations 2:15": [
+      "Job 34:37"
+    ],
+    "Hosea 8:1": [
+      "Hosea 6:7"
+    ],
+    "Hosea 6:7": [
+      "Hosea 8:1"
+    ],
+    "Hosea 8:2": [
+      "Matthew 7:23"
+    ],
+    "Matthew 7:23": [
+      "Hosea 8:2"
+    ],
+    "Hosea 8:7": [
+      "Mark 11:13-14",
+      "Matthew 21:19"
+    ],
+    "Matthew 21:19": [
+      "Hosea 8:7"
+    ],
+    "Mark 11:13-14": [
+      "Hosea 8:7"
+    ],
+    "Hosea 8:11": [
+      "Jeremiah 14:10-12"
+    ],
+    "Jeremiah 14:10-12": [
+      "Hosea 8:11"
+    ],
+    "Hosea 8:12": [
+      "Matthew 23:23"
+    ],
+    "Matthew 23:23": [
+      "Hosea 8:12"
+    ],
+    "Hosea 8:14": [
+      "Isaiah 9:9-10"
+    ],
+    "Isaiah 9:9-10": [
+      "Hosea 8:14"
+    ],
+    "Isaiah 44:12": [
+      "Isaiah 55"
+    ],
+    "Isaiah 55": [
+      "Isaiah 44:12"
+    ],
+    "Isaiah 44:18": [
+      "Isaiah 6"
+    ],
+    "Isaiah 44:20": [
+      "Matthew 5:30"
+    ],
+    "Matthew 5:30": [
+      "Isaiah 44:20"
+    ],
+    "Isaiah 44:22": [
+      "Colossians 2:14"
+    ],
+    "Colossians 2:14": [
+      "Isaiah 44:22"
+    ],
+    "Ezekiel 36:17": [
+      "Leviticus 12:2"
+    ],
+    "Leviticus 12:2": [
+      "Ezekiel 36:17"
+    ],
+    "Ezekiel 36:20": [
+      "Jeremiah 12:16",
+      "Romans 2:24"
+    ],
+    "Jeremiah 12:16": [
+      "Ezekiel 36:20"
+    ],
+    "Romans 2:24": [
+      "Ezekiel 36:20"
+    ],
+    "Ezekiel 36:23": [
+      "John 17:6"
+    ],
+    "John 17:6": [
+      "Ezekiel 36:23"
+    ],
+    "Ezekiel 36:24": [
+      "Jeremiah 3:14"
+    ],
+    "Jeremiah 3:14": [
+      "Ezekiel 36:24"
+    ],
+    "Philippians 2:5": [
+      "1 Corinthians 2:16"
+    ],
+    "1 Corinthians 2:16": [
+      "Philippians 2:5"
+    ],
+    "Philippians 2:10": [
+      "Isaiah 45"
+    ],
+    "Isaiah 45": [
+      "Philippians 2:10"
+    ],
+    "Philippians 2:13": [
+      "Psalms 51"
+    ],
+    "Psalms 51": [
+      "Philippians 2:13"
+    ],
+    "Philippians 2:15": [
+      "Deuteronomy 32"
+    ],
+    "Deuteronomy 32": [
+      "Philippians 2:15"
+    ],
+    "Isaiah 21:6": [
+      "Ezekiel 33:2"
+    ],
+    "Ezekiel 33:2": [
+      "Isaiah 21:6"
+    ],
+    "Isaiah 21:8": [
+      "Proverbs 22:13"
+    ],
+    "Proverbs 22:13": [
+      "Isaiah 21:8"
+    ],
+    "Isaiah 21:9": [
+      "Jeremiah 50",
+      "Jeremiah 51",
+      "Song of Solomon 3"
+    ],
+    "Jeremiah 50": [
+      "Isaiah 21:9"
+    ],
+    "Jeremiah 51": [
+      "Isaiah 21:9"
+    ],
+    "Song of Solomon 3": [
+      "Isaiah 21:9"
+    ],
+    "Luke 22:37": [
+      "Isaiah 53"
+    ],
+    "Isaiah 53": [
+      "Luke 22:37"
+    ],
+    "Luke 22:47": [
+      "Proverbs 27:5-6"
+    ],
+    "Proverbs 27:5-6": [
+      "Luke 22:47"
+    ],
+    "Revelation 3:2": [
+      "Hebrews 8:13",
+      "Luke 7:2",
+      "Philippians 3:13-15"
+    ],
+    "Hebrews 8:13": [
+      "Revelation 3:2"
+    ],
+    "Philippians 3:13-15": [
+      "Revelation 3:2"
+    ],
+    "Luke 7:2": [
+      "Revelation 3:2"
+    ],
+    "Revelation 3:3": [
+      "1 Thessalonians 5:1"
+    ],
+    "1 Thessalonians 5:1": [
+      "Revelation 3:3"
+    ],
+    "Revelation 3:7": [
+      "Isaiah 22"
+    ],
+    "Isaiah 22": [
+      "Revelation 3:7"
+    ],
+    "Revelation 3:8": [
+      "Amos 7",
+      "John 10"
+    ],
+    "Amos 7": [
+      "Revelation 3:8"
+    ],
+    "John 10": [
+      "Revelation 3:8"
+    ],
+    "Revelation 3:9": [
+      "Isaiah 49:23"
+    ],
+    "Isaiah 49:23": [
+      "Revelation 3:9"
+    ],
+    "Revelation 3:11": [
+      "2 Timothy 4"
+    ],
+    "2 Timothy 4": [
+      "Revelation 3:11"
+    ],
+    "Revelation 3:12": [
+      "Isaiah 62"
+    ],
+    "Isaiah 62": [
+      "Revelation 3:12"
+    ],
+    "Revelation 3:14": [
+      "Colossians 1:15"
+    ],
+    "Colossians 1:15": [
+      "Revelation 3:14"
+    ],
+    "Revelation 3:17": [
+      "Hosea 12:8"
+    ],
+    "Hosea 12:8": [
+      "Revelation 3:17"
+    ],
+    "Revelation 3:18": [
+      "John 9:6,11"
+    ],
+    "John 9:6,11": [
+      "Revelation 3:18"
+    ],
+    "Revelation 3:19": [
+      "Hebrews 12",
+      "Job 5:17"
+    ],
+    "Hebrews 12": [
+      "Revelation 3:19"
+    ],
+    "Job 5:17": [
+      "Revelation 3:19"
+    ],
+    "Revelation 3:20": [
+      "Colossians 4:3",
+      "Song of Solomon 5:1-2"
+    ],
+    "Song of Solomon 5:1-2": [
+      "Revelation 3:20"
+    ],
+    "Colossians 4:3": [
+      "Revelation 3:20"
+    ],
+    "Psalms 33:6": [
+      "2 Peter 3:5"
+    ],
+    "2 Peter 3:5": [
+      "Psalms 33:6"
     ]
   }
 }

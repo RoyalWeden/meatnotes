@@ -272,6 +272,21 @@ function buildPhase1Script(opts = {}) {
       if (hasWrittenNotes) noteChapters.push(ch);
     }
 
+    // Debug: log noteType distribution
+    const typeCount = {};
+    for (const item of inventory) {
+      typeCount[item.noteType] = (typeCount[item.noteType] || 0) + 1;
+    }
+    console.log('BG:' + JSON.stringify({
+      type: 'bg-debug', dbg: 'phase1-types',
+      typeCount, total: inventory.length,
+      noteChaptersCount: noteChapters.length,
+      highlightNotesCount: highlightNotes.length,
+      sampleItems: inventory.slice(0, 5).map(function(i) {
+        return { ref: i.verseRef, type: i.noteType, text: (i.text || '').substring(0, 40) };
+      }),
+    }));
+
     updateUI('Phase 1 complete!', 100,
       inventory.length + ' annotations across ' + chapters.length + ' chapters' +
       ' (' + noteChapters.length + ' with notes, ' + highlightNotes.length + ' highlights)');
@@ -363,13 +378,14 @@ function buildPhase2Script(chapter, opts = {}) {
     while (Date.now() - mountStart < 10000) {
       notesTab = document.querySelector('li[data-tab="notes"]');
       if (notesTab) break;
-      // Also check for the sidebar menu as a whole
       if (document.querySelector('.sidebar-menu, ul.sidebar-menu')) {
         notesTab = document.querySelector('li[data-tab="notes"]');
         if (notesTab) break;
       }
       await new Promise(r => setTimeout(r, 200));
     }
+
+    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step1', found: !!notesTab, elapsed: Date.now()-mountStart}));
 
     if (!notesTab) {
       sendResult({
@@ -380,41 +396,57 @@ function buildPhase2Script(chapter, opts = {}) {
     }
 
     // ── Step 2: Activate the notes tab if not already active ──
-    // BG may not auto-switch to notes despite &tab=notes in URL.
-    // Check if the notes tab is active via its border-bottom style.
     const tabStyle = window.getComputedStyle(notesTab);
     const borderW = parseFloat(tabStyle.borderBottomWidth) || 0;
-    const isActive = borderW >= 2; // Active tab has 2px solid border
+    const isActive = borderW >= 2;
+
+    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step2', borderW, isActive}));
 
     if (!isActive) {
-      // Neutralize the <a> inside the <li> to prevent full-page navigation.
-      // The <a> has an href that would navigate and destroy this script.
       const innerLink = notesTab.querySelector('a');
       if (innerLink) {
         innerLink.removeAttribute('href');
         innerLink.addEventListener('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-        }, true); // capture phase
+        }, true);
       }
-
-      // Click the <li> to trigger React's tab-switch handler
       notesTab.click();
-
-      // Give React time to process the click, switch state, and fetch notes
       await new Promise(r => setTimeout(r, 1500));
+      // Re-check after click
+      const newBorderW = parseFloat(window.getComputedStyle(notesTab).borderBottomWidth) || 0;
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step2-after-click', newBorderW}));
     }
 
     // ── Step 3: Poll for notes content in sidebar ──
+    // FIRST: Log all h3/h4 headings for debugging
+    const allHeadings = document.querySelectorAll('h3, h4');
+    const headingInfo = Array.from(allHeadings).map(function(h) {
+      return {
+        tag: h.tagName,
+        text: h.textContent.trim().substring(0, 60),
+        parentTag: h.parentElement ? h.parentElement.tagName : null,
+        parentClass: h.parentElement ? h.parentElement.className.substring(0, 60) : null,
+        hasSibling: !!h.nextElementSibling,
+        sibTag: h.nextElementSibling ? h.nextElementSibling.tagName : null,
+      };
+    });
+    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'all-headings', headings: headingInfo}));
+
     let notesContainer = null;
+    let containerFoundBy = '';
     const startTime = Date.now();
     while (Date.now() - startTime < MAX_WAIT) {
-      // Strategy 1: Look for heading containing relevant text
+      // Strategy 1: Look for heading with note-related text.
+      // BG React renders the sidebar asynchronously — the h3 text
+      // changes from empty to "Your Notes" once React has loaded data.
+      // By waiting for the heading text, we ensure React has rendered.
       const headings = document.querySelectorAll('h3, h4, .notes-heading');
       for (const h of headings) {
         const text = (h.textContent || '').trim().toLowerCase();
         if (text.includes('your notes') || text.includes('your content') || text === 'notes') {
           notesContainer = h.nextElementSibling;
+          containerFoundBy = 'strategy1-heading(' + text + ')';
           if (notesContainer) break;
         }
       }
@@ -423,18 +455,17 @@ function buildPhase2Script(chapter, opts = {}) {
       // Strategy 2: Look for note-like content in .sticky-resources
       const stickyRes = document.querySelector('.sticky-resources .sidebar-box');
       if (stickyRes) {
-        // Check if spinner is gone and real content appeared
         const spinner = stickyRes.querySelector('svg[name="spinner"], .spin.spinner');
         const spans = stickyRes.querySelectorAll('span');
         if (!spinner && spans.length > 2) {
-          // Found non-spinner content with multiple spans (likely notes)
           notesContainer = stickyRes;
+          containerFoundBy = 'strategy2-sticky-spans(' + spans.length + ')';
           break;
         }
-        // Check for a heading inside the sidebar-box
         const innerH = stickyRes.querySelector('h3, h4');
         if (innerH && innerH.nextElementSibling) {
           notesContainer = innerH.nextElementSibling;
+          containerFoundBy = 'strategy2-sticky-heading';
           break;
         }
       }
@@ -444,6 +475,7 @@ function buildPhase2Script(chapter, opts = {}) {
       const lower = sidebarText.toLowerCase();
       if (lower.includes('no notes') || lower.includes('no content') ||
           lower.includes('you haven\\'t') || lower.includes('highlight a verse to start')) {
+        console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-empty-state', text: lower.substring(0, 200)}));
         sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
         return;
       }
@@ -451,7 +483,17 @@ function buildPhase2Script(chapter, opts = {}) {
       await new Promise(r => setTimeout(r, POLL_INTERVAL));
     }
 
-    // Capture debug HTML for first chapter (after tab click + polling)
+    // Log container details
+    if (notesContainer) {
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-container', foundBy: containerFoundBy,
+        tag: notesContainer.tagName, cls: (notesContainer.className || '').substring(0,60),
+        childCount: notesContainer.children.length,
+        innerHTML: notesContainer.innerHTML.substring(0, 800)}));
+    } else {
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step3-no-container', elapsed: Date.now()-startTime}));
+    }
+
+    // Capture debug HTML for first chapter
     if (IS_FIRST) {
       try {
         const html = document.documentElement.outerHTML.slice(0, 500000);
@@ -460,7 +502,6 @@ function buildPhase2Script(chapter, opts = {}) {
     }
 
     if (!notesContainer) {
-      // Timed out — include sidebar snippet for debugging
       const sidebarHTML = (
         document.querySelector('.sticky-resources') ||
         document.querySelector('.resources.flex-5') ||
@@ -474,25 +515,68 @@ function buildPhase2Script(chapter, opts = {}) {
       return;
     }
 
-    // ── Step 4: Extract individual note blocks ──
-    // Each note block is a child div with: date span, verse span, text div
-    const notes = [];
-    const noteBlocks = notesContainer.querySelectorAll(':scope > div');
+    // Check if container is empty state (no actual notes)
+    const containerText = (notesContainer.textContent || '').trim().toLowerCase();
+    if (containerText.includes('highlight a verse to start') ||
+        containerText === '' || containerText.includes('no notes')) {
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-empty-container', text: containerText.substring(0, 100)}));
+      sendResult({ chapter: CHAPTER, notes: [], noNotes: true });
+      return;
+    }
 
-    for (const block of noteBlocks) {
+    // ── Step 4: Extract individual note blocks ──
+    // Container is the wrapper div inside div.sidebar-notes, containing
+    // individual note blocks as direct child divs.
+    const notes = [];
+    const allChildren = notesContainer.querySelectorAll(':scope > div');
+
+    // Log raw child structure for debugging
+    const childDebug = Array.from(notesContainer.children).slice(0, 15).map(function(c) {
+      return {
+        tag: c.tagName,
+        childCount: c.children.length,
+        spanCount: c.querySelectorAll(':scope > span').length,
+        divCount: c.querySelectorAll(':scope > div').length,
+        text: c.textContent.trim().substring(0, 100),
+      };
+    });
+    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-children', divCount: allChildren.length, children: childDebug}));
+
+    for (const block of allChildren) {
       const spans = block.querySelectorAll(':scope > span');
       const divs = block.querySelectorAll(':scope > div');
 
-      if (spans.length < 2) continue; // Need at least date + verse ref
+      if (spans.length < 2) {
+        // Try deeper: maybe spans are nested one level down
+        const deepSpans = block.querySelectorAll('span');
+        const deepDivs = block.querySelectorAll('div');
+        if (deepSpans.length >= 2) {
+          // Found spans deeper in the tree — try extracting from them
+          const date = (deepSpans[0]?.textContent || '').trim();
+          const verseRef = (deepSpans[1]?.textContent || '').trim();
+          let text = '';
+          for (const d of deepDivs) {
+            const content = (d.textContent || '').trim();
+            if (content.match(/^(Edit|Delete|\\|\\s*)+$/i)) continue;
+            if (content.length > 0 && content !== date && content !== verseRef) {
+              text = content;
+              break;
+            }
+          }
+          if (verseRef && verseRef.match(/\\d/)) {
+            notes.push({ verseRef, date, text });
+          }
+          continue;
+        }
+        continue;
+      }
 
       const date = (spans[0]?.textContent || '').trim();
       const verseRef = (spans[1]?.textContent || '').trim();
 
-      // Note text is in the first child div (skip the Edit/Delete buttons div)
       let text = '';
       for (const d of divs) {
         const content = (d.textContent || '').trim();
-        // Skip the Edit/Delete controls
         if (content.match(/^(Edit|Delete|\\|\\s*)+$/i)) continue;
         if (content.length > 0) {
           text = content;
@@ -505,26 +589,28 @@ function buildPhase2Script(chapter, opts = {}) {
       }
     }
 
+    console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-primary-result', noteCount: notes.length,
+      sample: notes.slice(0,3).map(function(n){ return n.verseRef + ': ' + (n.text||'').substring(0,40); })}));
+
     // If the block structure didn't match, try a more flexible approach
     if (notes.length === 0 && notesContainer.children.length > 0) {
-      // Walk all text nodes looking for date + verse patterns
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-fallback-start'}));
       const walker = document.createTreeWalker(notesContainer, NodeFilter.SHOW_ELEMENT);
       let currentNote = {};
       let node;
+      let walkCount = 0;
       while (node = walker.nextNode()) {
         const text = (node.textContent || '').trim();
         if (!text) continue;
+        walkCount++;
 
-        // Date pattern: YYYY/MM/DD or Month DD, YYYY
         if (text.match(/^\\d{4}\\/\\d{2}\\/\\d{2}$/) || text.match(/^[A-Z][a-z]+ \\d+/)) {
           if (currentNote.verseRef) notes.push({ ...currentNote });
           currentNote = { date: text, verseRef: '', text: '' };
         }
-        // Verse ref pattern
         else if (text.match(/^\\d?\\s*[A-Z][a-z]+\\s+\\d+:\\d+/)) {
           currentNote.verseRef = text;
         }
-        // Note text (longer content)
         else if (text.length > 3 && !text.match(/^(Edit|Delete)/i)) {
           if (currentNote.verseRef && !currentNote.text) {
             currentNote.text = text;
@@ -532,6 +618,7 @@ function buildPhase2Script(chapter, opts = {}) {
         }
       }
       if (currentNote.verseRef) notes.push({ ...currentNote });
+      console.log('BG:' + JSON.stringify({type:'bg-debug', dbg:'step4-fallback-result', walkCount, noteCount: notes.length}));
     }
 
     sendResult({ chapter: CHAPTER, notes, noteCount: notes.length });

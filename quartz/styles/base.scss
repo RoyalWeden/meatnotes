@@ -254,7 +254,7 @@ a {
       margin-right: 0;
       flex-direction: column;
       overflow-y: auto;
-      overscroll-behavior: contain;
+      overscroll-behavior: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--lightgray) transparent;
       @media all and ($mobile) {

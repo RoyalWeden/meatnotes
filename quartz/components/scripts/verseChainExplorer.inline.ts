@@ -396,6 +396,36 @@ function init() {
 
   if (!input || !flowEl) return
 
+  // ── Sticky search bar: sit flush below the page header ──
+  const searchWrap = container.querySelector(".vc-search-wrap") as HTMLElement | null
+  if (searchWrap) {
+    const isDesktopMq = window.matchMedia("(min-width: 801px)")
+    const updateStickyTop = () => {
+      if (isDesktopMq.matches) {
+        const headerEl =
+          (document.querySelector(".page-header > header") as HTMLElement | null) ??
+          (document.querySelector(".page-header") as HTMLElement | null)
+        const bottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0
+        searchWrap.style.top = `${Math.max(0, bottom)}px`
+      } else {
+        const mobileNav = document.querySelector(".sidebar.left") as HTMLElement | null
+        const bottom = mobileNav ? mobileNav.getBoundingClientRect().bottom : 0
+        searchWrap.style.top = `${Math.max(0, bottom)}px`
+      }
+    }
+
+    requestAnimationFrame(updateStickyTop)
+    const headerTarget =
+      (document.querySelector(".page-header > header") as HTMLElement | null) ??
+      (document.querySelector(".page-header") as HTMLElement | null) ??
+      (document.querySelector(".sidebar.left") as HTMLElement | null)
+    if (headerTarget) {
+      const ro = new ResizeObserver(updateStickyTop)
+      ro.observe(headerTarget)
+      window.addCleanup?.(() => ro.disconnect())
+    }
+  }
+
   // Clear stale state from previous SPA navigation
   flowEl.innerHTML = '<svg id="vc-lines" class="vc-lines"></svg>'
   if (countEl) countEl.textContent = ""

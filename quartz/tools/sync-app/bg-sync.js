@@ -504,6 +504,24 @@ function buildPhase2Script(chapter, opts = {}) {
     // ── Step 4: Extract individual note blocks ──
     // Container is the wrapper div inside div.sidebar-notes, containing
     // individual note blocks as direct child divs.
+
+    // Helper: extract text from an element while stripping button/action elements
+    function cleanText(el) {
+      const clone = el.cloneNode(true);
+      // Remove button-like elements
+      clone.querySelectorAll('button, a[role="button"], [role="button"]').forEach(b => b.remove());
+      // Remove any remaining elements whose text is just Edit/Delete/separators
+      clone.querySelectorAll('*').forEach(child => {
+        const t = (child.textContent || '').trim();
+        if (t.match(/^(Edit|Delete|\\|\\s*)+$/i)) child.remove();
+      });
+      // Get cleaned text and strip any residual Edit/Delete words
+      return (clone.textContent || '').trim()
+        .replace(/\\b(Edit|Delete)\\b/gi, '')
+        .replace(/\\s{2,}/g, ' ')
+        .trim();
+    }
+
     const notes = [];
     const allChildren = notesContainer.querySelectorAll(':scope > div');
 
@@ -521,12 +539,10 @@ function buildPhase2Script(chapter, opts = {}) {
           const verseRef = (deepSpans[1]?.textContent || '').trim();
           let text = '';
           for (const d of deepDivs) {
-            const content = (d.textContent || '').trim();
-            if (content.match(/^(Edit|Delete|\\|\\s*)+$/i)) continue;
-            if (content.length > 0 && content !== date && content !== verseRef) {
-              text = content;
-              break;
-            }
+            const content = cleanText(d);
+            if (!content || content === date || content === verseRef) continue;
+            text = content;
+            break;
           }
           if (verseRef && verseRef.match(/\\d/)) {
             notes.push({ verseRef, date, text });
@@ -541,12 +557,10 @@ function buildPhase2Script(chapter, opts = {}) {
 
       let text = '';
       for (const d of divs) {
-        const content = (d.textContent || '').trim();
-        if (content.match(/^(Edit|Delete|\\|\\s*)+$/i)) continue;
-        if (content.length > 0) {
-          text = content;
-          break;
-        }
+        const content = cleanText(d);
+        if (!content) continue;
+        text = content;
+        break;
       }
 
       if (verseRef) {
@@ -560,7 +574,10 @@ function buildPhase2Script(chapter, opts = {}) {
       let currentNote = {};
       let node;
       while (node = walker.nextNode()) {
-        const text = (node.textContent || '').trim();
+        let text = (node.textContent || '').trim();
+        if (!text) continue;
+        // Strip button text artifacts
+        text = text.replace(/\\b(Edit|Delete)\\b/gi, '').replace(/\\s{2,}/g, ' ').trim();
         if (!text) continue;
 
         if (text.match(/^\\d{4}\\/\\d{2}\\/\\d{2}$/) || text.match(/^[A-Z][a-z]+ \\d+/)) {
@@ -570,13 +587,23 @@ function buildPhase2Script(chapter, opts = {}) {
         else if (text.match(/^\\d?\\s*[A-Z][a-z]+\\s+\\d+:\\d+/)) {
           currentNote.verseRef = text;
         }
-        else if (text.length > 3 && !text.match(/^(Edit|Delete)/i)) {
+        else if (text.length > 3) {
           if (currentNote.verseRef && !currentNote.text) {
             currentNote.text = text;
           }
         }
       }
       if (currentNote.verseRef) notes.push({ ...currentNote });
+    }
+
+    // Post-processing: clean any residual button text from all notes
+    for (const note of notes) {
+      if (note.text) {
+        note.text = note.text
+          .replace(/\\b(Edit|Delete)\\b/gi, '')
+          .replace(/\\s{2,}/g, ' ')
+          .trim();
+      }
     }
 
     sendResult({ chapter: CHAPTER, notes, noteCount: notes.length });

@@ -19,7 +19,11 @@ $section-colors: (
 
 // ── Search ──
 .vc-search-wrap {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  background: var(--light);
+  padding-top: 8px;
   margin-bottom: 0.75rem;
   max-width: 600px;
 }
@@ -314,7 +318,7 @@ $section-colors: (
   flex-direction: column;
   gap: 6px;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   max-height: calc(100vh - 300px);
   scrollbar-width: thin;
   scrollbar-color: var(--lightgray) transparent;

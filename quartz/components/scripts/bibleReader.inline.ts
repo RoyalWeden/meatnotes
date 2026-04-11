@@ -16,6 +16,7 @@ interface BGNote {
 interface VerseIndexData {
   index: Record<string, VerseIndexEntry[]>
   cooccurrence: Record<string, string[]>
+  bgCooccurrence?: Record<string, string[]>
   connectionStrength?: Record<string, Record<string, number>>
   pdfConnections?: Record<string, string[]>
   bgNotes?: Record<string, BGNote>
@@ -414,8 +415,82 @@ function init() {
   const mq = window.matchMedia("(max-width: 799px)")
   mq.addEventListener("change", (e) => { isMobile = e.matches; updateMobileToggle() })
 
+  // ── Sticky search bar: sit flush below the page header ──
+  const searchWrap = container.querySelector(".br-search-wrap") as HTMLElement | null
+  const isDesktopMq = window.matchMedia("(min-width: 801px)")
+  const updateStickyTop = () => {
+    if (!searchWrap) return
+    if (isDesktopMq.matches) {
+      const headerEl =
+        (document.querySelector(".page-header > header") as HTMLElement | null) ??
+        (document.querySelector(".page-header") as HTMLElement | null)
+      const bottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0
+      searchWrap.style.top = `${Math.max(0, bottom)}px`
+    } else {
+      const mobileNav = document.querySelector(".sidebar.left") as HTMLElement | null
+      const bottom = mobileNav ? mobileNav.getBoundingClientRect().bottom : 0
+      searchWrap.style.top = `${Math.max(0, bottom)}px`
+    }
+    // Nav bar sits below search wrap
+    if (navEl) {
+      const searchBottom = searchWrap.getBoundingClientRect().height
+      const navTop = parseFloat(searchWrap.style.top) + searchBottom
+      navEl.style.top = `${navTop}px`
+
+      // Notes panel + text panel stick to bottom of nav bar
+      const navHeight = navEl.getBoundingClientRect().height
+      const totalStickyHeight = navTop + navHeight
+      const notesPanel = container.querySelector(".br-notes-panel") as HTMLElement | null
+      if (notesPanel) {
+        notesPanel.style.top = `${totalStickyHeight}px`
+        notesPanel.style.maxHeight = `calc(100vh - ${totalStickyHeight + 20}px)`
+      }
+      // Set scroll-margin so verse lines land below sticky headers
+      container.style.setProperty("--br-sticky-height", `${totalStickyHeight + 8}px`)
+    }
+  }
+
+  if (searchWrap) {
+    requestAnimationFrame(updateStickyTop)
+    const headerTarget =
+      (document.querySelector(".page-header > header") as HTMLElement | null) ??
+      (document.querySelector(".page-header") as HTMLElement | null) ??
+      (document.querySelector(".sidebar.left") as HTMLElement | null)
+    if (headerTarget) {
+      const ro = new ResizeObserver(updateStickyTop)
+      ro.observe(headerTarget)
+      if (navEl) ro.observe(navEl)
+      window.addCleanup?.(() => ro.disconnect())
+    }
+  }
+
   let debounceTimer: ReturnType<typeof setTimeout>
   let previewTimeout: ReturnType<typeof setTimeout>
+
+  // ── Back navigation stack ──
+  const navStack: { book: string; chapter: number; verse?: number; label: string }[] = []
+  const backPill = document.createElement("button")
+  backPill.className = "br-back-pill"
+  backPill.style.display = "none"
+  container.appendChild(backPill)
+
+  function updateBackPill() {
+    if (navStack.length === 0) {
+      backPill.style.display = "none"
+      return
+    }
+    const prev = navStack[navStack.length - 1]
+    backPill.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back to ${escHtml(prev.label)}`
+    backPill.style.display = "flex"
+  }
+
+  backPill.addEventListener("click", () => {
+    const prev = navStack.pop()
+    if (!prev) return
+    const ref = prev.verse ? `${prev.book} ${prev.chapter}:${prev.verse}` : `${prev.book} ${prev.chapter}`
+    navigateToRef(ref, false)
+    updateBackPill()
+  })
 
   const updateClearBtn = () => {
     if (clearBtn) clearBtn.classList.toggle("visible", input.value.length > 0)
@@ -482,7 +557,7 @@ function init() {
   }
 
   // ── Navigation ──
-  function navigateToRef(query: string) {
+  function navigateToRef(query: string, pushToStack = true) {
     const parsed = parseSearchQuery(query)
     if (!parsed) return
 
@@ -490,6 +565,19 @@ function init() {
     const chapter = parsed.chapter ? parseInt(parsed.chapter) : 1
     const maxCh = BOOK_CHAPTERS[book]
     if (!maxCh) return
+
+    // Push current location to nav stack before navigating
+    if (pushToStack && currentBook && currentChapter) {
+      const verseNum = activeVerseRef ? parseInt(activeVerseRef.match(/:(\d+)$/)?.[1] || "0") : undefined
+      navStack.push({
+        book: currentBook,
+        chapter: currentChapter,
+        verse: verseNum || undefined,
+        label: `${currentBook} ${currentChapter}${verseNum ? `:${verseNum}` : ""}`,
+      })
+      // Cap stack at 20 entries
+      if (navStack.length > 20) navStack.shift()
+    }
 
     const ch = Math.max(1, Math.min(chapter, maxCh))
     currentBook = book
@@ -506,17 +594,26 @@ function init() {
     contentEl.style.display = ""
     onboarding.style.display = "none"
 
+    // Recalculate sticky positions now that nav is visible
+    requestAnimationFrame(updateStickyTop)
+
     // If a specific verse was searched, highlight it after loading
     const targetVerse = parsed.verse ? parseInt(parsed.verse) : 0
 
     // Load chapter
     loadChapter(book, ch, targetVerse)
     updateUrl(canonical)
+    updateBackPill()
   }
 
   async function loadChapter(book: string, chapter: number, highlightVerse = 0) {
+    // Crossfade out
+    textBody.classList.add("br-fade-out")
+    await new Promise(r => setTimeout(r, 150))
+
     // Show loading
     textBody.innerHTML = `<div class="br-loading"><div class="br-shimmer"></div><div class="br-shimmer"></div><div class="br-shimmer"></div><div class="br-shimmer"></div><div class="br-shimmer"></div></div>`
+    textBody.classList.remove("br-fade-out")
 
     const verses = await fetchChapter(book, chapter)
     if (verses.length === 0) {
@@ -525,9 +622,15 @@ function init() {
       return
     }
 
+    // Crossfade in new content
+    textBody.classList.add("br-fade-out")
     renderVerses(verses, book, chapter, highlightVerse)
     renderNotes(book, chapter, verses)
     updateMobileToggle()
+
+    // Trigger reflow then fade in
+    void textBody.offsetHeight
+    textBody.classList.remove("br-fade-out")
 
     // Scroll to highlighted verse
     if (highlightVerse > 0) {
@@ -547,8 +650,9 @@ function init() {
       const ref = `${book} ${chapter}:${v}`
       const entries = (verseIndex.index[ref] ?? []).filter(e => e.slug !== "_bg")
       const crossRefs = verseIndex.cooccurrence[ref] ?? []
+      const bgCrossRefs = verseIndex.bgCooccurrence?.[ref] ?? []
       const bgNote = verseIndex.bgNotes?.[ref]
-      return entries.length > 0 || crossRefs.length > 0 || !!bgNote
+      return entries.length > 0 || crossRefs.length > 0 || bgCrossRefs.length > 0 || !!bgNote
     }
 
     textBody.innerHTML = verses.map((v) => {
@@ -592,16 +696,17 @@ function init() {
     }
 
     // Collect all notes for this chapter, grouped by verse
-    const groups: { ref: string; verse: number; label: string; entries: VerseIndexEntry[]; crossRefs: string[]; bgNote?: BGNote }[] = []
+    const groups: { ref: string; verse: number; label: string; entries: VerseIndexEntry[]; crossRefs: string[]; bgCrossRefs: string[]; bgNote?: BGNote }[] = []
     let totalCount = 0
 
     // Chapter-level notes (e.g. "John 3" without a verse)
     const chapterRef = `${book} ${chapter}`
     const chapterEntries = (verseIndex.index[chapterRef] ?? []).filter(e => e.slug !== "_bg")
     const chapterCrossRefs = verseIndex.cooccurrence[chapterRef] ?? []
+    const chapterBgCrossRefs = verseIndex.bgCooccurrence?.[chapterRef] ?? []
     const chapterBgNote = verseIndex.bgNotes?.[chapterRef]
-    if (chapterEntries.length > 0 || chapterCrossRefs.length > 0 || chapterBgNote) {
-      groups.push({ ref: chapterRef, verse: 0, label: "Chapter", entries: chapterEntries, crossRefs: chapterCrossRefs, bgNote: chapterBgNote })
+    if (chapterEntries.length > 0 || chapterCrossRefs.length > 0 || chapterBgCrossRefs.length > 0 || chapterBgNote) {
+      groups.push({ ref: chapterRef, verse: 0, label: "Chapter", entries: chapterEntries, crossRefs: chapterCrossRefs, bgCrossRefs: chapterBgCrossRefs, bgNote: chapterBgNote })
       totalCount += chapterEntries.length
     }
 
@@ -610,9 +715,10 @@ function init() {
       const ref = `${book} ${chapter}:${v.verse}`
       const entries = (verseIndex.index[ref] ?? []).filter(e => e.slug !== "_bg")
       const crossRefs = verseIndex.cooccurrence[ref] ?? []
+      const bgCrossRefs = verseIndex.bgCooccurrence?.[ref] ?? []
       const bgNote = verseIndex.bgNotes?.[ref]
-      if (entries.length > 0 || crossRefs.length > 0 || bgNote) {
-        groups.push({ ref, verse: v.verse, label: `v${v.verse}`, entries, crossRefs, bgNote })
+      if (entries.length > 0 || crossRefs.length > 0 || bgCrossRefs.length > 0 || bgNote) {
+        groups.push({ ref, verse: v.verse, label: `v${v.verse}`, entries, crossRefs, bgCrossRefs, bgNote })
         totalCount += entries.length
       }
     }
@@ -621,6 +727,9 @@ function init() {
     if (mobileBadge) mobileBadge.textContent = totalCount > 0 ? `${totalCount}` : ""
     if (mobileSheetCount) mobileSheetCount.textContent = totalCount > 0 ? `(${totalCount})` : ""
 
+    // Prevent empty notes panel from trapping scroll events
+    const notesPanel = document.getElementById("br-notes-panel")
+
     if (groups.length === 0) {
       const emptyMsg = `<div class="br-notes-empty">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -628,8 +737,11 @@ function init() {
       </div>`
       notesBody.innerHTML = emptyMsg
       if (mobileSheetBody) mobileSheetBody.innerHTML = emptyMsg
+      if (notesPanel) notesPanel.style.overflowY = "hidden"
       return
     }
+
+    if (notesPanel) notesPanel.style.overflowY = "auto"
 
     const html = groups.map((g) => {
       const noteCards = g.entries.map((e) => {
@@ -638,7 +750,7 @@ function init() {
         const dateStr = contentDates[e.slug]
         const datePill = dateStr ? `<span class="br-note-date">${relativeDate(dateStr)}</span>` : ""
         const displayTitle = formatNoteTitle(e)
-        return `<a class="br-note-card" href="/${e.slug}" data-slug="${e.slug}" data-section="${e.folder}">
+        return `<a class="br-note-card br-note-card--linked" href="/${e.slug}" data-slug="${e.slug}" data-section="${e.folder}">
           <span class="br-note-section-dot" style="background:${color}" data-tooltip="${label}"></span>
           <span class="br-note-info">
             <span class="br-note-title">${escHtml(displayTitle)}</span>
@@ -660,15 +772,42 @@ function init() {
           </div>`
         : ""
 
-      // Cross-references section (grouped by chapter)
-      const crGroups = consolidateCrossRefs(g.crossRefs)
-      const crossRefSection = crGroups.length > 0
+      // BG cross-references (prominent)
+      const bgCrGroups = consolidateCrossRefs(g.bgCrossRefs)
+      const bgCrossRefSection = bgCrGroups.length > 0
         ? `<div class="br-cross-refs">
             <div class="br-cross-ref-label">Cross-References</div>
-            <div class="br-cross-ref-chips">${crGroups.map(crg =>
+            <div class="br-cross-ref-chips">${bgCrGroups.map(crg =>
               `<button class="br-cross-ref-chip" data-ref="${escHtml(crg.refs[0])}">${escHtml(crg.label)}</button>`
             ).join("")}</div>
           </div>`
+        : ""
+
+      // Workspace cross-references (collapsed accordion, muted chips)
+      const wsCrGroups = consolidateCrossRefs(g.crossRefs)
+      const wsCrossRefSection = wsCrGroups.length > 0
+        ? `<details class="br-linked-notes">
+            <summary class="br-linked-notes-summary">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Linked Refs <span class="br-linked-notes-count">${wsCrGroups.length}</span>
+            </summary>
+            <div class="br-linked-notes-body">
+              <div class="br-cross-ref-chips">${wsCrGroups.map(crg =>
+                `<button class="br-cross-ref-chip br-cross-ref-chip--muted" data-ref="${escHtml(crg.refs[0])}">${escHtml(crg.label)}</button>`
+              ).join("")}</div>
+            </div>
+          </details>`
+        : ""
+
+      // Workspace notes wrapped in collapsible accordion
+      const linkedNotesSection = noteCards
+        ? `<details class="br-linked-notes">
+            <summary class="br-linked-notes-summary">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Linked Notes <span class="br-linked-notes-count">${g.entries.length}</span>
+            </summary>
+            <div class="br-linked-notes-body">${noteCards}</div>
+          </details>`
         : ""
 
       const countLabel = g.entries.length > 0 ? `${g.entries.length}` : ""
@@ -678,9 +817,10 @@ function init() {
           <span class="br-note-verse-ref">${g.label}</span>
           <span class="br-note-group-count">${countLabel}</span>
         </div>
-        ${noteCards}
         ${bgSection}
-        ${crossRefSection}
+        ${bgCrossRefSection}
+        ${linkedNotesSection}
+        ${wsCrossRefSection}
       </div>`
     }).join("")
 
@@ -807,6 +947,8 @@ function init() {
     mobileSheetBackdrop.classList.remove("open")
     themeFloat?.classList.remove("hidden-by-picker")
     settingsFab?.classList.remove("hidden-by-picker")
+    // Release scroll focus back to the page
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
   }
 
   // ── Book/Chapter Picker ──
@@ -1037,6 +1179,25 @@ function init() {
     if (sheetCurrentY - sheetStartY > 80) closeMobileSheet()
   })
 
+  // Mobile swipe between chapters
+  let swipeStartX = 0, swipeStartY = 0, swiping = false
+  textBody.addEventListener("touchstart", (e) => {
+    swipeStartX = e.touches[0].clientX
+    swipeStartY = e.touches[0].clientY
+    swiping = true
+  }, { passive: true })
+  textBody.addEventListener("touchend", (e) => {
+    if (!swiping || !currentBook) return
+    swiping = false
+    const dx = e.changedTouches[0].clientX - swipeStartX
+    const dy = e.changedTouches[0].clientY - swipeStartY
+    // Horizontal swipe: min 50px, max 30px vertical drift
+    if (Math.abs(dx) > 50 && Math.abs(dy) < 30) {
+      if (dx < 0) navigateChapter(1)  // swipe left → next
+      else navigateChapter(-1)         // swipe right → prev
+    }
+  }, { passive: true })
+
   // Keyboard navigation for chapters
   document.addEventListener("keydown", (e) => {
     if (document.activeElement === input) return
@@ -1084,6 +1245,9 @@ function init() {
     clearTimeout(previewTimeout)
     // Restore daily notes button when leaving Bible Reader
     if (calMobileBtn) calMobileBtn.style.display = ""
+    // Clean up back pill
+    backPill.remove()
+    navStack.length = 0
   })
 }
 

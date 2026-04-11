@@ -26,6 +26,7 @@ export interface BGNote {
 export interface VerseIndexData {
   index: Record<string, VerseIndexEntry[]>
   cooccurrence: Record<string, string[]>
+  bgCooccurrence?: Record<string, string[]>
   connectionStrength?: Record<string, Record<string, number>>
   pdfConnections?: Record<string, string[]>
   bgNotes?: Record<string, BGNote>
@@ -130,7 +131,8 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
       }
 
       // Merge .bg-connections.json if it exists
-      // Supports both new enriched format (with .connections object) and old flat format
+      // BG cross-refs go into bgCooccurrence (separate from workspace note cooccurrence)
+      const bgCooccurrence: Record<string, string[]> = {}
       try {
         const bgPath = path.join(ctx.argv.directory, ".bg-connections.json")
         if (fs.existsSync(bgPath)) {
@@ -174,13 +176,13 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
                 if (conn === verse) continue
                 const targetKeys = expandBGRef(conn)
 
-                // Create cooccurrence links between all expanded source keys and target keys
+                // Create bgCooccurrence links between all expanded source keys and target keys
                 for (const sk of sourceKeys) {
-                  if (!cooccurrence[sk]) cooccurrence[sk] = []
-                  const existing = new Set(cooccurrence[sk])
+                  if (!bgCooccurrence[sk]) bgCooccurrence[sk] = []
+                  const existing = new Set(bgCooccurrence[sk])
                   for (const tk of targetKeys) {
                     if (!existing.has(tk) && tk !== sk) {
-                      cooccurrence[sk].push(tk)
+                      bgCooccurrence[sk].push(tk)
                       existing.add(tk)
                     }
                   }
@@ -190,13 +192,13 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
                   }
                 }
 
-                // Reverse: target→source cooccurrence links (bidirectional)
+                // Reverse: target→source bgCooccurrence links (bidirectional)
                 for (const tk of targetKeys) {
-                  if (!cooccurrence[tk]) cooccurrence[tk] = []
-                  const existingTk = new Set(cooccurrence[tk])
+                  if (!bgCooccurrence[tk]) bgCooccurrence[tk] = []
+                  const existingTk = new Set(bgCooccurrence[tk])
                   for (const sk of sourceKeys) {
                     if (!existingTk.has(sk) && sk !== tk) {
-                      cooccurrence[tk].push(sk)
+                      bgCooccurrence[tk].push(sk)
                       existingTk.add(sk)
                     }
                   }
@@ -237,6 +239,7 @@ export const BibleVerseIndex: QuartzEmitterPlugin = () => {
       const data: VerseIndexData = {
         index,
         cooccurrence,
+        ...(Object.keys(bgCooccurrence).length > 0 ? { bgCooccurrence } : {}),
         ...(Object.keys(connectionStrength).length > 0 ? { connectionStrength } : {}),
         ...(Object.keys(pdfConnections).length > 0 ? { pdfConnections } : {}),
         ...(Object.keys(bgNotes).length > 0 ? { bgNotes } : {}),

@@ -136,6 +136,10 @@ function normalizeRef(raw) {
 function parseNoteText(text) {
   if (!text || !text.trim()) return { connections: [], observations: [] }
 
+  // Strip BG button text artifacts that may leak through during sync extraction
+  text = text.replace(/\b(Edit|Delete)\b/gi, '').replace(/\s{2,}/g, ' ').trim()
+  if (!text) return { connections: [], observations: [] }
+
   const connections = []
   const matchRanges = [] // track character positions of matches
 

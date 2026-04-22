@@ -11,6 +11,7 @@ const { LOG_FILE, getAllEntries } = require('./log-parser');
 const { hasPDFConflict } = require('./pdf-detector');
 const { pollDeployStatus } = require('./github-api');
 const { startLogWatcher } = require('./log-window');
+const { planNextSync, clearPlan, updateHashCache, detectLfsChanges, recordBytesPushed, optimizePendingPdfs } = require('./lfs-engine');
 
 // ── Smart commit message generation ───────────────────────────────────────
 function buildSmartCommitMsg() {
@@ -107,8 +108,15 @@ function autoSync() {
 }
 
 // ── Sync execution ─────────────────────────────────────────────────────────
-function runSync(commitMsg) {
+// Options: { commitMsg, includePdfs } — includePdfs === true/false is an explicit
+// user choice (primary button vs. "Sync with PDFs"); undefined falls back to settings.
+function runSync(optsOrMsg) {
   if (state.isSyncing) return;
+
+  // Backwards compat: legacy callers pass a commit message string directly.
+  const opts = (typeof optsOrMsg === 'string' || optsOrMsg == null)
+    ? { commitMsg: optsOrMsg, includePdfs: undefined }
+    : optsOrMsg;
 
   startLogWatcher();
 
@@ -116,6 +124,8 @@ function runSync(commitMsg) {
 
   state.syncStartedAt = Date.now();
   state.lastSyncOutput = '';
+  state.pipelineStage = null;
+  state.stageTimestamps = {};
   startSpinner();
   state.lastSyncError = false;
   state.callbacks.rebuildMenu?.();
@@ -124,14 +134,32 @@ function runSync(commitMsg) {
   const env = { ...process.env, PATH: '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + process.env.PATH };
 
   const settings = loadSettings();
-  if (settings.lfsEnabled === false || (settings.lfsSkipOnMetered && settings.isMetered)) {
-    env.SKIP_LFS = '1';
-  }
-  if (settings.lfsBandwidthLimit) {
-    env.LFS_BANDWIDTH_LIMIT = String(settings.lfsBandwidthLimit);
+  const msg = opts.commitMsg || buildSmartCommitMsg();
+
+  // Route through lfs-engine: produces /tmp/quartz-sync-plan.json and decides skipLfs.
+  let plan;
+  try {
+    plan = planNextSync({ explicitIncludePdfs: opts.includePdfs, commitMessage: msg || '' });
+  } catch { plan = null; }
+
+  // Optional pre-commit PDF optimization (lossless).
+  if (plan && plan.includePdfs && settings.lfsOptimizePdfs) {
+    try {
+      const diff = detectLfsChanges();
+      optimizePendingPdfs(diff.changed);
+    } catch {}
   }
 
-  const msg = commitMsg || buildSmartCommitMsg();
+  // Honor legacy overrides (metered / lfs toggle) in addition to the plan.
+  if (plan?.skipLfs || settings.lfsEnabled === false || (settings.lfsSkipOnMetered && settings.isMetered)) {
+    env.SKIP_LFS = '1';
+  }
+  if (plan?.includePdfs) env.INCLUDE_PDFS = '1';
+  if (plan?.throttleKBps || settings.lfsBandwidthLimit) {
+    env.LFS_BANDWIDTH_LIMIT = String(plan?.throttleKBps || settings.lfsBandwidthLimit);
+  }
+  if (plan?.maxBytes)    env.LFS_MAX_BYTES = String(plan.maxBytes);
+
   if (msg) env.SYNC_MSG = msg;
 
   state.syncProcess = spawn('/bin/bash', [SYNC_SCRIPT], { env });
@@ -144,6 +172,37 @@ function runSync(commitMsg) {
 
     const lfsMatch = state.lastSyncOutput.match(/LFS_STATUS:(\w+)/);
     state.lfsStatus = lfsMatch ? lfsMatch[1] : null;
+
+    // After a successful LFS push, record bytes + update hash cache.
+    if (code === 0 && state.lfsStatus === 'success') {
+      try {
+        const entries = getAllEntries();
+        const session = entries[0];
+        const pushed = (session?.stageTimestamps?.lfs_push) ? (require('./lfs-engine').detectLfsChanges().changed) : [];
+        // The detect call right here reflects post-push state — files just pushed
+        // are now "unchanged" relative to their cache entries we're about to write.
+        // Rather than that, rebuild from the plan we wrote earlier.
+        const planFile = require('./lfs-engine').PLAN_FILE;
+        const planRaw = require('fs').readFileSync(planFile, 'utf8');
+        const planObj = JSON.parse(planRaw);
+        const pending = planObj.pending || {};
+        const pushedPaths = pending.files || [];
+        if (pushedPaths.length) {
+          // We need each file's current sha to populate cache.
+          const crypto = require('crypto');
+          const fs2 = require('fs');
+          const pushedEntries = pushedPaths.map(p => {
+            try {
+              const buf = fs2.readFileSync(require('path').join(REPO_DIR, p));
+              return { path: p, sha: crypto.createHash('sha256').update(buf).digest('hex') };
+            } catch { return null; }
+          }).filter(Boolean);
+          updateHashCache(pushedEntries);
+          recordBytesPushed(pending.bytes || 0);
+        }
+      } catch {}
+    }
+    try { clearPlan(); } catch {}
 
     const settings = loadSettings();
     const nl = settings.notifyLevel;

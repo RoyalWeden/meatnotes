@@ -62,6 +62,28 @@ function startLogWatcher() {
             if (state.logWindow && !state.logWindow.isDestroyed()) {
               state.logWindow.webContents.send('sync-output', chunk);
             }
+            if (state.mainWindow && !state.mainWindow.isDestroyed()) {
+              state.mainWindow.webContents.send('sync-output', chunk);
+            }
+            // Live pipeline stage detection — update state so the header stepper moves in real time.
+            const stageLines = chunk.match(/^\[[^\]]+\] STAGE:[a-z_]+$/gm);
+            if (stageLines) {
+              for (const line of stageLines) {
+                const m = line.match(/\] STAGE:([a-z_]+)$/);
+                if (!m) continue;
+                const stage = m[1];
+                const now = new Date().toISOString();
+                state.stageTimestamps = state.stageTimestamps || {};
+                const prev = state.pipelineStage;
+                if (prev && state.stageTimestamps[prev] && !state.stageTimestamps[prev].end) {
+                  state.stageTimestamps[prev].end = now;
+                }
+                state.stageTimestamps[stage] = { start: now };
+                state.pipelineStage = stage;
+              }
+              const { pushStatusToWindow } = require('./status');
+              pushStatusToWindow();
+            }
           }
         } catch {}
       }
@@ -71,9 +93,15 @@ function startLogWatcher() {
 
       clearTimeout(state.windowUpdateDebounceTimer);
       state.windowUpdateDebounceTimer = setTimeout(() => {
+        const entries = getAllEntries();
+        const payload = buildStatusPayload();
         if (state.logWindow && !state.logWindow.isDestroyed()) {
-          state.logWindow.webContents.send('log-updated', getAllEntries());
-          state.logWindow.webContents.send('sync-status', buildStatusPayload());
+          state.logWindow.webContents.send('log-updated', entries);
+          state.logWindow.webContents.send('sync-status', payload);
+        }
+        if (state.mainWindow && !state.mainWindow.isDestroyed()) {
+          state.mainWindow.webContents.send('log-updated', entries);
+          state.mainWindow.webContents.send('sync-status', payload);
         }
         state.callbacks.rebuildMenu?.();
         state.callbacks.refreshTrayAppearance?.();

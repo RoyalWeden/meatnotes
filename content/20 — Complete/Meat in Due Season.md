@@ -219,7 +219,7 @@ shortlink: meatindueseason
 
 - Evil Servants
 
-  - Seven Worse Spirits
+  - [[10 — In Progress/Seven Worse Spirits]]
 
   - Do This & You’ll Never Fall
 

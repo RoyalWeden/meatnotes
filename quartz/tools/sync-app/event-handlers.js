@@ -9,11 +9,15 @@ const { pushStatusToWindow } = require('./status');
 const { isAgentLoaded, invalidateAgentCache, unloadAgent, loadAgent } = require('./plist-manager');
 const { hasPDFConflict } = require('./pdf-detector');
 
-function handleSyncNow(commitMsg) {
+// opts: string (legacy commit msg) | { commitMsg, includePdfs }
+function handleSyncNow(opts) {
+  const normalized = (typeof opts === 'string' || opts == null)
+    ? { commitMsg: opts, includePdfs: undefined }
+    : opts;
   if (hasPDFConflict()) {
-    handlePDFConflict(() => runSync(commitMsg), () => {}, () => startWaitingForPDFClose());
+    handlePDFConflict(() => runSync(normalized), () => {}, () => startWaitingForPDFClose());
   } else {
-    runSync(commitMsg);
+    runSync(normalized);
   }
 }
 

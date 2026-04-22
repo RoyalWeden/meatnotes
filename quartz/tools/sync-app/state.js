@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible';
+const REPO_DIR = '/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/workspaces/bible';
 const LAST_SYNC_FILE = path.join(REPO_DIR, 'content/.last-sync');
 const SYNC_SCRIPT = path.join(os.homedir(), '.local/bin/quartz-sync.sh');
 const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';
@@ -21,9 +21,26 @@ const STREAK_MILESTONES = [5, 10, 25, 50, 100];
 const SPINNER_FRAMES = ['\u25d0', '\u25d3', '\u25d1', '\u25d2'];
 
 // ── Settings persistence ───────────────────────────────────────────────────
+const DEFAULT_SETTINGS = {
+  notifyLevel: 'errors',
+  // PDF / LFS smart-sync settings (v2)
+  includePdfsByDefault: false,      // When false, tray "Sync Now" omits PDFs; "Sync with PDFs" opts in.
+  lfsDailyCapBytes: 0,              // 0 = no cap
+  lfsMonthlyCapBytes: 0,            // 0 = no cap
+  lfsBatchMinFiles: 0,              // 0 = don't batch
+  lfsBatchMinBytes: 0,              // 0 = don't batch
+  lfsMaxBytesPerRun: 0,             // 0 = no cap
+  lfsOptimizePdfs: false,           // qpdf --linearize before staging
+  lfsDedup: true,                   // warn when content hash matches existing tracked PDF
+  lfsQuotaThreshold: 0.8,           // auto-pause when used/total exceeds this
+  lfsThrottleKBps: 0,               // 0 = no throttle
+};
+
 function loadSettings() {
-  try { return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); }
-  catch { return { notifyLevel: 'errors' }; }
+  try {
+    const parsed = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+    return { ...DEFAULT_SETTINGS, ...parsed };
+  } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
 function saveSettings(s) {
@@ -46,6 +63,7 @@ const COLORS = {
 const state = {
   tray: null,
   logWindow: null,
+  mainWindow: null,
   syncProcess: null,
   pdfPollTimer: null,
   menuRefreshTimer: null,
@@ -76,7 +94,15 @@ const state = {
   // Deploy status state
   deployStatus: null,
   deployRuns: [],
+  deployJobs: [],              // [{ name, status, conclusion, steps: [...] }]
   deployPollTimer: null,
+
+  // LFS quota / pipeline state
+  lfsQuota: null,              // { estimatedStorageForMonth, daysLeftInBillingCycle, ... }
+  lfsQuotaPollTimer: null,
+  pendingPdfChanges: null,     // { count, bytes } when batching/deferred
+  pipelineStage: null,         // 'pull' | 'build' | 'commit' | 'lfs_push' | 'lfs_skipped' | 'git_push' | 'deploy' | 'done' | 'error'
+  stageTimestamps: {},         // { pull: {start, end}, ... }
 
   // Last sync output
   lastSyncOutput: '',

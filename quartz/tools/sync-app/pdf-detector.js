@@ -1,7 +1,9 @@
 'use strict';
 const { execSync } = require('child_process');
+const path = require('path');
+const { REPO_DIR } = require('./state');
 
-const CONTENT_PATH = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible/content';
+const CONTENT_PATH = path.join(REPO_DIR, 'content');
 
 // Processes that hold file handles but aren't "user opened" — indexing, thumbnailing, etc.
 const SYSTEM_PROC_PATTERN = /^(mds|mdworker|Spotlight|com\.apple\.|quicklookd|fseventsd|notifyd|lsd|cfprefsd|distnoted|sandboxd)/;

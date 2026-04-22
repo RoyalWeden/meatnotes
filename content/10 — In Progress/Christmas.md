@@ -263,3 +263,26 @@ Isaiah 14:8 *(trees are happy they are no longer cut)*
 Ezekiel 22:26
 
 Revelation 3:15-16 *(Lukewarm attitudes rejected by Yehovah)*
+
+---
+
+# Research
+
+<https://archive.org/details/yulechristmasthe00tillrich/page/120/mode/2up>
+<https://archive.org/details/yulechristmasthe00tillrich/page/102/mode/2up>
+<file:///C:/Users/roywe/Downloads/A%20history%20of%20pagan%20Europe%20--%20Jones,%20Prudence%3B%20Pennick,%20Nigel%20--%201997%20--%20London%20%3B%20New%20York_%20Routledge%20--%200760712107%20--%2013ba5f977e4daaf5881fdc975c2f9300%20--%20Anna%E2%80%99s%20Archive.pdf>
+<https://abmcg.blogspot.com/2011/01/syrus-code-deciphering-origins-of.html>
+<https://www.newadvent.org/cathen/09731b.htm>
+<https://godmadeus.com/Holiday/Christmas/ch2.php>
+<https://www.roger-pearse.com/weblog/wp-content/uploads/2022/02/De-Solstitiis-et-Aequinoctiis-Image-2022.pdf>
+<https://www.google.com/search?q=%22you+shall+not+perform+the+wicked+celebrations+of+the+calends+and+observe+the+holiday+of+the+gentiles,+nor+shall+you+decorate+your+houses%22&sourceid=chrome&ie=UTF-8>
+<https://passionfortruth.com/wp-content/uploads/2023/03/December-25th-On-Trial-Bibliography-and-Source-Material.pdf>
+<https://www.google.com/search?q=pontius+maxima+birthday+of+the+invictus+birthday+of+the+sun+christ+sun+of+righteousness&sca_esv=c5d885e0188e5925&sca_upv=1&sxsrf=ADLYWIIkZtnBfRgweOU1o8pl2rf62XkaRw:1726611759547&ei=LwHqZqiQIe6hptQP6ePvyAU&ved=0ahUKEwjo496EgsuIAxXukIkEHenxG1kQ4dUDCBA&uact=5&oq=pontius+maxima+birthday+of+the+invictus+birthday+of+the+sun+christ+sun+of+righteousness&gs_lp=Egxnd3Mtd2l6LXNlcnAiV3BvbnRpdXMgbWF4aW1hIGJpcnRoZGF5IG9mIHRoZSBpbnZpY3R1cyBiaXJ0aGRheSBvZiB0aGUgc3VuIGNocmlzdCBzdW4gb2YgcmlnaHRlb3VzbmVzczIFECEYoAEyBRAhGKABMgUQIRigATIFECEYoAFIzoQBUABYz4MBcAJ4AJABAJgBuAGgAeYkqgEFMTIuMzC4AQPIAQD4AQGYAiygAtYlwgIFECEYqwLCAgcQIxgnGK4CwgIIEAAYgAQYogTCAgUQIRifBZgDAJIHBTEzLjMxoAfezQE&sclient=gws-wiz-serp>
+<https://www.logoslibrary.org/clement/stromata/121.html>
+<https://www.stnicholascenter.org/who-is-st-nicholas>
+<https://www.youthpastortheologian.com/blog/why-do-we-celebrate-christmas-on-december-25th>
+<https://www.biblicalarchaeology.org/daily/biblical-topics/new-testament/how-december-25-became-christmas/>
+<https://www.google.com/search?q=what+day+is+saturnalia+calculated+celebrated&sca_esv=825e01edc18a56f7&sca_upv=1&sxsrf=ADLYWIJtWmOs3_rLdjhTqSadU2-gOx8BNQ:1726588251351&ei=W6XpZtqMFZu9ptQP1PW52Q8&ved=0ahUKEwiappS7qsqIAxWbnokEHdR6LvsQ4dUDCBA&uact=5&oq=what+day+is+saturnalia+calculated+celebrated&gs_lp=Egxnd3Mtd2l6LXNlcnAiLHdoYXQgZGF5IGlzIHNhdHVybmFsaWEgY2FsY3VsYXRlZCBjZWxlYnJhdGVkMggQABiiBBiJBTIIEAAYgAQYogQyCBAAGKIEGIkFMggQABiABBiiBEjqUFCPAliOT3AFeAGQAQCYAZYBoAGQDqoBBDEwLji4AQPIAQD4AQGYAhOgApUKwgIKEAAYsAMY1gQYR8ICChAhGKABGMMEGArCAgYQABgHGB7CAgYQABgNGB7CAgsQABiABBiGAxiKBcICBxAjGLACGCeYAwCIBgGQBgiSBwQxNS40oAeLXg&sclient=gws-wiz-serp>
+<https://www.vatican.va/content/benedict-xvi/en/audiences/2009/documents/hf_ben-xvi_aud_20091223.html>
+<https://www.google.com/search?q=sol+invictus+connection+to+saturnalia&sca_esv=825e01edc18a56f7&sca_upv=1&sxsrf=ADLYWIILeBX5MPixZCcRrbVEpoHGnv6pRQ:1726588291627&ei=g6XpZrP1JZeeptQP-rO7yA8&ved=0ahUKEwjzwq7OqsqIAxUXj4kEHfrZDvkQ4dUDCBA&uact=5&oq=sol+invictus+connection+to+saturnalia&gs_lp=Egxnd3Mtd2l6LXNlcnAiJXNvbCBpbnZpY3R1cyBjb25uZWN0aW9uIHRvIHNhdHVybmFsaWEyBRAhGKABMgUQIRigATIFECEYoAEyBRAhGKABMgUQIRifBUiLN1C4FFjMNXACeAGQAQGYAaoBoAH7FqoBBDkuMTe4AQPIAQD4AQL4AQGYAhugAp8WwgIKEAAYsAMY1gQYR8ICBBAjGCfCAgoQIxiABBgnGIoFwgIKEAAYgAQYQxiKBcICCxAAGIAEGJECGIoFwgINEC4YgAQYQxjUAhiKBcICBRAAGIAEwgIKEC4YgAQYQxiKBcICBRAuGIAEwgIKEAAYgAQYFBiHAsICBhAAGBYYHsICCBAAGBYYChgewgILEAAYgAQYhgMYigXCAggQABiABBiiBMICBRAhGKsCmAMAiAYBkAYIkgcFMTAuMTegB_CPAQ&sclient=gws-wiz-serp>
+<https://docs.google.com/document/d/1VkOqsBE6vSc_J1rwNaJijwSKfub8HxJ-rQYMLBWZAxo/edit?tab=t.0#heading=h.2qtmx1i8kvv0>

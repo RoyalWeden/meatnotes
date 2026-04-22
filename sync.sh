@@ -5,7 +5,7 @@ set -euo pipefail
 eval "$(/opt/homebrew/bin/brew shellenv)"
 export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH
 
-PROJECT="/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible"
+PROJECT="/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/workspaces/bible"
 LOCK_FILE="/tmp/quartz-sync.lock"
 LOG_FILE="$HOME/Library/Logs/quartz-sync.log"
 

@@ -5,13 +5,17 @@ const { app, Tray } = require('electron');
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 }
+app.on('second-instance', () => {
+  try { require('./main-window').openMainWindow(); } catch {}
+});
 const { state, loadSettings, saveSettings } = require('./state');
 const { makeIcon, refreshTrayAppearance } = require('./tray-ui');
 const { getLastSyncTime, getPlistInterval } = require('./time-helpers');
 const { rebuildMenu } = require('./menu-builder');
 const { scheduleNextSync, loadLastOutputFromFile } = require('./sync-runner');
 const { startLogWatcher, stopLogWatcher } = require('./log-window');
-const { pollDeployStatus } = require('./github-api');
+const { openMainWindow } = require('./main-window');
+const { pollDeployStatus, pollLfsQuota } = require('./github-api');
 const { registerIPC } = require('./ipc-handlers');
 const { readPlist, removeStartInterval, isAgentLoaded, unloadAgent, loadAgent } = require('./plist-manager');
 
@@ -59,6 +63,14 @@ app.whenReady().then(() => {
   // Pre-load last sync output from file so it's ready when window opens
   state.lastSyncOutput = loadLastOutputFromFile();
   pollDeployStatus(); // initial deploy status fetch
+  pollLfsQuota();     // LFS bandwidth quota (no-op without githubToken)
+
+  // First launch: show the main window so users discover the new UI.
+  // Subsequent launches are tray-only — open via the "Open Bible Sync…" menu item.
+  if (!loadSettings().hasSeenMainWindow) {
+    try { openMainWindow(); saveSettings({ ...loadSettings(), hasSeenMainWindow: true }); }
+    catch (err) { console.error('main window failed to open', err); }
+  }
 
   // Restore paused remaining time in case app restarted while paused
   const startupSettings = loadSettings();

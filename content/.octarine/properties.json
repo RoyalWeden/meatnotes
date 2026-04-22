@@ -58,5 +58,30 @@
     "name": "shortlink",
     "type": "string",
     "options": null
+  },
+  {
+    "name": "description",
+    "type": "string",
+    "options": null
+  },
+  {
+    "name": "cssclasses",
+    "type": "list",
+    "options": null
+  },
+  {
+    "name": "related_idioms",
+    "type": "list",
+    "options": null
+  },
+  {
+    "name": "related_verses",
+    "type": "list",
+    "options": null
+  },
+  {
+    "name": "title",
+    "type": "string",
+    "options": null
   }
 ]

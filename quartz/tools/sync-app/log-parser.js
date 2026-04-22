@@ -5,12 +5,16 @@ const os = require('os');
 const { execSync } = require('child_process');
 
 const LOG_FILE = path.join(os.homedir(), 'Library/Logs/quartz-sync.log');
-const REPO_DIR = '/Users/roywe/Library/Mobile Documents/com~apple~CloudDocs/Octarine/workspaces/bible';
+const REPO_DIR = '/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/workspaces/bible';
 const LINE_RE = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.+)$/;
 // Matches git push output: "   abc123..def456  main -> main"
 const PUSH_SHA_RE = /^\s{1,4}[0-9a-f]+\.\.([0-9a-f]+)\s+\S+\s+->\s+\S+/;
 // Matches LFS status markers emitted by sync.sh
 const LFS_STATUS_RE = /^LFS_STATUS:(success|failed|skipped|unchanged)$/;
+// Matches structured stage markers emitted by the v2 shell script:
+//   STAGE:pull, STAGE:build, STAGE:commit, STAGE:lfs_push, STAGE:lfs_skipped,
+//   STAGE:git_push, STAGE:done, STAGE:error
+const STAGE_RE = /^STAGE:([a-z_]+)$/;
 
 // Cache enriched git data by SHA — git history never changes, so this is permanent
 const enrichCache = new Map();
@@ -119,7 +123,7 @@ function parseLog() {
         enrichEntry(current);
         sessions.push(current);
       }
-      current = { timestamp, startTimestamp: timestamp, status: 'success', detail: 'Synced', errorLines: [] };
+      current = { timestamp, startTimestamp: timestamp, status: 'success', detail: 'Synced', errorLines: [], stageTimestamps: {} };
       currentRawLines = [];
       continue;
     }
@@ -142,6 +146,22 @@ function parseLog() {
     const lfsMatch = msg.match(LFS_STATUS_RE);
     if (lfsMatch) {
       current.lfsStatus = lfsMatch[1];
+      continue;
+    }
+
+    // Track pipeline stage transitions within the session
+    const stageMatch = msg.match(STAGE_RE);
+    if (stageMatch) {
+      const stage = stageMatch[1];
+      current.stageTimestamps = current.stageTimestamps || {};
+      // Close out previous running stage, open new one.
+      const prev = current.currentStage;
+      if (prev && current.stageTimestamps[prev] && !current.stageTimestamps[prev].end) {
+        current.stageTimestamps[prev].end = timestamp;
+      }
+      current.stageTimestamps[stage] = { start: timestamp };
+      current.currentStage = stage;
+      current.pipelineStage = stage;
       continue;
     }
 

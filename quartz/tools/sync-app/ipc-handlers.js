@@ -6,10 +6,11 @@ const { buildStatusPayload } = require('./status');
 const { runSync, loadLastOutputFromFile, reconstructLastOutput, scheduleNextSync } = require('./sync-runner');
 const { handleSyncNow, handlePauseResume, handleIntervalChange } = require('./event-handlers');
 const { getAllEntries, LOG_FILE } = require('./log-parser');
-const { getGithubHeaders } = require('./github-api');
+const { getGithubHeaders, fetchRunJobs, fetchLfsQuota, pollLfsQuota } = require('./github-api');
 const { runLfsPull } = require('./lfs-handler');
 const { runBGSync } = require('./bg-controller');
 const { openLogWindow } = require('./log-window');
+const { detectLfsChanges, currentUsage, findDuplicates, planNextSync, formatBytes } = require('./lfs-engine');
 
 function registerIPC() {
   ipcMain.handle('get-log-entries',  () => getAllEntries());
@@ -43,7 +44,37 @@ function registerIPC() {
     }
   });
 
-  ipcMain.on('trigger-sync',         (_e, msg) => handleSyncNow(msg || undefined));
+  ipcMain.on('trigger-sync',         (_e, arg) => handleSyncNow(arg || undefined));
+  // Explicit PDF-aware sync triggers from the main window.
+  ipcMain.on('trigger-sync-no-pdfs', (_e, msg) => handleSyncNow({ commitMsg: msg || undefined, includePdfs: false }));
+  ipcMain.on('trigger-sync-with-pdfs', (_e, msg) => handleSyncNow({ commitMsg: msg || undefined, includePdfs: true }));
+
+  // LFS / PDF info for the PDFs pane.
+  ipcMain.handle('get-lfs-changes', () => {
+    try { return detectLfsChanges(); } catch { return { changed: [], unchanged: [], bytes: 0, bytesChanged: 0 }; }
+  });
+  ipcMain.handle('get-lfs-usage', () => {
+    try { return { usage: currentUsage(), quota: state.lfsQuota || null, settings: loadSettings() }; }
+    catch { return { usage: { dayBytes: 0, monthBytes: 0 }, quota: null, settings: loadSettings() }; }
+  });
+  ipcMain.handle('lfs-plan-preview', (_e, { includePdfs } = {}) => {
+    try {
+      const p = planNextSync({ explicitIncludePdfs: includePdfs, commitMessage: '' });
+      return p;
+    } catch { return null; }
+  });
+  ipcMain.handle('lfs-find-dupes', (_e, absPath) => {
+    try { return findDuplicates(absPath); } catch { return []; }
+  });
+  ipcMain.handle('fetch-lfs-quota', async () => {
+    const q = await fetchLfsQuota();
+    if (q) state.lfsQuota = q;
+    return q;
+  });
+  ipcMain.handle('get-run-jobs', async (_e, runId) => fetchRunJobs(runId));
+  ipcMain.on('open-main-window', () => {
+    try { require('./main-window').openMainWindow(); } catch {}
+  });
   ipcMain.on('toggle-pause',         () => handlePauseResume());
   ipcMain.on('custom-interval',      (_e, s) => handleIntervalChange(s));
   ipcMain.on('open-github',          (_e, url) => shell.openExternal(url));

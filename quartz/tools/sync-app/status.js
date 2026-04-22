@@ -28,6 +28,7 @@ function buildStatusPayload() {
     openPDFs,
     deployStatus: state.deployStatus,
     deployRuns: state.deployRuns,
+    deployJobs: state.deployJobs || [],
     hasGithubToken: !!(loadSettings().githubToken || process.env.GITHUB_TOKEN),
     lfsStatus: state.lfsStatus,
     isLfsPulling: state.isLfsPulling,
@@ -35,13 +36,26 @@ function buildStatusPayload() {
     lfsBandwidthLimit: settings.lfsBandwidthLimit || null,
     lfsSkipOnMetered: settings.lfsSkipOnMetered || false,
     isMetered: settings.isMetered || false,
+    // v2 pipeline + quota fields
+    pipelineStage: state.pipelineStage || null,
+    stageTimestamps: state.stageTimestamps || {},
+    lfsQuota: state.lfsQuota || null,
+    pendingPdfChanges: state.pendingPdfChanges || null,
+    includePdfsByDefault: !!settings.includePdfsByDefault,
+    lfsDailyCapBytes: settings.lfsDailyCapBytes || 0,
+    lfsMonthlyCapBytes: settings.lfsMonthlyCapBytes || 0,
+    lfsQuotaThreshold: settings.lfsQuotaThreshold ?? 0.8,
     bgSyncStatus: state.bgSyncStatus || 'idle',
   };
 }
 
 function pushStatusToWindow() {
+  const payload = buildStatusPayload();
   if (state.logWindow && !state.logWindow.isDestroyed()) {
-    state.logWindow.webContents.send('sync-status', buildStatusPayload());
+    state.logWindow.webContents.send('sync-status', payload);
+  }
+  if (state.mainWindow && !state.mainWindow.isDestroyed()) {
+    state.mainWindow.webContents.send('sync-status', payload);
   }
 }
 

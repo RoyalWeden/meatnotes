@@ -1,6 +1,7 @@
 'use strict';
+const path = require('path');
 const { ipcMain, app, shell } = require('electron');
-const { execSync } = require('child_process');
+const { execFile, execSync } = require('child_process');
 const { state, loadSettings, saveSettings, REPO_DIR, GITHUB_API_OWNER, GITHUB_API_REPO } = require('./state');
 const { buildStatusPayload } = require('./status');
 const { runSync, loadLastOutputFromFile, reconstructLastOutput, scheduleNextSync } = require('./sync-runner');
@@ -11,6 +12,22 @@ const { runLfsPull } = require('./lfs-handler');
 const { runBGSync } = require('./bg-controller');
 const { openLogWindow } = require('./log-window');
 const { detectLfsChanges, currentUsage, findDuplicates, planNextSync, formatBytes } = require('./lfs-engine');
+const { describeGitLocation, defaultExternalGitPath, needsICloudGitMigration } = require('./icloud-check');
+
+const CLEANUP_SCRIPT = path.join(__dirname, 'scripts', 'cleanup-icloud-dupes.sh');
+const MIGRATE_SCRIPT = path.join(__dirname, 'scripts', 'migrate-git-out-of-icloud.sh');
+const WEBSITE_SCRIPT = path.join(__dirname, 'scripts', 'move-website-notes.sh');
+
+function runScript(scriptPath, args, extraEnv = {}) {
+  return new Promise((resolve) => {
+    execFile('/bin/bash', [scriptPath, ...args], {
+      env: { ...process.env, ...extraEnv },
+      maxBuffer: 4 * 1024 * 1024,
+    }, (err, stdout, stderr) => {
+      resolve({ code: err ? (err.code ?? 1) : 0, stdout: stdout || '', stderr: stderr || '' });
+    });
+  });
+}
 
 function registerIPC() {
   ipcMain.handle('get-log-entries',  () => getAllEntries());
@@ -50,12 +67,91 @@ function registerIPC() {
   ipcMain.on('trigger-sync-with-pdfs', (_e, msg) => handleSyncNow({ commitMsg: msg || undefined, includePdfs: true }));
 
   // LFS / PDF info for the PDFs pane.
+  //
+  // The full scan SHA-256s every LFS file, which is slow on iCloud-backed
+  // storage. We return immediately with either (a) a cached result if fresh,
+  // or (b) a fast-path result (size+mtime only). In parallel we kick off a
+  // full scan in the background and push the accurate result to the window
+  // when it finishes.
+  const LFS_CACHE_TTL_MS = 30_000;
+  function emptyLfs() { return { changed: [], unchanged: [], bytes: 0, bytesChanged: 0 }; }
+  function kickBackgroundFullScan() {
+    if (state.lfsChangesScanInFlight) return;
+    state.lfsChangesScanInFlight = true;
+    setImmediate(() => {
+      try {
+        const full = detectLfsChanges();
+        state.lfsChangesCache = { data: full, ts: Date.now() };
+        for (const win of [state.mainWindow, state.logWindow]) {
+          if (win && !win.isDestroyed()) win.webContents.send('lfs-changes-updated', full);
+        }
+      } catch {} finally {
+        state.lfsChangesScanInFlight = false;
+      }
+    });
+  }
   ipcMain.handle('get-lfs-changes', () => {
-    try { return detectLfsChanges(); } catch { return { changed: [], unchanged: [], bytes: 0, bytesChanged: 0 }; }
+    try {
+      const cached = state.lfsChangesCache;
+      if (cached && Date.now() - cached.ts < LFS_CACHE_TTL_MS) {
+        return cached.data;
+      }
+      // Fast path for instant UI — doesn't SHA the files.
+      const fast = detectLfsChanges({ fast: true });
+      // Start the accurate background scan; results delivered via event.
+      kickBackgroundFullScan();
+      return fast;
+    } catch {
+      return emptyLfs();
+    }
   });
   ipcMain.handle('get-lfs-usage', () => {
-    try { return { usage: currentUsage(), quota: state.lfsQuota || null, settings: loadSettings() }; }
-    catch { return { usage: { dayBytes: 0, monthBytes: 0 }, quota: null, settings: loadSettings() }; }
+    try {
+      const settings = loadSettings();
+      const manual = settings.lfsQuotaManual || null;
+      // Manual entry wins if it's recent (< 7 days), otherwise fall back to API quota.
+      const MANUAL_FRESH_MS = 7 * 24 * 60 * 60 * 1000;
+      const manualFresh = manual && manual.updatedAt && (Date.now() - new Date(manual.updatedAt).getTime() < MANUAL_FRESH_MS);
+      const quota = manualFresh
+        ? { ...manual, source: 'manual' }
+        : (state.lfsQuota ? { ...state.lfsQuota, source: 'api' } : null);
+      return { usage: currentUsage(), quota, manual, settings };
+    } catch {
+      return { usage: { dayBytes: 0, monthBytes: 0 }, quota: null, manual: null, settings: loadSettings() };
+    }
+  });
+  ipcMain.handle('save-lfs-manual', (_e, data = {}) => {
+    try {
+      const settings = loadSettings();
+      const lfsQuotaManual = {
+        storageUsedGB:     Number(data.storageUsedGB) || 0,
+        storageIncludedGB: Number(data.storageIncludedGB) || 0,
+        bandwidthUsedGB:   Number(data.bandwidthUsedGB) || 0,
+        bandwidthIncludedGB: Number(data.bandwidthIncludedGB) || 0,
+        daysLeft:          Number(data.daysLeft) || 0,
+        updatedAt:         new Date().toISOString(),
+      };
+      saveSettings({ ...settings, lfsQuotaManual });
+      return { ok: true, lfsQuotaManual };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+  ipcMain.handle('organize-website', async (_e, { commit } = {}) => {
+    const args = [commit ? '--move' : '--list'];
+    if (commit) args.push('--commit');
+    const { code, stdout, stderr } = await runScript(WEBSITE_SCRIPT, args, { REPO: REPO_DIR });
+    const found = [], moved = [], rewrote = [];
+    let done = 0;
+    const errors = [];
+    for (const line of stdout.split('\n')) {
+      if (line.startsWith('FOUND:'))        found.push(line.slice(6));
+      else if (line.startsWith('MOVED:'))   moved.push(line.slice(6));
+      else if (line.startsWith('REWROTE:')) rewrote.push(line.slice(8));
+      else if (line.startsWith('DONE:'))    done = Number(line.slice(5)) || 0;
+      else if (line.startsWith('ERR:'))     errors.push(line.slice(4));
+    }
+    return { code, found, moved, rewrote, done, errors, stderr };
   });
   ipcMain.handle('lfs-plan-preview', (_e, { includePdfs } = {}) => {
     try {
@@ -85,9 +181,15 @@ function registerIPC() {
     loginItem: app.getLoginItemSettings().openAtLogin,
   }));
   ipcMain.on('save-settings',  (_e, s) => {
-    saveSettings({ ...loadSettings(), ...s });
+    const before = loadSettings();
+    saveSettings({ ...before, ...s });
     if (s.quietHours !== undefined) {
       scheduleNextSync();
+    }
+    // Live-apply interval changes so the generic settings binder can update it
+    // without a dedicated Save button.
+    if (s.intervalSeconds !== undefined && s.intervalSeconds !== before.intervalSeconds) {
+      try { handleIntervalChange(s.intervalSeconds); } catch {}
     }
   });
   ipcMain.on('set-login-item',  (_e, val) => app.setLoginItemSettings({ openAtLogin: val }));
@@ -99,6 +201,50 @@ function registerIPC() {
   ipcMain.handle('get-app-version', () => app.getVersion());
 
   ipcMain.handle('get-site-version', () => getSiteVersion());
+
+  // ── iCloud maintenance ────────────────────────────────────────────────
+  ipcMain.handle('get-git-location', () => ({
+    ...describeGitLocation(REPO_DIR),
+    needsMigration: needsICloudGitMigration(REPO_DIR),
+    defaultTarget:  defaultExternalGitPath(),
+  }));
+
+  ipcMain.handle('cleanup-dupes', async (_e, { commit } = {}) => {
+    const args = [commit ? '--remove' : '--list'];
+    if (commit) args.push('--commit');
+    const { code, stdout, stderr } = await runScript(CLEANUP_SCRIPT, args, { REPO: REPO_DIR });
+    const found = [], removed = [];
+    let committed = 0, done = 0;
+    const errors = [];
+    for (const line of stdout.split('\n')) {
+      if (line.startsWith('FOUND:'))     found.push(line.slice(6));
+      else if (line.startsWith('REMOVED:')) removed.push(line.slice(8));
+      else if (line.startsWith('COMMITTED:')) committed = Number(line.slice(10)) || 0;
+      else if (line.startsWith('DONE:'))  done = Number(line.slice(5)) || 0;
+      else if (line.startsWith('ERR:'))   errors.push(line.slice(4));
+    }
+    return { code, found, removed, committed, done, errors, stderr };
+  });
+
+  ipcMain.handle('migrate-git', async (_e, { rollback } = {}) => {
+    const args = rollback ? ['--rollback'] : [];
+    const target = defaultExternalGitPath();
+    const { code, stdout, stderr } = await runScript(MIGRATE_SCRIPT, args, {
+      REPO:   REPO_DIR,
+      TARGET: target,
+    });
+    const status = [];
+    const errors = [];
+    const dirty = [];
+    let ok = false;
+    for (const line of stdout.split('\n')) {
+      if (line.startsWith('STATUS:'))      status.push(line.slice(7));
+      else if (line.startsWith('ERR:'))    errors.push(line.slice(4));
+      else if (line.startsWith('DIRTY:'))  dirty.push(line.slice(6));
+      else if (line === 'OK')              ok = true;
+    }
+    return { code, ok, status, errors, dirty, target, stderr };
+  });
 }
 
 // ── Site version (1.FEAT.FIX computed from git history) ────────────────────

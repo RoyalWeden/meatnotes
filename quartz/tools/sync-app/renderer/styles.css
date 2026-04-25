@@ -248,6 +248,7 @@ body, html {
   cursor: pointer;
   border: 1px solid transparent;
   transition: background .15s;
+  white-space: nowrap;
 }
 .btn           { background: var(--card); border-color: var(--input-border); color: var(--text); }
 .btn:hover     { background: var(--row-hover); }
@@ -266,7 +267,7 @@ body, html {
 .row label { flex: 1; }
 .row input[type=checkbox] { transform: scale(1.1); }
 .row .num { width: 90px; }
-input[type=number], input[type=password], input[type=text], select {
+input[type=number], input[type=password], input[type=text], input[type=email], select {
   background: var(--input-bg);
   color: var(--text);
   border: 1px solid var(--input-border);
@@ -274,7 +275,7 @@ input[type=number], input[type=password], input[type=text], select {
   padding: 4px 8px;
   font: inherit;
 }
-input[type=number]:focus, input[type=password]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+input[type=number]:focus, input[type=password]:focus, input[type=text]:focus, input[type=email]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 
 /* ── Stepper ───────────────────────────────────────────────────────── */
 .stepper {
@@ -343,9 +344,10 @@ input[type=number]:focus, input[type=password]:focus, select:focus { outline: 2p
   background: var(--row-hover);
   color: var(--muted);
 }
-.list-item.ok   .pill { color: var(--ok); }
-.list-item.err  .pill { color: var(--err); }
-.list-item.warn .pill { color: var(--warn); }
+.list-item.ok      .pill { color: var(--ok); }
+.list-item.err     .pill { color: var(--err); }
+.list-item.warn    .pill { color: var(--warn); }
+.list-item.running .pill { color: var(--warn); animation: pulse 1.2s infinite; }
 
 /* ── Logs split ────────────────────────────────────────────────────── */
 .card.split {
@@ -398,3 +400,73 @@ input[type=number]:focus, input[type=password]:focus, select:focus { outline: 2p
 }
 
 .traffic-light-spacer { height: 20px; }
+
+/* ── Custom tooltips ───────────────────────────────────────────────── */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 30, 0.96);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 5px 9px;
+  border-radius: 5px;
+  max-width: 280px;
+  white-space: normal;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease 0.25s;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  -webkit-app-region: no-drag;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+@media (prefers-color-scheme: light) {
+  [data-tooltip]::after { background: rgba(40, 40, 40, 0.96); }
+}
+/* Nav items: show tooltip to the right instead of above (no room above) */
+.nav-item[data-tooltip]::after {
+  bottom: auto;
+  top: 50%;
+  left: calc(100% + 6px);
+  transform: translateY(-50%);
+  white-space: nowrap;
+  max-width: 320px;
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  -webkit-app-region: no-drag;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  min-width: 380px;
+  max-width: 480px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+.modal h3 { margin: 0 0 8px; font-size: 15px; }
+.modal p { margin: 0 0 14px; color: var(--muted); }
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.danger-row { margin-top: 10px; }
+.danger-row .muted { font-size: 11px; }

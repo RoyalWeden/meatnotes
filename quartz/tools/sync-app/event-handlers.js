@@ -31,7 +31,10 @@ function handlePauseResume() {
     clearTimeout(state.nextSyncTimer);
     state.nextSyncTimer = null;
     state.nextSyncAt = null;
-    notifyIfAllowed('Quartz Sync', 'Auto-sync paused.');
+    const runningNote = state.syncProcess
+      ? 'Auto-sync paused. A sync is still running and will finish; no new syncs will start.'
+      : 'Auto-sync paused.';
+    notifyIfAllowed('Quartz Sync', runningNote);
   } else {
     try {
       loadAgent();

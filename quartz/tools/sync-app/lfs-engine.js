@@ -88,7 +88,8 @@ function isLfsPath(relPath, patterns) {
 // `changed` includes files whose hash differs from cache OR are new.
 // `unchanged` are LFS-tracked files present in the working tree matching cache.
 //
-function detectLfsChanges() {
+function detectLfsChanges(opts = {}) {
+  const fast = opts.fast === true;
   const patterns = loadLfsPatterns();
   if (!patterns.length) return { changed: [], unchanged: [], bytes: 0, bytesChanged: 0 };
 
@@ -126,14 +127,19 @@ function detectLfsChanges() {
     const entry = cache[rel];
     const mtime = stat.mtimeMs;
     let sha;
-    // Fast path: same size + mtime → trust cache.
+    // Fast path: same size + mtime → trust cache (no SHA read).
     if (entry && entry.size === stat.size && entry.mtime === mtime) {
       sha = entry.sha256;
+    } else if (fast) {
+      // fast-mode: skip SHA-256 entirely — we use size+mtime as the change
+      // signal. Good enough for UI display; real SHA computed before commit.
+      sha = null;
     } else {
       sha = sha256File(abs);
     }
     bytes += stat.size;
-    if (!entry || entry.sha256 !== sha) {
+    const isChanged = !entry || (sha !== null && entry.sha256 !== sha) || (fast && sha === null);
+    if (isChanged) {
       changed.push({ path: rel, size: stat.size, sha });
       bytesChanged += stat.size;
     } else {
@@ -256,6 +262,9 @@ function planNextSync({ explicitIncludePdfs, commitMessage } = {}) {
   const plan = {
     skipLfs: !includePdfs,
     includePdfs,
+    // When skipping LFS with pending LFS files, amend the commit to drop
+    // them rather than pushing unresolvable pointers. The shell enforces this.
+    excludeLfsFromCommit: !includePdfs,
     throttleKBps: Number(settings.lfsBandwidthLimit || 0),
     maxBytes:     Number(settings.lfsMaxBytesPerRun || 0),
     commitMessage: commitMessage || '',

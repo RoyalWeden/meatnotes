@@ -12,16 +12,16 @@
     <aside class="sidebar">
       <div class="sidebar-drag"></div>
       <nav class="nav">
-        <button class="nav-item" data-pane="overview" title="Sync status at a glance — pipeline stepper, recent syncs, and primary actions"><span class="nav-icon">◎</span>Overview</button>
-        <button class="nav-item" data-pane="pdfs"     title="Control whether PDFs are included in syncs and manage Git LFS bandwidth, caps, and optimization"><span class="nav-icon">📄</span>PDFs &amp; LFS</button>
-        <button class="nav-item" data-pane="deploy"   title="Live GitHub Actions deploy run — job + step checklist and recent deploys"><span class="nav-icon">↗</span>Deploy</button>
-        <button class="nav-item" data-pane="logs"     title="Full log history and live output tail from the current sync"><span class="nav-icon">≡</span>Logs</button>
-        <button class="nav-item" data-pane="bg"       title="BibleGateway note importer — sync notes from your BibleGateway account"><span class="nav-icon">📖</span>BibleGateway</button>
-        <button class="nav-item" data-pane="settings" title="Interval, notifications, open-at-login, and GitHub token"><span class="nav-icon">⚙︎</span>Settings</button>
+        <button class="nav-item" data-pane="overview" data-tooltip="Sync status and recent activity"><span class="nav-icon">◎</span>Overview</button>
+        <button class="nav-item" data-pane="pdfs"     data-tooltip="PDFs and Git LFS usage"><span class="nav-icon">📄</span>PDFs &amp; LFS</button>
+        <button class="nav-item" data-pane="deploy"   data-tooltip="GitHub Actions deploy status"><span class="nav-icon">↗</span>Deploy</button>
+        <button class="nav-item" data-pane="logs"     data-tooltip="Sync logs"><span class="nav-icon">≡</span>Logs</button>
+        <button class="nav-item" data-pane="bg"       data-tooltip="Import BibleGateway notes"><span class="nav-icon">📖</span>BibleGateway</button>
+        <button class="nav-item" data-pane="settings" data-tooltip="Preferences and maintenance"><span class="nav-icon">⚙︎</span>Settings</button>
       </nav>
       <div class="sidebar-foot">
-        <span id="version-site" title="Site version computed from feat/fix commits (1.FEAT.FIX)">—</span>
-        <span id="version-app"  title="Installed Bible Sync app version">v—</span>
+        <span id="version-site" data-tooltip="Site version (1.FEAT.FIX)">—</span>
+        <span id="version-app"  data-tooltip="App version">v—</span>
       </div>
     </aside>
 
@@ -29,15 +29,15 @@
     <main class="main">
       <header class="header">
         <div class="header-left">
-          <span class="status-dot" id="status-dot" title="Current sync status"></span>
-          <span class="status-text" id="status-text" title="Current sync status">Idle</span>
+          <span class="status-dot" id="status-dot" data-tooltip="Sync status"></span>
+          <span class="status-text" id="status-text" data-tooltip="Sync status">Idle</span>
         </div>
         <div class="header-right">
-          <div class="mini-meter" id="mini-meter" title="Estimated Git LFS storage usage this billing cycle (requires a GitHub token)">
+          <div class="mini-meter" id="mini-meter" data-tooltip="LFS storage this cycle">
             <span id="meter-label">LFS —</span>
             <div class="meter-bar"><div class="meter-fill" id="meter-fill"></div></div>
           </div>
-          <button class="btn-primary" id="btn-sync-now" title="Run a sync right now. Honors your default PDF setting and smart LFS rules.">Sync Now</button>
+          <button class="btn-primary" id="btn-sync-now" data-tooltip="Sync now">Sync Now</button>
         </div>
       </header>
 
@@ -46,61 +46,71 @@
         <div class="card">
           <div class="card-row">
             <div>
-              <div class="muted small" title="Whether a sync is currently running">Status</div>
+              <div class="muted small" title="Current sync state">Status</div>
               <div class="big" id="ov-status">Idle</div>
             </div>
             <div>
-              <div class="muted small" title="When the most recent sync completed">Last sync</div>
+              <div class="muted small" title="When the last sync finished">Last sync</div>
               <div id="ov-last">—</div>
             </div>
             <div>
-              <div class="muted small" title="Countdown to the next scheduled sync">Next sync</div>
+              <div class="muted small" title="When the next sync will run">Next sync</div>
               <div id="ov-next">—</div>
             </div>
             <div>
-              <div class="muted small" title="Consecutive successful syncs (all-time best shown in parens)">Streak</div>
+              <div class="muted small" title="Successful syncs in a row">Streak</div>
               <div id="ov-streak">0</div>
             </div>
           </div>
-          <div class="stepper" id="stepper" title="Live pipeline stepper — hover a step to see its start time and duration">
-            <div class="step" data-stage="pull"     title="Pull: fetch the latest commits from GitHub (and LFS objects if included)"><span class="dot"></span>Pull</div>
-            <div class="step" data-stage="build"    title="Build: run Quartz's pre-commit checks and write the last-sync timestamp"><span class="dot"></span>Build</div>
-            <div class="step" data-stage="commit"   title="Commit: stage and commit changed content (delegated to quartz sync)"><span class="dot"></span>Commit</div>
-            <div class="step" data-stage="lfs_push" title="LFS: upload changed PDF objects to Git LFS (skipped when nothing changed or PDFs are excluded)"><span class="dot"></span>LFS</div>
-            <div class="step" data-stage="git_push" title="Push: push the commit (and LFS pointer updates) to GitHub"><span class="dot"></span>Push</div>
-            <div class="step" data-stage="deploy"   title="Deploy: GitHub Actions builds and publishes the site"><span class="dot"></span>Deploy</div>
+          <div class="stepper" id="stepper">
+            <div class="step" data-stage="pull"     data-tooltip="Fetch from GitHub"><span class="dot"></span>Pull</div>
+            <div class="step" data-stage="build"    data-tooltip="Run pre-commit checks"><span class="dot"></span>Build</div>
+            <div class="step" data-stage="commit"   data-tooltip="Commit changed notes"><span class="dot"></span>Commit</div>
+            <div class="step" data-stage="lfs_push" data-tooltip="Upload PDFs to Git LFS"><span class="dot"></span>LFS</div>
+            <div class="step" data-stage="git_push" data-tooltip="Push to GitHub"><span class="dot"></span>Push</div>
+            <div class="step" data-stage="deploy"   data-tooltip="Publish site"><span class="dot"></span>Deploy</div>
           </div>
           <div class="card-actions">
-            <button class="btn-primary" id="btn-sync-no-pdfs"    title="Sync notes without uploading PDFs. Fast and free — does not touch Git LFS bandwidth.">Sync Now</button>
-            <button class="btn"         id="btn-sync-with-pdfs"  title="Sync notes AND upload any changed PDFs to Git LFS. Uses LFS bandwidth.">Sync with PDFs</button>
-            <button class="btn-ghost"   id="btn-pause"           title="Pause or resume the automatic sync timer">Pause</button>
+            <button class="btn-primary" id="btn-sync-no-pdfs"    data-tooltip="Sync notes, skip PDFs (free)">Sync Now</button>
+            <button class="btn"         id="btn-sync-with-pdfs"  data-tooltip="Sync notes and upload PDFs">Sync with PDFs</button>
+            <button class="btn-ghost"   id="btn-pause"           data-tooltip="Pause or resume auto-sync">Pause</button>
+          </div>
+        </div>
+
+        <div class="card" id="icloud-banner" hidden>
+          <h3>Your <code>.git</code> folder is inside iCloud</h3>
+          <p class="muted small">iCloud's sync daemon occasionally duplicates files while git is writing to them, creating <code>quartz 2</code>/<code>.git 2</code> artifacts and corrupting pushes. Moving <code>.git</code> to <code>~/.local/share/meatnotes-git</code> (and leaving a <code>gitdir:</code> pointer) eliminates this race. Your notes stay in iCloud as before; only git's internals move.</p>
+          <div class="card-actions">
+            <button class="btn-primary" id="btn-migrate-git-banner" data-tooltip="Move .git out of iCloud">Move .git out of iCloud…</button>
+            <button class="btn-ghost"   id="btn-dismiss-icloud"    data-tooltip="Hide until next launch">Remind me later</button>
+            <button class="btn-ghost"   id="btn-dismiss-icloud-forever" data-tooltip="Hide permanently">Don't show again</button>
           </div>
         </div>
 
         <h2>Recent Activity</h2>
-        <div class="list" id="ov-recent" title="The five most recent sync attempts"></div>
+        <div class="list" id="ov-recent" data-tooltip="Last five syncs"></div>
       </section>
 
       <section class="pane" id="pane-pdfs" hidden>
         <h1>PDFs &amp; LFS</h1>
 
         <div class="card">
-          <h3 title="Git LFS bandwidth and storage usage (from GitHub's billing API — requires a token)">Bandwidth</h3>
+          <h3 title="LFS bandwidth and storage usage">Bandwidth</h3>
           <div class="meter-row">
             <div>
-              <div class="muted small" title="Estimated LFS storage used this billing cycle, reported by GitHub">This month (estimated)</div>
+              <div class="muted small" title="LFS storage used this cycle">This month (estimated)</div>
               <div class="big" id="lfs-storage">—</div>
             </div>
             <div>
-              <div class="muted small" title="Days remaining before your LFS quota resets">Days left in cycle</div>
+              <div class="muted small" title="Days until LFS quota resets">Days left in cycle</div>
               <div id="lfs-cycle">—</div>
             </div>
             <div>
-              <div class="muted small" title="Bytes this app has pushed to LFS today (local counter)">Today pushed</div>
+              <div class="muted small" title="Bytes pushed today (local)">Today pushed</div>
               <div id="lfs-today">0 B</div>
             </div>
             <div>
-              <div class="muted small" title="Bytes this app has pushed to LFS this month (local counter)">This month pushed</div>
+              <div class="muted small" title="Bytes pushed this month (local)">This month pushed</div>
               <div id="lfs-month">0 B</div>
             </div>
           </div>
@@ -108,45 +118,95 @@
 
         <div class="card">
           <h3>Smart sync</h3>
-          <label class="row" title="When ON, the tray and header 'Sync Now' buttons include PDFs. When OFF, you must explicitly press 'Sync with PDFs' to upload them."><input type="checkbox" id="opt-default"> <span>Include PDFs by default (tray "Sync Now")</span></label>
-          <label class="row" title="Before each sync, run qpdf --linearize to shrink PDFs losslessly. Requires qpdf to be installed (brew install qpdf)."><input type="checkbox" id="opt-optimize"> <span>Optimize PDFs before commit (lossless, qpdf)</span></label>
-          <label class="row" title="If a new PDF has the same content hash as one already tracked, warn you before adding a duplicate to LFS."><input type="checkbox" id="opt-dedup"> <span>Warn about duplicates (content hash)</span></label>
-          <div class="row" title="Cap upload speed during LFS push using trickle. 0 = no limit.">
+          <label class="row" title="Include PDFs in tray/header Sync Now"><input type="checkbox" id="opt-default" data-setting="includePdfsByDefault"> <span>Include PDFs by default (tray "Sync Now")</span></label>
+          <label class="row" title="Shrink PDFs with qpdf before commit"><input type="checkbox" id="opt-optimize" data-setting="lfsOptimizePdfs"> <span>Optimize PDFs before commit (lossless, qpdf)</span></label>
+          <label class="row" title="Warn on duplicate PDF content hashes"><input type="checkbox" id="opt-dedup" data-setting="lfsDedup"> <span>Warn about duplicates (content hash)</span></label>
+          <div class="row" title="Cap LFS upload speed (0 = off)">
             <label>Throttle (KB/s, 0 = off)</label>
-            <input type="number" min="0" id="opt-throttle" class="num" title="Cap LFS upload speed in KB/s. 0 disables throttling." />
+            <input type="number" min="0" id="opt-throttle" class="num" data-setting="lfsThrottleKBps" title="Throttle in KB/s" />
           </div>
-          <div class="row" title="Block LFS pushes today once this many MB have been pushed. 0 = no daily cap.">
+          <div class="row" title="Daily LFS push cap (0 = none)">
             <label>Daily cap (MB, 0 = none)</label>
-            <input type="number" min="0" id="opt-day-cap" class="num" title="Stop pushing to LFS for the rest of the day once this many MB have been pushed. 0 disables." />
+            <input type="number" min="0" id="opt-day-cap" class="num" data-setting="lfsDailyCapBytes" data-unit="mb-to-bytes" title="Daily cap in MB" />
           </div>
-          <div class="row" title="Block LFS pushes this month once this many MB have been pushed. 0 = no monthly cap.">
+          <div class="row" title="Monthly LFS push cap (0 = none)">
             <label>Monthly cap (MB, 0 = none)</label>
-            <input type="number" min="0" id="opt-month-cap" class="num" title="Stop pushing to LFS for the rest of the month once this many MB have been pushed. 0 disables." />
+            <input type="number" min="0" id="opt-month-cap" class="num" data-setting="lfsMonthlyCapBytes" data-unit="mb-to-bytes" title="Monthly cap in MB" />
           </div>
-          <div class="row" title="Defer LFS pushes until at least this many changed PDF files are pending. 0 = push every time something changes.">
+          <div class="row" title="Batch pushes until N files pending">
             <label>Batch threshold — files (0 = off)</label>
-            <input type="number" min="0" id="opt-batch-files" class="num" title="Minimum number of pending changed PDF files before auto-sync pushes LFS. 0 disables batching by file count." />
+            <input type="number" min="0" id="opt-batch-files" class="num" data-setting="lfsBatchMinFiles" title="Files before push" />
           </div>
-          <div class="row" title="Defer LFS pushes until pending PDF bytes reach this threshold (in MB). 0 = no byte threshold.">
+          <div class="row" title="Batch pushes until N MB pending">
             <label>Batch threshold — bytes (MB)</label>
-            <input type="number" min="0" id="opt-batch-bytes" class="num" title="Minimum pending PDF bytes (MB) before auto-sync pushes LFS. 0 disables batching by byte count." />
+            <input type="number" min="0" id="opt-batch-bytes" class="num" data-setting="lfsBatchMinBytes" data-unit="mb-to-bytes" title="MB before push" />
           </div>
-          <div class="row" title="Auto-pause LFS pushes when GitHub reports your usage is above this fraction of quota (0–1). Example: 0.8 = pause at 80%.">
+          <div class="row" title="Pause at this fraction of quota (0–1)">
             <label>Auto-pause at quota fraction</label>
-            <input type="number" min="0" max="1" step="0.05" id="opt-quota-threshold" class="num" title="Fraction of LFS quota (0–1) at which auto-sync will refuse to push. Manual 'Sync with PDFs' still works." />
+            <input type="number" min="0" max="1" step="0.05" id="opt-quota-threshold" class="num" data-setting="lfsQuotaThreshold" title="0.8 = pause at 80%" />
           </div>
           <div class="card-actions">
-            <button class="btn"       id="btn-save-pdfs"      title="Save all PDF &amp; LFS settings above">Save</button>
-            <button class="btn-ghost" id="btn-refresh-quota"  title="Fetch the latest LFS storage/bandwidth quota from GitHub now">Refresh quota</button>
+            <button class="btn"       id="btn-save-pdfs"      data-tooltip="Save PDF &amp; LFS settings">Save</button>
+            <button class="btn-ghost" id="btn-refresh-quota"  data-tooltip="Refetch LFS quota">Refresh quota</button>
           </div>
         </div>
 
         <div class="card">
-          <h3 title="PDFs in the working tree whose content differs from what was last pushed">Pending changes</h3>
+          <h3 title="Next sync's bandwidth cost">Next sync estimate</h3>
+          <div class="card-row">
+            <div>
+              <div class="muted small">This sync will push</div>
+              <div class="big" id="pdf-next-bytes">—</div>
+            </div>
+            <div>
+              <div class="muted small">Files changed</div>
+              <div id="pdf-next-files">—</div>
+            </div>
+            <div>
+              <div class="muted small">At current pace, per month</div>
+              <div id="pdf-monthly-proj">—</div>
+            </div>
+          </div>
+          <div class="muted small" id="pdf-monthly-basis" style="margin-top:4px"></div>
+        </div>
+
+        <div class="card">
+          <h3 title="Quick preset for smart-sync behavior">Preset</h3>
+          <label class="row"><input type="radio" name="lfs-preset" value="conservative"> <span><b>Conservative</b> — skip PDFs ≥ 25 MB, hold pushes under 100 MB/day</span></label>
+          <label class="row"><input type="radio" name="lfs-preset" value="balanced"> <span><b>Balanced</b> (default) — skip PDFs ≥ 50 MB, hold pushes under 500 MB/day</span></label>
+          <label class="row"><input type="radio" name="lfs-preset" value="eager"> <span><b>Eager</b> — push everything, no caps</span></label>
+          <div class="muted small" id="lfs-preset-note" style="margin-top:4px">Presets set the individual knobs below — tweak them if you need finer control.</div>
+        </div>
+
+        <div class="card">
+          <h3 title="Projected GitHub LFS cost">LFS cost estimator</h3>
+          <div class="meter-row">
+            <div>
+              <div class="muted small">Storage</div>
+              <div id="cost-storage">—</div>
+            </div>
+            <div>
+              <div class="muted small">Bandwidth</div>
+              <div id="cost-bandwidth">—</div>
+            </div>
+            <div>
+              <div class="muted small">Projected / month</div>
+              <div class="big" id="cost-total">—</div>
+            </div>
+          </div>
+          <div class="muted small" id="cost-basis" style="margin-top:4px">Enter your actual GitHub billing values to get a real estimate.</div>
+          <div class="card-actions">
+            <button class="btn" id="btn-edit-lfs-manual" data-tooltip="Enter LFS usage from GitHub billing">Update usage…</button>
+            <a class="link" href="#" id="link-lfs-calc" data-tooltip="Open GitHub's LFS pricing calculator">Open GitHub LFS pricing ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 title="PDFs changed since last push">Pending changes</h3>
           <div id="pdf-pending" class="list empty">No pending PDF changes.</div>
           <div class="card-actions">
-            <button class="btn"         id="btn-fetch-pdfs"    title="Download all PDF objects from Git LFS to your local copy">Fetch PDFs Now</button>
-            <button class="btn-primary" id="btn-publish-pdfs"  title="Confirm and upload all pending PDF changes to Git LFS right now">Publish PDFs Now…</button>
+            <button class="btn"         id="btn-fetch-pdfs"    data-tooltip="Download all PDFs from LFS">Fetch PDFs Now</button>
+            <button class="btn-primary" id="btn-publish-pdfs"  data-tooltip="Upload pending PDFs to LFS">Publish PDFs Now…</button>
           </div>
         </div>
       </section>
@@ -156,35 +216,35 @@
         <div class="card">
           <div class="card-row">
             <div>
-              <div class="muted small" title="Status of the latest GitHub Actions deploy run">Current run</div>
+              <div class="muted small" title="Latest deploy run status">Current run</div>
               <div class="big" id="deploy-status">—</div>
             </div>
             <div>
-              <div class="muted small" title="GitHub Actions run number">Run #</div>
+              <div class="muted small" title="Actions run number">Run #</div>
               <div id="deploy-num">—</div>
             </div>
             <div>
-              <div class="muted small" title="When GitHub last updated this run">Updated</div>
+              <div class="muted small" title="Last update time">Updated</div>
               <div id="deploy-updated">—</div>
             </div>
             <div>
-              <a href="#" id="deploy-link" class="link" title="Open this deploy run on GitHub.com">Open on GitHub</a>
+              <a href="#" id="deploy-link" class="link" data-tooltip="Open run on GitHub">Open on GitHub</a>
             </div>
           </div>
-          <div id="deploy-jobs" title="Live job and step checklist for the current deploy run"></div>
+          <div id="deploy-jobs" data-tooltip="Live job/step checklist"></div>
         </div>
         <h2>Recent runs</h2>
-        <div class="list" id="deploy-recent" title="Your three most recent deploy runs"></div>
+        <div class="list" id="deploy-recent" data-tooltip="Last three deploys"></div>
       </section>
 
       <section class="pane" id="pane-logs" hidden>
         <h1>Logs</h1>
         <div class="card split">
-          <div class="log-list" id="log-entries" title="History of every sync attempt recorded in the log file"></div>
-          <pre class="log-tail" id="log-tail"    title="Live tail of the current sync's output"></pre>
+          <div class="log-list" id="log-entries" data-tooltip="Sync history"></div>
+          <pre class="log-tail" id="log-tail"></pre>
         </div>
         <div class="card-actions">
-          <button class="btn-ghost" id="btn-open-log" title="Reveal the raw log file in Finder (~/Library/Logs/quartz-sync.log)">Open log file</button>
+          <button class="btn-ghost" id="btn-open-log" data-tooltip="Reveal log in Finder">Open log file</button>
         </div>
       </section>
 
@@ -193,35 +253,42 @@
         <div class="card">
           <div class="card-row">
             <div>
-              <div class="muted small" title="Current state of the BibleGateway sync job">Status</div>
+              <div class="muted small" title="BG sync state">Status</div>
               <div class="big" id="bg-status">Idle</div>
             </div>
             <div>
-              <div class="muted small" title="Total number of notes imported from BibleGateway">Notes</div>
+              <div class="muted small" title="Notes imported">Notes</div>
               <div id="bg-count">—</div>
             </div>
             <div>
-              <div class="muted small" title="When BibleGateway notes were last pulled">Last sync</div>
+              <div class="muted small" title="Last BG pull">Last sync</div>
               <div id="bg-last">—</div>
             </div>
           </div>
           <div class="card-actions">
-            <button class="btn-primary" id="btn-bg-sync" title="Log into BibleGateway and import your notes into the repo">Sync BibleGateway</button>
+            <button class="btn-primary" id="btn-bg-sync" data-tooltip="Import BibleGateway notes">Sync BibleGateway</button>
           </div>
         </div>
 
         <div class="card">
+          <h3>Activity</h3>
+          <ul id="bg-activity" class="list" style="max-height:260px; overflow-y:auto; list-style:none; padding:0; margin:0;">
+            <li class="list-item muted"><span class="msg">No activity yet.</span></li>
+          </ul>
+        </div>
+
+        <div class="card">
           <h3>Account</h3>
-          <div class="row" title="BibleGateway login email — used to auto-fill the sign-in form">
+          <div class="row" title="BibleGateway email">
             <label>Email</label>
-            <input type="email" id="bg-username" title="Your BibleGateway account email address" />
+            <input type="email" id="bg-username" data-setting="bgUsername" title="BibleGateway email" />
           </div>
-          <div class="row" title="BibleGateway password — stored locally in settings.json">
+          <div class="row" title="BibleGateway password (local)">
             <label>Password</label>
-            <input type="password" id="bg-password" title="Your BibleGateway password. Stored locally in plaintext settings.json." />
+            <input type="password" id="bg-password" data-setting="bgPassword" title="Stored in settings.json" />
           </div>
           <div class="card-actions">
-            <button class="btn" id="btn-save-bg" title="Save the email and password above for auto-login on the next BibleGateway sync">Save credentials</button>
+            <button class="btn" id="btn-save-bg" data-tooltip="Save credentials">Save credentials</button>
           </div>
           <div class="muted small" style="margin-top:8px">
             Used to auto-fill the BibleGateway login when syncing. Stored locally in settings.json.
@@ -232,30 +299,153 @@
       <section class="pane" id="pane-settings" hidden>
         <h1>Settings</h1>
         <div class="card">
-          <div class="row" title="How often auto-sync should run, in minutes">
+          <div class="row" title="Auto-sync interval (minutes)">
             <label>Sync interval (minutes)</label>
-            <input type="number" min="1" max="1440" id="opt-interval" class="num" title="How often auto-sync runs, in minutes (1–1440)" />
+            <input type="number" min="1" max="1440" id="opt-interval" class="num" data-setting="intervalSeconds" data-unit="min-to-sec" title="1–1440" />
           </div>
-          <label class="row" title="When ON, Bible Sync launches automatically when you log in to macOS"><input type="checkbox" id="opt-login"> <span>Open at login</span></label>
-          <div class="row" title="Which sync events trigger a macOS notification">
+          <label class="row" title="Launch at login"><input type="checkbox" id="opt-login"> <span>Open at login</span></label>
+          <label class="row" title="Open main window on launch"><input type="checkbox" id="opt-open-main-on-launch" data-setting="openMainOnLaunch"> <span>Open main window on launch</span></label>
+          <div class="row" title="Which events trigger notifications">
             <label>Notifications</label>
-            <select id="opt-notify" title="Choose which sync events trigger a macOS notification">
-              <option value="all"    title="Notify on every successful sync, streak milestone, and error">All</option>
-              <option value="errors" title="Only notify when something goes wrong">Errors only</option>
-              <option value="never"  title="Silence all sync notifications">Never</option>
+            <select id="opt-notify" data-setting="notifyLevel" title="Notification level">
+              <option value="all"    title="All events">All</option>
+              <option value="errors" title="Errors only">Errors only</option>
+              <option value="never"  title="Silent">Never</option>
             </select>
           </div>
-          <div class="row" title="A GitHub personal access token with 'repo' scope. Required to see LFS quota and live deploy steps.">
+          <div class="row" title="GitHub PAT with repo scope">
             <label>GitHub token (for quota + deploy steps)</label>
-            <input type="password" id="opt-token" title="Personal access token with 'repo' scope. Used to query LFS quota and deploy job/step details." />
+            <input type="password" id="opt-token" data-setting="githubToken" title="repo scope" />
           </div>
           <div class="card-actions">
-            <button class="btn" id="btn-save-settings" title="Save interval, login, notification, and token settings">Save</button>
+            <button class="btn" id="btn-save-settings" data-tooltip="Save settings">Save</button>
           </div>
+        </div>
+
+        <div class="card">
+          <h3>Maintenance</h3>
+
+          <div class="row danger-row">
+            <div>
+              <div><strong>Remove iCloud duplicate files</strong></div>
+              <div class="muted small">
+                <em>What:</em> Scans for files like <code>quartz 2.md</code> or <code>.git 2/</code> — artifacts created when iCloud's sync daemon duplicates files while git is writing them. Shows them for review, then <code>git rm</code>s and commits.<br>
+                <em>When to run:</em> You see <code>" 2"</code>-suffixed files in the sidebar, or a recent sync failed with <em>"push referenced unknown Git LFS objects"</em>.<br>
+                <em>Reversible:</em> Yes — <code>git revert</code> the cleanup commit.
+              </div>
+            </div>
+            <button class="btn" id="btn-cleanup-dupes" data-tooltip="Find and remove iCloud duplicates">Clean up…</button>
+          </div>
+
+          <div class="row danger-row">
+            <div>
+              <div><strong>Move <code>.git</code> out of iCloud</strong></div>
+              <div class="muted small">
+                <em>What:</em> <code>.git</code> holds git's internal database. Keeping it in iCloud means the iCloud daemon can corrupt it mid-write. This moves <code>.git</code> to <code>~/.local/share/meatnotes-git</code> and leaves a one-line <code>gitdir:</code> pointer file in the repo, so git still works and your notes stay where they are.<br>
+                <em>When to run:</em> Once per machine. Strongly recommended.<br>
+                <em>Reversible:</em> Yes — use "Move back".<br>
+                <span id="git-location-status" class="muted">Checking current location…</span>
+              </div>
+            </div>
+            <button class="btn-primary" id="btn-migrate-git" data-tooltip="Move .git out of iCloud">Move…</button>
+          </div>
+
+          <div class="row">
+            <div>
+              <div><strong>Auto-clean duplicates before every sync</strong></div>
+              <div class="muted small">
+                <em>What:</em> Before each sync, scan for <code>" N"</code> duplicates and silently <code>git rm</code> any whose un-suffixed twin exists. Logs what was removed to Activity.<br>
+                <em>When to run:</em> Leave on. Catches the residual risk that an iPhone edit lands in iCloud mid-sync.<br>
+                <em>Reversible:</em> Yes — toggle off any time; each auto-clean is a normal revertable commit.
+              </div>
+            </div>
+            <label data-tooltip="Auto-clean before each sync">
+              <input type="checkbox" id="opt-autoclean-dupes" data-setting="autoCleanDupesBeforeSync"> <span>Enabled</span>
+            </label>
+          </div>
+
+          <div class="row">
+            <div>
+              <div><strong>Show the iCloud warning banner</strong></div>
+              <div class="muted small">When off, hides the Overview banner about <code>.git</code> still being inside iCloud. Turn on to see it again.</div>
+            </div>
+            <label data-tooltip="Show iCloud warning banner">
+              <input type="checkbox" id="opt-show-icloud-banner" data-setting="icloudBannerDismissed" data-invert="1"> <span>Show</span>
+            </label>
+          </div>
+
+          <div class="row">
+            <div>
+              <div><strong>Move website-only notes to <code>Website/</code></strong></div>
+              <div class="muted small">
+                <em>What:</em> Scans <code>content/</code> for notes whose frontmatter has <code>publish: true</code> and moves them into <code>content/Website/</code>. Any wiki-links that included a folder path get rewritten to point at the new location. Bare <code>[[Note Name]]</code> links are left alone — Quartz resolves them by filename.<br>
+                <em>When to run:</em> After tagging notes you want on the public site with <code>publish: true</code>. Organizational only — does not change what Quartz publishes.<br>
+                <em>Reversible:</em> Yes — <code>git revert</code> the resulting commit.
+                <div id="organize-website-status" class="muted" style="margin-top:4px;"></div>
+              </div>
+            </div>
+            <div class="card-actions" style="gap:6px;">
+              <button class="btn" id="btn-organize-preview" data-tooltip="List notes that would move">Preview</button>
+              <button class="btn-primary" id="btn-organize-commit" data-tooltip="Move and commit">Commit move…</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Does this cover every iCloud sync issue?</h3>
+          <p class="muted small">Mostly yes, with one residual risk.</p>
+          <ul class="muted small" style="padding-left:18px;margin:6px 0">
+            <li><strong>Fixed</strong> — the biggest race: <code>.git</code> writes conflicting with iCloud sync. Once <code>.git</code> is moved, git can never trigger iCloud duplicates.</li>
+            <li><strong>Fixed</strong> — stale <code>" 2"</code> files already in the repo (<em>Clean up…</em>) and prevention going forward (<em>Auto-clean</em> above).</li>
+            <li><strong>Remaining</strong> — an edit from your iPhone that lands in iCloud the same second as a desktop commit could still, in theory, create a <code>" 2"</code> file under <code>content/</code>. Auto-clean catches these on the next sync. There's no way to eliminate this entirely without moving <code>content/</code> out of iCloud too — which would defeat the purpose of the setup.</li>
+          </ul>
         </div>
       </section>
     </main>
   </div>
+
+  <!-- ── Modals ──────────────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-pending-pdfs" hidden>
+    <div class="modal">
+      <h3>Pending PDF changes</h3>
+      <p id="pending-pdfs-body">You have pending PDF changes. "Sync Now" skips LFS uploads, so those PDFs can't be pushed. Choose what to do:</p>
+      <div id="pending-pdfs-list" class="list" style="margin-bottom:12px; max-height:160px; overflow-y:auto;"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost"   id="btn-pending-cancel"  data-tooltip="Cancel">Cancel</button>
+        <button class="btn"         id="btn-pending-exclude" data-tooltip="Skip PDFs, sync the rest">Exclude PDFs, sync rest</button>
+        <button class="btn-primary" id="btn-pending-include" data-tooltip="Upload PDFs to LFS">Sync with PDFs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-lfs-manual" hidden>
+    <div class="modal">
+      <h3>Update LFS usage</h3>
+      <p class="muted small">GitHub doesn't expose LFS bandwidth via API. Copy the four numbers from <a href="#" id="link-gh-billing">github.com/settings/billing/summary ↗</a>.</p>
+      <div class="row"><label>Storage used (GB)</label><input type="number" step="0.1" min="0" id="lfs-manual-storage-used" class="num" /></div>
+      <div class="row"><label>Storage included (GB)</label><input type="number" step="0.1" min="0" id="lfs-manual-storage-incl" class="num" /></div>
+      <div class="row"><label>Bandwidth used (GB)</label><input type="number" step="0.1" min="0" id="lfs-manual-bw-used" class="num" /></div>
+      <div class="row"><label>Bandwidth included (GB)</label><input type="number" step="0.1" min="0" id="lfs-manual-bw-incl" class="num" /></div>
+      <div class="row"><label>Days left in billing cycle</label><input type="number" min="0" max="31" id="lfs-manual-days" class="num" /></div>
+      <div class="modal-actions">
+        <button class="btn-ghost"   id="btn-lfs-manual-cancel"  data-tooltip="Cancel">Cancel</button>
+        <button class="btn-primary" id="btn-lfs-manual-save"    data-tooltip="Save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-confirm" hidden>
+    <div class="modal">
+      <h3 id="confirm-title">Confirm</h3>
+      <p id="confirm-body">Are you sure?</p>
+      <div id="confirm-list" class="list" style="margin-bottom:12px; max-height:180px; overflow-y:auto;" hidden></div>
+      <div class="modal-actions">
+        <button class="btn-ghost"   id="btn-confirm-cancel"  data-tooltip="Cancel">Cancel</button>
+        <button class="btn-primary" id="btn-confirm-ok"      data-tooltip="Confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

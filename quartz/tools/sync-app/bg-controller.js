@@ -422,11 +422,14 @@ function runBGSync(opts = {}) {
 }
 
 /**
- * Send data to the log window if it's open.
+ * Send data to both the log window and the main window (if open).
+ * Kept its original name for minimal callsite churn — it now fans out to both.
  */
 function sendToLogWindow(channel, data) {
-  if (state.logWindow && !state.logWindow.isDestroyed()) {
-    state.logWindow.webContents.send(channel, data);
+  for (const win of [state.logWindow, state.mainWindow]) {
+    if (win && !win.isDestroyed()) {
+      try { win.webContents.send(channel, data); } catch {}
+    }
   }
 }
 

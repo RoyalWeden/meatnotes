@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const REPO_DIR = '/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/workspaces/bible';
+const REPO_DIR = '/Users/roywe/Code/Octarine/bible';
 const LAST_SYNC_FILE = path.join(REPO_DIR, 'content/.last-sync');
 const SYNC_SCRIPT = path.join(os.homedir(), '.local/bin/quartz-sync.sh');
 const GITHUB_REPO = 'https://github.com/RoyalWeden/meatnotes';

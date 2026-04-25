@@ -5,7 +5,7 @@ const os = require('os');
 const { execSync } = require('child_process');
 
 const LOG_FILE = path.join(os.homedir(), 'Library/Logs/quartz-sync.log');
-const REPO_DIR = '/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/workspaces/bible';
+const REPO_DIR = '/Users/roywe/Code/Octarine/bible';
 const LINE_RE = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (.+)$/;
 // Matches git push output: "   abc123..def456  main -> main"
 const PUSH_SHA_RE = /^\s{1,4}[0-9a-f]+\.\.([0-9a-f]+)\s+\S+\s+->\s+\S+/;

@@ -65,11 +65,9 @@ app.whenReady().then(() => {
   pollDeployStatus(); // initial deploy status fetch
   pollLfsQuota();     // LFS bandwidth quota (no-op without githubToken)
 
-  // Open the main window on launch unless the user has opted out.
-  // Default: true on first launch (users discover the UI); otherwise respect the setting.
-  const settingsForLaunch = loadSettings();
-  const openMainOnLaunch = settingsForLaunch.openMainOnLaunch !== false; // default true
-  if (openMainOnLaunch) {
+  // First launch: show the main window so users discover the new UI.
+  // Subsequent launches are tray-only — open via the "Open Bible Sync…" menu item.
+  if (!loadSettings().hasSeenMainWindow) {
     try { openMainWindow(); saveSettings({ ...loadSettings(), hasSeenMainWindow: true }); }
     catch (err) { console.error('main window failed to open', err); }
   }

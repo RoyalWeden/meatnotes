@@ -25,11 +25,6 @@ contextBridge.exposeInMainWorld('api', {
   fetchLfsQuota:   () => invoke('fetch-lfs-quota'),
   getRunJobs:      (runId) => invoke('get-run-jobs', runId),
   getDeployLogs:   (runId) => invoke('get-deploy-logs', runId),
-  getGitLocation:  () => invoke('get-git-location'),
-  cleanupDupes:    (opts) => invoke('cleanup-dupes', opts || {}),
-  migrateGit:      (opts) => invoke('migrate-git', opts || {}),
-  saveLfsManual:   (data) => invoke('save-lfs-manual', data || {}),
-  organizeWebsite: (opts) => invoke('organize-website', opts || {}),
 
   // Actions
   syncNow:         (msg) => send('trigger-sync', msg),
@@ -45,10 +40,7 @@ contextBridge.exposeInMainWorld('api', {
   openExternal:    (url) => send('open-github', url),
 
   // Streams (return unsubscribe fn)
-  onStatus:           (fn) => on('sync-status', fn),
-  onLogUpdated:       (fn) => on('log-updated', fn),
-  onSyncOutput:       (fn) => on('sync-output', fn),
-  onLfsChangesUpdated:(fn) => on('lfs-changes-updated', fn),
-  onBgProgress:       (fn) => on('bg-progress', fn),
-  onBgComplete:       (fn) => on('bg-complete', fn),
+  onStatus:        (fn) => on('sync-status', fn),
+  onLogUpdated:    (fn) => on('log-updated', fn),
+  onSyncOutput:    (fn) => on('sync-output', fn),
 });

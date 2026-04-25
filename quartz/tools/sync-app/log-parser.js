@@ -123,7 +123,7 @@ function parseLog() {
         enrichEntry(current);
         sessions.push(current);
       }
-      current = { timestamp, startTimestamp: timestamp, status: 'running', detail: 'In progress', errorLines: [], stageTimestamps: {} };
+      current = { timestamp, startTimestamp: timestamp, status: 'success', detail: 'Synced', errorLines: [], stageTimestamps: {} };
       currentRawLines = [];
       continue;
     }
@@ -188,18 +188,6 @@ function parseLog() {
     current.commitSha = extractSha(currentRawLines);
     enrichEntry(current);
     sessions.push(current);
-  }
-
-  // Mark stale "running" sessions as crashed. If the last session has been
-  // in "running" state for more than 10 minutes, the shell would have
-  // emitted a terminal marker by now — it was killed or crashed.
-  const TEN_MIN = 10 * 60 * 1000;
-  const now = Date.now();
-  for (const s of sessions) {
-    if (s.status === 'running' && s.startTimestamp && (now - s.startTimestamp.getTime()) > TEN_MIN) {
-      s.status = 'error';
-      s.detail = 'Crashed or killed';
-    }
   }
 
   const result = sessions.reverse();

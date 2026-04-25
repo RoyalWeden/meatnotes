@@ -12,30 +12,6 @@ const { hasPDFConflict } = require('./pdf-detector');
 const { pollDeployStatus } = require('./github-api');
 const { startLogWatcher } = require('./log-window');
 const { planNextSync, clearPlan, updateHashCache, detectLfsChanges, recordBytesPushed, optimizePendingPdfs } = require('./lfs-engine');
-const { isAgentLoaded } = require('./plist-manager');
-
-const CLEANUP_SCRIPT = path.join(__dirname, 'scripts', 'cleanup-icloud-dupes.sh');
-
-// Run the iCloud dupe cleanup script synchronously before each sync when
-// the user has the "Auto-clean before every sync" setting on. Short and
-// quick — just git ls-files scanning and a single commit if anything found.
-function runAutoCleanIfEnabled() {
-  try {
-    const settings = loadSettings();
-    if (settings.autoCleanDupesBeforeSync === false) return;
-    if (!fs.existsSync(CLEANUP_SCRIPT)) return;
-    const out = execSync(
-      `/bin/bash "${CLEANUP_SCRIPT}" --remove --commit`,
-      { env: { ...process.env, REPO: REPO_DIR }, encoding: 'utf8', timeout: 30_000 }
-    );
-    const removedCount = (out.match(/^REMOVED:/gm) || []).length;
-    if (removedCount > 0) {
-      fs.appendFileSync(LOG_FILE, `[${new Date().toISOString().replace('T', ' ').slice(0, 19)}] Auto-clean removed ${removedCount} iCloud duplicate file(s)\n`);
-    }
-  } catch {
-    // Non-fatal; never block the sync on cleanup failures.
-  }
-}
 
 // ── Smart commit message generation ───────────────────────────────────────
 function buildSmartCommitMsg() {
@@ -95,15 +71,6 @@ function scheduleNextSync(delayMs) {
   state.nextSyncTimer = null;
   state.quietHoursTimer = null;
 
-  // Honour pause: when the launchd agent is unloaded we also must not
-  // re-arm the in-process setTimeout, otherwise autoSync still fires.
-  if (!isAgentLoaded()) {
-    state.nextSyncAt = null;
-    state.callbacks.rebuildMenu?.();
-    pushStatusToWindow();
-    return;
-  }
-
   const settings = loadSettings();
 
   if (isInQuietWindow(settings)) {
@@ -130,13 +97,6 @@ function scheduleNextSync(delayMs) {
 
 function autoSync() {
   if (state.isSyncing) return;
-  // Defence in depth: if the agent is unloaded (paused), don't sync even if
-  // somehow a lingering timer fired.
-  if (!isAgentLoaded()) {
-    state.nextSyncAt = null;
-    pushStatusToWindow();
-    return;
-  }
   if (hasPDFConflict()) {
     // Lazy require to avoid circular dependency
     const { startWaitingForPDFClose, showPDFAutoNotification } = require('./pdf-handler');
@@ -159,10 +119,6 @@ function runSync(optsOrMsg) {
     : optsOrMsg;
 
   startLogWatcher();
-
-  // Proactively strip any iCloud-created duplicate files *before* the sync
-  // so a push can never carry " 2" artifacts. Default: on.
-  runAutoCleanIfEnabled();
 
   try { state.syncOutputOffset = fs.statSync(LOG_FILE).size; } catch { state.syncOutputOffset = 0; }
 

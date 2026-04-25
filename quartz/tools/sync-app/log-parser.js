@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { execSync } = require('child_process');
+const { state } = require('./state');
 
 const LOG_FILE = path.join(os.homedir(), 'Library/Logs/quartz-sync.log');
 const REPO_DIR = '/Users/roywe/Code/Octarine/bible';
@@ -111,7 +112,14 @@ function parseLog() {
   for (const line of lines) {
     const m = line.match(LINE_RE);
     if (!m) {
-      if (current) currentRawLines.push(line);
+      // Untimestamped lines (rsync output, npm output, etc.) accumulate
+      // into the current stage's bucket so the accordion can show them.
+      if (current) {
+        currentRawLines.push(line);
+        if (current.currentStage) {
+          (current.stageLines[current.currentStage] = current.stageLines[current.currentStage] || []).push(line);
+        }
+      }
       continue;
     }
     const [, dateStr, msg] = m;
@@ -123,7 +131,7 @@ function parseLog() {
         enrichEntry(current);
         sessions.push(current);
       }
-      current = { timestamp, startTimestamp: timestamp, status: 'running', detail: 'In progress', errorLines: [], stageTimestamps: {} };
+      current = { timestamp, startTimestamp: timestamp, status: 'running', detail: 'In progress', errorLines: [], stageTimestamps: {}, stageLines: {} };
       currentRawLines = [];
       continue;
     }
@@ -141,6 +149,16 @@ function parseLog() {
     }
 
     if (!current) continue;
+
+    // Bucket every timestamped log line into the active stage's section so
+    // the accordion expansion in the renderer can show what each stage did.
+    if (current.currentStage) {
+      (current.stageLines[current.currentStage] = current.stageLines[current.currentStage] || []).push(`[${dateStr}] ${msg}`);
+    } else {
+      // Pre-stage lines (e.g., "Sync started", "Plan: ...") go into a
+      // synthetic 'init' bucket so they aren't lost.
+      (current.stageLines['init'] = current.stageLines['init'] || []).push(`[${dateStr}] ${msg}`);
+    }
 
     // Track LFS status within the session
     const lfsMatch = msg.match(LFS_STATUS_RE);
@@ -190,15 +208,32 @@ function parseLog() {
     sessions.push(current);
   }
 
-  // Mark stale "running" sessions as crashed. If the last session has been
-  // in "running" state for more than 10 minutes, the shell would have
-  // emitted a terminal marker by now — it was killed or crashed.
-  const TEN_MIN = 10 * 60 * 1000;
+  // Mark stale "running" sessions. Round-5 R4: per-user, an entry should
+  // stop saying "running" once a later sync has started OR enough time has
+  // passed that the script must be dead. Two distinct cases:
+  //   1. A NEWER session exists after this one — the older one was clearly
+  //      not closed cleanly. Mark it as 'interrupted' (orange pill, calmer
+  //      than 'error' since it didn't necessarily crash — could be a normal
+  //      kill from app quit).
+  //   2. Even the newest session is "running" but older than ~5 min and
+  //      no sync process is currently alive — same outcome.
+  // Note: the live in-flight sync (process still alive) is left alone — the
+  // renderer relies on isSyncing to display its progressive state.
+  const FIVE_MIN = 5 * 60 * 1000;
   const now = Date.now();
-  for (const s of sessions) {
-    if (s.status === 'running' && s.startTimestamp && (now - s.startTimestamp.getTime()) > TEN_MIN) {
-      s.status = 'error';
-      s.detail = 'Crashed or killed';
+  const liveProcess = state.syncProcess != null;
+  for (let i = 0; i < sessions.length; i++) {
+    const s = sessions[i];
+    if (s.status !== 'running') continue;
+    const isNewest = (i === sessions.length - 1);
+    const olderSiblingExists = !isNewest;
+    const ageMs = s.startTimestamp ? (now - s.startTimestamp.getTime()) : Infinity;
+    if (olderSiblingExists) {
+      s.status = 'interrupted';
+      s.detail = 'Interrupted (a newer sync started)';
+    } else if (!liveProcess && ageMs > FIVE_MIN) {
+      s.status = 'interrupted';
+      s.detail = 'Interrupted (process exited without completion marker)';
     }
   }
 

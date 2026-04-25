@@ -44,3 +44,7 @@ Where was the 200 million man army that slays the third part of men?
 
 Revelation 7/14
 Where was the 144 thousand man army?
+
+[[image (2).png]]
+
+ 

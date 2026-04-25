@@ -297,10 +297,12 @@ input[type=number]:focus, input[type=password]:focus, input[type=text]:focus, in
   position: relative;
   padding: 0 6px;
 }
-.step:not(:last-child)::after {
+/* Connector line between steps. Lives on ::before so ::after stays free
+ * for the [data-tooltip]::after rule. The first step has no connector. */
+.step:not(:first-child)::before {
   content: '';
   position: absolute;
-  right: -4px;
+  left: -4px;
   width: 8px;
   height: 1px;
   background: var(--card-border);
@@ -415,7 +417,12 @@ input[type=number]:focus, input[type=password]:focus, input[type=text]:focus, in
   line-height: 1.4;
   padding: 5px 9px;
   border-radius: 5px;
-  max-width: 280px;
+  /* `width: max-content` lets short tooltips stay one-line; `max-width` caps
+   * how wide a long tooltip grows before wrapping. Without max-content the
+   * browser shrinks tooltips to the parent's width, causing one-word-per-row
+   * wrapping inside narrow buttons. */
+  width: max-content;
+  max-width: min(320px, 90vw);
   white-space: normal;
   text-align: center;
   opacity: 0;
@@ -470,3 +477,88 @@ input[type=number]:focus, input[type=password]:focus, input[type=text]:focus, in
 }
 .danger-row { margin-top: 10px; }
 .danger-row .muted { font-size: 11px; }
+
+/* ── Recent activity accordion (Round-5 R5) ────────────────────────── */
+.activity-list { display: flex; flex-direction: column; gap: 4px; }
+.activity-row {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.activity-row.expanded { box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.activity-head {
+  display: grid;
+  grid-template-columns: 14px 60px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+.activity-head:hover { background: var(--row-hover); }
+.activity-head .caret { color: var(--muted); font-size: 10px; }
+.activity-head .time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.activity-head .msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.activity-head .pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--row-hover);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.activity-row.ok       .pill { background: rgba(48,209,88,0.15);  color: var(--ok); }
+.activity-row.err      .pill { background: rgba(255,69,58,0.15);  color: var(--err); }
+.activity-row.running  .pill { background: rgba(0,122,255,0.15);  color: var(--accent); }
+.activity-row.warn     .pill { background: rgba(255,159,10,0.15); color: #d97706; }
+
+.activity-body {
+  padding: 4px 10px 10px 32px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stage-section {
+  background: var(--row-hover);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.stage-section summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 0;
+}
+.stage-section summary::-webkit-details-marker { display: none; }
+.stage-section summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 12px;
+  color: var(--muted);
+  font-size: 9px;
+  transition: transform 0.1s;
+}
+.stage-section[open] summary::before { transform: rotate(90deg); }
+.stage-section .stage-name { flex: 1; padding-left: 4px; }
+.stage-log {
+  font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.45;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin: 4px 0 0;
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}

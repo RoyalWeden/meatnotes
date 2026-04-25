@@ -249,28 +249,59 @@ function registerIPC() {
   ipcMain.handle('repair-git-pointer', async () => {
     const fs = require('fs');
     const gitPath = path.join(REPO_DIR, '.git');
+    const contentPath = path.join(REPO_DIR, 'content');
     const externalStore = '/Users/roywe/.local/share/meatnotes-git';
+    const expectedNotesPath = '/Users/roywe/Library/Mobile Documents/iCloud~com~octarine~notes/Documents/content';
+    const fixes = [];
     try {
-      // Case 1: .git is a real directory — the repo is healthy, nothing to do.
-      const stat = fs.existsSync(gitPath) ? fs.lstatSync(gitPath) : null;
-      if (stat && stat.isDirectory()) {
-        return { ok: true, action: 'none', message: '.git is a real directory — already healthy' };
-      }
-      // Case 2: .git pointer text file exists — verify it points somewhere real.
-      if (stat && stat.isFile()) {
+      // ── 1. Check the .git pointer / directory ───────────────────────────
+      const gitStat = fs.existsSync(gitPath) ? fs.lstatSync(gitPath) : null;
+      if (gitStat && gitStat.isDirectory()) {
+        fixes.push('.git: real directory (healthy)');
+      } else if (gitStat && gitStat.isFile()) {
         const content = fs.readFileSync(gitPath, 'utf8').trim();
         const m = content.match(/^gitdir:\s*(.+)$/);
         if (m && fs.existsSync(m[1])) {
-          return { ok: true, action: 'verified', message: `.git pointer → ${m[1]} (valid)` };
+          fixes.push(`.git: pointer → ${m[1]} (valid)`);
+        } else if (fs.existsSync(externalStore)) {
+          fs.writeFileSync(gitPath, `gitdir: ${externalStore}\n`);
+          fixes.push(`.git: rewrote stale pointer → ${externalStore}`);
+        } else {
+          return { ok: false, error: '.git pointer is invalid and no external store found.' };
         }
-        // Invalid pointer — rewrite to known external store
+      } else {
+        // .git missing entirely
+        if (fs.existsSync(externalStore)) {
+          fs.writeFileSync(gitPath, `gitdir: ${externalStore}\n`);
+          fixes.push(`.git: created missing pointer → ${externalStore}`);
+        } else {
+          return { ok: false, error: 'No .git and no external store. Manual recovery needed.' };
+        }
       }
-      // Case 3: .git missing or invalid — rewrite pointer (if external store exists)
-      if (fs.existsSync(externalStore)) {
-        fs.writeFileSync(gitPath, `gitdir: ${externalStore}\n`);
-        return { ok: true, action: 'rewrote-pointer', message: `Rewrote .git pointer → ${externalStore}` };
+
+      // ── 2. Check the content/ symlink (Round-5 R7) ──────────────────────
+      const contentStat = fs.existsSync(contentPath) ? fs.lstatSync(contentPath) : null;
+      if (contentStat && contentStat.isSymbolicLink()) {
+        const target = fs.readlinkSync(contentPath);
+        if (target === expectedNotesPath) {
+          fixes.push('content/: symlink → iCloud notes (correct)');
+        } else {
+          fixes.push(`content/: WARN — symlink points to ${target} (expected ${expectedNotesPath}). Leaving alone.`);
+        }
+      } else if (contentStat && contentStat.isDirectory()) {
+        fixes.push('content/: WARN — is a real directory, not a symlink. Sync will treat it as the source of truth (likely wrong). Use the relocate flow if needed.');
+      } else {
+        // content/ missing or broken — recreate symlink
+        if (fs.existsSync(expectedNotesPath)) {
+          if (contentStat) fs.unlinkSync(contentPath);
+          fs.symlinkSync(expectedNotesPath, contentPath);
+          fixes.push(`content/: recreated symlink → ${expectedNotesPath}`);
+        } else {
+          fixes.push(`content/: WARN — missing AND iCloud notes folder not found at ${expectedNotesPath}. Cannot auto-repair.`);
+        }
       }
-      return { ok: false, error: 'No .git directory and no external store found. Manual recovery needed.' };
+
+      return { ok: true, action: 'repair', message: fixes.join(' · '), fixes };
     } catch (err) {
       return { ok: false, error: err.message };
     }

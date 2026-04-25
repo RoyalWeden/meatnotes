@@ -28,14 +28,21 @@ function refreshTrayAppearance() {
   if (state.isSyncing) return;
   const paused = !isAgentLoaded();
   const { getLastSyncTime, formatTime } = require('./time-helpers');
-  const timeLabel = formatTime(getLastSyncTime());
-  const notesLabel = state.lastNotesChanged > 0 ? `\u2191${state.lastNotesChanged}` : timeLabel;
-  if (state.isWaiting)               setTrayState('orange', timeLabel);
+  const lastTime = getLastSyncTime();
+  const rawTimeLabel = formatTime(lastTime);
+  // Round-5 R6 \u2014 never let the tray title literally say "never". If we have
+  // no .last-sync timestamp yet, show an empty string instead so the icon
+  // stands alone. If we DO have a time AND a notes count > 0, show both
+  // ("7:51 \u21912") so the user sees activity at a glance.
+  const safeTime = (rawTimeLabel === 'never') ? '' : rawTimeLabel;
+  const count = state.lastNotesChanged > 0 ? `\u2191${state.lastNotesChanged}` : '';
+  const compoundLabel = [safeTime, count].filter(Boolean).join(' ');
+  if (state.isWaiting)               setTrayState('orange', safeTime);
   else if (state.isQuietHours)       setTrayState('blue',   '\ud83c\udf19');
   else if (paused)                   setTrayState('grey',   '\u23f8');
-  else if (state.lastSyncError)      setTrayState('red',    timeLabel);
-  else if (state.lfsStatus === 'failed') setTrayState('orange', notesLabel);
-  else                               setTrayState('green',  notesLabel);
+  else if (state.lastSyncError)      setTrayState('red',    safeTime);
+  else if (state.lfsStatus === 'failed') setTrayState('orange', compoundLabel || safeTime);
+  else                               setTrayState('green',  compoundLabel || safeTime);
 }
 
 function startSpinner() {

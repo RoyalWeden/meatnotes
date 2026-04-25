@@ -208,10 +208,21 @@ function runSync(optsOrMsg) {
 
   state.syncProcess = spawn('/bin/bash', [SYNC_SCRIPT], { env });
 
+  // ── Live progress tailer ──────────────────────────────────────────────
+  // The bash script writes STAGE:<name> lines to LOG_FILE as it progresses.
+  // Without this tailer, the renderer goes from "all empty" to "all done"
+  // in one paint at sync completion. With the tailer, each stage flips to
+  // running → done in real time (Round-5 R3, debounced at 250ms).
+  startLiveProgressTailer();
+
   state.syncProcess.on('close', (code) => {
     state.syncProcess = null;
     state.syncStartedAt = null;
     stopSpinner();
+    stopLiveProgressTailer();
+    // One last drain in case the script wrote a final batch of STAGE: lines
+    // between the last 250 ms tick and process close.
+    tickLiveProgress({ force: true });
     state.lastSyncError = code !== 0;
 
     const lfsMatch = state.lastSyncOutput.match(/LFS_STATUS:(\w+)/);
@@ -328,6 +339,80 @@ function runSync(optsOrMsg) {
     refreshTrayAppearance();
     pushStatusToWindow();
   });
+}
+
+// ── Live progress tailer ────────────────────────────────────────────────
+// Reads new lines appended to LOG_FILE every 250 ms while a sync is alive
+// and translates STAGE: / LFS_STATUS: events into incremental updates of
+// state.pipelineStage and state.stageTimestamps. Round-5 R3.
+
+const STAGE_LINE_RE  = /^\[([\d-]+ [\d:]+)\] STAGE:(\w+)/;
+const LFS_LINE_RE    = /^\[([\d-]+ [\d:]+)\] LFS_STATUS:(\w+)/;
+const TERMINAL_STAGES = new Set(['done', 'error']);
+
+let _tailTimer = null;
+let _tailReadOffset = 0;
+
+function startLiveProgressTailer() {
+  stopLiveProgressTailer(); // safety: never run two
+  _tailReadOffset = state.syncOutputOffset || 0;
+  _tailTimer = setInterval(tickLiveProgress, 250);
+}
+
+function stopLiveProgressTailer() {
+  if (_tailTimer) clearInterval(_tailTimer);
+  _tailTimer = null;
+}
+
+function tickLiveProgress(opts = {}) {
+  // Stop tailing once the sync process is gone (unless we're doing a final drain).
+  if (!opts.force && !state.syncProcess) { stopLiveProgressTailer(); return; }
+  let chunk = '';
+  try {
+    const stat = fs.statSync(LOG_FILE);
+    if (stat.size <= _tailReadOffset) return;
+    const fd = fs.openSync(LOG_FILE, 'r');
+    const buf = Buffer.alloc(stat.size - _tailReadOffset);
+    fs.readSync(fd, buf, 0, buf.length, _tailReadOffset);
+    fs.closeSync(fd);
+    chunk = buf.toString('utf8');
+    _tailReadOffset = stat.size;
+  } catch { return; }
+
+  if (!chunk) return;
+
+  let changed = false;
+  for (const line of chunk.split('\n')) {
+    const stageMatch = line.match(STAGE_LINE_RE);
+    if (stageMatch) {
+      const ts = new Date(stageMatch[1].replace(' ', 'T') + 'Z').toISOString();
+      const stage = stageMatch[2];
+      // End the previous active stage (if any non-terminal one is open).
+      if (state.pipelineStage &&
+          !TERMINAL_STAGES.has(state.pipelineStage) &&
+          state.stageTimestamps[state.pipelineStage] &&
+          !state.stageTimestamps[state.pipelineStage].end) {
+        state.stageTimestamps[state.pipelineStage].end = ts;
+      }
+      state.pipelineStage = stage;
+      if (!state.stageTimestamps[stage]) state.stageTimestamps[stage] = { start: ts };
+      // Terminal stages get an end stamp at the same instant (the bash
+      // script doesn't emit a separate "end" line).
+      if (TERMINAL_STAGES.has(stage)) state.stageTimestamps[stage].end = ts;
+      changed = true;
+      continue;
+    }
+    const lfsMatch = line.match(LFS_LINE_RE);
+    if (lfsMatch) {
+      // LFS_STATUS:<name> just records into state.lfsStatus; don't add a stage.
+      state.lfsStatus = lfsMatch[2];
+      changed = true;
+    }
+  }
+  if (changed) {
+    state.callbacks.rebuildMenu?.();
+    pushStatusToWindow();
+  }
 }
 
 module.exports = {

@@ -179,6 +179,17 @@ function paintHeader(s) {
   }
 }
 
+// Static tooltip descriptions for each pipeline stage. Used as the base; we
+// append timing info when the stage has run.
+const STAGE_TOOLTIPS = {
+  pull:     'Fetch remote commits from GitHub',
+  build:    'Pre-commit checks + write .last-sync timestamp',
+  commit:   'rsync from iCloud, verify count, git add/commit',
+  lfs_push: 'Upload changed PDFs to Git LFS',
+  git_push: 'Push commits to origin/main',
+  deploy:   'GitHub Actions builds and deploys the site',
+};
+
 function paintStepper(s) {
   const stage = s.pipelineStage;
   const stamps = s.stageTimestamps || {};
@@ -194,12 +205,14 @@ function paintStepper(s) {
       const ended = stamp.end;
       if (ended) el.classList.add('done');
       else el.classList.add('running');
-      // Tooltip with start + duration
       const dur = ended ? Math.round((new Date(ended) - new Date(started)) / 1000) : null;
-      el.title = `Started ${fmtTime(started)}${dur != null ? ` • ${dur}s` : ' • in progress'}`;
-    } else if (!s.isSyncing && stage === 'error') {
-      // nothing
+      const timing = dur != null ? `Done in ${dur}s` : 'In progress…';
+      el.dataset.tooltip = `${STAGE_TOOLTIPS[id] || id} — ${timing} (started ${fmtTime(started)})`;
+    } else {
+      el.dataset.tooltip = `${STAGE_TOOLTIPS[id] || id} — pending`;
     }
+    // Drop any native title attribute that would compete with data-tooltip.
+    el.removeAttribute('title');
   });
   // If whole pipeline complete, mark remaining as done/skipped based on stamps
   if (!s.isSyncing && stage === 'done') {
@@ -227,25 +240,92 @@ function paintOverview(s) {
   paintStepper(s);
 }
 
-// Recent activity list
+// Recent activity list (Round-5 R5: accordion with per-stage breakdown)
+const STAGE_LABELS = {
+  init:        'Setup',
+  pull:        'Pull',
+  build:       'Build',
+  commit:      'Commit',
+  lfs_push:    'LFS push',
+  lfs_skipped: 'LFS skipped',
+  git_push:    'Git push',
+  done:        'Done',
+  error:       'Error',
+};
+const STAGE_DISPLAY_ORDER = ['init', 'pull', 'build', 'commit', 'lfs_push', 'lfs_skipped', 'git_push', 'done', 'error'];
+
+// Track which sync rows are user-expanded between paints. Keyed by syncKey.
+const _expandedRows = new Set();
+let _activeSyncKey = null;
+
+function syncKey(e) {
+  return e.startTimestamp ? new Date(e.startTimestamp).toISOString() : new Date(e.timestamp).toISOString();
+}
+
 function paintRecent(entries) {
   const host = $('#ov-recent');
   const items = entries.slice(0, 5);
   if (!items.length) { host.className = 'list empty'; host.textContent = 'No recent syncs.'; return; }
-  host.className = 'list';
+  host.className = 'list activity-list';
+
+  // Auto-expand the row representing the live in-flight sync (if any).
+  const activeRunning = items.find(e => e.status === 'running');
+  const newActiveKey = activeRunning ? syncKey(activeRunning) : null;
+  if (newActiveKey && newActiveKey !== _activeSyncKey) {
+    _expandedRows.add(newActiveKey);
+  }
+  // Auto-collapse the previously-active sync once it reaches a terminal state.
+  if (_activeSyncKey && _activeSyncKey !== newActiveKey) {
+    _expandedRows.delete(_activeSyncKey);
+  }
+  _activeSyncKey = newActiveKey;
+
   host.innerHTML = items.map(e => {
-    const cls = e.status === 'success' ? 'ok'
-              : e.status === 'error'   ? 'err'
-              : e.status === 'running' ? 'running'
-              : e.status === 'partial' ? 'warn'
-              : 'warn';
-    return `<div class="list-item ${cls}">
-      <span class="time">${fmtTime(e.timestamp)}</span>
-      <span class="msg">${escapeHtml(e.detail || '')}${e.filesChanged ? ` <span class="muted small">· ${escapeHtml(e.filesChanged)}</span>` : ''}</span>
-      <span class="pill">${e.status}</span>
+    const k = syncKey(e);
+    const cls = e.status === 'success'     ? 'ok'
+              : e.status === 'error'       ? 'err'
+              : e.status === 'running'     ? 'running'
+              : e.status === 'partial'     ? 'warn'
+              : e.status === 'interrupted' ? 'warn interrupted'
+              :                              'warn';
+    const expanded = _expandedRows.has(k);
+    const stageEntries = STAGE_DISPLAY_ORDER
+      .filter(s => e.stageLines && e.stageLines[s] && e.stageLines[s].length)
+      .map(s => {
+        const stamp = e.stageTimestamps?.[s];
+        const dur = stamp?.start && stamp?.end
+          ? Math.round((new Date(stamp.end) - new Date(stamp.start)) / 1000) + 's'
+          : (stamp?.start && !stamp?.end ? 'in progress…' : '');
+        const lines = e.stageLines[s].slice(-200); // cap per stage
+        return `<details class="stage-section" data-stage="${s}">
+          <summary><span class="stage-name">${STAGE_LABELS[s] || s}</span><span class="muted small">${escapeHtml(dur)}</span></summary>
+          <pre class="stage-log">${escapeHtml(lines.join('\n'))}</pre>
+        </details>`;
+      }).join('');
+    return `<div class="activity-row ${cls}${expanded ? ' expanded' : ''}" data-sync-key="${escapeHtml(k)}">
+      <div class="activity-head" data-toggle-sync="${escapeHtml(k)}">
+        <span class="caret">${expanded ? '▾' : '▸'}</span>
+        <span class="time">${fmtTime(e.timestamp)}</span>
+        <span class="msg">${escapeHtml(e.detail || '')}${e.filesChanged ? ` <span class="muted small">· ${escapeHtml(e.filesChanged)}</span>` : ''}</span>
+        <span class="pill">${e.status}</span>
+      </div>
+      ${expanded ? `<div class="activity-body">${stageEntries || '<div class="muted small" style="padding:8px 12px">No stage logs captured.</div>'}</div>` : ''}
     </div>`;
   }).join('');
 }
+
+// Expand/collapse accordion rows.
+document.addEventListener('click', (e) => {
+  const head = e.target.closest('[data-toggle-sync]');
+  if (!head) return;
+  const key = head.dataset.toggleSync;
+  if (_expandedRows.has(key)) _expandedRows.delete(key);
+  else _expandedRows.add(key);
+  // Re-fetch and repaint quickly. The next paintRecent call will pick up.
+  if (window.api?.getLogEntries) {
+    window.api.getLogEntries().then(paintRecent).catch(() => {});
+  }
+});
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

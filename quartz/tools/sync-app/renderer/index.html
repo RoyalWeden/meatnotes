@@ -18,6 +18,7 @@
         <button class="nav-item" data-pane="logs"     data-tooltip="Sync logs"><span class="nav-icon">≡</span>Logs</button>
         <button class="nav-item" data-pane="bg"       data-tooltip="Import BibleGateway notes"><span class="nav-icon">📖</span>BibleGateway</button>
         <button class="nav-item" data-pane="settings" data-tooltip="Preferences and maintenance"><span class="nav-icon">⚙︎</span>Settings</button>
+        <button class="nav-item" data-pane="howto"    data-tooltip="How this app works"><span class="nav-icon">❔</span>How it works</button>
       </nav>
       <div class="sidebar-foot">
         <span id="version-site" data-tooltip="Site version (1.FEAT.FIX)">—</span>
@@ -399,6 +400,74 @@
             <li><strong>Fixed</strong> — stale <code>" 2"</code> files already in the repo (<em>Clean up…</em>) and prevention going forward (<em>Auto-clean</em> above).</li>
             <li><strong>Remaining</strong> — an edit from your iPhone that lands in iCloud the same second as a desktop commit could still, in theory, create a <code>" 2"</code> file under <code>content/</code>. Auto-clean catches these on the next sync. There's no way to eliminate this entirely without moving <code>content/</code> out of iCloud too — which would defeat the purpose of the setup.</li>
           </ul>
+        </div>
+      </section>
+
+      <!-- ── Pane: How it works ──────────────────────────────────────── -->
+      <section class="pane" id="pane-howto" hidden>
+        <div class="card">
+          <h3>Two editors, two workflows</h3>
+          <div class="muted small">
+            <p><strong>📝 Editing notes</strong> (anything under <code>content/</code>)
+               → use <strong>Octarine</strong>. It writes to your iCloud notes folder,
+               so your notes sync to all your devices. Click <em>Sync Now</em> in this
+               app to publish.</p>
+            <p><strong>⚙️ Editing code or config</strong> (the sync app itself, Quartz
+               config, layout, plugins) → use <strong>VS Code / Cursor / GitHub Desktop</strong>
+               the normal way. Commit and push via the editor or terminal.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>The phantom "deleted" files</h3>
+          <div class="muted small">
+            <p>GitHub Desktop and <code>git status</code> will always show ~260
+               deleted files under <code>content/</code>. They aren't really deleted
+               — git can't see through the iCloud symlink. <strong>Don't commit them</strong>.
+               This app's <em>Sync Now</em> handles content commits safely; it materializes
+               the notes, verifies the copy is complete, and refuses to commit if iCloud
+               delivered a partial view (which would otherwise wipe your repo).</p>
+            <p>When you commit non-content edits in GitHub Desktop, stage only the
+               non-content files and ignore the phantom deletes.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Locations</h3>
+          <div class="row">
+            <div><div><strong>Sync app</strong></div>
+                 <div class="muted small"><code>/Applications/Bible Notes Sync.app</code></div></div>
+          </div>
+          <div class="row">
+            <div><div><strong>Repo</strong> (git working tree)</div>
+                 <div class="muted small"><code id="loc-repo">—</code></div></div>
+            <button class="btn" data-open-path="repo" data-tooltip="Reveal in Finder">Open ↗</button>
+          </div>
+          <div class="row">
+            <div><div><strong>Notes</strong> (what Octarine reads/writes)</div>
+                 <div class="muted small"><code id="loc-notes">—</code></div></div>
+            <button class="btn" data-open-path="notes" data-tooltip="Reveal in Finder">Open ↗</button>
+          </div>
+          <div class="row">
+            <div><div><strong>Sync log</strong></div>
+                 <div class="muted small"><code id="loc-log">—</code></div></div>
+            <button class="btn" data-open-path="log" data-tooltip="Open log file">Open ↗</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Recovery</h3>
+          <div class="muted small">
+            <p>If git stops working (e.g. "Can't find meatnotes" in GitHub Desktop),
+               your <code>.git</code> pointer may have been removed. This usually
+               means the repo has somehow drifted back into an iCloud-managed location.
+               Run a Sync Now first — it will self-heal if possible. If that doesn't
+               resolve it, use the Repair button below.</p>
+            <div class="card-actions">
+              <button class="btn" id="btn-repair-git" data-tooltip="Re-verify git pointer and remotes">Repair git pointer</button>
+            </div>
+            <div id="repair-status" class="muted small" style="margin-top:6px;"></div>
+          </div>
         </div>
       </section>
     </main>

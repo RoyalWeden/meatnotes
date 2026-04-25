@@ -30,6 +30,9 @@ contextBridge.exposeInMainWorld('api', {
   migrateGit:      (opts) => invoke('migrate-git', opts || {}),
   saveLfsManual:   (data) => invoke('save-lfs-manual', data || {}),
   organizeWebsite: (opts) => invoke('organize-website', opts || {}),
+  getLocations:    () => invoke('get-locations'),
+  openPath:        (which) => send('open-path', which),
+  repairGitPointer:() => invoke('repair-git-pointer'),
 
   // Actions
   syncNow:         (msg) => send('trigger-sync', msg),

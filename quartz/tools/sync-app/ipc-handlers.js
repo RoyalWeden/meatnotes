@@ -202,6 +202,80 @@ function registerIPC() {
 
   ipcMain.handle('get-site-version', () => getSiteVersion());
 
+  // ── Locations / Recovery (How it works pane) ──────────────────────────
+  ipcMain.handle('get-locations', () => {
+    const contentLink = path.join(REPO_DIR, 'content');
+    let notesPath = contentLink;
+    try {
+      const fs = require('fs');
+      if (fs.lstatSync(contentLink).isSymbolicLink()) {
+        notesPath = fs.readlinkSync(contentLink);
+      }
+    } catch {}
+    return {
+      app: '/Applications/Bible Notes Sync.app',
+      repo: REPO_DIR,
+      notes: notesPath,
+      log: LOG_FILE,
+    };
+  });
+
+  ipcMain.on('open-path', (_e, which) => {
+    try {
+      const locsPromise = (async () => ({
+        app: '/Applications/Bible Notes Sync.app',
+        repo: REPO_DIR,
+        notes: (() => {
+          const contentLink = path.join(REPO_DIR, 'content');
+          try {
+            const fs = require('fs');
+            if (fs.lstatSync(contentLink).isSymbolicLink()) {
+              return fs.readlinkSync(contentLink);
+            }
+            return contentLink;
+          } catch { return contentLink; }
+        })(),
+        log: LOG_FILE,
+      }))();
+      locsPromise.then(locs => {
+        const target = locs[which];
+        if (!target) return;
+        if (which === 'log') shell.showItemInFolder(target);
+        else shell.openPath(target);
+      });
+    } catch {}
+  });
+
+  ipcMain.handle('repair-git-pointer', async () => {
+    const fs = require('fs');
+    const gitPath = path.join(REPO_DIR, '.git');
+    const externalStore = '/Users/roywe/.local/share/meatnotes-git';
+    try {
+      // Case 1: .git is a real directory — the repo is healthy, nothing to do.
+      const stat = fs.existsSync(gitPath) ? fs.lstatSync(gitPath) : null;
+      if (stat && stat.isDirectory()) {
+        return { ok: true, action: 'none', message: '.git is a real directory — already healthy' };
+      }
+      // Case 2: .git pointer text file exists — verify it points somewhere real.
+      if (stat && stat.isFile()) {
+        const content = fs.readFileSync(gitPath, 'utf8').trim();
+        const m = content.match(/^gitdir:\s*(.+)$/);
+        if (m && fs.existsSync(m[1])) {
+          return { ok: true, action: 'verified', message: `.git pointer → ${m[1]} (valid)` };
+        }
+        // Invalid pointer — rewrite to known external store
+      }
+      // Case 3: .git missing or invalid — rewrite pointer (if external store exists)
+      if (fs.existsSync(externalStore)) {
+        fs.writeFileSync(gitPath, `gitdir: ${externalStore}\n`);
+        return { ok: true, action: 'rewrote-pointer', message: `Rewrote .git pointer → ${externalStore}` };
+      }
+      return { ok: false, error: 'No .git directory and no external store found. Manual recovery needed.' };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
   // ── iCloud maintenance ────────────────────────────────────────────────
   ipcMain.handle('get-git-location', () => ({
     ...describeGitLocation(REPO_DIR),

@@ -110,7 +110,45 @@ function showPane(name) {
   if (name === 'logs')    refreshLogs();
   if (name === 'bg')      refreshBg();
   if (name === 'settings') { refreshSettings(); refreshGitLocation(); }
+  if (name === 'howto')    refreshHowTo();
 }
+
+async function refreshHowTo() {
+  try {
+    const locs = await window.api.getLocations();
+    if (!locs) return;
+    const setText = (id, val) => { const el = $(`#${id}`); if (el) el.textContent = val; };
+    setText('loc-repo',  locs.repo);
+    setText('loc-notes', locs.notes);
+    setText('loc-log',   locs.log);
+  } catch {}
+}
+
+// Open-path buttons (anywhere in the UI)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-open-path]');
+  if (!btn) return;
+  window.api.openPath(btn.dataset.openPath);
+});
+
+// Repair git pointer
+$('#btn-repair-git')?.addEventListener('click', async () => {
+  const btn = $('#btn-repair-git');
+  const status = $('#repair-status');
+  btn.disabled = true;
+  if (status) status.textContent = 'Checking…';
+  try {
+    const res = await window.api.repairGitPointer();
+    if (status) {
+      status.textContent = res.ok
+        ? `✓ ${res.message}`
+        : `✗ ${res.error}`;
+      status.style.color = res.ok ? '' : '#c33';
+    }
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 $$('.nav-item').forEach(btn => btn.addEventListener('click', () => showPane(btn.dataset.pane)));
 

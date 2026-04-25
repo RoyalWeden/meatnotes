@@ -7,7 +7,7 @@ import { Root as HTMLRoot } from "hast"
 import { MarkdownContent, ProcessedContent } from "../plugins/vfile"
 import { PerfTimer } from "../util/perf"
 import { read } from "to-vfile"
-import { FilePath, QUARTZ, slugifyFilePath } from "../util/path"
+import { FilePath, FullSlug, QUARTZ, slugifyFilePath } from "../util/path"
 import path from "path"
 import workerpool, { Promise as WorkerPromise } from "workerpool"
 import { QuartzLogger } from "../util/log"
@@ -106,6 +106,17 @@ export function createFileParser(ctx: BuildCtx, fps: FilePath[]) {
 
         const ast = processor.parse(file)
         const newAst = await processor.run(ast, file)
+
+        // Round-4 fork: honor a `slug:` frontmatter override so files in
+        // content/Website/ can keep their root-level URLs (e.g. All-Notes.md
+        // lives at content/Website/All-Notes.md but is served at /All-Notes).
+        // Runs AFTER the transformer pipeline so FrontMatter has populated
+        // file.data.frontmatter. See plan: Round-4 Phase B.
+        const fmSlug = (file.data.frontmatter as any)?.slug
+        if (typeof fmSlug === "string" && fmSlug.length > 0) {
+          file.data.slug = fmSlug as FullSlug
+        }
+
         res.push([newAst, file])
 
         if (argv.verbose) {

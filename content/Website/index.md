@@ -2,6 +2,7 @@
 title: Straitisthegate.net Meat Notes
 locked: true
 
+slug: index
 ---
 
 

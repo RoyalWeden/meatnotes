@@ -1,42 +1,66 @@
+@use "../../styles/variables.scss" as *;
+
 .home-sections {
   margin-top: 1.5rem;
 
   .site-description {
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     color: var(--darkgray);
+    font-size: 1.02rem;
+    line-height: 1.55;
 
     .site-ref-link {
       color: inherit;
       font-weight: inherit;
       text-decoration: underline;
-      text-decoration-color: var(--gray);
-      text-underline-offset: 2px;
+      text-decoration-color: color-mix(in srgb, var(--gray) 60%, transparent);
+      text-underline-offset: 3px;
     }
   }
 
+  // Apple-style section heading: heavier, tighter tracking, less margin.
   h2 {
     margin-top: 0;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--gray);
+    text-transform: uppercase;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.02em;
   }
 
   .sections-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
 
+    // Hairline dividers — Apple-document feel.
     th,
     td {
-      padding: 0.4rem 0.6rem;
+      padding: 0.55rem 0.6rem;
       text-align: left;
-      border-bottom: 1px solid var(--lightgray);
+      border-bottom: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
       vertical-align: middle;
+    }
+
+    tbody tr {
+      transition: background-color 0.12s ease;
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--darkgray) 4%, transparent);
+      }
     }
 
     th {
       color: var(--gray);
-      font-size: 0.85em;
+      font-size: 0.7rem;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom-color: color-mix(in srgb, var(--darkgray) 14%, transparent);
     }
 
     // Emoji column — tight
@@ -53,6 +77,7 @@
       width: 4.5rem;
       color: var(--gray);
       font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
     }
 
     // Hide description column on small screens
@@ -64,11 +89,12 @@
   }
 
   .sections-total {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--gray);
-    margin: 0.25rem 0 1rem 0;
+    margin: 0 0 1.25rem 0;
   }
 
+  // Today's Daily Note — chip-style button matching DailyNoteNav vocabulary.
   .today-link-wrap {
     margin: 0;
     position: relative;
@@ -80,33 +106,33 @@
     a {
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
-      font-size: 0.9rem;
-      padding: 0.3rem 0.75rem;
-      border: 1px solid var(--lightgray);
-      border-radius: 6px;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.4rem 0.95rem;
+      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+      border-radius: 999px;
       text-decoration: none;
-      color: var(--secondary);
-      transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+      color: var(--accent);
+      transition: background-color 0.12s ease, border-color 0.12s ease, opacity 0.12s ease;
 
       &:hover {
-        background-color: var(--light);
-        border-color: var(--gray);
+        background: var(--accent-soft);
+        border-color: color-mix(in srgb, var(--accent) 35%, transparent);
       }
 
       &.today-no-note {
-        opacity: 0.45;
+        opacity: 0.5;
         cursor: default;
         pointer-events: none;
+        color: var(--gray);
 
-        // Re-enable pointer events only for the tooltip to work via the wrapper
         & + .today-tooltip {
           pointer-events: none;
         }
       }
     }
 
-    // Hover wrapper trick: the <p> itself gets hover, not the disabled <a>
     &:hover .today-tooltip {
       opacity: 1;
       transform: translateY(0);
@@ -115,19 +141,19 @@
 
     .today-tooltip {
       position: absolute;
-      bottom: calc(100% + 6px);
+      bottom: calc(100% + 8px);
       left: 0;
-      background: var(--darkgray);
+      background: color-mix(in srgb, var(--darkgray) 92%, transparent);
       color: var(--light);
-      font-size: 0.78rem;
-      padding: 0.3rem 0.65rem;
-      border-radius: 5px;
+      font-size: 0.74rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: $radius-sm;
       white-space: nowrap;
       opacity: 0;
       transform: translateY(4px);
       transition: opacity 0.18s ease, transform 0.18s ease;
       pointer-events: none;
-      display: none; // hidden by default; JS will set display:block when note doesn't exist
+      display: none;
 
       &::after {
         content: '';
@@ -135,19 +161,25 @@
         top: 100%;
         left: 1rem;
         border: 5px solid transparent;
-        border-top-color: var(--darkgray);
+        border-top-color: color-mix(in srgb, var(--darkgray) 92%, transparent);
       }
     }
 
+    // Apple-style popover for "no daily note" state — translucent surface,
+    // hairline edge, soft layered shadow.
     .today-popup {
       display: none;
-      background: var(--light);
-      border: 1px solid var(--lightgray);
-      border-radius: 8px;
-      padding: 0.6rem 0.85rem;
+      background: color-mix(in srgb, var(--light) 92%, transparent);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: none;
+      border-radius: $radius-md;
+      padding: 0.75rem 1rem;
       font-size: 0.85rem;
       color: var(--darkgray);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.08),
+        0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
       max-width: 280px;
       gap: 0.5rem;
       flex-direction: column;
@@ -161,19 +193,19 @@
 
     .today-popup-dismiss {
       margin-top: 0.3rem;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.65rem;
-      border: 1px solid var(--lightgray);
-      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.3rem 0.85rem;
+      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+      border-radius: 999px;
       background: transparent;
       cursor: pointer;
-      color: var(--gray);
+      color: var(--accent);
       font-family: inherit;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: background-color 0.12s ease;
 
       &:hover {
-        background: var(--lightgray);
-        color: var(--darkgray);
+        background: var(--accent-soft);
       }
     }
   }

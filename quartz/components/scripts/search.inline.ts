@@ -2708,6 +2708,17 @@ async function fillDocument(data: ContentIndex) {
 }
 
 document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
+  // Defensive scroll-lock reset: if a previous page left the body locked
+  // (e.g. SPA-nav fired while a modal/sheet was open and its close handler
+  // didn't run), scroll would silently break for the rest of the session.
+  // Always start each navigation from a clean body-style baseline.
+  document.body.style.overflow = ""
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.width = ""
+  document.body.style.paddingRight = ""
+  document.documentElement.style.overflow = ""
+
   const currentSlug = e.detail.url
   const data = await fetchData
   const searchElement = document.getElementsByClassName("search")

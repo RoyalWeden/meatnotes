@@ -130,19 +130,36 @@ export default ((userOpts?: Partial<Options>) => {
         <template id="template-folder">
           <li>
             <div class="folder-container">
+              {/* Chevron keeps `.folder-icon` class so the existing rotate-on-open
+                  CSS keeps working. Smaller for the Finder/Notes feel. */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
+                width="10"
+                height="10"
                 viewBox="5 8 14 8"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 class="folder-icon"
               >
                 <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              {/* Folder shape — Apple Notes/Finder vocabulary. Color follows
+                  --gray by default, --accent when the folder is open or
+                  contains the active note. */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                stroke="none"
+                class="folder-glyph"
+                aria-hidden="true"
+              >
+                <path d="M3 6.5C3 5.67 3.67 5 4.5 5h4.04c.4 0 .78.16 1.06.44l1.46 1.46c.28.28.66.44 1.06.44H19.5c.83 0 1.5.67 1.5 1.5v9.66c0 .83-.67 1.5-1.5 1.5h-15c-.83 0-1.5-.67-1.5-1.5V6.5z" />
               </svg>
               <div>
                 <button class="folder-button">

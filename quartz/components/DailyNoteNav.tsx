@@ -20,19 +20,24 @@ DailyNoteNav.css = `
   align-items: center;
   padding: 1rem 0;
   margin-top: 2rem;
-  border-top: 1px solid var(--lightgray);
-  font-size: 0.9rem;
+  border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
+  font-size: 0.85rem;
 }
+/* Apple-style nav chips: hairline pill buttons, accent on hover. */
 #daily-note-nav a {
-  color: var(--secondary);
+  color: var(--accent);
   text-decoration: none;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid var(--lightgray);
-  border-radius: 4px;
+  padding: 0.35rem 0.85rem;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 999px;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
 }
-#daily-note-nav a:hover { background: var(--highlight); }
+#daily-note-nav a:hover {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
 #daily-note-nav a.hidden { visibility: hidden; }
-#daily-current { color: var(--gray); font-size: 0.8rem; }
+#daily-current { color: var(--gray); font-size: 0.78rem; letter-spacing: 0.01em; }
 `
 
 DailyNoteNav.afterDOMLoaded = `

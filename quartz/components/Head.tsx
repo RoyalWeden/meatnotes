@@ -59,7 +59,10 @@ export default (() => {
           </>
         )}
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* viewport-fit=cover enables `env(safe-area-inset-*)` on notched
+            devices, which the floating mobile FABs and PWA standalone mode
+            below rely on to clear the home indicator + dynamic island. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
         <meta name="og:site_name" content={cfg.pageTitle}></meta>
         <meta property="og:title" content={title} />
@@ -92,6 +95,25 @@ export default (() => {
 
         <link rel="icon" type="image/png" href={`${iconPath}?v=${Date.now()}`} />
         <link rel="apple-touch-icon" href={`${iconPath}?v=${Date.now()}`} />
+
+        {/* PWA manifest + theme — keeps Add-to-Home Screen launches looking
+            native on iOS/Android. Light + dark theme-color so the iOS status
+            bar and Android URL-bar background follow the system appearance. */}
+        <link rel="manifest" href="/static/manifest.webmanifest" />
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
+
+        {/* iOS Add-to-Home polish: standalone mode (no Safari chrome),
+            translucent black status bar so the toolbar's blur shows through,
+            and a friendly app title on the home screen icon. */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="sitgmeat" />
+        <meta name="application-name" content="sitgmeat" />
+        <meta name="format-detection" content="telephone=no" />
+
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 

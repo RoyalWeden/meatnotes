@@ -26,10 +26,10 @@ body {
 .text-highlight {
   background-color: var(--textHighlight);
   padding: 0 0.1rem;
-  border-radius: 5px;
+  border-radius: $radius-sm;
 }
 ::selection {
-  background: color-mix(in srgb, var(--tertiary) 60%, rgba(255, 255, 255, 0));
+  background: color-mix(in srgb, var(--accent, var(--secondary)) 28%, transparent);
   color: var(--darkgray);
 }
 
@@ -82,24 +82,29 @@ strong {
 }
 
 a {
-  font-weight: $semiBoldWeight;
+  // Body links inherit weight (regular) and use --link (slightly muted blue).
+  // Wikilinks (.internal) stay semibold and accent-tinted because they're the
+  // page's visual "chip" affordance, not running prose.
+  font-weight: inherit;
   text-decoration: none;
   transition: color 0.2s ease;
-  color: var(--secondary);
+  color: var(--link, var(--secondary));
 
   &:hover {
-    color: var(--tertiary);
+    color: var(--link-hover, var(--tertiary));
   }
 
   &.internal {
     text-decoration: none;
     background-color: var(--highlight);
     padding: 0 0.1rem;
-    border-radius: 5px;
+    border-radius: $radius-sm;
     line-height: 1.4rem;
+    font-weight: $semiBoldWeight;
+    color: var(--accent, var(--secondary));
 
     &.broken {
-      color: var(--secondary);
+      color: var(--accent, var(--secondary));
       opacity: 0.5;
       transition: opacity 0.2s ease;
       &:hover {
@@ -162,6 +167,30 @@ a {
 .page {
   max-width: calc(#{map.get($breakpoints, desktop)} + 300px);
   margin: 0 auto;
+
+  // Apple long-form reading width on note bodies. Content.tsx renders
+  //   <article class="popover-hint ...frontmatter-cssclasses">
+  // for note pages — list pages (FolderContent/TagContent) wrap their article
+  // in a .popover-hint *div* (not on the article itself), so this selector
+  // intentionally misses them and they keep using the full center column.
+  // Landing + custom full-page surfaces opt out via body slug. Wide elements
+  // inside note bodies opt out via `.wide` (handled in Phase 4 styles).
+  & .center > article.popover-hint {
+    max-width: var(--reading-width, 42rem);
+    margin-inline: auto;
+  }
+
+  body[data-slug="index"] & .center > article.popover-hint,
+  body[data-slug="Search"] & .center > article.popover-hint,
+  body[data-slug="All-Notes"] & .center > article.popover-hint,
+  body[data-slug="Bible-Reader"] & .center > article.popover-hint,
+  body[data-slug="Verse-Chain"] & .center > article.popover-hint,
+  body[data-slug="Dashboard"] & .center > article.popover-hint,
+  body[data-slug="Books-and-PDFs"] & .center > article.popover-hint,
+  body[data-slug="Graph"] & .center > article.popover-hint {
+    max-width: 100%;
+  }
+
   & article {
     & > h1 {
       font-size: 2rem;
@@ -235,13 +264,31 @@ a {
       z-index: 1;
       grid-area: grid-sidebar-left;
       flex-direction: column;
+
+      // Notes.app-style sidebar on desktop: subtle right hairline separating
+      // the sidebar column from the content column, and hairline dividers
+      // between stacked sections (PageTitle / DailyCalendar / ExplorerTopLinks
+      // / Explorer). The :not() opt-outs preserve mobile row layout.
+      @media all and ($desktop) {
+        border-right: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
+
+        & > *:not(:first-child):not(.spacer):not(.flex-component) {
+          border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 8%, transparent);
+          padding-top: 1rem;
+        }
+      }
+
       @media all and ($mobile) {
         z-index: 102;
         gap: 0;
         align-items: center;
         position: sticky;
         top: 0;
-        background: var(--light);
+        // Translucent mobile toolbar — content blurs underneath as user scrolls.
+        background: color-mix(in srgb, var(--light) 72%, transparent);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
         display: flex;
         height: unset;
         flex-direction: row;
@@ -290,16 +337,14 @@ a {
       @media all and ($desktop) {
         margin-top: 0;
         position: static;
-        // Only the <header> element (search bar) breaks out to full width and
-        // becomes sticky. The popover-hint (breadcrumbs/title) stays in the
-        // center column and scrolls normally.
+        // Only the <header> element (search bar) is sticky. It now spans its
+        // grid column naturally — like Notes.app / Mail.app toolbars — instead
+        // of the old 75vw breakout. Translucent material is applied in
+        // custom.scss so it blurs content as it scrolls beneath.
         & > header {
           position: sticky;
           top: 0;
           z-index: 100;
-          background: var(--light);
-          width: 75vw;
-          margin-left: calc(50% - 37.5vw);
           margin-top: 0;
           margin-bottom: 0;
         }
@@ -463,7 +508,7 @@ figure[data-rehype-pretty-code-figure] {
     padding: 0.1rem 0.5rem;
     border: 1px solid var(--lightgray);
     width: fit-content;
-    border-radius: 5px;
+    border-radius: $radius-sm;
     margin-bottom: -0.5rem;
     color: var(--darkgray);
   }
@@ -476,9 +521,12 @@ figure[data-rehype-pretty-code-figure] {
 pre {
   font-family: var(--codeFont);
   padding: 0 0.5rem;
-  border-radius: 5px;
+  border-radius: $radius-md;
   overflow-x: auto;
-  border: 1px solid var(--lightgray);
+  // Subtle hairline — Apple-style code blocks lean on tint + radius for
+  // separation, not a heavy 1px gray border.
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  background: color-mix(in srgb, var(--darkgray) 4%, transparent);
   position: relative;
 
   &:has(> code.mermaid) {
@@ -497,7 +545,7 @@ pre {
 
     & [data-highlighted-chars] {
       background-color: var(--highlight);
-      border-radius: 5px;
+      border-radius: $radius-sm;
     }
 
     & > [data-line] {
@@ -535,7 +583,7 @@ code {
   font-size: 0.9em;
   color: var(--dark);
   font-family: var(--codeFont);
-  border-radius: 5px;
+  border-radius: $radius-sm;
   padding: 0.1rem 0.2rem;
   background: var(--lightgray);
 }
@@ -584,7 +632,7 @@ tr {
 
 img {
   max-width: 100%;
-  border-radius: 5px;
+  border-radius: $radius-md;
   margin: 1rem 0;
   content-visibility: auto;
 }
@@ -597,15 +645,29 @@ p > img + em {
 hr {
   width: 100%;
   margin: 2rem auto;
-  height: 1px;
+  height: 0.5px;
   border: none;
-  background-color: var(--lightgray);
+  background-color: color-mix(in srgb, var(--darkgray) 12%, transparent);
+}
+
+// The structural <hr> rendered between Content and .page-footer in renderPage
+// is redundant noise on landing/custom pages where the page-footer hosts a
+// full-bleed component (HomeSections, FullSearch, etc).
+body[data-slug="index"] .center > hr,
+body[data-slug="Search"] .center > hr,
+body[data-slug="All-Notes"] .center > hr,
+body[data-slug="Bible-Reader"] .center > hr,
+body[data-slug="Verse-Chain"] .center > hr,
+body[data-slug="Dashboard"] .center > hr,
+body[data-slug="Books-and-PDFs"] .center > hr,
+body[data-slug="Graph"] .center > hr {
+  display: none;
 }
 
 audio,
 video {
   width: 100%;
-  border-radius: 5px;
+  border-radius: $radius-md;
 }
 
 .spacer {
@@ -655,7 +717,7 @@ iframe.pdf {
   aspect-ratio: 16 / 9;
   height: 100%;
   width: 100%;
-  border-radius: 5px;
+  border-radius: $radius-md;
 }
 
 .navigation-progress {
@@ -759,4 +821,18 @@ iframe.pdf {
   overflow-y: auto;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
   animation: fadeSlideUp 0.3s $spring;
+}
+
+// Honor the system "Reduce Motion" preference. Springs collapse to instant,
+// transitions become near-immediate, scroll snaps. Anything that *must* still
+// move (e.g. drag-to-dismiss) should opt back in with its own media query.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

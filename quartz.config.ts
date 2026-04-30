@@ -28,26 +28,29 @@ const config: QuartzConfig = {
         code: "IBM Plex Mono",
       },
       colors: {
+        // macOS / iOS system palette. Components consume var(--accent)
+        // (defined in custom.scss) instead of --secondary going forward.
+        // --secondary is kept for token compatibility and defaults to system blue.
         lightMode: {
-          light: "#faf8f8",
-          lightgray: "#e5e5e5",
-          gray: "#b8b8b8",
-          darkgray: "#4e4e4e",
-          dark: "#2b2b2b",
-          secondary: "#284b63",
-          tertiary: "#84a59d",
-          highlight: "rgba(143, 159, 169, 0.15)",
-          textHighlight: "#fff23688",
+          light: "#ffffff",
+          lightgray: "#e5e5ea", // system gray 5
+          gray: "#aeaeb2", // system gray 2
+          darkgray: "#3c3c43", // system gray 1 (label)
+          dark: "#1d1d1f", // apple.com near-black
+          secondary: "#007aff", // system blue
+          tertiary: "#5ac8fa", // system teal (link hover)
+          highlight: "rgba(0, 122, 255, 0.10)",
+          textHighlight: "#ffe58f88",
         },
         darkMode: {
-          light: "#1c1c1e",
-          lightgray: "#3a3a3c",
-          gray: "#8e8e93",
-          darkgray: "#e5e5e7",
-          dark: "#f2f2f7",
-          secondary: "#64a5d6",
-          tertiary: "#84a59d",
-          highlight: "rgba(100, 165, 214, 0.12)",
+          light: "#1c1c1e", // system background dark
+          lightgray: "#2c2c2e", // grouped background dark
+          gray: "#8e8e93", // system gray
+          darkgray: "#ebebf0", // label dark
+          dark: "#f5f5f7", // primary text dark
+          secondary: "#0a84ff", // system blue dark
+          tertiary: "#64d2ff", // system teal dark
+          highlight: "rgba(10, 132, 255, 0.14)",
           textHighlight: "#b3aa0288",
         },
       },

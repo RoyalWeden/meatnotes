@@ -7,26 +7,30 @@
   }
 }
 
-// ── Gear FAB ──
+// ── Gear FAB — iOS glass chip, sits above home indicator via safe-area ──
 .mobile-settings-fab {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  right: max(1.25rem, env(safe-area-inset-right, 0px));
   z-index: 300;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: none;
-  background: color-mix(in srgb, var(--light) 85%, transparent);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px color-mix(in srgb, var(--lightgray) 50%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  background: color-mix(in srgb, var(--light) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--darkgray);
-  transition: transform $transition-normal $spring, box-shadow $transition-fast ease;
+  transition: transform $transition-normal $spring, box-shadow $transition-fast ease, background-color $transition-fast ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--light) 95%, transparent);
+  }
 
   &:active {
     transform: scale(0.92);
@@ -65,18 +69,22 @@
   }
 }
 
-// ── Bottom Sheet ──
+// ── Bottom Sheet — iOS glass surface w/ inset hairline edge ──
 .mobile-settings-sheet {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 999;
-  background: var(--light);
+  background: color-mix(in srgb, var(--light) 92%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   border-radius: $radius-lg $radius-lg 0 0;
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 -10px 40px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
   transform: translateY(100%);
-  transition: transform $transition-slow $ease-out;
+  transition: transform $transition-slow $spring;
   padding: 0 24px 32px;
   // Safe area padding for iOS
   padding-bottom: max(32px, env(safe-area-inset-bottom));
@@ -89,8 +97,8 @@
 .mobile-settings-handle {
   width: 36px;
   height: 4px;
-  border-radius: 2px;
-  background: var(--lightgray);
+  border-radius: $radius-pill;
+  background: color-mix(in srgb, var(--darkgray) 22%, transparent);
   margin: 10px auto 20px;
 }
 

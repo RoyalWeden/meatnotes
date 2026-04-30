@@ -1,6 +1,10 @@
 .content-meta {
-  margin-top: 0;
-  color: var(--darkgray);
+  /* Apple-article meta line: small, dimmed, sits tight under the title with
+     a calm separator dot. Reads as a single quiet ribbon, not a stack. */
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.5;
 
   &[show-comma="true"] {
     > *:not(:last-child) {

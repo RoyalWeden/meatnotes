@@ -26,18 +26,20 @@ const TagList: QuartzComponent = ({ fileData, displayClass }: QuartzComponentPro
 
 TagList.css = `
 .tags {
+  /* Apple-article inline pills: small, accent-soft, sit tight under the
+     content meta line as a continuation of the same dimmed ribbon. */
   list-style: none;
   display: flex;
   padding-left: 0;
-  gap: 0.4rem;
-  margin: 1rem 0;
+  gap: 0.35rem;
+  margin: 0 0 1.5rem 0;
   flex-wrap: wrap;
 }
 
 .section-li > .section > .tags {
   justify-content: flex-end;
 }
-  
+
 .tags > li {
   display: inline-block;
   white-space: nowrap;
@@ -46,10 +48,19 @@ TagList.css = `
 }
 
 a.internal.tag-link {
-  border-radius: 8px;
-  background-color: var(--highlight);
-  padding: 0.2rem 0.4rem;
-  margin: 0 0.1rem;
+  border-radius: 999px;
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.15rem 0.55rem;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.5;
+  transition: background-color 0.15s ease;
+}
+
+a.internal.tag-link:hover {
+  background-color: var(--accent-tint);
 }
 `
 

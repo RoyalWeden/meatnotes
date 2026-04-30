@@ -38,16 +38,21 @@ const ShortlinkButton: QuartzComponent = ({ fileData, cfg }: QuartzComponentProp
 }
 
 ShortlinkButton.css = `
+/* iOS-style glass FAB matching BackToTop + MobileSettings vocabulary.
+   Stacks left of BackToTop so the three FABs sit in a clean horizontal row
+   on mobile (right→left: MobileSettings · BackToTop · Shortlink). */
 #shortlink-btn {
   position: fixed;
-  bottom: 2rem;
-  right: 5rem;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  right: max(1.25rem, env(safe-area-inset-right, 0px));
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: var(--secondary);
-  color: var(--light);
-  border: none;
+  background: color-mix(in srgb, var(--light) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--accent);
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
   cursor: pointer;
   opacity: 1;
   pointer-events: all;
@@ -56,17 +61,29 @@ ShortlinkButton.css = `
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+/* Desktop: shortlink sits left of MobileSettings FAB (which doesn't render on
+   desktop); stick to bottom-right with a small offset. */
+@media (min-width: 801px) {
+  #shortlink-btn { right: 3.75rem; }
+}
+/* Mobile: stack three FABs from right edge (MobileSettings → BackToTop → Shortlink). */
+@media (max-width: 800px) {
+  #shortlink-btn {
+    right: calc(max(1.25rem, env(safe-area-inset-right, 0px)) + 7rem);
+  }
 }
 #shortlink-btn:hover {
-  opacity: 0.85;
-  transform: scale(1.05);
+  background: color-mix(in srgb, var(--light) 95%, transparent);
 }
 #shortlink-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 #shortlink-btn.copied {
-  background: var(--tertiary);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: transparent;
 }
 body.pdf-viewer-open #shortlink-btn {
   opacity: 0;
@@ -77,11 +94,11 @@ body.pdf-viewer-open #shortlink-btn {
   bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--darkgray);
+  background: color-mix(in srgb, var(--darkgray) 92%, transparent);
   color: var(--light);
   font-size: 0.7rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;

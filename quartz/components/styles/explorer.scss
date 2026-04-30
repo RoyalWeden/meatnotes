@@ -130,37 +130,59 @@ button.desktop-explorer {
       overscroll-behavior: contain;
     }
 
+    // Note (file) rows — Apple Finder/Notes feel: tight 28px row height,
+    // dimmed text, full-row pill background on hover/active.
     & li > a {
-      color: var(--dark);
-      opacity: 0.75;
+      color: var(--darkgray);
+      opacity: 0.85;
       pointer-events: all;
+      display: block;
+      padding: 4px 8px 4px 26px; // align with folder rows (chevron + glyph + gap)
+      border-radius: 6px;
+      line-height: 1.35;
+      font-size: 0.88rem;
+      transition: background-color 0.12s ease, color 0.12s ease, opacity 0.12s ease;
 
+      &:hover {
+        background: color-mix(in srgb, var(--darkgray) 5%, transparent);
+        color: var(--dark);
+        opacity: 1;
+      }
+
+      // Active note: full-row accent pill, accent text, semibold.
       &.active {
         opacity: 1;
-        color: var(--tertiary);
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
       }
     }
   }
 
+  // Smooth height + fade animation: ~180ms snappy with the calm $spring.
+  // grid-template-rows: 0fr → 1fr expands height; opacity fades content.
   .folder-outer {
     visibility: collapse;
     display: grid;
     grid-template-rows: 0fr;
-    transition-property: grid-template-rows, visibility;
-    transition-duration: 0.3s;
-    transition-timing-function: ease-in-out;
+    opacity: 0;
+    transition-property: grid-template-rows, opacity, visibility;
+    transition-duration: 180ms;
+    transition-timing-function: $spring;
   }
 
   .folder-outer.open {
     visibility: visible;
     grid-template-rows: 1fr;
+    opacity: 1;
   }
 
+  // Indentation hairline guide — subtle, like Finder's column connector.
   .folder-outer > ul {
     overflow: hidden;
-    margin-left: 6px;
-    padding-left: 0.8rem;
-    border-left: 1px solid var(--lightgray);
+    margin-left: 12px;
+    padding-left: 0.6rem;
+    border-left: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
   }
 }
 
@@ -169,22 +191,32 @@ button.desktop-explorer {
   display: flex;
   align-items: center;
   user-select: none;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  transition: background-color 0.12s ease;
+
+  // Hover: subtle row tint matching note rows.
+  &:hover {
+    background: color-mix(in srgb, var(--darkgray) 5%, transparent);
+  }
 
   & div > a {
-    color: var(--secondary);
+    color: var(--darkgray);
     font-family: var(--headerFont);
-    font-size: 0.95rem;
-    font-weight: $semiBoldWeight;
-    line-height: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
     display: inline-block;
+    text-decoration: none;
   }
 
   & div > a:hover {
-    color: var(--tertiary);
+    color: var(--accent);
   }
 
   & div > button {
-    color: var(--dark);
+    color: var(--darkgray);
     background-color: transparent;
     border: none;
     text-align: left;
@@ -196,32 +228,60 @@ button.desktop-explorer {
     font-family: var(--headerFont);
 
     & span {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       display: inline-block;
-      color: var(--secondary);
-      font-weight: $semiBoldWeight;
+      color: var(--darkgray);
+      font-weight: 600;
       margin: 0;
-      line-height: 1.5rem;
+      line-height: 1.4;
       pointer-events: none;
     }
   }
 }
 
-.folder-icon {
-  margin-right: 5px;
-  color: var(--secondary);
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  backface-visibility: visible;
-  flex-shrink: 0;
+// Folder is "active" (its lineage contains the current page) — accent text.
+.folder-container.active {
+  & div > a,
+  & div > button > span {
+    color: var(--accent);
+  }
+  & .folder-glyph {
+    color: var(--accent);
+  }
 }
 
-li:has(> .folder-outer:not(.open)) > .folder-container > svg {
+// Chevron — small, dimmed gray, rotates 90deg on open via the existing
+// :has() rule below. flex-shrink:0 prevents it from squishing.
+.folder-icon {
+  color: var(--gray);
+  cursor: pointer;
+  transition: transform 180ms $spring, color 0.12s ease;
+  backface-visibility: visible;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+}
+
+// Folder glyph — actual folder shape. Gray by default, accent when its
+// folder-outer sibling is open OR the row carries .active.
+.folder-glyph {
+  color: var(--gray);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.12s ease;
+}
+
+li:has(> .folder-outer.open) > .folder-container > .folder-glyph {
+  color: var(--accent);
+}
+
+li:has(> .folder-outer:not(.open)) > .folder-container > .folder-icon {
   transform: rotate(-90deg);
 }
 
-.folder-icon:hover {
-  color: var(--tertiary);
+.folder-icon:hover,
+.folder-glyph:hover {
+  color: var(--accent);
 }
 
 .explorer {
@@ -285,6 +345,13 @@ li:has(> .folder-outer:not(.open)) > .folder-container > svg {
   }
 }
 
-html.mobile-no-scroll {
-  overflow: hidden;
+// IMPORTANT: only lock the document scroll on mobile — the class is meant to
+// prevent scroll bleed when the mobile drawer is open. On desktop the class
+// can sneak on (e.g. from the resize listener in explorer.inline.ts when the
+// always-visible sidebar isn't "collapsed") and would silently disable
+// document scroll. Scoping to mobile prevents that bug entirely.
+@media all and ($mobile) {
+  html.mobile-no-scroll {
+    overflow: hidden;
+  }
 }

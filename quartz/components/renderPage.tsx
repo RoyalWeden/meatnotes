@@ -281,6 +281,39 @@ export function renderPage(
             <rect x="3" y="16" width="7" height="5" rx="1"/>
           </svg>
         </a>
+        {/* Hairline separator between special-page icons and top-level
+            folder icons. The folder icons mirror the four pipeline stages
+            shown on the home page + Daily. Phase 15c. */}
+        <div class="sidebar-rail-divider" aria-hidden="true"></div>
+        <a href="/00-—-Capture" class="sidebar-rail-icon" data-tooltip="Capture">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 6.5C3 5.67 3.67 5 4.5 5h4.04c.4 0 .78.16 1.06.44l1.46 1.46c.28.28.66.44 1.06.44H19.5c.83 0 1.5.67 1.5 1.5v9.66c0 .83-.67 1.5-1.5 1.5h-15c-.83 0-1.5-.67-1.5-1.5V6.5z"/>
+          </svg>
+        </a>
+        <a href="/10-—-In-Progress" class="sidebar-rail-icon" data-tooltip="In Progress">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 6.5C3 5.67 3.67 5 4.5 5h4.04c.4 0 .78.16 1.06.44l1.46 1.46c.28.28.66.44 1.06.44H19.5c.83 0 1.5.67 1.5 1.5v9.66c0 .83-.67 1.5-1.5 1.5h-15c-.83 0-1.5-.67-1.5-1.5V6.5z"/>
+          </svg>
+        </a>
+        <a href="/20-—-Complete" class="sidebar-rail-icon" data-tooltip="Complete">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M3 6.5C3 5.67 3.67 5 4.5 5h4.04c.4 0 .78.16 1.06.44l1.46 1.46c.28.28.66.44 1.06.44H19.5c.83 0 1.5.67 1.5 1.5v9.66c0 .83-.67 1.5-1.5 1.5h-15c-.83 0-1.5-.67-1.5-1.5V6.5z"/>
+          </svg>
+        </a>
+        <a href="/Copy-Paste-Rebukes" class="sidebar-rail-icon" data-tooltip="Copy-Paste Rebukes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </a>
+        <a href="/Daily" class="sidebar-rail-icon" data-tooltip="Daily Notes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </a>
       </div>
       {/* Collapse toggle — visible on hover */}
       <button class="sidebar-toggle sidebar-toggle-left pressable" data-tooltip="Collapse sidebar [" aria-label="Collapse sidebar">

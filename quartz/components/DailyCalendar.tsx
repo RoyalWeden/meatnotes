@@ -31,83 +31,211 @@ const DailyCalendar: QuartzComponent = (_props: QuartzComponentProps) => {
 }
 
 DailyCalendar.css = `
-#daily-calendar { padding: 0.5rem; font-size: 0.85rem; }
-#cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: bold; }
-#cal-nav button { background: none; border: 1px solid var(--gray); border-radius: 4px; padding: 0.1rem 0.5rem; cursor: pointer; color: var(--dark); }
-#cal-nav button:hover { background: var(--highlight); }
-#cal-title { cursor: pointer; text-decoration: underline dotted; }
-#cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-.cal-header { font-weight: bold; font-size: 0.7rem; color: var(--gray); padding: 2px; }
+/* Apple Calendar.app vocabulary:
+   - day numbers stay neutral; days with notes get a small accent dot below
+   - today is a hairline accent ring (no fill), like iOS Calendar
+   - active day fills as an accent disc (the "selected today" pattern)
+   - month-nav chevrons are quiet hairline buttons
+   - month picker uses the same chip language as the rest of the site */
+#daily-calendar { padding: 0.5rem 0; font-size: 0.85rem; }
+#cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--dark);
+}
+#cal-nav button {
+  background: transparent;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 999px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray);
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+#cal-nav button:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+#cal-title {
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+#cal-title:hover { color: var(--accent); }
+#cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+.cal-header {
+  font-weight: 600;
+  font-size: 0.62rem;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 0 2px 0;
+}
 .cal-day {
+  position: relative;
   padding: 0;
-  border-radius: 3px;
+  border-radius: 999px;
   font-size: 0.8rem;
   color: var(--dark);
-  min-height: 20px;
+  min-height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.12s ease, color 0.12s ease;
 }
-.cal-day.has-note {
-  cursor: pointer;
-}
+/* Days with notes: neutral number color + small accent dot below.
+   The link is the full-cell hit area but stays calm visually. */
+.cal-day.has-note { cursor: pointer; }
 .cal-day.has-note a {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  min-height: 20px;
-  color: var(--secondary);
-  font-weight: bold;
+  min-height: 26px;
+  color: var(--dark);
+  font-weight: 500;
   text-decoration: none;
-  padding: 3px 2px;
+  padding: 0;
+  position: relative;
 }
-.cal-day.has-note:hover {
-  background: var(--highlight);
+.cal-day.has-note a::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
 }
-.cal-day.empty { color: var(--lightgray); }
-.cal-day.today { background: var(--highlight); border: 1px solid var(--secondary); }
-.cal-day.active a { background: var(--secondary); color: var(--light) !important; border-radius: 3px; padding: 1px 3px; }
-#cal-picker { background: var(--light); border: 1px solid var(--lightgray); border-radius: 6px; padding: 0.5rem; margin-top: 0.5rem; }
-.cal-picker-year { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 0.5rem; }
-.cal-picker-year button { background: none; border: 1px solid var(--gray); border-radius: 4px; padding: 0.1rem 0.4rem; cursor: pointer; color: var(--dark); }
-.cal-picker-months { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-.cal-picker-month { background: none; border: 1px solid var(--lightgray); border-radius: 4px; padding: 0.2rem; cursor: pointer; font-size: 0.8rem; color: var(--dark); }
-.cal-picker-month:hover { background: var(--highlight); }
-.cal-picker-month.active { background: var(--secondary); color: var(--light); border-color: var(--secondary); }
+.cal-day.has-note:hover { background: color-mix(in srgb, var(--darkgray) 6%, transparent); }
+.cal-day.empty { color: var(--gray); opacity: 0.45; }
+/* Today: hairline accent ring around the date — Calendar.app's "today" mark. */
+.cal-day.today {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+/* Active (selected) day: filled accent disc. Overrides the today ring. */
+.cal-day.active a,
+.cal-day.active.today a {
+  background: var(--accent);
+  color: var(--accent-contrast) !important;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 600;
+}
+.cal-day.active a::after,
+.cal-day.active.today a::after {
+  background: var(--accent-contrast);
+  opacity: 0.9;
+}
+.cal-day.active.today { box-shadow: none; }
 
-/* Mobile calendar button — pill shape */
+#cal-picker {
+  background: color-mix(in srgb, var(--light) 92%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 12px;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+}
+.cal-picker-year {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.cal-picker-year button {
+  background: transparent;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray);
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+.cal-picker-year button:hover { color: var(--accent); background: var(--accent-soft); }
+.cal-picker-months { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.cal-picker-month {
+  background: transparent;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
+  border-radius: 8px;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--darkgray);
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.cal-picker-month:hover { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.cal-picker-month.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: transparent;
+}
+
+/* Mobile calendar pill — iOS glass chip matching the other FABs.
+   Sits to the left of MobileSettings/BackToTop/Shortlink in the FAB row,
+   above the safe-area inset. */
 #cal-mobile-btn {
   display: none;
   position: fixed;
-  bottom: 5rem;
-  right: 1rem;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  right: calc(max(1.25rem, env(safe-area-inset-right, 0px)) + 10.5rem);
   height: auto;
   width: auto;
-  padding: 0.65rem 1.25rem;
-  border-radius: 2rem;
-  border: none;
-  background: var(--secondary);
-  font-size: 1rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  background: color-mix(in srgb, var(--light) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  font-size: 0.85rem;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   z-index: 999;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
-  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  gap: 0.45rem;
   align-items: center;
-  color: var(--light);
+  color: var(--accent);
+  transition: background-color 0.15s ease, transform 0.12s ease;
 }
-#cal-btn-icon { font-size: 1.2rem; line-height: 1; }
-#cal-btn-label { font-size: 0.9rem; letter-spacing: 0.01em; }
+#cal-mobile-btn:hover { background: color-mix(in srgb, var(--light) 95%, transparent); }
+#cal-mobile-btn:active { transform: scale(0.96); }
+#cal-btn-icon { font-size: 1rem; line-height: 1; }
+#cal-btn-label { font-size: 0.82rem; letter-spacing: 0.01em; }
 
-/* Mobile overlay */
+/* Mobile overlay — iOS sheet-modal vocabulary */
 #cal-mobile-overlay {
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 9999;
   align-items: center;
   justify-content: center;
@@ -116,40 +244,59 @@ DailyCalendar.css = `
   display: flex;
 }
 #cal-mobile-inner {
-  background: var(--light);
-  border-radius: 12px;
+  background: color-mix(in srgb, var(--light) 92%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 16px;
   padding: 1.5rem;
   width: 90vw;
   max-width: 360px;
   position: relative;
+  box-shadow:
+    0 24px 64px -16px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
 }
 #cal-mobile-close {
   display: block;
   width: 100%;
-  background: none;
-  border: 1px solid var(--lightgray);
-  border-radius: 4px;
-  padding: 0.4rem;
-  font-size: 1rem;
+  background: transparent;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 999px;
+  padding: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
-  color: var(--dark);
+  color: var(--accent);
   margin-top: 1rem;
   text-align: center;
+  transition: background-color 0.12s ease;
 }
+#cal-mobile-close:hover { background: var(--accent-soft); }
 #cal-nav-mobile {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-  font-weight: bold;
+  margin-bottom: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 #cal-nav-mobile button {
-  background: none;
-  border: 1px solid var(--gray);
-  border-radius: 4px;
-  padding: 0.1rem 0.5rem;
+  background: transparent;
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  color: var(--dark);
+  color: var(--gray);
+  transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+}
+#cal-nav-mobile button:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 #cal-grid-mobile {
   display: grid;
@@ -164,6 +311,10 @@ DailyCalendar.css = `
   align-items: center;
   justify-content: center;
 }
+/* Mobile inherits the Apple-Calendar dot pattern from the desktop styles
+   above — has-note shows a dot below, today gets the accent ring, active
+   day fills as an accent disc. We just need to keep day numbers neutral
+   here (override the old "secondary + bold" link styling on mobile). */
 #cal-grid-mobile .cal-day.has-note a {
   display: flex;
   align-items: center;
@@ -171,9 +322,22 @@ DailyCalendar.css = `
   width: 100%;
   height: 100%;
   min-height: 36px;
-  color: var(--secondary);
-  font-weight: bold;
+  color: var(--dark);
+  font-weight: 500;
   text-decoration: none;
+  position: relative;
+}
+#cal-grid-mobile .cal-day.has-note a::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
 }
 @media (max-width: 768px) {
   #cal-mobile-btn {

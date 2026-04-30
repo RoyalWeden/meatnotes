@@ -70,7 +70,7 @@ shortlink: meatindueseason
 
 - [[10 — In Progress/Sabbath]]
 
-  - Day Dawning
+  - [[10 — In Progress/Day Dawning]]
   - Lunar Sabbath
   - Evening Sabbath
   - Follow Yeshua = Keep Sabbath
@@ -91,7 +91,7 @@ shortlink: meatindueseason
 
 - Name of Baal
 
-  - Satan Cast Out Satan & Lying Signs + Wonders
+  - Satan Cast Out Satan & [[10 — In Progress/Lying Signs + Wonders]]
   - Translate His Name Properly in Your Language
 
 - Royal Law & Love Your Neighbor & Law of Liberty
@@ -255,6 +255,7 @@ shortlink: meatindueseason
   - Death, Burial, Resurrection (DBR) Gospel
   - When Will Yeshua Return
     - [[10 — In Progress/70 years & 80 years]]
+    - [[10 — In Progress/Preterism]]
   - The Melchizedek Scroll (11Q13) - Dead Sea Scrolls
   - Horeb vs. Sinai
     - Built Upon the Rock

@@ -2,9 +2,12 @@
 @use "sass:color";
 
 .callout {
-  border: 1px solid var(--border);
+  /* Apple-leaning callouts: bigger radius, no harsh 1px border — a 0.5px
+     hairline plus the subtle tinted background does the visual work. The
+     icon (left of the title) keeps the type signal. */
+  border: 0.5px solid color-mix(in srgb, var(--color, var(--darkgray)) 25%, transparent);
   background-color: var(--bg);
-  border-radius: 5px;
+  border-radius: $radius-md;
   padding: 0 1rem;
   overflow-y: hidden;
   box-sizing: border-box;

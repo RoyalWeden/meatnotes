@@ -108,16 +108,20 @@ export default ((opts?: Partial<ContentMetaOptions>) => {
   ContentMetadata.css =
     style +
     `
+    /* Quiet meta segments — no dotted underline (was too loud against the
+       Apple-article aesthetic). Hover bumps color to darkgray so the
+       affordance is still discoverable. */
     .meta-created, .meta-modified {
       cursor: help;
-      border-bottom: 1px dotted var(--gray);
       position: relative;
+      transition: color 0.15s ease;
     }
     .meta-created:hover, .meta-modified:hover {
-      color: var(--dark);
+      color: var(--darkgray);
     }
     .meta-sep {
       color: var(--gray);
+      opacity: 0.55;
     }
     /* Tooltips handled by global tooltip system via [data-tooltip] */
   `

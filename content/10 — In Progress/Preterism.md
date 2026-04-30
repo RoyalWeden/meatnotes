@@ -45,6 +45,20 @@ Where was the 200 million man army that slays the third part of men?
 Revelation 7/14
 Where was the 144 thousand man army?
 
+The book of Revelation wasn’t written until 90-95 AD, which is many years after the 70 AD temple destruction.
+
+Jeremiah 23:20-27/Isaiah 52:5/John 5:42-43
+When was the whole world calling on the name of Baal?
+
+Isaiah 28:4/Revelation 12
+When was Satan cast down into Bablyon/USA?
+
+Isaiah 66:16-17
+When were all pork eaters and Christmas worshippers destroyed?
+
+2 Peter 3:8/Hosea 6
+Peter tells you to not be ignorant that Yeshua’s return will be 2,000 years after he ascended into heaven, not less.
+
 [[image (2).png]]
 
  

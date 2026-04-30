@@ -47,6 +47,8 @@ export { default as TopicalChain } from "./TopicalChain"
 export { default as Tooltip } from "./Tooltip"
 export { default as SidebarCollapse } from "./SidebarCollapse"
 export { default as MobileSettings } from "./MobileSettings"
+export { default as AccentPicker } from "./AccentPicker"
+export { default as DailyHeader } from "./DailyHeader"
 
 export {
   ArticleTitle,

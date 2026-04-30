@@ -281,6 +281,14 @@ document.addEventListener("prenav", async () => {
 
 document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
   const currentSlug = e.detail.url
+
+  // Defensive cleanup: on desktop the document is always meant to scroll; if a
+  // previous bug or stale state left `mobile-no-scroll` on <html> (which used
+  // to silently disable document scroll), clear it before doing anything else.
+  if (!window.matchMedia("(max-width: 800px)").matches) {
+    document.documentElement.classList.remove("mobile-no-scroll")
+  }
+
   await setupExplorer(currentSlug)
 
   // if mobile hamburger is visible, collapse by default
@@ -300,13 +308,26 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
   }
 })
 
+// Resize handler — only applies when we're actually below the mobile breakpoint.
+// Previously this fired on every resize regardless of viewport width and added
+// `mobile-no-scroll` to <html> whenever the (always-open) desktop explorer
+// wasn't `.collapsed` — which silently froze document scroll. Browsers like
+// Zen fire resize events from time-of-day theme ticks and dynamic chrome
+// changes, so after ~10s of idle the class would stick and kill scrolling.
+// Now: ignore resize unless we're mobile, AND always clean up the class on
+// desktop so a previously-stuck class lifts on the next resize.
+const MOBILE_BREAKPOINT_PX = 800
 window.addEventListener("resize", function () {
-  // Desktop explorer opens by default, and it stays open when the window is resized
-  // to mobile screen size. Applies `no-scroll` to <html> in this edge case.
+  const isMobile = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches
+  if (!isMobile) {
+    // On desktop, the document is always meant to scroll. Defensively clear.
+    document.documentElement.classList.remove("mobile-no-scroll")
+    return
+  }
+  // On mobile, only lock <html> when the explorer drawer is actually open.
   const explorer = document.querySelector(".explorer")
   if (explorer && !explorer.classList.contains("collapsed")) {
     document.documentElement.classList.add("mobile-no-scroll")
-    return
   }
 })
 

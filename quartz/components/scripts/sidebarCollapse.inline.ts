@@ -73,14 +73,44 @@ function updateToggleUI(side: "left" | "right"): void {
   }
 }
 
+// Highlight the rail icon matching the current page so the user always sees
+// where they are in the icon column. Sets aria-current="page" on the matching
+// <a class="sidebar-rail-icon">; the CSS paints it with --accent + --accent-soft.
+function syncRailActive(): void {
+  const rail = document.querySelector(".sidebar-rail")
+  if (!rail) return
+  const path = window.location.pathname.replace(/\/$/, "") || "/"
+  const icons = rail.querySelectorAll<HTMLAnchorElement>("a.sidebar-rail-icon")
+  for (const icon of icons) {
+    const href = icon.getAttribute("href") || ""
+    // Decode and normalize for comparison (URLs may have %20 / em-dashes).
+    const decodedHref = decodeURIComponent(href).replace(/\/$/, "") || "/"
+    const decodedPath = decodeURIComponent(path).replace(/\/$/, "") || "/"
+    // Match exact path OR the rail icon's path is a prefix of the current
+    // path (so a note inside /00-—-Capture/ activates the Capture icon).
+    const match = decodedPath === decodedHref ||
+      (decodedHref !== "/" && decodedPath.startsWith(decodedHref + "/"))
+    if (match) {
+      icon.setAttribute("aria-current", "page")
+    } else {
+      icon.removeAttribute("aria-current")
+    }
+  }
+}
+
 document.addEventListener("nav", () => {
-  if (!isDesktop()) return
+  if (!isDesktop()) {
+    // On mobile/tablet, still sync rail active state if rail is somehow visible.
+    syncRailActive()
+    return
+  }
 
   // Restore saved state
   const leftCollapsed = getSidebarState("left")
   const rightCollapsed = getSidebarState("right")
   setSidebarState("left", leftCollapsed)
   setSidebarState("right", rightCollapsed)
+  syncRailActive()
 
   // Auto-collapse right sidebar on Verse-Chain
   const slug = document.body.getAttribute("data-slug")
@@ -122,6 +152,10 @@ document.addEventListener("nav", () => {
     } else if (e.key === "]" && !e.metaKey && !e.ctrlKey) {
       e.preventDefault()
       toggleSidebar("right")
+    } else if (e.key === "\\" && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
+      // ⌘\ (Notes.app convention) toggles the left sidebar.
+      e.preventDefault()
+      toggleSidebar("left")
     }
   }
 

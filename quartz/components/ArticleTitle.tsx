@@ -30,7 +30,16 @@ const ArticleTitle: QuartzComponent = ({ fileData, displayClass }: QuartzCompone
 
 ArticleTitle.css = `
 .article-title {
-  margin: 2rem 0 0 0;
+  /* Apple-display sizing: clamp(2rem, 4vw, 2.6rem) like an Apple Newsroom h1.
+     The viewport-relative middle term scales gently between phone and desktop
+     without looking enormous on big screens. Tighter top margin so the
+     breadcrumb above it reads as a single visual block with the title. */
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 1rem 0 0.4rem 0;
 }
 `
 

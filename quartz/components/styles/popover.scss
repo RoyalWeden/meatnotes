@@ -24,19 +24,25 @@
   will-change: transform;
 
   & > .popover-inner {
+    /* Apple Dictionary card: tighter, hairline edge, soft layered shadow,
+       larger radius. The translucent layered surface reads as a floating
+       preview, not a thick boxed dropdown. */
     position: relative;
-    width: 30rem;
+    width: 26rem;
     max-height: 20rem;
-    padding: 0 1rem 1rem 1rem;
+    padding: 0.25rem 1.1rem 1rem 1.1rem;
     font-weight: initial;
     font-style: initial;
-    line-height: normal;
-    font-size: initial;
+    line-height: 1.5;
+    font-size: 0.92rem;
     font-family: var(--bodyFont);
-    border: 1px solid var(--lightgray);
+    color: var(--darkgray);
+    border: none;
     background-color: var(--light);
-    border-radius: 5px;
-    box-shadow: 6px 6px 36px 0 rgba(0, 0, 0, 0.25);
+    border-radius: $radius-md;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.08),
+      0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
     overflow: auto;
     overscroll-behavior: contain;
     white-space: normal;

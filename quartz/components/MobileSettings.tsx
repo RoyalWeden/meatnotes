@@ -51,6 +51,19 @@ const MobileSettings: QuartzComponent = (_props: QuartzComponentProps) => {
             </button>
             <div class="theme-toggle-pill" aria-hidden="true" />
           </div>
+
+          {/* Accent color — same palette as desktop, larger swatches for touch */}
+          <h3 class="mobile-settings-title mobile-settings-title-accent">Accent</h3>
+          <div class="accent-picker accent-picker-mobile" role="radiogroup" aria-label="Accent color">
+            <button class="accent-swatch" data-set-accent="blue"     aria-label="Blue"></button>
+            <button class="accent-swatch" data-set-accent="purple"   aria-label="Purple"></button>
+            <button class="accent-swatch" data-set-accent="pink"     aria-label="Pink"></button>
+            <button class="accent-swatch" data-set-accent="red"      aria-label="Red"></button>
+            <button class="accent-swatch" data-set-accent="orange"   aria-label="Orange"></button>
+            <button class="accent-swatch" data-set-accent="yellow"   aria-label="Yellow"></button>
+            <button class="accent-swatch" data-set-accent="green"    aria-label="Green"></button>
+            <button class="accent-swatch" data-set-accent="graphite" aria-label="Graphite"></button>
+          </div>
         </div>
       </div>
     </div>

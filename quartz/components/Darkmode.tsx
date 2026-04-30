@@ -53,6 +53,19 @@ const Darkmode: QuartzComponent = ({ displayClass }: QuartzComponentProps) => {
       </button>
       <div class="theme-toggle-pill" aria-hidden="true" />
     </div>
+    {/* macOS accent palette — wired up by AccentPicker.afterDOMLoaded.
+        Click handler delegates from <html>, so this markup just needs the
+        data-set-accent attributes; visual state is synced by AccentPicker. */}
+    <div class="accent-picker" role="radiogroup" aria-label="Accent color">
+      <button class="accent-swatch" data-set-accent="blue"     aria-label="Blue"     data-tooltip="Blue"></button>
+      <button class="accent-swatch" data-set-accent="purple"   aria-label="Purple"   data-tooltip="Purple"></button>
+      <button class="accent-swatch" data-set-accent="pink"     aria-label="Pink"     data-tooltip="Pink"></button>
+      <button class="accent-swatch" data-set-accent="red"      aria-label="Red"      data-tooltip="Red"></button>
+      <button class="accent-swatch" data-set-accent="orange"   aria-label="Orange"   data-tooltip="Orange"></button>
+      <button class="accent-swatch" data-set-accent="yellow"   aria-label="Yellow"   data-tooltip="Yellow"></button>
+      <button class="accent-swatch" data-set-accent="green"    aria-label="Green"    data-tooltip="Green"></button>
+      <button class="accent-swatch" data-set-accent="graphite" aria-label="Graphite" data-tooltip="Graphite"></button>
+    </div>
     </div>
   )
 }

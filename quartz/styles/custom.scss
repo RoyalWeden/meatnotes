@@ -1,4 +1,5 @@
 @use "./base.scss";
+@use "./variables.scss" as *;
 
 // Apple system font stack — overrides Inter from quartz.config.ts
 // Inter is still loaded as a fallback for OG image generation and non-Apple platforms
@@ -7,6 +8,69 @@
   --headerFont: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Inter", sans-serif;
   --bodyFont: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Inter", sans-serif;
   --codeFont: "SF Mono", ui-monospace, SFMono-Regular, "IBM Plex Mono", Menlo, monospace;
+
+  // Reading width for note bodies (Apple long-form ≈ 680px / 70ch).
+  // Wide elements (tables, code blocks, figures) opt out via .wide.
+  --reading-width: 42rem;
+
+  // Accent layer. --accent is the brand-tinted color components paint with
+  // (links, focus rings, selection, palette highlights, calendar selection,
+  // active toolbar items). It defaults to --secondary (system blue) and is
+  // overridden by [data-accent="..."] on <html> for the user-pickable palette.
+  --accent: var(--secondary);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-tint: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-contrast: #ffffff;
+
+  // Body-text link color — distinct from --accent so it stays calm + readable
+  // when the user picks a vibrant accent (e.g. yellow, orange). Matches
+  // apple.com long-form: a darker, duskier blue that reads well at body weight.
+  --link: #0066cc;
+  --link-hover: #0a84ff;
+}
+
+:root[saved-theme="dark"] {
+  --link: #2997ff;
+  --link-hover: #64d2ff;
+}
+
+// macOS accent palette. Selected via Phase 14 picker; persisted in localStorage
+// and applied by an inline script in <head> to avoid a paint flash.
+:root[data-accent="blue"]     { --accent: #007aff; }
+:root[data-accent="purple"]   { --accent: #af52de; }
+:root[data-accent="pink"]     { --accent: #ff2d55; }
+:root[data-accent="red"]      { --accent: #ff3b30; }
+:root[data-accent="orange"]   { --accent: #ff9500; }
+:root[data-accent="yellow"]   { --accent: #ffcc00; --accent-contrast: #1d1d1f; }
+:root[data-accent="green"]    { --accent: #34c759; }
+:root[data-accent="graphite"] { --accent: #8e8e93; }
+
+// Dark-mode equivalents (slightly brighter, per Apple's HIG)
+:root[saved-theme="dark"][data-accent="blue"]     { --accent: #0a84ff; }
+:root[saved-theme="dark"][data-accent="purple"]   { --accent: #bf5af2; }
+:root[saved-theme="dark"][data-accent="pink"]     { --accent: #ff375f; }
+:root[saved-theme="dark"][data-accent="red"]      { --accent: #ff453a; }
+:root[saved-theme="dark"][data-accent="orange"]   { --accent: #ff9f0a; }
+:root[saved-theme="dark"][data-accent="yellow"]   { --accent: #ffd60a; --accent-contrast: #1d1d1f; }
+:root[saved-theme="dark"][data-accent="green"]    { --accent: #30d158; }
+:root[saved-theme="dark"][data-accent="graphite"] { --accent: #98989d; }
+
+// ── Global accent-follow override ───────────────────────────────────────────
+// Quartz emits `--secondary: #007aff` (light) / `#0a84ff` (dark) as base
+// theme variables. Most existing component CSS references `var(--secondary)`
+// directly — without this override, the accent picker would only affect
+// surfaces we explicitly migrated to `var(--accent)` (Phase 4+).
+//
+// We need higher specificity than Quartz's `:root[saved-theme=...]` (which
+// is bundled *after* this file in the compiled CSS, so equal-specificity
+// rules would lose). Stacking `[lang]` (Quartz always sets it on <html>)
+// gives 0,2,0 vs Quartz's 0,1,0 → we win the cascade and `--secondary` /
+// `--tertiary` / `--highlight` track the user's accent everywhere.
+:root[saved-theme="light"][lang],
+:root[saved-theme="dark"][lang] {
+  --secondary: var(--accent);
+  --tertiary: color-mix(in srgb, var(--accent) 75%, var(--gray));
+  --highlight: var(--accent-soft);
 }
 
 // ── Popover: hide navigation chrome + fix spacing ─────────────────────────────
@@ -67,9 +131,9 @@ ul, ol {
 body[data-slug="index"] article > p > a:first-child {
   display: inline-block;
   padding: 0.45rem 1rem;
-  background: var(--secondary);
-  color: var(--light) !important;
-  border-radius: 5px;
+  background: var(--accent);
+  color: var(--accent-contrast) !important;
+  border-radius: $radius-sm;
   text-decoration: none !important;
   font-weight: 600;
   transition: opacity 0.2s ease;
@@ -200,19 +264,24 @@ body[data-slug="index"] article > p > a:first-child {
   }
 }
 
-// Desktop header search bar — looks like a browser address bar
+// Desktop header — translucent macOS-style toolbar
 @media (min-width: 801px) {
-  // Sticky: stays at top as user scrolls
+  // The whole sticky block (toolbar + breadcrumbs + title + meta) gets the
+  // translucent material so anything inside it stays visible against scrolling
+  // article content underneath. The 0.5px hairline at the bottom is the
+  // canonical macOS toolbar separator (System Settings, Mail, Notes).
   // !important needed to override Quartz's .page > #quartz-body .page-header { position: static }
   .page-header {
     position: sticky !important;
     top: 0 !important;
     z-index: 100;
-    background: var(--light);
+    background: color-mix(in srgb, var(--light) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
   }
 
   header {
-    // Stack: reading-progress on top, then search bar below
     display: flex;
     flex-direction: column;
   }
@@ -222,12 +291,13 @@ body[data-slug="index"] article > p > a:first-child {
     box-sizing: border-box;
   }
 
+  // Inner search-bar wrap is transparent — the .page-header above it carries
+  // the translucent material. We just keep the padding rhythm.
   header .flex-component {
     width: 100%;
     padding: calc(0.5rem - var(--header-shrink, 0) * 0.3rem) 2rem;
     box-sizing: border-box;
-    background: var(--light);
-    border-bottom: 1px solid var(--lightgray);
+    background: transparent;
     gap: 0.75rem;
   }
 
@@ -286,7 +356,7 @@ body[data-slug="index"] article > p > a:first-child {
     margin-right: 0.5rem;
     padding: 0.1em 0.4em;
     border: 1px solid var(--lightgray);
-    border-radius: 4px;
+    border-radius: $radius-sm;
     font-size: 0.72em;
     font-family: inherit;
     line-height: 1.4;
@@ -363,5 +433,461 @@ body[data-slug="index"] article > p > a:first-child {
     &:hover {
       text-decoration: underline;
     }
+  }
+}
+
+// ── Raycast-style command palette overrides ─────────────────────────────────
+// The existing Search component (search.scss, ~1000 lines) carries the heavy
+// behavior — flexsearch indexing, scope tabs, folder filter chip, preview
+// pane. These overrides re-skin it to feel like Raycast / macOS Spotlight:
+// tighter modal width, translucent surface, softer shadows, accent-soft focus
+// state. We override here instead of editing search.scss directly so the
+// underlying layout stays untouched and easy to revert.
+
+.search > .search-container {
+  // Backdrop: stronger blur, gentle dim. Default search.scss gives a thin 4px
+  // blur with no dim — Spotlight has a noticeably darker, more focused feel.
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background: color-mix(in srgb, var(--dark) 18%, transparent);
+
+  & > .search-space {
+    // Tighter Raycast width. Default is 80% of viewport — too wide.
+    max-width: 640px;
+    width: calc(100% - 2rem);
+    margin-top: 12vh;
+
+    // The modal panel itself — translucent, big radius, soft layered shadow.
+    & > * {
+      border-radius: $radius-lg;
+      background: color-mix(in srgb, var(--light) 88%, transparent);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow:
+        0 24px 64px -16px rgba(0, 0, 0, 0.28),
+        0 4px 16px -4px rgba(0, 0, 0, 0.14),
+        inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
+      margin-bottom: 1rem;
+    }
+
+    & > .search-input-wrap {
+      border: none;
+      padding: 0.6em 1.1em;
+      min-height: 3.4em;
+
+      & > input.search-bar {
+        font-size: 1.05em;
+        font-family: var(--bodyFont);
+
+        &::placeholder {
+          color: var(--gray);
+        }
+      }
+    }
+  }
+
+  // Filter buttons (All/Title/Content/Tags + Phrase) and scope row — quieter.
+  .search-filter-btns,
+  .search-scope-row {
+    .filter-btn,
+    .scope-btn,
+    .phrase-btn {
+      border: none;
+      background: transparent;
+      color: var(--gray);
+      border-radius: $radius-pill;
+      padding: 0.25em 0.7em;
+      font-size: 0.85em;
+      transition: background 0.12s ease, color 0.12s ease;
+
+      &:hover {
+        color: var(--darkgray);
+        background: color-mix(in srgb, var(--darkgray) 6%, transparent);
+      }
+
+      &.active {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Result rows — Spotlight feel: full-row accent-soft fill on focus,
+  // no harsh left border, no visible row dividers (rely on whitespace).
+  .result-card,
+  .fuzzy-result-card,
+  .pdf-result-card {
+    border-bottom: none !important;
+    border-left: none !important;
+    border-radius: $radius-md;
+    margin: 0 0.4rem;
+    padding: 0.7rem 0.85rem !important;
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--darkgray) 5%, transparent) !important;
+    }
+
+    &:focus,
+    &.focus {
+      background: var(--accent-soft) !important;
+      box-shadow: none !important;
+      outline: none;
+
+      h3 { color: var(--accent); }
+    }
+
+    & h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  }
+
+  // Keyboard hint bar at the bottom — Raycast has a thin bar with kbd chips.
+  .search-kbd-hints {
+    border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
+    padding: 0.5rem 1rem;
+    font-size: 0.72rem;
+    color: var(--gray);
+    display: flex;
+    gap: 1rem;
+
+    kbd {
+      background: color-mix(in srgb, var(--darkgray) 8%, transparent);
+      border-radius: $radius-sm;
+      padding: 0.1em 0.4em;
+      font-family: var(--codeFont);
+      font-size: 0.92em;
+      margin: 0 0.15em;
+      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+    }
+  }
+}
+
+// ── Accent picker ───────────────────────────────────────────────────────────
+// Eight macOS swatches. Each button paints its own accent color via inline
+// CSS (the `--swatch` custom property declared per button below). The active
+// state is a hairline accent ring around the swatch, like System Settings.
+
+.accent-picker {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px 6px;
+  align-items: center;
+
+  .accent-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: var(--swatch);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      transform: scale(1.12);
+    }
+
+    &.active {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(0, 0, 0, 0.15),
+        0 0 0 2px var(--light),
+        0 0 0 3.5px var(--swatch);
+    }
+  }
+
+  // Per-swatch color (matches the palette in :root[data-accent=...]).
+  // Light-mode values; the swatch itself is just a visual marker so we use
+  // the saturated light values regardless of theme — like macOS System Settings.
+  .accent-swatch[data-set-accent="blue"]     { --swatch: #007aff; }
+  .accent-swatch[data-set-accent="purple"]   { --swatch: #af52de; }
+  .accent-swatch[data-set-accent="pink"]     { --swatch: #ff2d55; }
+  .accent-swatch[data-set-accent="red"]      { --swatch: #ff3b30; }
+  .accent-swatch[data-set-accent="orange"]   { --swatch: #ff9500; }
+  .accent-swatch[data-set-accent="yellow"]   { --swatch: #ffcc00; }
+  .accent-swatch[data-set-accent="green"]    { --swatch: #34c759; }
+  .accent-swatch[data-set-accent="graphite"] { --swatch: #8e8e93; }
+}
+
+// Desktop float — collapsed by default to a single "current accent" disc
+// tucked under the theme toggle. The full palette only reveals when the
+// user hovers/focuses the float, so the chrome stays calm at rest.
+// macOS System Settings does the same: shows the current accent, click to
+// expand the palette.
+.theme-float .accent-picker {
+  margin-top: 8px;
+  background: color-mix(in srgb, var(--lightgray) 60%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 999px;
+  padding: 4px 6px;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 0.5px color-mix(in srgb, var(--darkgray) 12%, transparent);
+  // Collapsed: width is exactly one swatch + container padding (≈30px).
+  // Inactive swatches are hidden (width 0, no margin) so they don't reserve
+  // space and the active disc reads as a single dot.
+  max-width: 30px;
+  overflow: hidden;
+  transition: max-width 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+
+  & .accent-swatch {
+    flex-shrink: 0;
+    transition:
+      width 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+      margin 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 0.16s ease;
+
+    &:not(.active) {
+      width: 0;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    // Always visually first so the collapsed state shows the picked color.
+    &.active {
+      order: -1;
+    }
+  }
+}
+
+// Expand on hover/focus of the parent float (so hovering the theme toggle
+// also reveals the palette) or the picker itself.
+.theme-float:hover .accent-picker,
+.theme-float:focus-within .accent-picker,
+.theme-float .accent-picker:hover,
+.theme-float .accent-picker:focus-within {
+  max-width: 220px;
+
+  & .accent-swatch:not(.active) {
+    width: 18px;
+    margin-left: 6px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// Mobile sheet — bigger swatches for touch targets, spaced edge-to-edge.
+.accent-picker-mobile {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 0;
+  gap: 0;
+
+  .accent-swatch {
+    width: 28px;
+    height: 28px;
+
+    &.active {
+      box-shadow:
+        inset 0 0 0 0.5px rgba(0, 0, 0, 0.15),
+        0 0 0 2.5px var(--light),
+        0 0 0 4.5px var(--swatch);
+    }
+  }
+}
+
+// Mobile sheet section title spacing
+.mobile-settings-title-accent {
+  margin-top: 1.25rem;
+}
+
+// ── PWA standalone-mode polish ──────────────────────────────────────────────
+// When launched from the home screen (Add-to-Home Screen), the page runs in
+// `display-mode: standalone` with no Safari/Chrome chrome. We add top
+// safe-area padding to the sticky toolbar so it clears the iPhone dynamic
+// island/notch, and hide the footer (the action lives in the FAB row now,
+// and the build-time/version line is just visual noise on a "real app").
+@media (display-mode: standalone), (display-mode: minimal-ui) {
+  .page-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  // Mobile sticky top bar (.sidebar.left in row mode) gets the same treatment.
+  @media (max-width: 800px) {
+    .sidebar.left {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+  }
+
+  // Footer becomes purely decorative in standalone — drop it for a cleaner
+  // "this is an app" feel on phones, especially.
+  footer {
+    display: none;
+  }
+
+  // Add top padding to the page so notched phones don't crop content.
+  body {
+    padding-top: 0; // safe-area-inset is on the toolbar instead
+  }
+}
+
+// ── Special pages: accent cohesion ──────────────────────────────────────────
+// BibleReader, VerseChainExplorer, PipelineDashboard, and PdfLibrary each
+// carry hundreds of lines of bespoke styles built around `var(--secondary)`.
+// Rather than line-edit ~3700 lines, we redefine `--secondary` (and its
+// hover sibling `--tertiary`) to track `--accent` *inside the slug scope*.
+// All existing border/text/icon/highlight rules cascade through and the
+// surfaces immediately follow the user's accent pick.
+// Note: the per-slug --secondary→--accent aliases that used to live here are
+// now redundant — the global `:root[saved-theme]` override above (Phase 14
+// cascade fix) makes --secondary follow --accent everywhere. Kept this
+// comment as a breadcrumb in case anyone wonders why these slugs aren't
+// re-declared with their own scope.
+
+// /Graph dedicated page: promote the graph to fill the viewport. The Graph
+// component renders into `.graph > .graph-outer > #global-graph-icon` plus a
+// `#global-graph-outer` overlay when the user clicks "expand". On the
+// dedicated page we want the inline graph itself to be full-width and tall,
+// not just the expand overlay.
+body[data-slug="Graph"] {
+  & .center { width: 100%; }
+
+  & .graph {
+    margin: 0;
+
+    & > .graph-outer {
+      width: 100%;
+      height: calc(100vh - 8rem);
+      max-height: none;
+      border-radius: $radius-lg;
+      overflow: hidden;
+      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.06),
+        0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    & > h3 { display: none; } // section title removed; toolbar carries identity
+
+    & > .graph-outer > #global-graph-icon { display: none; } // expand button redundant on dedicated page
+  }
+}
+
+// BibleReader: Apple Books long-form reading width on the verse text body.
+// `.br-text-body` is the rendered chapter content. Notes panel + chrome stay
+// at their existing widths so the layout (verse | notes split) is preserved.
+body[data-slug="Bible-Reader"] .br-text-body {
+  max-width: var(--reading-width, 42rem);
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+// ── Conditional content components: cohesion + polish ──────────────────────
+// IdiomFlashcard, RebukePanel, IdiomIndex follow the same scope-aliasing
+// pattern as the special pages above — let `--secondary` track `--accent`
+// inside their rendering scopes so the existing styles inherit the user's
+// accent pick without line-by-line edits.
+
+// IdiomFlashcard renders inside a note with `cssclasses: [idiom]`, so the
+// article element gets an `idiom` class. RebukePanel ditto for `rebuke`.
+// IdiomIndex pages live under the "Bible Idioms" folder — slug starts with
+// "Bible-Idioms".
+// (Conditional content `--secondary→--accent` aliases removed — same as
+// the special-page slugs above, the global override now handles this.)
+
+// IdiomFlashcard: drop the 3px left accent bar (the typography + tint already
+// signal type), use a hairline border + bigger radius. The card itself stays
+// non-flippable in this pass — true 3D flip is in Phase 8.5.
+.idiom-flashcard {
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent) !important;
+  border-radius: $radius-md !important;
+  background: color-mix(in srgb, var(--accent) 4%, transparent) !important;
+  border-left: none !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+// IdiomIndex alpha-nav: glassy pill buttons, sticky-ish anchor scroll list.
+.idiom-alpha-nav {
+  & .idiom-alpha-btn {
+    border-radius: $radius-pill;
+    border: 0.5px solid transparent;
+    color: var(--gray);
+    transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+  }
+}
+
+// RebukePanel info box: soft hairline + accent tint matching callouts.
+.rebuke-info-box {
+  border-radius: $radius-md !important;
+  border: 0.5px solid color-mix(in srgb, var(--accent) 25%, transparent) !important;
+  background: color-mix(in srgb, var(--accent) 6%, transparent) !important;
+}
+
+// IdiomSearch modal — same Raycast vocabulary so both modals feel like
+// siblings of the same palette family until full merge in a later phase.
+.idiom-search > .idiom-modal {
+  & .idiom-modal-box {
+    border-radius: $radius-lg;
+    background: color-mix(in srgb, var(--light) 88%, transparent);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow:
+      0 24px 64px -16px rgba(0, 0, 0, 0.28),
+      0 4px 16px -4px rgba(0, 0, 0, 0.14),
+      inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
+  }
+}
+
+// ── Right rail (Inspector) — consistent Apple-vocabulary visuals ───────────
+// Backlinks already uses <details>, RecentNotes has its own collapse button,
+// TopicalChain stays always-visible. We don't restructure here — just
+// align typography, hairlines, and accent hover so the column reads as one
+// coherent inspector pane (like Apple Developer docs sidebar).
+@media (min-width: 1201px) {
+  .sidebar.right {
+    & > .backlinks,
+    & > .recent-notes,
+    & > .topical-chain {
+      padding-top: 1rem;
+      margin-top: 1rem;
+      border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
+
+      &:first-child {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+      }
+    }
+
+    & h3 {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--gray) !important;
+      margin: 0 0 0.5rem 0 !important;
+    }
+  }
+}
+
+// Toolbar search button — Raycast-style, calmer chrome.
+.search > .search-button {
+  border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent) !important;
+  background: color-mix(in srgb, var(--light) 60%, transparent) !important;
+  border-radius: $radius-md !important;
+  transition: background 0.12s ease, border-color 0.12s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--light) 90%, transparent) !important;
+    border-color: color-mix(in srgb, var(--darkgray) 22%, transparent) !important;
+  }
+
+  & > p {
+    font-weight: 400;
+    color: var(--gray);
   }
 }

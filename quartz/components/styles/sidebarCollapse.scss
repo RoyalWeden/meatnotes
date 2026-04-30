@@ -1,6 +1,10 @@
 @use "../../styles/variables.scss" as *;
 
-$rail-width: 48px;
+// Rail width includes left + right padding so icons clear both the screen
+// edge and the column boundary. Icons themselves are 32px; rail width 60px
+// = 14px on each side.
+$rail-width: 60px;
+$rail-icon-size: 32px;
 
 // ── Sidebar toggle chevron buttons (ONE per side) ──
 .sidebar-toggle {
@@ -113,17 +117,20 @@ $rail-width: 48px;
 }
 
 // ── Left sidebar icon rail (visible when collapsed) ──
+// Apple-Mail-app-style rail: comfortable padding around the icon column,
+// icons centered, generous touch targets, hairline separator between
+// content groups.
 .sidebar-rail {
   display: none; // hidden on mobile always
 
   @media all and ($desktop) {
-    display: none;
+    display: none; // toggled to flex when sidebar is collapsed (see below)
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    padding-top: 1rem;
-    width: $rail-width;
-    min-width: $rail-width;
+    gap: 4px;
+    padding: 0.75rem 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -131,33 +138,55 @@ $rail-width: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: $rail-icon-size;
+  height: $rail-icon-size;
+  border-radius: 8px;
   color: var(--gray);
   text-decoration: none;
-  transition: color $transition-fast ease, background $transition-fast ease;
+  transition: color $transition-fast ease, background $transition-fast ease, transform 100ms ease;
 
   &:hover {
-    color: var(--secondary);
-    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  // Active-page indicator: when the current slug matches this rail icon's
+  // href, paint with accent + accent-tinted bg. Computed via [aria-current].
+  &[aria-current="page"] {
+    color: var(--accent);
+    background: var(--accent-soft);
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
+}
+
+// Hairline separator between special-page icons and top-level folder icons.
+.sidebar-rail-divider {
+  width: 20px;
+  height: 0.5px;
+  background: color-mix(in srgb, var(--darkgray) 14%, transparent);
+  margin: 6px 0;
 }
 
 // ── Collapsed states ──
 @media all and ($desktop) {
-  // Left sidebar collapsed
+  // Left sidebar collapsed: a Mail.app-like icon rail. The sidebar keeps
+  // top spacing to clear the toolbar; horizontal padding is *inside* the
+  // rail width so icons stay centered with breathing room from the screen
+  // edge AND from the content column.
   body[data-sidebar-left="collapsed"] {
     .sidebar.left {
       width: $rail-width;
       min-width: $rail-width;
       max-width: $rail-width;
-      padding: 0;
+      padding: $topSpacing 0 0 0;
 
       // Hide all sidebar content except rail and toggle
       > *:not(.sidebar-rail):not(.sidebar-toggle) {
@@ -171,16 +200,28 @@ $rail-width: 48px;
         display: flex;
       }
 
+      // Toggle button: hidden by default, revealed on hover. Sits at the
+      // INNER edge of the rail (toward the content column) but with enough
+      // gap that the page doesn't feel like the button is on top of it.
       .sidebar-toggle-left {
-        opacity: 1;
-        pointer-events: auto;
-        right: -20px;
+        opacity: 0;
+        pointer-events: none;
+        right: -14px;
         z-index: 100;
       }
     }
+
+    // Reveal the toggle when hovering anywhere in the rail area.
+    .sidebar.left:hover .sidebar-toggle-left {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 
-  // Right sidebar collapsed — use overflow: visible so toggle stays accessible
+  // Right sidebar collapsed — width: 0 with toggle floated at the right
+  // edge of the viewport. The toggle's `right` value is now expressed in
+  // viewport units so it always sits a comfortable distance from the
+  // screen edge regardless of grid alignment.
   body[data-sidebar-right="collapsed"] {
     .sidebar.right {
       width: 0;
@@ -195,13 +236,12 @@ $rail-width: 48px;
         pointer-events: none;
         visibility: hidden;
       }
+    }
 
-      .sidebar-toggle-right {
-        opacity: 1;
-        pointer-events: auto;
-        right: -16px;
-        z-index: 9999;
-      }
+    // Toggle for right sidebar uses position: fixed with screen-edge inset.
+    // The selector here scopes the override below the existing fixed-pos rule.
+    .sidebar-toggle-right {
+      right: 16px !important; // 16px inset from viewport right edge
     }
   }
 }

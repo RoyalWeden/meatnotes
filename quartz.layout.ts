@@ -4,7 +4,8 @@ import * as Component from "./quartz/components"
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [
-    Component.ReadingProgress(),
+    // ReadingProgress removed in Phase 2 — Apple sites don't use one and the
+    // translucent toolbar provides enough sense of "where you are" on its own.
     Component.DesktopOnly(Component.Flex({
       components: [
         { Component: Component.Search(), grow: true },
@@ -17,6 +18,10 @@ export const sharedPageComponents: SharedLayout = {
     Component.SidebarCollapse(),
     Component.Darkmode(),
     Component.MobileSettings(),
+    // AccentPicker registers its before/afterDOMLoaded scripts (read saved
+    // accent on first paint to avoid flash + wire click handlers on
+    // [data-set-accent] swatches in Darkmode/MobileSettings).
+    Component.AccentPicker(),
     Component.DailyNoteNav(),
     Component.ConditionalRender({
       component: Component.HomeSections(),
@@ -52,6 +57,10 @@ export const sharedPageComponents: SharedLayout = {
       component: Component.PipelineDashboard(),
       condition: (page) => page.fileData.slug === "Dashboard",
     }),
+    Component.ConditionalRender({
+      component: Component.Graph(),
+      condition: (page) => page.fileData.slug === "Graph",
+    }),
   ],
   footer: Component.CustomFooter({
     links: {
@@ -79,7 +88,8 @@ const explorerConfig = {
       node.displayName !== "Verse Chain" &&
       node.displayName !== "Bible-Reader" &&
       node.displayName !== "Bible Reader" &&
-      node.displayName !== "Dashboard"
+      node.displayName !== "Dashboard" &&
+      node.displayName !== "Graph"
     )
   },
   mapFn: (node: any) => {
@@ -103,19 +113,25 @@ export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
       component: Component.Breadcrumbs(),
-      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "index" && page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "Graph",
     }),
     Component.ConditionalRender({
       component: Component.ArticleTitle(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "Graph",
     }),
     Component.ConditionalRender({
       component: Component.ContentMeta(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "Graph",
+    }),
+    // Daily-note Today button + Mon-Sun week strip; renders only on
+    // /Daily/YYYY-MM-DD pages. Phase 9.5.
+    Component.ConditionalRender({
+      component: Component.DailyHeader(),
+      condition: (page) => /^Daily\/\d{4}-\d{2}-\d{2}$/.test(page.fileData.slug ?? ""),
     }),
     Component.ConditionalRender({
       component: Component.TagList(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard",
+      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "Graph",
     }),
     Component.ConditionalRender({
       component: Component.RebukePanel(),
@@ -148,10 +164,9 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Explorer(explorerConfig),
   ],
   right: [
-    Component.ConditionalRender({
-      component: Component.Graph(),
-      condition: (page) => page.fileData.slug !== "Search" && page.fileData.slug !== "Verse-Chain" && page.fileData.slug !== "Bible-Reader" && page.fileData.slug !== "Dashboard" && page.fileData.slug !== "index",
-    }),
+    // Graph moved to its own dedicated /Graph page (Phase 11). The right-rail
+    // Graph was visually noisy on every note page; the dedicated page lets the
+    // graph use the full viewport with its zoom/pan controls.
     Component.ConditionalRender({
       component: Component.DesktopOnly(Component.TableOfContents()),
       condition: (page) =>
@@ -167,7 +182,8 @@ export const defaultContentPageLayout: PageLayout = {
         page.fileData.slug !== "Bible-Reader" &&
         page.fileData.slug !== "Dashboard" &&
         page.fileData.slug !== "All-Notes" &&
-        page.fileData.slug !== "Books-and-PDFs",
+        page.fileData.slug !== "Books-and-PDFs" &&
+        page.fileData.slug !== "Graph",
     }),
     Component.ConditionalRender({
       component: Component.RecentNotes({
@@ -205,7 +221,9 @@ export const defaultListPageLayout: PageLayout = {
     Component.Explorer(explorerConfig),
   ],
   right: [
-    Component.Graph(),
+    // Graph removed from list-page right rail; lives at the dedicated /Graph
+    // page (Phase 11). FolderRecentNotes stays as the only right-rail item
+    // on folder/tag list pages.
     Component.DesktopOnly(Component.FolderRecentNotes({ limit: 6 })),
   ],
 }

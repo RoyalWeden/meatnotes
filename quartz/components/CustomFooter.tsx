@@ -24,47 +24,60 @@ const CustomFooter: QuartzComponent = (_props: QuartzComponentProps) => {
 
 CustomFooter.css = `
 footer {
-  padding: 1.5rem 0 1rem 0;
-  margin-top: 2rem;
-  border-top: 1px solid var(--lightgray);
-  font-size: 0.85rem;
+  /* No border-top here — renderPage emits a structural <hr> between content
+     and .page-footer (styled as the 0.5px hairline in base.scss); a footer
+     border-top on top of that produced two visible rails on note pages. */
+  padding: 1.25rem 0 2rem 0;
+  margin-top: 1rem;
+  font-size: 0.78rem;
   color: var(--gray);
 }
 .footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  margin-bottom: 0.75rem;
+  gap: 0.4rem 1.25rem;
+  margin-bottom: 0.5rem;
 }
 .footer-links a {
-  color: var(--secondary);
+  color: var(--gray);
+  font-weight: inherit;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 .footer-links a:hover {
-  text-decoration: underline;
+  color: var(--darkgray);
 }
 .footer-build {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   color: var(--gray);
   display: flex;
   align-items: center;
   gap: 0;
+  opacity: 0.75;
 }
 .footer-version-sep {
   margin: 0 0.4rem;
   opacity: 0.4;
 }
 .footer-version {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--gray);
-  opacity: 0.6;
+  opacity: 0.7;
 }
 #build-time-display {
   cursor: help;
-  border-bottom: 1px dotted var(--gray);
   position: relative;
 }
-/* Tooltip handled by global tooltip system via [data-tooltip] */
+/* Hide footer on landing + custom full-page surfaces — they manage their own
+   chrome and an extra footer just adds noise. */
+body[data-slug="index"] footer,
+body[data-slug="Bible-Reader"] footer,
+body[data-slug="Verse-Chain"] footer,
+body[data-slug="Dashboard"] footer,
+body[data-slug="Search"] footer,
+body[data-slug="Graph"] footer {
+  display: none;
+}
 `
 
 CustomFooter.afterDOMLoaded = `

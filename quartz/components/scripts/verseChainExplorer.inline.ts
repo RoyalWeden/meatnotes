@@ -2435,3 +2435,79 @@ function injectChainIcons() {
 
 document.addEventListener("nav", init)
 document.addEventListener("nav", injectChainIcons)
+
+// ── Mobile "Verses in this note" footer (Phase 16b) ───────────────────────
+// On mobile we don't show the chain glyph next to every inline verse ref
+// (cleaner reading). Instead we collect every unique verse-ref in the article
+// and render them as a small section at the end. In PWA standalone mode the
+// section becomes a tap-to-expand floating chip (handled in CSS + click toggle below).
+function renderMobileVerseChains() {
+  // Only render on touch / narrow viewports (CSS hides it elsewhere too).
+  if (typeof window === "undefined") return
+  if (!window.matchMedia("(max-width: 800px)").matches) return
+
+  const article = document.querySelector("article")
+  if (!article) return
+
+  // Remove any prior section so re-runs don't stack.
+  document.querySelectorAll(".mobile-verse-chains").forEach((el) => el.remove())
+
+  // Collect unique refs from any verse-ref anchor in the article.
+  const refSet = new Set<string>()
+  article.querySelectorAll<HTMLAnchorElement>("a[data-verse-ref]").forEach((a) => {
+    const r = a.getAttribute("data-verse-ref")
+    if (r) refSet.add(r)
+  })
+  if (refSet.size === 0) return
+
+  const wrap = document.createElement("div")
+  wrap.className = "mobile-verse-chains"
+  wrap.setAttribute("role", "region")
+  wrap.setAttribute("aria-label", "Verse chains in this note")
+
+  const title = document.createElement("p")
+  title.className = "mvc-title"
+  title.textContent = `Verses in this note · ${refSet.size}`
+  wrap.appendChild(title)
+
+  const list = document.createElement("ul")
+  list.className = "mvc-list"
+  for (const ref of refSet) {
+    const li = document.createElement("li")
+    const link = document.createElement("a")
+    link.className = "mvc-link"
+    link.href = `/Verse-Chain?v=${encodeURIComponent(ref)}`
+    link.innerHTML =
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
+      `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>` +
+      `<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>` +
+      `</svg>` +
+      `<span>${ref}</span>`
+    li.appendChild(link)
+    list.appendChild(li)
+  }
+  wrap.appendChild(list)
+
+  // PWA standalone: tap the floating chip to expand the sheet.
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as { standalone?: boolean }).standalone === true
+  if (isStandalone) {
+    wrap.addEventListener("click", (e) => {
+      // If user tapped a verse link, navigate normally.
+      const t = e.target as HTMLElement
+      if (t.closest(".mvc-link")) return
+      wrap.classList.toggle("expanded")
+    })
+    // Close on outside tap.
+    document.addEventListener("click", (e) => {
+      if (!wrap.classList.contains("expanded")) return
+      const path = e.composedPath()
+      if (!path.includes(wrap)) wrap.classList.remove("expanded")
+    })
+  }
+
+  article.appendChild(wrap)
+}
+
+document.addEventListener("nav", renderMobileVerseChains)

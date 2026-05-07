@@ -1,6 +1,13 @@
 @use "./base.scss";
 @use "./variables.scss" as *;
 
+// Phase-specific style partials, extracted from this file when it crossed
+// 1100 lines. Each partial declares its own `@use "./variables.scss" as *;`
+// so SCSS variable resolution stays self-contained.
+@use "./search-palette";
+@use "./accent-picker";
+@use "./verse-links";
+
 // Apple system font stack — overrides Inter from quartz.config.ts
 // Inter is still loaded as a fallback for OG image generation and non-Apple platforms
 :root {
@@ -27,11 +34,19 @@
   // apple.com long-form: a darker, duskier blue that reads well at body weight.
   --link: #0066cc;
   --link-hover: #0a84ff;
+
+  // Warning accent — used by RebukePanel for the conviction-card tint.
+  // Distinct from --accent so a yellow/green user-accent doesn't make rebukes
+  // feel cheerful. Matches macOS systemRed.
+  --accent-warning: #ff3b30;
+  --accent-warning-soft: color-mix(in srgb, var(--accent-warning) 12%, transparent);
 }
 
 :root[saved-theme="dark"] {
   --link: #2997ff;
   --link-hover: #64d2ff;
+  --accent-warning: #ff453a;
+  --accent-warning-soft: color-mix(in srgb, var(--accent-warning) 14%, transparent);
 }
 
 // macOS accent palette. Selected via Phase 14 picker; persisted in localStorage
@@ -436,266 +451,9 @@ body[data-slug="index"] article > p > a:first-child {
   }
 }
 
-// ── Raycast-style command palette overrides ─────────────────────────────────
-// The existing Search component (search.scss, ~1000 lines) carries the heavy
-// behavior — flexsearch indexing, scope tabs, folder filter chip, preview
-// pane. These overrides re-skin it to feel like Raycast / macOS Spotlight:
-// tighter modal width, translucent surface, softer shadows, accent-soft focus
-// state. We override here instead of editing search.scss directly so the
-// underlying layout stays untouched and easy to revert.
+// → Raycast palette overrides moved to _search-palette.scss
 
-.search > .search-container {
-  // Backdrop: stronger blur, gentle dim. Default search.scss gives a thin 4px
-  // blur with no dim — Spotlight has a noticeably darker, more focused feel.
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  background: color-mix(in srgb, var(--dark) 18%, transparent);
-
-  & > .search-space {
-    // Tighter Raycast width. Default is 80% of viewport — too wide.
-    max-width: 640px;
-    width: calc(100% - 2rem);
-    margin-top: 12vh;
-
-    // The modal panel itself — translucent, big radius, soft layered shadow.
-    & > * {
-      border-radius: $radius-lg;
-      background: color-mix(in srgb, var(--light) 88%, transparent);
-      backdrop-filter: blur(28px) saturate(180%);
-      -webkit-backdrop-filter: blur(28px) saturate(180%);
-      box-shadow:
-        0 24px 64px -16px rgba(0, 0, 0, 0.28),
-        0 4px 16px -4px rgba(0, 0, 0, 0.14),
-        inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
-      margin-bottom: 1rem;
-    }
-
-    & > .search-input-wrap {
-      border: none;
-      padding: 0.6em 1.1em;
-      min-height: 3.4em;
-
-      & > input.search-bar {
-        font-size: 1.05em;
-        font-family: var(--bodyFont);
-
-        &::placeholder {
-          color: var(--gray);
-        }
-      }
-    }
-  }
-
-  // Filter buttons (All/Title/Content/Tags + Phrase) and scope row — quieter.
-  .search-filter-btns,
-  .search-scope-row {
-    .filter-btn,
-    .scope-btn,
-    .phrase-btn {
-      border: none;
-      background: transparent;
-      color: var(--gray);
-      border-radius: $radius-pill;
-      padding: 0.25em 0.7em;
-      font-size: 0.85em;
-      transition: background 0.12s ease, color 0.12s ease;
-
-      &:hover {
-        color: var(--darkgray);
-        background: color-mix(in srgb, var(--darkgray) 6%, transparent);
-      }
-
-      &.active {
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-weight: 600;
-      }
-    }
-  }
-
-  // Result rows — Spotlight feel: full-row accent-soft fill on focus,
-  // no harsh left border, no visible row dividers (rely on whitespace).
-  .result-card,
-  .fuzzy-result-card,
-  .pdf-result-card {
-    border-bottom: none !important;
-    border-left: none !important;
-    border-radius: $radius-md;
-    margin: 0 0.4rem;
-    padding: 0.7rem 0.85rem !important;
-    transition: background 0.12s ease;
-
-    &:hover {
-      background: color-mix(in srgb, var(--darkgray) 5%, transparent) !important;
-    }
-
-    &:focus,
-    &.focus {
-      background: var(--accent-soft) !important;
-      box-shadow: none !important;
-      outline: none;
-
-      h3 { color: var(--accent); }
-    }
-
-    & h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-  }
-
-  // Keyboard hint bar at the bottom — Raycast has a thin bar with kbd chips.
-  .search-kbd-hints {
-    border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
-    padding: 0.5rem 1rem;
-    font-size: 0.72rem;
-    color: var(--gray);
-    display: flex;
-    gap: 1rem;
-
-    kbd {
-      background: color-mix(in srgb, var(--darkgray) 8%, transparent);
-      border-radius: $radius-sm;
-      padding: 0.1em 0.4em;
-      font-family: var(--codeFont);
-      font-size: 0.92em;
-      margin: 0 0.15em;
-      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
-    }
-  }
-}
-
-// ── Accent picker ───────────────────────────────────────────────────────────
-// Eight macOS swatches. Each button paints its own accent color via inline
-// CSS (the `--swatch` custom property declared per button below). The active
-// state is a hairline accent ring around the swatch, like System Settings.
-
-.accent-picker {
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px 6px;
-  align-items: center;
-
-  .accent-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background: var(--swatch);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.15);
-
-    &:hover {
-      transform: scale(1.12);
-    }
-
-    &.active {
-      box-shadow:
-        inset 0 0 0 0.5px rgba(0, 0, 0, 0.15),
-        0 0 0 2px var(--light),
-        0 0 0 3.5px var(--swatch);
-    }
-  }
-
-  // Per-swatch color (matches the palette in :root[data-accent=...]).
-  // Light-mode values; the swatch itself is just a visual marker so we use
-  // the saturated light values regardless of theme — like macOS System Settings.
-  .accent-swatch[data-set-accent="blue"]     { --swatch: #007aff; }
-  .accent-swatch[data-set-accent="purple"]   { --swatch: #af52de; }
-  .accent-swatch[data-set-accent="pink"]     { --swatch: #ff2d55; }
-  .accent-swatch[data-set-accent="red"]      { --swatch: #ff3b30; }
-  .accent-swatch[data-set-accent="orange"]   { --swatch: #ff9500; }
-  .accent-swatch[data-set-accent="yellow"]   { --swatch: #ffcc00; }
-  .accent-swatch[data-set-accent="green"]    { --swatch: #34c759; }
-  .accent-swatch[data-set-accent="graphite"] { --swatch: #8e8e93; }
-}
-
-// Desktop float — collapsed by default to a single "current accent" disc
-// tucked under the theme toggle. The full palette only reveals when the
-// user hovers/focuses the float, so the chrome stays calm at rest.
-// macOS System Settings does the same: shows the current accent, click to
-// expand the palette.
-.theme-float .accent-picker {
-  margin-top: 8px;
-  background: color-mix(in srgb, var(--lightgray) 60%, transparent);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-radius: 999px;
-  padding: 4px 6px;
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.1),
-    0 0 0 0.5px color-mix(in srgb, var(--darkgray) 12%, transparent);
-  // Collapsed: width is exactly one swatch + container padding (≈30px).
-  // Inactive swatches are hidden (width 0, no margin) so they don't reserve
-  // space and the active disc reads as a single dot.
-  max-width: 30px;
-  overflow: hidden;
-  transition: max-width 0.22s cubic-bezier(0.32, 0.72, 0, 1);
-
-  & .accent-swatch {
-    flex-shrink: 0;
-    transition:
-      width 0.2s cubic-bezier(0.32, 0.72, 0, 1),
-      margin 0.2s cubic-bezier(0.32, 0.72, 0, 1),
-      opacity 0.16s ease;
-
-    &:not(.active) {
-      width: 0;
-      margin: 0;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    // Always visually first so the collapsed state shows the picked color.
-    &.active {
-      order: -1;
-    }
-  }
-}
-
-// Expand on hover/focus of the parent float (so hovering the theme toggle
-// also reveals the palette) or the picker itself.
-.theme-float:hover .accent-picker,
-.theme-float:focus-within .accent-picker,
-.theme-float .accent-picker:hover,
-.theme-float .accent-picker:focus-within {
-  max-width: 220px;
-
-  & .accent-swatch:not(.active) {
-    width: 18px;
-    margin-left: 6px;
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-// Mobile sheet — bigger swatches for touch targets, spaced edge-to-edge.
-.accent-picker-mobile {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 4px 0;
-  gap: 0;
-
-  .accent-swatch {
-    width: 28px;
-    height: 28px;
-
-    &.active {
-      box-shadow:
-        inset 0 0 0 0.5px rgba(0, 0, 0, 0.15),
-        0 0 0 2.5px var(--light),
-        0 0 0 4.5px var(--swatch);
-    }
-  }
-}
-
-// Mobile sheet section title spacing
-.mobile-settings-title-accent {
-  margin-top: 1.25rem;
-}
+// → Accent picker styles moved to _accent-picker.scss
 
 // ── PWA standalone-mode polish ──────────────────────────────────────────────
 // When launched from the home screen (Add-to-Home Screen), the page runs in
@@ -726,6 +484,64 @@ body[data-slug="index"] article > p > a:first-child {
     padding-top: 0; // safe-area-inset is on the toolbar instead
   }
 }
+
+// ── Right-rail section (Phase 16c) ─────────────────────────────────────────
+// Unified disclosure for Backlinks / RecentNotes / TopicalChain. They all
+// render as <details class="right-rail-section">; the summary carries the
+// uppercase caps header + chevron, the .rrs-content holds the body.
+
+.right-rail-section {
+  margin: 0;
+  padding: 0;
+
+  & > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    user-select: none;
+
+    &::-webkit-details-marker { display: none; }
+    &::marker { display: none; }
+
+    & > h3 {
+      font-size: 0.78rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--gray) !important;
+      margin: 0 !important;
+    }
+
+    & > .rrs-fold {
+      color: var(--gray);
+      transition: color 0.12s ease, transform 180ms $spring;
+      flex-shrink: 0;
+    }
+
+    &:hover > h3,
+    &:hover > .rrs-fold {
+      color: var(--accent);
+    }
+  }
+
+  // Chevron rotates -90deg when CLOSED (so default-points-down rotates to
+  // points-right). Smooth via the calm $spring matching explorer folder
+  // animations.
+  &:not([open]) > summary > .rrs-fold {
+    transform: rotate(-90deg);
+  }
+
+  // Body content has a small top margin so it doesn't feel glued to header.
+  & > .rrs-content {
+    margin-top: 0.4rem;
+  }
+}
+
+// → Verse-link pill, mobile verses footer & PWA chip moved to _verse-links.scss
 
 // ── Special pages: accent cohesion ──────────────────────────────────────────
 // BibleReader, VerseChainExplorer, PipelineDashboard, and PdfLibrary each
@@ -792,8 +608,8 @@ body[data-slug="Bible-Reader"] .br-text-body {
 // the special-page slugs above, the global override now handles this.)
 
 // IdiomFlashcard: drop the 3px left accent bar (the typography + tint already
-// signal type), use a hairline border + bigger radius. The card itself stays
-// non-flippable in this pass — true 3D flip is in Phase 8.5.
+// signal type), use a hairline border + bigger radius. Add a subtle hover
+// lift — Phase 8.5 delight without a structural rebuild.
 .idiom-flashcard {
   border: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent) !important;
   border-radius: $radius-md !important;
@@ -802,7 +618,48 @@ body[data-slug="Bible-Reader"] .br-text-body {
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.04),
     0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  transition: transform 200ms $spring, box-shadow 200ms $spring,
+    background-color 200ms ease !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--accent) 6%, transparent) !important;
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.06),
+      0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  }
 }
+
+// ── RebukePanel — conviction-card vocabulary (Phase 8.5b) ──────────────────
+// Each rebuke section gets a subtle warning-tinted hairline border + a
+// copy-button on hover that copies the section's plain text to clipboard.
+// The existing collapsible card structure stays — we just polish the visual.
+
+.rebuke-panel-wrapper {
+  // Section dividers: hairline between adjacent rebuke sections so the page
+  // reads as a stack of distinct convictions, not one wall of text.
+  & > .rebuke-section + .rebuke-section,
+  & > article > section + section {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 0.5px solid color-mix(in srgb, var(--accent-warning) 14%, transparent);
+  }
+}
+
+// Style any rebuke-tagged article (cssclasses: [rebuke]) so its <h2>-wrapped
+// sections feel like conviction cards. We rely on the existing IdiomFlashcard
+// pattern that wraps h2 sections in `.idiom-section-card` — rebuke notes
+// don't use that, so we target the original headings directly.
+article.rebuke {
+  & > h2 {
+    color: var(--accent-warning);
+  }
+}
+
+// .rebuke-copy-btn is styled in components/styles/rebukePanel.scss already
+// (it's the per-rebuke "Copy" button rendered inside the tab UI from
+// RebukePanel.tsx:170). A previous override here had `opacity: 0` reveal-on-
+// hover which made the button invisible. Removed — existing styles win.
 
 // IdiomIndex alpha-nav: glassy pill buttons, sticky-ish anchor scroll list.
 .idiom-alpha-nav {
@@ -890,4 +747,24 @@ body[data-slug="Bible-Reader"] .br-text-body {
     font-weight: 400;
     color: var(--gray);
   }
+}
+
+// ── Sidebar glass (desktop only) ──────────────────────────────────────────────
+@media (min-width: 1200px) {
+  .sidebar.left {
+    background: color-mix(in srgb, var(--light) 70%, transparent);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border-right: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
+  }
+}
+
+// ── Page transition ───────────────────────────────────────────────────────────
+@keyframes quartz-page-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.center {
+  animation: quartz-page-in 180ms ease;
 }

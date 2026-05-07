@@ -49,6 +49,7 @@ export { default as SidebarCollapse } from "./SidebarCollapse"
 export { default as MobileSettings } from "./MobileSettings"
 export { default as AccentPicker } from "./AccentPicker"
 export { default as DailyHeader } from "./DailyHeader"
+export { default as MobileTabBar } from "./MobileTabBar"
 
 export {
   ArticleTitle,

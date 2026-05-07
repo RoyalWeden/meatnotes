@@ -47,11 +47,16 @@ const ExplorerTopLinks: QuartzComponent = () => (
 )
 
 ExplorerTopLinks.css = `
+/* Compact icon-row layout (Phase 17b): five small icon-only chips in a
+   wrapping flex row instead of a vertical stack of button-sized pills.
+   Frees ~140px of sidebar vertical space; tooltips show full label on hover. */
 .explorer-top-links {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0;
 }
 
 /* Hide from mobile top bar — JS injects it into the Explorer drawer instead */
@@ -60,33 +65,38 @@ ExplorerTopLinks.css = `
 }
 
 .explorer-top-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--secondary);
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 0; /* hide the text label; icon + tooltip carry the affordance */
+  font-weight: 500;
+  color: var(--accent);
   text-decoration: none !important;
-  padding: 0.45rem 0.85rem;
+  padding: 0;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--secondary) 30%, transparent);
-  background: color-mix(in srgb, var(--secondary) 10%, transparent);
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  border: 0.5px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 100ms ease;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
-    color: var(--secondary);
+    color: var(--accent);
   }
 }
 
 @media (hover: hover) {
   .explorer-top-link:hover {
-    background: color-mix(in srgb, var(--secondary) 18%, transparent);
-    border-color: color-mix(in srgb, var(--secondary) 50%, transparent);
-    color: var(--secondary);
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
   }
+}
+
+.explorer-top-link:active {
+  transform: scale(0.94);
 }
 
 /* Mobile drawer version */

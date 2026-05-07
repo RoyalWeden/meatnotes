@@ -68,9 +68,7 @@ footer {
   cursor: help;
   position: relative;
 }
-/* Hide footer on landing + custom full-page surfaces — they manage their own
-   chrome and an extra footer just adds noise. */
-body[data-slug="index"] footer,
+/* Hide footer only on full-page webapp surfaces — content pages (incl. home) show it. */
 body[data-slug="Bible-Reader"] footer,
 body[data-slug="Verse-Chain"] footer,
 body[data-slug="Dashboard"] footer,

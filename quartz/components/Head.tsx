@@ -117,6 +117,41 @@ export default (() => {
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 
+        {/* Service worker registration (Phase 13.5) — caches shell + HTML
+            for offline reading. SKIPPED on localhost so dev always serves
+            fresh code; ALSO unregisters any pre-existing SW on localhost so
+            stale state from earlier testing gets cleared automatically. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function () {
+  if (!('serviceWorker' in navigator)) return
+  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '0.0.0.0'
+  if (isLocal) {
+    // Dev: unregister any existing SW + purge caches so subsequent reloads
+    // see fresh JS/CSS. Quartz hot-reloads files, but SW intercepts requests
+    // for subresources which prevents fresh code from being served.
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister() })
+    })
+    if (window.caches && caches.keys) {
+      caches.keys().then(function (keys) {
+        keys.forEach(function (k) { caches.delete(k) })
+      })
+    }
+    return
+  }
+  // Production: register normally.
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function (err) {
+      console.warn('[sw] register failed:', err)
+    })
+  })
+})()
+            `,
+          }}
+        />
+
         {css.map((resource) => CSSResourceToStyleElement(resource, true))}
         {js
           .filter((resource) => resource.loadTime === "beforeDOMReady")

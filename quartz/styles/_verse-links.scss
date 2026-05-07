@@ -1,0 +1,145 @@
+@use "./variables.scss" as *;
+
+// ── Verse-reference links (Phase 16b) ───────────────────────────────────────
+// Bible-link plugin marks verse-ref anchors with `data-verse-ref`. We render
+// them as small accent-soft pill chips — same vocabulary as #tag pills, with
+// minimal vertical padding so line-height isn't disrupted. Drop both the
+// global external-link arrow (handled in base.scss) and the chain glyph
+// (`.verse-chain-btn`) inline; desktop relies on hover popover, mobile gets
+// the "Verses in this note" section + long-press popover.
+
+a[data-verse-ref] {
+  background: var(--accent-soft);
+  color: var(--accent) !important;
+  padding: 0 0.4em;
+  border-radius: $radius-sm;
+  text-decoration: none !important;
+  font-weight: 500;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  // Tiny vertical padding via line-height — keep within the text flow.
+  line-height: inherit;
+}
+
+a[data-verse-ref]:hover {
+  background: var(--accent-tint);
+  color: var(--accent) !important;
+}
+
+// Hide the chain glyph entirely. The pill background is the affordance.
+// On mobile we instead surface the chain functionality at the bottom of
+// articles via the .mobile-verse-chains section (handled in JS + below).
+.verse-chain-btn {
+  display: none !important;
+}
+
+// ── Mobile "Verses in this note" footer section ─────────────────────────────
+// Appears at the end of the article on mobile (and in PWA standalone mode)
+// when the article contains verse-ref links. Lists each unique verse ref as
+// a small chip; tap to open the verse-chain explorer for that ref.
+.mobile-verse-chains {
+  display: none; // desktop hides it; popover is enough
+  margin: 2rem 0 0 0;
+  padding: 1rem 0 0 0;
+  border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+
+  & .mvc-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 0.6rem 0;
+  }
+
+  & .mvc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  & .mvc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: var(--accent-soft);
+    color: var(--accent) !important;
+    border-radius: 999px;
+    text-decoration: none !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background-color 0.12s ease;
+
+    & svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+  }
+  & .mvc-link:hover {
+    background: var(--accent-tint);
+  }
+}
+
+@media all and ($mobile) {
+  .mobile-verse-chains { display: block; }
+}
+
+// ── PWA standalone — sticky bottom-floating "verses" chip ───────────────────
+// When launched as an installed app on mobile, the section becomes a sticky-
+// at-bottom collapsible chip. Tap → expands into a small sheet with all the
+// verse refs. More "app-like" than just an inline section.
+@media all and ($mobile) and (display-mode: standalone) {
+  .mobile-verse-chains {
+    position: fixed;
+    bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    border: none;
+    z-index: 200;
+    background: transparent;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+  }
+
+  .mobile-verse-chains .mvc-title {
+    display: none;
+  }
+
+  .mobile-verse-chains:not(.expanded) .mvc-list {
+    display: none;
+  }
+
+  .mobile-verse-chains:not(.expanded)::before {
+    content: "≡ Verses";
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: color-mix(in srgb, var(--light) 78%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+  }
+
+  .mobile-verse-chains.expanded {
+    background: color-mix(in srgb, var(--light) 92%, transparent);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+    border-radius: $radius-lg;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-width: calc(100% - 2rem);
+  }
+}

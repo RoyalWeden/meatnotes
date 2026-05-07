@@ -14,10 +14,27 @@ const PageTitle: QuartzComponent = ({ fileData, cfg, displayClass }: QuartzCompo
 }
 
 PageTitle.css = `
+/* Phase 17c: small uppercase tracked label — matches the Inspector caps
+   header vocabulary from Phase 4. Frees ~30px of sidebar vertical space and
+   reads like Apple Notes' account-header. The full title remains the link
+   target so clicking still goes home. */
 .page-title {
-  font-size: 1.75rem;
-  margin: 0;
-  font-family: var(--titleFont);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--darkgray);
+  margin: 0 0 0.5rem 0;
+  font-family: var(--bodyFont);
+  line-height: 1.2;
+}
+.page-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+.page-title a:hover {
+  color: var(--accent);
 }
 `
 

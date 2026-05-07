@@ -124,7 +124,10 @@ a {
     }
   }
 
-  &.external .external-icon {
+  // External-link arrow — show only on links that are NOT verse references.
+  // Verse-ref links carry their own visual treatment (accent-soft pill in
+  // custom.scss) and adding the arrow on top makes the line feel busy.
+  &.external:not([data-verse-ref]) .external-icon {
     height: 1ex;
     margin: 0 0.15em;
 

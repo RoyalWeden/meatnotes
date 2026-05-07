@@ -6,12 +6,7 @@ export const sharedPageComponents: SharedLayout = {
   header: [
     // ReadingProgress removed in Phase 2 — Apple sites don't use one and the
     // translucent toolbar provides enough sense of "where you are" on its own.
-    Component.DesktopOnly(Component.Flex({
-      components: [
-        { Component: Component.Search(), grow: true },
-        { Component: Component.IdiomSearch() },
-      ],
-    })),
+    Component.DesktopOnly(Component.Search()),
   ],
   afterBody: [
     Component.Tooltip(),
@@ -22,6 +17,9 @@ export const sharedPageComponents: SharedLayout = {
     // accent on first paint to avoid flash + wire click handlers on
     // [data-set-accent] swatches in Darkmode/MobileSettings).
     Component.AccentPicker(),
+    // Phase 6.5: floating glass tab bar at the bottom of mobile viewports.
+    // Hides scattered FABs and consolidates ☰ / ⌘K / Today / ⋯ into one bar.
+    Component.MobileTabBar(),
     Component.DailyNoteNav(),
     Component.ConditionalRender({
       component: Component.HomeSections(),
@@ -153,12 +151,7 @@ export const defaultContentPageLayout: PageLayout = {
   left: [
     Component.PageTitle(),
     Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        { Component: Component.MobileOnly(Component.Search()), grow: true },
-        { Component: Component.MobileOnly(Component.IdiomSearch()) },
-      ],
-    }),
+    Component.MobileOnly(Component.Search()),
     Component.DesktopOnly(Component.DailyCalendar()),
     Component.ExplorerTopLinks(),
     Component.Explorer(explorerConfig),
@@ -210,12 +203,7 @@ export const defaultListPageLayout: PageLayout = {
   left: [
     Component.PageTitle(),
     Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        { Component: Component.MobileOnly(Component.Search()), grow: true },
-        { Component: Component.MobileOnly(Component.IdiomSearch()) },
-      ],
-    }),
+    Component.MobileOnly(Component.Search()),
     Component.DesktopOnly(Component.DailyCalendar()),
     Component.ExplorerTopLinks(),
     Component.Explorer(explorerConfig),

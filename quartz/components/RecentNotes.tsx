@@ -54,31 +54,26 @@ export default ((userOpts?: Partial<Options>) => {
     const pages = allFiles.filter(opts.filter).sort(opts.sort)
     const remaining = Math.max(0, pages.length - opts.limit)
     return (
-      <div class={classNames(displayClass, "recent-notes")} id="recent-notes-home">
-        <div class="recent-notes-heading">
+      <details class={classNames(displayClass, "right-rail-section recent-notes")} id="recent-notes-home" open>
+        <summary>
           <h3>{opts.title ?? i18n(cfg.locale).components.recentNotes.title}</h3>
-          <button
-            class="section-collapse-btn recent-notes-collapse"
-            aria-label="Toggle section"
-            data-target="recent-notes-home"
+          <svg
+            class="rrs-fold"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-        </div>
-        <ul class="recent-ul">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </summary>
+        <ul class="recent-ul rrs-content">
           {pages.slice(0, opts.limit).map((page) => {
             const title = page.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
             return (
@@ -105,31 +100,33 @@ export default ((userOpts?: Partial<Options>) => {
             </a>
           </p>
         )}
-      </div>
+      </details>
     )
   }
 
   RecentNotes.css = style
 
+  // Persist <details> open state across navigation. Native <details>
+  // toggling handles the open/close UI; this hook just remembers the user's
+  // choice in localStorage so it survives reloads + SPA navs.
   RecentNotes.afterDOMLoaded = `
 (function() {
-  var STORAGE_KEY = 'recent-notes-home-collapsed'
+  var STORAGE_KEY = 'recent-notes-home-open'
 
   function init() {
     var wrapper = document.getElementById('recent-notes-home')
     if (!wrapper) return
-    var btn = wrapper.querySelector('.recent-notes-collapse')
-    if (!btn) return
+    if (wrapper.tagName !== 'DETAILS') return
 
-    if (localStorage.getItem(STORAGE_KEY) === 'true') {
-      wrapper.classList.add('collapsed')
-    }
+    var saved = localStorage.getItem(STORAGE_KEY)
+    if (saved === 'true') wrapper.setAttribute('open', '')
+    else if (saved === 'false') wrapper.removeAttribute('open')
+    // null saved → keep server-side default (which is open).
 
-    if (btn.dataset.rnh) return
-    btn.dataset.rnh = '1'
-    btn.addEventListener('click', function() {
-      var collapsed = wrapper.classList.toggle('collapsed')
-      localStorage.setItem(STORAGE_KEY, String(collapsed))
+    if (wrapper.dataset.rnh) return
+    wrapper.dataset.rnh = '1'
+    wrapper.addEventListener('toggle', function() {
+      localStorage.setItem(STORAGE_KEY, String(wrapper.open))
     })
   }
 

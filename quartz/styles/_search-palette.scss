@@ -1,0 +1,130 @@
+@use "./variables.scss" as *;
+
+// ── Raycast-style command palette overrides ─────────────────────────────────
+// The existing Search component (search.scss, ~1000 lines) carries the heavy
+// behavior — flexsearch indexing, scope tabs, folder filter chip, preview
+// pane. These overrides re-skin it to feel like Raycast / macOS Spotlight:
+// tighter modal width, translucent surface, softer shadows, accent-soft focus
+// state. We override here instead of editing search.scss directly so the
+// underlying layout stays untouched and easy to revert.
+
+.search > .search-container {
+  // Backdrop: stronger blur, gentle dim. Default search.scss gives a thin 4px
+  // blur with no dim — Spotlight has a noticeably darker, more focused feel.
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  background: color-mix(in srgb, var(--dark) 18%, transparent);
+
+  & > .search-space {
+    // Tighter Raycast width. Default is 80% of viewport — too wide.
+    max-width: 640px;
+    width: calc(100% - 2rem);
+    margin-top: 12vh;
+
+    // The modal panel itself — translucent, big radius, soft layered shadow.
+    & > * {
+      border-radius: $radius-lg;
+      background: color-mix(in srgb, var(--light) 88%, transparent);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow:
+        0 24px 64px -16px rgba(0, 0, 0, 0.28),
+        0 4px 16px -4px rgba(0, 0, 0, 0.14),
+        inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
+      margin-bottom: 1rem;
+    }
+
+    & > .search-input-wrap {
+      border: none;
+      padding: 0.6em 1.1em;
+      min-height: 3.4em;
+
+      & > input.search-bar {
+        font-size: 1.05em;
+        font-family: var(--bodyFont);
+
+        &::placeholder {
+          color: var(--gray);
+        }
+      }
+    }
+  }
+
+  // Filter buttons (All/Title/Content/Tags + Phrase) and scope row — quieter.
+  .search-filter-btns,
+  .search-scope-row {
+    .filter-btn,
+    .scope-btn,
+    .phrase-btn {
+      border: none;
+      background: transparent;
+      color: var(--gray);
+      border-radius: $radius-pill;
+      padding: 0.25em 0.7em;
+      font-size: 0.85em;
+      transition: background 0.12s ease, color 0.12s ease;
+
+      &:hover {
+        color: var(--darkgray);
+        background: color-mix(in srgb, var(--darkgray) 6%, transparent);
+      }
+
+      &.active {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Result rows — Spotlight feel: full-row accent-soft fill on focus,
+  // no harsh left border, no visible row dividers (rely on whitespace).
+  .result-card,
+  .fuzzy-result-card,
+  .pdf-result-card {
+    border-bottom: none !important;
+    border-left: none !important;
+    border-radius: $radius-md;
+    margin: 0 0.4rem;
+    padding: 0.7rem 0.85rem !important;
+    transition: background 0.12s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--darkgray) 5%, transparent) !important;
+    }
+
+    &:focus,
+    &.focus {
+      background: var(--accent-soft) !important;
+      box-shadow: none !important;
+      outline: none;
+
+      h3 { color: var(--accent); }
+    }
+
+    & h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  }
+
+  // Keyboard hint bar at the bottom — Raycast has a thin bar with kbd chips.
+  .search-kbd-hints {
+    border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 12%, transparent);
+    padding: 0.5rem 1rem;
+    font-size: 0.72rem;
+    color: var(--gray);
+    display: flex;
+    gap: 1rem;
+
+    kbd {
+      background: color-mix(in srgb, var(--darkgray) 8%, transparent);
+      border-radius: $radius-sm;
+      padding: 0.1em 0.4em;
+      font-family: var(--codeFont);
+      font-size: 0.92em;
+      margin: 0 0.15em;
+      border: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+    }
+  }
+}

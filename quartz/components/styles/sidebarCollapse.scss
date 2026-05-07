@@ -7,6 +7,8 @@ $rail-width: 60px;
 $rail-icon-size: 32px;
 
 // ── Sidebar toggle chevron buttons (ONE per side) ──
+// Smaller, more refined chip (28x44 instead of 36x60). Higher z-index so it
+// always paints on top of sidebar/content. Tighter inset to the column edge.
 .sidebar-toggle {
   display: none; // hidden on mobile
 
@@ -16,17 +18,16 @@ $rail-icon-size: 32px;
     justify-content: center;
     position: absolute;
     top: 50%;
-    width: 36px;
-    height: 60px;
-    min-height: 44px;
-    border-radius: 14px;
+    width: 28px;
+    height: 44px;
+    border-radius: 12px;
     background: rgba(var(--light-rgb, 255, 255, 255), 0.7);
     backdrop-filter: blur(20px) saturate(200%);
     -webkit-backdrop-filter: blur(20px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    z-index: 20;
+    z-index: 50;
     color: var(--gray);
     font-size: 0.7rem;
     transition: opacity 0.25s ease, background $transition-fast ease,
@@ -35,12 +36,23 @@ $rail-icon-size: 32px;
     pointer-events: none;
     transform: translateY(-50%);
 
-    // Invisible hotzone — extends far toward page center for easy discovery
+    // Tight invisible hotzone — just slightly larger than the visible chip
+    // (was `-60px -30px` plus the variant-specific 120px stretch into content,
+    // which was stealing clicks from neighboring page content).
     &::before {
       content: '';
       position: absolute;
-      inset: -60px -30px;
+      inset: -8px -12px;
       z-index: -1;
+    }
+
+    // Vertically center the chevron SVG inside the chip regardless of font-
+    // size or line-height drift — was relying on flex centering which can
+    // misalign when the parent's font metrics shift.
+    & > svg {
+      position: absolute;
+      inset: 0;
+      margin: auto;
     }
 
     &:hover {
@@ -59,12 +71,10 @@ $rail-icon-size: 32px;
 
 .sidebar-toggle-left {
   @media all and ($desktop) {
-    right: -20px;
-
-    // Extend hotzone 120px toward page center (rightward)
-    &::before {
-      inset: -60px -120px -60px -40px;
-    }
+    // Pulled in from -20px so the chip sits closer to the column edge and
+    // doesn't visually overlap content. Hot-zone is the tight `inset: -8px -12px`
+    // from the base rule.
+    right: -10px;
   }
 }
 
@@ -76,11 +86,6 @@ $rail-icon-size: 32px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 9999;
-
-    // Extend hotzone 120px toward page center (leftward)
-    &::before {
-      inset: -60px -40px -60px -120px;
-    }
 
     &:hover {
       transform: translateY(-50%) scale(1.05);
@@ -239,8 +244,13 @@ $rail-icon-size: 32px;
     }
 
     // Toggle for right sidebar uses position: fixed with screen-edge inset.
-    // The selector here scopes the override below the existing fixed-pos rule.
+    // Reinstating opacity:1 + pointer-events:auto here is critical — the
+    // global toggle rule starts with opacity:0 and reveals on
+    // `.sidebar.right:hover`, but a width-0 sidebar has no hoverable area, so
+    // the toggle would never appear without this explicit override.
     .sidebar-toggle-right {
+      opacity: 1;
+      pointer-events: auto;
       right: 16px !important; // 16px inset from viewport right edge
     }
   }

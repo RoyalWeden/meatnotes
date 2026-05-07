@@ -41,6 +41,11 @@ export default ((userOpts?: Partial<SearchOptions>) => {
                 aria-label={searchPlaceholder}
                 placeholder={searchPlaceholder}
               />
+              <button class="search-filter-toggle" aria-label="Toggle filters" data-tooltip="Toggle filters">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
+                  <path d="M1.5 3.5a.5.5 0 0 1 .5-.5h12a.5.5 0 0 1 0 1h-12a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+              </button>
             </div>
             <div class="search-filter-btns" role="group" aria-label="Search filter">
               <button class="filter-btn active" data-filter="all" data-tooltip="Search all fields">All</button>

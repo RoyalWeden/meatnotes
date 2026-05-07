@@ -922,6 +922,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   const inputWrap = searchElement.querySelector(".search-input-wrap") as HTMLElement | null
   const scopeRow = searchElement.querySelector(".search-scope-row") as HTMLElement | null
+  const searchSpace = searchElement.querySelector(".search-space") as HTMLElement | null
+  const filterToggle = searchElement.querySelector(".search-filter-toggle") as HTMLButtonElement | null
 
   function setFolderFilter(path: string, label: string) {
     activeFolderFilter = path
@@ -1011,6 +1013,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     filterBtns.forEach((btn) => {
       btn.classList.toggle("active", (btn as HTMLElement).dataset.filter === filter)
     })
+    updateFilterToggleIndicator()
   }
 
   const phraseBtnEl = searchElement.querySelector(".phrase-btn") as HTMLButtonElement | null
@@ -1021,6 +1024,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       phraseBtnEl.classList.toggle("active", active)
       phraseBtnEl.setAttribute("aria-pressed", String(active))
     }
+    updateFilterToggleIndicator()
   }
 
   function toggleScope(scope: SearchScope) {
@@ -1037,6 +1041,26 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     scopeBtns.forEach((btn) => {
       btn.classList.toggle("active", activeScopes.has((btn.dataset.scope ?? "all") as SearchScope))
     })
+    updateFilterToggleIndicator()
+  }
+
+  function updateFilterToggleIndicator() {
+    if (!filterToggle) return
+    const nonDefault =
+      searchFilter !== "all" ||
+      phraseMode ||
+      !activeScopes.has("all") ||
+      activeScopes.size > 1
+    filterToggle.classList.toggle("filters-active", nonDefault)
+  }
+
+  if (filterToggle && searchSpace) {
+    filterToggle.addEventListener("click", () => {
+      searchSpace.classList.toggle("filters-open")
+    })
+    if (typeof window.addCleanup === "function") {
+      window.addCleanup(() => filterToggle.removeEventListener("click", () => {}))
+    }
   }
 
   function hideSearch() {
@@ -1044,6 +1068,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     unlockScroll()
     searchBar.value = "" // clear the input when we dismiss the search
     if (sidebar) sidebar.style.zIndex = ""
+    if (searchSpace) searchSpace.classList.remove("filters-open")
     // Restore the full-search page sticky bar
     const fsBar = document.getElementById("fs-sticky-bar")
     if (fsBar) fsBar.style.visibility = ""
@@ -1076,8 +1101,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       <span><kbd>Enter</kbd> open</span>
       <span><kbd>Esc</kbd> close</span>
     `
-      // Insert after the input wrap (not searchBar directly, which is now inside the wrap)
-      ;(inputWrap ?? searchBar).after(el)
+      // Append to bottom of search-space so margin-top: auto pushes it down
+      ;(searchSpace ?? inputWrap ?? searchBar.parentElement)?.appendChild(el)
       return el
     })()
 
@@ -1354,53 +1379,142 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     searchBar.placeholder = defaultPlaceholder
   }
 
-  function showRecentSearches() {
-    const recent = loadRecentSearches()
-    if (recent.length === 0) return
+  function showEmptyState() {
     removeAllChildren(results)
-    searchLayout.classList.add("display-results")
 
-    const wrapper = document.createElement("div")
-    wrapper.className = "recent-searches"
-    const labelRow = document.createElement("div")
-    labelRow.className = "recent-label-row"
-    const label = document.createElement("p")
-    label.className = "recent-label"
-    label.textContent = "Recent searches"
-    const clearBtn = document.createElement("button")
-    clearBtn.className = "recent-clear-btn"
-    clearBtn.textContent = "Clear"
-    const clearHandler = () => {
-      localStorage.removeItem(RECENT_SEARCHES_KEY)
-      removeAllChildren(results)
-      searchLayout.classList.remove("display-results")
-    }
-    clearBtn.addEventListener("click", clearHandler)
-    window.addCleanup(() => clearBtn.removeEventListener("click", clearHandler))
-    labelRow.appendChild(label)
-    labelRow.appendChild(clearBtn)
-    const chips = document.createElement("div")
-    chips.className = "recent-chips"
-
-    for (const term of recent) {
-      const chip = document.createElement("button")
-      chip.className = "recent-chip"
-      chip.textContent = term
-      const chipHandler = () => {
-        searchBar.value = term
-        searchBar.dispatchEvent(new Event("input"))
+    // Recent searches (if any)
+    const recent = loadRecentSearches()
+    if (recent.length > 0) {
+      const wrapper = document.createElement("div")
+      wrapper.className = "recent-searches"
+      const labelRow = document.createElement("div")
+      labelRow.className = "recent-label-row"
+      const label = document.createElement("p")
+      label.className = "recent-label"
+      label.textContent = "Recent searches"
+      const clearBtn = document.createElement("button")
+      clearBtn.className = "recent-clear-btn"
+      clearBtn.textContent = "Clear"
+      const clearHandler = () => {
+        localStorage.removeItem(RECENT_SEARCHES_KEY)
+        showEmptyState()
       }
-      chip.addEventListener("click", chipHandler)
-      window.addCleanup(() => chip.removeEventListener("click", chipHandler))
-      chips.appendChild(chip)
+      clearBtn.addEventListener("click", clearHandler)
+      window.addCleanup(() => clearBtn.removeEventListener("click", clearHandler))
+      labelRow.appendChild(label)
+      labelRow.appendChild(clearBtn)
+      const chips = document.createElement("div")
+      chips.className = "recent-chips"
+      for (const term of recent) {
+        const chip = document.createElement("button")
+        chip.className = "recent-chip"
+        chip.textContent = term
+        const chipHandler = () => {
+          searchBar.value = term
+          searchBar.dispatchEvent(new Event("input"))
+        }
+        chip.addEventListener("click", chipHandler)
+        window.addCleanup(() => chip.removeEventListener("click", chipHandler))
+        chips.appendChild(chip)
+      }
+      wrapper.appendChild(labelRow)
+      wrapper.appendChild(chips)
+      results.appendChild(wrapper)
     }
 
-    wrapper.appendChild(labelRow)
-    wrapper.appendChild(chips)
-    results.appendChild(wrapper)
+    // Quick Actions section
+    function p2(n: number) { return String(n).padStart(2, "0") }
+    const now = new Date()
+    const todayPath = `Daily/${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}` as FullSlug
+
+    const actionsSection = document.createElement("div")
+    actionsSection.className = "search-actions-section"
+
+    const navLabel = document.createElement("p")
+    navLabel.className = "search-actions-label"
+    navLabel.textContent = "Quick Actions"
+    actionsSection.appendChild(navLabel)
+
+    const navGrid = document.createElement("div")
+    navGrid.className = "search-actions-grid"
+
+    const navItems: Array<{ icon: string; label: string; slug: FullSlug }> = [
+      { icon: "📖", label: "Bible Reader", slug: "Bible-Reader" as FullSlug },
+      { icon: "🔗", label: "Verse Chain", slug: "Verse-Chain" as FullSlug },
+      { icon: "📊", label: "Dashboard", slug: "Dashboard" as FullSlug },
+      { icon: "📝", label: "All Notes", slug: "All-Notes" as FullSlug },
+      { icon: "📅", label: "Today", slug: todayPath },
+    ]
+
+    for (const item of navItems) {
+      const a = document.createElement("a")
+      a.className = "search-action-card"
+      a.href = resolveUrl(item.slug).toString()
+      a.innerHTML = `<span class="search-action-icon">${item.icon}</span><span>${item.label}</span>`
+      a.addEventListener("click", hideSearch)
+      window.addCleanup(() => a.removeEventListener("click", hideSearch))
+      navGrid.appendChild(a)
+    }
+    actionsSection.appendChild(navGrid)
+
+    const cmdLabel = document.createElement("p")
+    cmdLabel.className = "search-actions-label"
+    cmdLabel.textContent = "Commands"
+    actionsSection.appendChild(cmdLabel)
+
+    const cmdGrid = document.createElement("div")
+    cmdGrid.className = "search-actions-grid"
+
+    const cmdItems: Array<{ icon: string; label: string; action: () => void }> = [
+      {
+        icon: "🌙",
+        label: "Toggle Dark Mode",
+        action: () => {
+          hideSearch()
+          // Toggle after modal closes so body scroll-lock is released first
+          requestAnimationFrame(() => {
+            const btn = document.querySelector<HTMLElement>('button[aria-label="Dark mode"]')
+            btn?.click()
+          })
+        },
+      },
+      {
+        icon: "🔗",
+        label: "Copy Shortlink",
+        action: () => {
+          const btn = document.getElementById("shortlink-btn") as HTMLElement | null
+          if (btn) btn.click()
+          else navigator.clipboard?.writeText(window.location.href).catch(() => {})
+          hideSearch()
+        },
+      },
+      {
+        icon: "⬆️",
+        label: "Back to Top",
+        action: () => {
+          window.scrollTo({ top: 0, behavior: "smooth" })
+          hideSearch()
+        },
+      },
+    ]
+
+    for (const cmd of cmdItems) {
+      const btn = document.createElement("button")
+      btn.className = "search-action-card"
+      btn.innerHTML = `<span class="search-action-icon">${cmd.icon}</span><span>${cmd.label}</span>`
+      btn.addEventListener("click", cmd.action)
+      window.addCleanup(() => btn.removeEventListener("click", cmd.action))
+      cmdGrid.appendChild(btn)
+    }
+    actionsSection.appendChild(cmdGrid)
+
+    results.appendChild(actionsSection)
+    searchLayout.classList.add("display-results", "search-layout-empty")
   }
 
   function showSearch(searchTypeNew: SearchType) {
+    // Guard: skip if this search instance's element is hidden (e.g. mobile-only on desktop)
+    if ((searchElement as HTMLElement).offsetWidth === 0 && (searchElement as HTMLElement).offsetHeight === 0) return
     searchType = searchTypeNew
     lockScroll()
     if (sidebar) sidebar.style.zIndex = "1"
@@ -1410,9 +1524,9 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     if (fsBar) fsBar.style.visibility = "hidden"
     searchBar.focus()
     startPlaceholderCycle()
-    // Show recent searches if input is empty
+    // Show actions + recent searches if input is empty
     if (searchBar.value === "") {
-      showRecentSearches()
+      showEmptyState()
     }
   }
 
@@ -1420,6 +1534,8 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   let currentHover: HTMLInputElement | null = null
   async function shortcutHandler(e: HTMLElementEventMap["keydown"]) {
+    // Guard: skip if this search instance is hidden (two instances share document keydown)
+    if ((searchElement as HTMLElement).offsetWidth === 0 && (searchElement as HTMLElement).offsetHeight === 0) return
     if (e.key === "k" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
       e.preventDefault()
       const searchBarOpen = container.classList.contains("active")
@@ -1795,6 +1911,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
 
   async function displayResults(finalResults: Item[], totalCount?: number, dateLabel?: string) {
     removeAllChildren(results)
+    searchLayout.classList.remove("search-layout-empty")
 
     // Folder filter suggestions: always shown when filter is active (for sub-folder drilling),
     // or when query is long enough for top-level folder matches
@@ -2236,6 +2353,18 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     previewInner.append(...innerDiv)
     if (isIdiomSlug(slug)) applyIdiomPreviewStyle(previewInner)
 
+    // Strip custom components that render broken or visually noisy in the preview
+    const STRIP_SELECTORS = [
+      "[data-component]",
+      ".rebuke-tab-strip", ".rebuke-card-copy-btn", ".rebuke-card-header",
+      ".idiom-flashcard", ".idiom-quiz-wrap",
+      ".mobile-tab-bar", ".sidebar-toggle", "script", "style", "iframe",
+      "canvas", ".pdf-filter-bar", ".pdf-tag-bar",
+    ]
+    STRIP_SELECTORS.forEach((sel) =>
+      previewInner!.querySelectorAll(sel).forEach((el) => el.remove()),
+    )
+
     // PDF library preview: strip code blocks and non-functional filter UI,
     // then inject a live summary from the already-loaded index
     if (slug === "Books-and-PDFs" || previewInner.querySelector(".pdf-library-page")) {
@@ -2345,8 +2474,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         searchLayout.classList.add("display-results")
         await displayResults([])
       } else {
-        searchLayout.classList.remove("display-results")
-        showRecentSearches()
+        showEmptyState()
       }
       return
     }
@@ -2588,7 +2716,7 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     // (folder filter focus fires from searchBar.focus() after selecting a folder chip,
     //  and would wipe the folder results that displayResults just rendered)
     if (searchBar.value === "" && activeFolderFilter === null) {
-      showRecentSearches()
+      showEmptyState()
     }
   }
 
@@ -2707,17 +2835,51 @@ async function fillDocument(data: ContentIndex) {
   }
 }
 
-document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
-  // Defensive scroll-lock reset: if a previous page left the body locked
-  // (e.g. SPA-nav fired while a modal/sheet was open and its close handler
-  // didn't run), scroll would silently break for the rest of the session.
-  // Always start each navigation from a clean body-style baseline.
+// Centralized body scroll-lock reset. Called from the SPA `nav` event, the
+// browser `pageshow` event (catches bfcache restore — Safari "back" button
+// can re-show a page in a locked state), and an idle-watchdog (every 5s
+// checks if body has been locked but no modal is in the DOM and clears it).
+function resetBodyScrollLock(): void {
   document.body.style.overflow = ""
   document.body.style.position = ""
   document.body.style.top = ""
   document.body.style.width = ""
   document.body.style.paddingRight = ""
   document.documentElement.style.overflow = ""
+}
+
+// pageshow runs on initial load AND when Safari/Firefox restore the page
+// from bfcache. The latter case can resurrect a locked-body state that the
+// SPA nav handler never sees because no nav fires on a bfcache restore.
+window.addEventListener("pageshow", () => {
+  resetBodyScrollLock()
+})
+
+// Idle-watchdog: every 5s, check whether the body is locked (overflow:hidden
+// or position:fixed inline). If so, AND no modal is currently visible in the
+// DOM, force-unlock and log a warning so dev catches future leaks fast.
+setInterval(() => {
+  const inline = document.body.style
+  const isLocked = inline.overflow === "hidden" || inline.position === "fixed"
+  if (!isLocked) return
+
+  const hasOpenModal =
+    document.querySelector(".search-container.active") !== null ||
+    document.querySelector(".mobile-settings-sheet.open") !== null ||
+    document.querySelector(".idiom-modal.open") !== null ||
+    document.querySelector(".pdf-viewer.active") !== null
+
+  if (!hasOpenModal) {
+    console.warn("[scroll-lock-watchdog] body locked but no modal open; force-unlocking")
+    resetBodyScrollLock()
+  }
+}, 5000)
+
+document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
+  // Defensive scroll-lock reset: if a previous page left the body locked
+  // (e.g. SPA-nav fired while a modal/sheet was open and its close handler
+  // didn't run), scroll would silently break for the rest of the session.
+  resetBodyScrollLock()
 
   const currentSlug = e.detail.url
   const data = await fetchData

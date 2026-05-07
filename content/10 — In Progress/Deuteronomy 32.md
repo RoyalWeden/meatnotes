@@ -4,11 +4,11 @@ This section are cross references from the brother's group and ones I've come ac
 
 ## Old Testament
 
-Leviticus
+### Leviticus
 
 - Lev 26:3-4 → Deut 32:2
 
-Deuteronomy
+### Deuteronomy
 
 - Deut 11:13-17 → Deut 32:2
 - Deut 28:68 → Deut 32:30
@@ -18,7 +18,7 @@ Deuteronomy
 - Deut 33:28 → Deut 32:2
 - Deut 33:29 → Deut 32:13
 
-Job
+### Job
 
 - Job 5:10 → Deut 32:2
 - Job 5:11 → Deut 32:13
@@ -32,7 +32,7 @@ Job
 - ❔ Job 29:7 → Deut 32:21
 - Job 29:21-22 → Deut 32:2
 
-Psalm
+### Psalms
 
 - Psa 7:12-13 → Deut 32:23
 - Psa 17:18 → Deut 32:10
@@ -57,7 +57,7 @@ Psalm
 - Psa 116:12 → Deut 32:6
 - Psa 135:14 → Deut 32:36
 
-Proverbs
+### Proverbs
 
 - Pro 3:20 → Deut 32:2
 - Pro 7:2 → Deut 32:10
@@ -66,11 +66,11 @@ Proverbs
 - Pro 19:20 → Deut 32:28-29
 - Pro 25:2 → Deut 32:34
 
-Song of Solomon
+### Song of Solomon
 
 - Sng 5:6 → Deut 32:20
 
-Isaiah
+### Isaiah
 
 - Isa 1:2-4 → Deut 32:1-6, Deut 32:16, Deut 32:21
 - Isa 1:10 → Deut 32:1
@@ -114,7 +114,7 @@ Isaiah
 - Isa 65:3 → Deut 32:16, Deut 32:21
 - Isa 66:15-16 → Deut 32:22
 
-Jeremiah
+### Jeremiah
 
 - Jer 2:5-13 → Deut 32:6, Deut 32:15-18, Deut 32:1
 - Jer 4:22 → Deut 32:38
@@ -131,12 +131,12 @@ Jeremiah
 - Jer 18:21 → Deut 32:25 (LXX)
 - Jer 22:29 → Deut 32:1
 
-Lamentations
+### Lamentations
 
 - Lam 2:18-19 → Deut 32:10
 - Lam 4:19 → Deut 32:13
 
-Ezekiel
+### Ezekiel
 
 - Eze 16:4-22 → Deut 32:10-18
 - Eze 20:5-6 → Deut 32:7-25
@@ -144,7 +144,12 @@ Ezekiel
 - Eze 32:18-32 → Deut 32:42-43
 - Eze 37:25 → Deut 32:9
 
-Hosea
+### Hosea
+
+| Deuteronomy 32 → Hosea | Hosea → Deuteronomy 32 |
+| --- | --- |
+| Deut 32:2 → Hos 6:4, 14:5<br>Deut 32:5 → Hos 9:9<br>Deut 32:9 → Hos 5:7<br>Deut 32:10 → Hos 13:5<br>Deut 32:10-12 → Hos 11:3<br>Deut 32:11 → Hos 4:19, 8:1<br>Deut 32:13 → Hos 2:7, 12:2<br>Deut 32:13-15 → Hos 13:6<br>Deut 32:17 → Hos 9:9<br>Deut 32:18 → Hos 8:14<br>Deut 32:20 → Hos 9:12<br>Deut 32:21 → Hos 1:10<br>Deut 32:21-22 → Hos 8:5<br>Deut 32:28 → Hos 4:6<br>Deut 32:32-33 → Hos 4:18<br>Deut 32:34 → Hos 13:12<br>Deut 32:36 → Hos 11:8<br>Deut 32:37-38 → Hos 13:10<br>Deut 32:38 → Hos 2:8<br>Deut 32:39 → Hos 6:1<br>Deut 32:42 → Hos 7:5 | Hos 1:4-6 → Deut 32:26<br>Hos 1:10 → Deut 32:21<br>Hos 2:7 → Deut 32:13<br>Hos 2:8 → Deut 32:38<br>Hos 2:9 → Deut 32:20<br>Hos 4:6 → Deut 32:28<br>Hos 4:14 → Deut 32:35<br>Hos 4:18 → Deut 32:32-33<br>Hos 4:19 → Deut 32:11<br>Hos 5:7 → Deut 32:9<br>Hos 5:14 → Deut 32:20<br>Hos 6:1 → Deut 32:39<br>Hos 6:4 → Deut 32:2<br>Hos 7:5 → Deut 32:42<br>Hos 7:9 → Deut 32:25<br>Hos 8:1 → Deut 32:11<br>Hos 8:5 → Deut 32:21-22<br>Hos 8:14 → Deut 32:18<br>Hos 9:9 → Deut 32:5, Deut 32:17<br>Hos 9:12 → Deut 32:20, Deut 32:25 (LXX)<br>Hos 11:3 → Deut 32:10-12<br>Hos 11:8-9 → Deut 32:36<br>Hos 12:2 → Deut 32:13<br>Hos 12:8 → Deut 32:15<br>Hos 13:3 → Deut 32:2<br>Hos 13:4 → Deut 32:39<br>Hos 13:5 → Deut 32:10<br>Hos 13:6 → Deut 32:13-15<br>Hos 13:10 → Deut 32:37-38<br>Hos 13:12 → Deut 32:34<br>Hos 14:5-7 → Deut 32:2<br>Hos 14:9 → Deut 32:4, Deut 32:29 |
+|  | grt |
 
 - Hos 1:4-6 → Deut 32:26 *(same thing)*
 - Hos 1:10 → Deut 32:21 *(tells you who those people are)*
@@ -179,50 +184,50 @@ Hosea
 - Hos 14:5-7 → Deut 32:2
 - Hos 14:9 → Deut 32:4, Deut 32:29
 
-Joel
+### Joel
 
 - Joel 2:1-11 → Deut 32:22-25
 - Joel 2:14 → Deut 32:36
 - Joel 3:2-4 → Deut 32:35-36
 
-Amos
+### Amos
 
 - Amo 2:4-6 → Deut 32:15-18
 - Amo 7:3-6 → Deut 32:36
 
-Obadiah
+### Obadiah
 
 - Oba 1:3-4 → Deut 32:13
 
-Micah
+### Micah
 
 - Mic 1:2 → Deut 32:1
 - Mic 1:5-7 → Deut 32:16-17
 
-Nahum
+### Nahum
 
 - Nah 1:2-6 → Deut 32:35-41
 
-Habakkuk
+### Habakkuk
 
 - Hab 3:3-13 → Deut 32:22-43
 
-Zephaniah
+### Zephaniah
 
 - Zep 1:2-3 → Deut 32:22-25
 
-Haggai
+### Haggai
 
 - Hag 2:6-7 → Deut 32:21
 
-Zechariah
+### Zechariah
 
 - Zec 2:8 → Deut 32:9-10
 - Zec 8:14-17 → Deut 32:21 *(As I have sworn in my wrath, in Deut 32, and will not go back on it, so will I execute judgment on Judah/Jerusalem/Judea, so if you can understand this then fulfill the royal law)*
 - Zec 10:1 → Deut 32:2
 - Zec 14:16 → Deut 32:43
 
-Malachi
+### Malachi
 
 - Mal 2:1-9 → Deut 32:2-5
 - Mal 3:10 → Deut 32:2
@@ -320,3 +325,29 @@ Revelation
 - Rev 18:20 → Deut 32:43 (LXX)
 - Rev 19:1-2 → Deut 32:43
 - Rev 21:17 → Deut 32:9
+
+---
+
+```plaintext
+Deut 32:2 → Hos 6:4, 14:5
+Deut 32:5 → Hos 9:9
+Deut 32:9 → Hos 5:7
+Deut 32:10 → Hos 13:5
+Deut 32:10-12 → Hos 11:3
+Deut 32:11 → Hos 4:19, 8:1
+Deut 32:13 → Hos 2:7, 12:2
+Deut 32:13-15 → Hos 13:6
+Deut 32:17 → Hos 9:9
+Deut 32:18 → Hos 8:14
+Deut 32:20 → Hos 9:12
+Deut 32:21 → Hos 1:10
+Deut 32:21-22 → Hos 8:5
+Deut 32:28 → Hos 4:6
+Deut 32:32-33 → Hos 4:18
+Deut 32:34 → Hos 13:12
+Deut 32:36 → Hos 11:8
+Deut 32:37-38 → Hos 13:10
+Deut 32:38 → Hos 2:8
+Deut 32:39 → Hos 6:1
+Deut 32:42 → Hos 7:5
+```

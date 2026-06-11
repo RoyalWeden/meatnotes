@@ -25,6 +25,12 @@ a[data-verse-ref]:hover {
   color: var(--accent) !important;
 }
 
+// Quartz base.scss adds an ::after arrow to all external links — suppress it
+// on verse pills since the pill background is already the affordance.
+a[data-verse-ref]::after {
+  display: none !important;
+}
+
 // Hide the chain glyph entirely. The pill background is the affordance.
 // On mobile we instead surface the chain functionality at the bottom of
 // articles via the .mobile-verse-chains section (handled in JS + below).

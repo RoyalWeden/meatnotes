@@ -149,7 +149,7 @@ This section are cross references from the brother's group and ones I've come ac
 | Deuteronomy 32 → Hosea | Hosea → Deuteronomy 32 |
 | --- | --- |
 | Deut 32:2 → Hos 6:4, 14:5<br>Deut 32:5 → Hos 9:9<br>Deut 32:9 → Hos 5:7<br>Deut 32:10 → Hos 13:5<br>Deut 32:10-12 → Hos 11:3<br>Deut 32:11 → Hos 4:19, 8:1<br>Deut 32:13 → Hos 2:7, 12:2<br>Deut 32:13-15 → Hos 13:6<br>Deut 32:17 → Hos 9:9<br>Deut 32:18 → Hos 8:14<br>Deut 32:20 → Hos 9:12<br>Deut 32:21 → Hos 1:10<br>Deut 32:21-22 → Hos 8:5<br>Deut 32:28 → Hos 4:6<br>Deut 32:32-33 → Hos 4:18<br>Deut 32:34 → Hos 13:12<br>Deut 32:36 → Hos 11:8<br>Deut 32:37-38 → Hos 13:10<br>Deut 32:38 → Hos 2:8<br>Deut 32:39 → Hos 6:1<br>Deut 32:42 → Hos 7:5 | Hos 1:4-6 → Deut 32:26<br>Hos 1:10 → Deut 32:21<br>Hos 2:7 → Deut 32:13<br>Hos 2:8 → Deut 32:38<br>Hos 2:9 → Deut 32:20<br>Hos 4:6 → Deut 32:28<br>Hos 4:14 → Deut 32:35<br>Hos 4:18 → Deut 32:32-33<br>Hos 4:19 → Deut 32:11<br>Hos 5:7 → Deut 32:9<br>Hos 5:14 → Deut 32:20<br>Hos 6:1 → Deut 32:39<br>Hos 6:4 → Deut 32:2<br>Hos 7:5 → Deut 32:42<br>Hos 7:9 → Deut 32:25<br>Hos 8:1 → Deut 32:11<br>Hos 8:5 → Deut 32:21-22<br>Hos 8:14 → Deut 32:18<br>Hos 9:9 → Deut 32:5, Deut 32:17<br>Hos 9:12 → Deut 32:20, Deut 32:25 (LXX)<br>Hos 11:3 → Deut 32:10-12<br>Hos 11:8-9 → Deut 32:36<br>Hos 12:2 → Deut 32:13<br>Hos 12:8 → Deut 32:15<br>Hos 13:3 → Deut 32:2<br>Hos 13:4 → Deut 32:39<br>Hos 13:5 → Deut 32:10<br>Hos 13:6 → Deut 32:13-15<br>Hos 13:10 → Deut 32:37-38<br>Hos 13:12 → Deut 32:34<br>Hos 14:5-7 → Deut 32:2<br>Hos 14:9 → Deut 32:4, Deut 32:29 |
-|  | grt |
+|  |  |
 
 - Hos 1:4-6 → Deut 32:26 *(same thing)*
 - Hos 1:10 → Deut 32:21 *(tells you who those people are)*

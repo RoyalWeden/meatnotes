@@ -4,19 +4,65 @@ document.addEventListener("nav", () => {
   const backdrop = document.querySelector(".mobile-settings-backdrop") as HTMLElement | null
   if (!fab || !sheet || !backdrop) return
 
+  // Reparent to <body> so position:fixed resolves against the viewport and
+  // isn't trapped inside .center's stacking context (SPA opacity/transform animation).
+  if (sheet.parentElement !== document.body) document.body.appendChild(sheet)
+  if (backdrop.parentElement !== document.body) document.body.appendChild(backdrop)
+
   let isOpen = false
+  let isExpanded = false
+
+  // ── Verses in this note ──────────────────────────────────────────────────────
+  function buildVersesSection() {
+    const existing = sheet!.querySelector(".mvc-in-sheet")
+    if (existing) existing.remove()
+
+    const anchors = Array.from(
+      document.querySelectorAll("article a[data-verse-ref]"),
+    ) as HTMLAnchorElement[]
+    if (!anchors.length) return
+
+    // Deduplicate by verse ref text
+    const seen = new Set<string>()
+    const unique = anchors.filter((a) => {
+      const key = a.getAttribute("data-verse-ref") || a.textContent || ""
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
+    const section = document.createElement("div")
+    section.className = "mvc-in-sheet"
+    section.innerHTML = `<p class="mvc-sheet-title">Verses in this note</p><ul class="mvc-list"></ul>`
+    const list = section.querySelector(".mvc-list")!
+    unique.forEach((a) => {
+      const li = document.createElement("li")
+      const link = document.createElement("a")
+      link.className = "mvc-link"
+      link.href = a.href
+      link.textContent = a.getAttribute("data-verse-ref") || a.textContent || ""
+      link.addEventListener("click", () => closeSheet())
+      li.appendChild(link)
+      list.appendChild(li)
+    })
+
+    // Insert before the first .mobile-settings-title
+    const firstTitle = sheet!.querySelector(".mobile-settings-title")
+    if (firstTitle) firstTitle.parentElement!.insertBefore(section, firstTitle)
+    else sheet!.appendChild(section)
+  }
 
   function openSheet() {
     isOpen = true
     sheet!.classList.add("open")
     backdrop!.classList.add("open")
     document.body.style.overflow = "hidden"
+    buildVersesSection()
 
     // Sync pill position in this sheet's toggle
     const pref = localStorage.getItem("theme") ?? "system"
     const toggle = sheet!.querySelector(".theme-toggle")
     if (toggle) {
-      // Use the same updatePillPosition logic from darkmode.inline.ts
       const btn = toggle.querySelector(`[data-theme="${pref}"]`) as HTMLElement | null
       const pill = toggle.querySelector(".theme-toggle-pill") as HTMLElement | null
       if (btn && pill) {
@@ -34,9 +80,12 @@ document.addEventListener("nav", () => {
 
   function closeSheet() {
     isOpen = false
-    sheet!.classList.remove("open")
+    isExpanded = false
+    sheet!.classList.remove("open", "expanded")
     backdrop!.classList.remove("open")
     document.body.style.overflow = ""
+    sheet!.style.transition = ""
+    sheet!.style.transform = ""
   }
 
   const onFabClick = () => {
@@ -52,7 +101,6 @@ document.addEventListener("nav", () => {
     const pref = btn.getAttribute("data-theme")
     if (!pref) return
 
-    // Apply theme (reuse the global applyTheme function via event dispatch)
     localStorage.setItem("theme", pref)
     const resolveSystemTheme = (): "light" | "dark" =>
       window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
@@ -60,7 +108,6 @@ document.addEventListener("nav", () => {
     document.documentElement.setAttribute("saved-theme", resolved)
     document.dispatchEvent(new CustomEvent("themechange", { detail: { theme: resolved } }))
 
-    // Update pill in ALL toggle instances (mobile sheet + desktop float)
     for (const t of document.querySelectorAll(".theme-toggle")) {
       const targetBtn = t.querySelector(`[data-theme="${pref}"]`) as HTMLElement | null
       const pill = t.querySelector(".theme-toggle-pill") as HTMLElement | null
@@ -76,7 +123,7 @@ document.addEventListener("nav", () => {
     }
   }
 
-  // Swipe-down to dismiss
+  // ── Swipe-down to dismiss / swipe-up to expand ───────────────────────────────
   let startY = 0
   let currentY = 0
   let dragging = false
@@ -91,8 +138,12 @@ document.addEventListener("nav", () => {
   const onTouchMove = (e: TouchEvent) => {
     if (!dragging) return
     currentY = e.touches[0].clientY
-    const dy = Math.max(0, currentY - startY)
-    sheet!.style.transform = `translateY(${dy}px)`
+    const dy = currentY - startY
+    if (dy > 0 && !isExpanded) {
+      sheet!.style.transform = `translateY(${dy}px)`
+    } else if (dy < 0 && !isExpanded) {
+      // Upward drag — no visual feedback, snap on release
+    }
   }
 
   const onTouchEnd = () => {
@@ -101,8 +152,17 @@ document.addEventListener("nav", () => {
     sheet!.style.transition = ""
     sheet!.style.transform = ""
     const dy = currentY - startY
-    if (dy > 80) {
-      closeSheet()
+    if (dy < -60 && !isExpanded) {
+      // Expand to full height
+      isExpanded = true
+      sheet!.classList.add("expanded")
+    } else if (dy > 80) {
+      if (isExpanded) {
+        isExpanded = false
+        sheet!.classList.remove("expanded")
+      } else {
+        closeSheet()
+      }
     }
   }
 
@@ -113,7 +173,6 @@ document.addEventListener("nav", () => {
   sheet.addEventListener("touchmove", onTouchMove, { passive: true })
   sheet.addEventListener("touchend", onTouchEnd)
 
-  // Escape key
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape" && isOpen) closeSheet()
   }

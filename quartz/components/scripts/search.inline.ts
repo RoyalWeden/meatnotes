@@ -29,12 +29,19 @@ function lockScroll() {
   if (sw > 0) document.body.style.paddingRight = `${sw}px`
 }
 function unlockScroll() {
+  // Only restore scroll position if the body was actually locked (position:fixed).
+  // When search is opened via MobileTabBar (which skips lockScroll()), body is never
+  // set to position:fixed and _scrollLockY is still 0 — blindly calling scrollTo(0,0)
+  // would jump the page to the top. The CSS mobile-no-scroll on <html> is sufficient
+  // for mobile scroll prevention, so we simply release that class without scrollTo.
+  const wasFixed = document.body.style.position === "fixed"
   document.body.style.overflow = ""
   document.body.style.position = ""
   document.body.style.top = ""
   document.body.style.width = ""
   document.body.style.paddingRight = ""
-  window.scrollTo(0, _scrollLockY)
+  document.documentElement.classList.remove("mobile-no-scroll")
+  if (wasFixed) window.scrollTo(0, _scrollLockY)
 }
 
 let searchType: SearchType = "basic"
@@ -716,6 +723,32 @@ function loadRecentSearches(): string[] {
   }
 }
 
+const RECENT_PAGES_KEY = "quartz-recent-pages"
+const MAX_RECENT_PAGES = 5
+
+function saveRecentPage(slug: string, title: string) {
+  try {
+    const existing: Array<{ slug: string; title: string }> = JSON.parse(
+      localStorage.getItem(RECENT_PAGES_KEY) ?? "[]",
+    )
+    const deduped = [{ slug, title }, ...existing.filter((p) => p.slug !== slug)].slice(
+      0,
+      MAX_RECENT_PAGES,
+    )
+    localStorage.setItem(RECENT_PAGES_KEY, JSON.stringify(deduped))
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function loadRecentPages(): Array<{ slug: string; title: string }> {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_PAGES_KEY) ?? "[]")
+  } catch {
+    return []
+  }
+}
+
 // ─── Fuzzy / phonetic helpers ─────────────────────────────────────────────────
 
 // Word dictionary built from all note titles+content during fillDocument
@@ -1382,6 +1415,27 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
   function showEmptyState() {
     removeAllChildren(results)
 
+    // Recent pages (if any)
+    const recentPages = loadRecentPages()
+    if (recentPages.length > 0) {
+      const section = document.createElement("div")
+      section.className = "recent-pages-section"
+      const label = document.createElement("p")
+      label.className = "recent-pages-label"
+      label.textContent = "Recent Notes"
+      section.appendChild(label)
+      for (const page of recentPages) {
+        const card = document.createElement("a")
+        card.className = "result-card recent-page-card"
+        card.href = resolveUrl(page.slug as FullSlug).toString()
+        card.innerHTML = `<span class="result-icon">📄</span><h3>${page.title}</h3>`
+        card.addEventListener("click", hideSearch)
+        window.addCleanup(() => card.removeEventListener("click", hideSearch))
+        section.appendChild(card)
+      }
+      results.appendChild(section)
+    }
+
     // Recent searches (if any)
     const recent = loadRecentSearches()
     if (recent.length > 0) {
@@ -1471,9 +1525,12 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
         label: "Toggle Dark Mode",
         action: () => {
           hideSearch()
-          // Toggle after modal closes so body scroll-lock is released first
+          // Toggle after modal closes so body scroll-lock is released first.
+          // Read saved-theme to determine current state and click the opposite button.
           requestAnimationFrame(() => {
-            const btn = document.querySelector<HTMLElement>('button[aria-label="Dark mode"]')
+            const current = document.documentElement.getAttribute("saved-theme") ?? "light"
+            const targetLabel = current === "dark" ? "Light mode" : "Dark mode"
+            const btn = document.querySelector<HTMLElement>(`button[aria-label="${targetLabel}"]`)
             btn?.click()
           })
         },
@@ -2100,12 +2157,34 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
       noMatch.innerHTML = `<h3>No results.</h3><p>Try another search term?</p>`
       results.append(noMatch)
     } else {
-      // Idiom results bubble to top as "Quick Answer" cards
-      const sortedResults = [
-        ...finalResults.filter((r) => isIdiomSlug(r.slug)),
-        ...finalResults.filter((r) => !isIdiomSlug(r.slug)),
-      ]
-      results.append(...sortedResults.map(resultToHTML))
+      // Idiom results bubble to top as "Quick Answer" cards; remaining grouped by category
+      const idioms = finalResults.filter((r) => isIdiomSlug(r.slug))
+      const rest = finalResults.filter((r) => !isIdiomSlug(r.slug))
+
+      idioms.forEach((r) => results.append(resultToHTML(r)))
+
+      const categoryOf = (slug: string): string => {
+        if (slug.startsWith("Daily/")) return "Daily Notes"
+        if (slug.startsWith("00-")) return "Captures"
+        if (slug.startsWith("10-") || slug.startsWith("20-")) return "Study"
+        return "Notes"
+      }
+      const categoryOrder = ["Daily Notes", "Captures", "Study", "Notes"]
+      const grouped = new Map<string, Item[]>()
+      for (const r of rest) {
+        const cat = categoryOf(r.slug)
+        if (!grouped.has(cat)) grouped.set(cat, [])
+        grouped.get(cat)!.push(r)
+      }
+      for (const cat of categoryOrder) {
+        const items = grouped.get(cat)
+        if (!items?.length) continue
+        const header = document.createElement("div")
+        header.className = "sr-category"
+        header.textContent = cat
+        results.append(header)
+        items.forEach((r) => results.append(resultToHTML(r)))
+      }
     }
 
     // "Did you mean" — fires when results are sparse (0–2) using edit-distance + phonetic matching
@@ -2779,6 +2858,22 @@ async function setupSearch(searchElement: Element, currentSlug: FullSlug, data: 
     openHint.textContent = isMac ? "⌘K" : "Ctrl+K"
   }
 
+  // Detect when the search container is activated externally (e.g. by MobileTabBar which
+  // adds .active directly without going through showSearch()). In that case we still need
+  // to call lockScroll(), showEmptyState(), and startPlaceholderCycle() so the sheet
+  // behaves identically to when it is opened via the keyboard shortcut or search button.
+  const externalActivationObserver = new MutationObserver(() => {
+    if (container.classList.contains("active") && document.body.style.position !== "fixed") {
+      lockScroll()
+      if (!searchBar.value) {
+        showEmptyState()
+        startPlaceholderCycle()
+      }
+    }
+  })
+  externalActivationObserver.observe(container, { attributes: true, attributeFilter: ["class"] })
+  window.addCleanup(() => externalActivationObserver.disconnect())
+
   await fillDocument(data)
 }
 
@@ -2882,6 +2977,11 @@ document.addEventListener("nav", async (e: CustomEventMap["nav"]) => {
   resetBodyScrollLock()
 
   const currentSlug = e.detail.url
+  if (currentSlug && currentSlug !== "index" && currentSlug !== "404") {
+    const h1 = document.querySelector<HTMLElement>("h1.article-title, h1")
+    const pageTitle = h1?.textContent?.trim() || (currentSlug as string)
+    saveRecentPage(currentSlug as string, pageTitle)
+  }
   const data = await fetchData
   const searchElement = document.getElementsByClassName("search")
   for (const element of searchElement) {

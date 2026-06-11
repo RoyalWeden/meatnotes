@@ -922,6 +922,182 @@
   }
 }
 
+// ── Mobile: search as bottom sheet ────────────────────────────────────────────
+@media all and (max-width: 800px) {
+  .search-container {
+    &.active {
+      display: flex !important;
+      flex-direction: column;
+      align-items: stretch;
+      top: auto !important;
+      bottom: 0 !important;
+      height: 90svh !important;
+      border-radius: 24px 24px 0 0 !important;
+      background: color-mix(in srgb, var(--light) 94%, transparent) !important;
+      backdrop-filter: blur(28px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+      overflow: hidden;
+    }
+
+    // Sheet handle
+    &.active::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--darkgray) 22%, transparent);
+      margin: 12px auto 4px;
+      flex-shrink: 0;
+    }
+
+    .search-space {
+      width: 100% !important;
+      margin-top: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  // Make layout fill remaining height on mobile
+  .search-layout {
+    flex: 1;
+
+    & > div {
+      height: auto !important;
+    }
+  }
+}
+
+// ── Desktop: Raycast-style redesign ───────────────────────────────────────────
+@media all and (min-width: 801px) {
+  .search-container > .search-space {
+    width: 62% !important;
+    max-width: 680px !important;
+    margin-top: 8vh !important;
+    min-height: 460px;
+  }
+
+  // Category header rows in results list
+  .sr-category {
+    font-size: 0.64em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 10px 16px 3px;
+    display: block;
+    pointer-events: none;
+
+    & + .result-card,
+    & + .folder-filter-card {
+      margin-top: 0;
+    }
+  }
+
+  // Command rows (Raycast action items)
+  .cmd-result-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+    border-bottom: 0.5px solid color-mix(in srgb, var(--darkgray) 6%, transparent);
+    font-family: inherit;
+    font-size: 100%;
+    background: transparent;
+    border-left: 3px solid transparent;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:hover, &.focus {
+      background: var(--accent-soft);
+      border-left-color: var(--accent);
+      outline: none;
+    }
+
+    .cmd-icon {
+      font-size: 1.1em;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    .cmd-label {
+      font-size: 0.88em;
+      color: var(--darkgray);
+      font-weight: 500;
+    }
+
+    .cmd-hint {
+      margin-left: auto;
+      font-size: 0.72em;
+      color: var(--gray);
+      opacity: 0.7;
+    }
+  }
+
+  // Recent pages empty state
+  .recent-pages-section {
+    padding: 8px 0 4px;
+  }
+
+  .recent-pages-label {
+    font-size: 0.64em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    padding: 4px 16px 6px;
+    display: block;
+  }
+
+  // Result cards: icon on left for Raycast feel
+  .results-container .result-card {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px !important;
+    border-left: 3px solid transparent;
+
+    &:hover, &.focus {
+      background: var(--accent-soft) !important;
+      border-left-color: var(--accent) !important;
+      border-radius: 0 !important;
+    }
+
+    .result-icon {
+      font-size: 1em;
+      line-height: 1;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    .result-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    & > h3 {
+      font-size: 0.88em !important;
+      margin: 0 !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
 /* Actions (Quick Actions / Commands) empty-state panel */
 .search-actions-section {
   padding: 0.75em 1em 0.6em;

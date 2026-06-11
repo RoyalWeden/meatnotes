@@ -37,6 +37,14 @@ const HomeSections: QuartzComponent = ({ allFiles, fileData, displayClass }: Qua
     total += count
     return count
   })
+  const dailyCount = allFiles.filter((f) => f.slug?.startsWith("Daily/")).length
+  const captureCount = counts[0]
+  const progressCount = counts[1]
+  const completeCount = counts[2]
+  const pipelineTotal = captureCount + progressCount + completeCount || 1
+  const captureW = Math.round((captureCount / pipelineTotal) * 100)
+  const progressW = Math.round((progressCount / pipelineTotal) * 100)
+  const completeW = 100 - captureW - progressW
 
   return (
     <div class={classNames(displayClass, "home-sections")}>
@@ -84,6 +92,27 @@ const HomeSections: QuartzComponent = ({ allFiles, fileData, displayClass }: Qua
           <button id="today-popup-dismiss" class="today-popup-dismiss">Dismiss</button>
         </span>
       </p>
+      <div class="home-stats-strip">
+        <div class="hss-pipeline">
+          <div class="hss-bar">
+            <div class="hss-seg hss-capture" style={`width:${captureW}%`} title={`Capture: ${captureCount}`}></div>
+            <div class="hss-seg hss-progress" style={`width:${progressW}%`} title={`In Progress: ${progressCount}`}></div>
+            <div class="hss-seg hss-complete" style={`width:${completeW}%`} title={`Complete: ${completeCount}`}></div>
+          </div>
+          <div class="hss-legend">
+            <span class="hss-dot hss-capture"></span><span>{captureCount} Capture</span>
+            <span class="hss-dot hss-progress"></span><span>{progressCount} In Progress</span>
+            <span class="hss-dot hss-complete"></span><span>{completeCount} Complete</span>
+          </div>
+        </div>
+        <div class="hss-meta">
+          <span>{total} notes</span>
+          <span class="hss-sep">·</span>
+          <span>{dailyCount} daily</span>
+          <span class="hss-sep">·</span>
+          <a href="/Dashboard" class="internal hss-dash-link">Dashboard →</a>
+        </div>
+      </div>
     </div>
   )
 }

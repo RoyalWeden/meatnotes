@@ -33,7 +33,7 @@ The purpose of Yeshua telling you to go learn what this means is because he alre
 >
 > 7 But they like men have transgressed the covenant: there have they dealt treacherously against me.
 
-The reason he quotes Hosea 6 is to tell you that God no longer desires people to keep the sacrificial law, but instead he calls everyone to keep the 10 commandments. Yeshua came to fulfill the sacrifical law that was only added to the law of God through Israel’s disobedience. When we continue to study this same way, we can learn what mercy means. ([[20 — Complete/01 — Idioms/Mercy]])
+The reason he quotes Hosea 6 is to tell you that God no longer desires people to keep the sacrificial law, but instead he calls everyone to keep the 10 commandments. Yeshua came to fulfill the sacrifical law that was only added to the law of God through Israel’s disobedience. When we continue to study this same way, we can learn what mercy means. ( [[20 — Complete/01 — Idioms/Mercy]] )
 
 > Exodus 20:6 And shewing ***~mercy~*** unto thousands of them that ***~love me, and keep my commandments~***.
 
@@ -191,7 +191,7 @@ So, the next precept is to only do the feasts in Jerusalem. Another precept in D
 
 > Isaiah 28:10 For precept must be upon precept, precept upon precept; ***~line upon line, line upon line; here a little, and there a little~***:
 
-The second part about reading the bible is what we have been doing — reading line upon line. That means you will be flipping through chapters pretty often to understand what someone is saying. You could say that God wrote his word in Idioms ([[20 — Complete/Bible Idioms]]).
+The second part about reading the bible is what we have been doing — reading line upon line. That means you will be flipping through chapters pretty often to understand what someone is saying. You could say that God wrote his word in Idioms ( [[20 — Complete/Bible Idioms]] ).
 
 When we read Matthew 9:13, then went to Hosea 6:6-7, that was an example of doing this.
 

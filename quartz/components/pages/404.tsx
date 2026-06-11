@@ -171,6 +171,47 @@ NotFound.css = `
   background: var(--accent-soft);
   color: var(--accent) !important;
 }
+
+/* ── Mobile fallback nav sheet (shown when Menu tapped on 404) ──────────── */
+.menu-fallback-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 950;
+  background: color-mix(in srgb, var(--light) 94%, transparent);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.12), inset 0 0 0 0.5px color-mix(in srgb, var(--darkgray) 14%, transparent);
+  padding: 0 24px max(32px, env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.menu-fallback-sheet.open { transform: translateY(0); }
+.menu-fallback-sheet::before {
+  content: '';
+  display: block;
+  width: 36px; height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--darkgray) 22%, transparent);
+  margin: 12px auto 20px;
+}
+.menu-fallback-sheet .mfs-title {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gray); margin: 0 0 12px;
+}
+.menu-fallback-sheet ul { list-style: none; padding: 0; margin: 0; }
+.menu-fallback-sheet li {
+  border-bottom: 0.5px solid color-mix(in srgb, var(--darkgray) 8%, transparent);
+}
+.menu-fallback-sheet li:last-child { border-bottom: none; }
+.menu-fallback-sheet a {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 0.25rem;
+  color: var(--dark) !important; text-decoration: none !important;
+  font-size: 0.95rem; font-weight: 500;
+  transition: color 0.12s ease;
+}
+.menu-fallback-sheet a:hover { color: var(--accent) !important; }
 `
 
 NotFound.afterDOMLoaded = `
@@ -229,6 +270,33 @@ NotFound.afterDOMLoaded = `
 
   mountIllustration()
   document.addEventListener('nav', mountIllustration)
+
+  /* ── Menu fallback sheet (for MobileTabBar on 404) ─────────────────────── */
+  if (!document.querySelector('.menu-fallback-sheet')) {
+    var sheet = document.createElement('div')
+    sheet.className = 'menu-fallback-sheet'
+    sheet.innerHTML = '<p class="mfs-title">Navigation</p><ul>' +
+      '<li><a href="/">🏠 Home</a></li>' +
+      '<li><a href="/Daily">📅 Daily Notes</a></li>' +
+      '<li><a href="/Graph">🕸 Graph View</a></li>' +
+      '<li><a href="/tags">🏷 Tags</a></li>' +
+      '</ul>'
+    document.body.appendChild(sheet)
+  }
+  // Wire backdrop click to close the fallback sheet
+  function closeFallbackSheet() {
+    var fs = document.querySelector('.menu-fallback-sheet')
+    var bd = document.querySelector('.menu-backdrop')
+    if (fs) fs.classList.remove('open')
+    if (bd) {
+      bd.classList.remove('open')
+      document.documentElement.classList.remove('mobile-no-scroll')
+    }
+  }
+  document.addEventListener('click', function(e) {
+    var bd = document.querySelector('.menu-backdrop')
+    if (bd && e.target === bd) closeFallbackSheet()
+  })
 
   /* ── "Did you mean…" smart suggestions (preserved from original) ─────── */
   var container = document.getElementById('not-found-suggestions')

@@ -214,4 +214,76 @@
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
+  // ── Stats strip — compact pipeline bar + note counts + dashboard link ──
+  .home-stats-strip {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 10%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .hss-pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .hss-bar {
+      display: flex;
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--darkgray) 8%, transparent);
+    }
+
+    .hss-seg {
+      height: 100%;
+      transition: width 0.3s ease;
+
+      &.hss-capture  { background: var(--gray); }
+      &.hss-progress { background: color-mix(in srgb, var(--accent) 60%, var(--gray)); }
+      &.hss-complete { background: var(--accent); }
+    }
+
+    .hss-legend {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.9rem;
+      font-size: 0.72rem;
+      color: var(--gray);
+    }
+
+    .hss-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+
+      &.hss-capture  { background: var(--gray); }
+      &.hss-progress { background: color-mix(in srgb, var(--accent) 60%, var(--gray)); }
+      &.hss-complete { background: var(--accent); }
+    }
+
+    .hss-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .hss-sep { opacity: 0.5; }
+
+    .hss-dash-link {
+      color: var(--accent);
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.12s ease;
+
+      &:hover { opacity: 0.75; }
+    }
+  }
 }

@@ -73,6 +73,8 @@ export const sharedPageComponents: SharedLayout = {
 
 const explorerConfig = {
   filterFn: (node: any) => {
+    // Exclude hidden/system folders (dot-prefixed names like .octarine, .git, .obsidian)
+    if (node.displayName.startsWith(".")) return false
     const cleaned = node.displayName.replace(/^\d+\s*[—–-]\s*/, "")
     return (
       !/^\d{4}-\d{2}-\d{2}$/.test(node.displayName) &&

@@ -111,6 +111,56 @@
   margin: 0 0 12px;
 }
 
+// ── Drag-to-expand: expanded state ──
+.mobile-settings-sheet.expanded {
+  height: calc(100svh - env(safe-area-inset-top, 44px) - 8px);
+  max-height: calc(100svh - env(safe-area-inset-top, 44px) - 8px);
+  overflow-y: auto;
+}
+
+// ── Verses in this note section ────────────────────────────────────────────────
+.mvc-in-sheet {
+  margin: 16px 0;
+  padding: 16px 0 0;
+  border-top: 0.5px solid color-mix(in srgb, var(--darkgray) 14%, transparent);
+
+  &:empty { display: none; }
+
+  .mvc-sheet-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin: 0 0 10px;
+  }
+
+  .mvc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mvc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: var(--accent-soft);
+    color: var(--accent) !important;
+    border-radius: 999px;
+    text-decoration: none !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background-color 0.12s ease;
+
+    &:hover { background: var(--accent-tint); }
+  }
+}
+
 // ── Theme toggle inside sheet — wider with labels ──
 .mobile-settings-sheet .theme-toggle {
   width: 100%;

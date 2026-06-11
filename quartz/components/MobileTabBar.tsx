@@ -36,6 +36,12 @@ const MobileTabBar: QuartzComponent = (_props: QuartzComponentProps) => {
         </svg>
         <span class="mtb-label">Search</span>
       </button>
+      <button class="mtb-btn" data-action="prev" aria-label="Previous daily note" data-tooltip="Prev">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span class="mtb-label">Prev</span>
+      </button>
       <button class="mtb-btn" data-action="today" aria-label="Today's daily note" data-tooltip="Today">
         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -44,6 +50,12 @@ const MobileTabBar: QuartzComponent = (_props: QuartzComponentProps) => {
           <line x1="3" x2="21" y1="10" y2="10"/>
         </svg>
         <span class="mtb-label">Today</span>
+      </button>
+      <button class="mtb-btn" data-action="next" aria-label="Next daily note" data-tooltip="Next">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        <span class="mtb-label">Next</span>
       </button>
       <button class="mtb-btn" data-action="more" aria-label="More options" data-tooltip="More">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -91,11 +103,38 @@ MobileTabBar.css = `
     pointer-events: auto;
   }
 
-  /* Auto-hide on scroll-down (JS toggles .mtb-hidden) */
-  .mobile-tab-bar.mtb-hidden {
-    transform: translate(-50%, calc(100% + 1.5rem));
+  /* Scroll-shrink: labels fade out and bar gets tighter on scroll-down */
+  .mobile-tab-bar.mtb-shrunk {
+    padding: 4px 6px;
+  }
+
+  .mobile-tab-bar.mtb-shrunk .mtb-label {
     opacity: 0;
-    pointer-events: none;
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+  }
+
+  .mtb-label {
+    transition: opacity 200ms ease, max-height 200ms ease;
+    overflow: hidden;
+    max-height: 1em;
+    margin-top: 0;
+  }
+
+  /* Daily-note adaptive: show Prev/Next, hide Today */
+  .mtb-btn[data-action="prev"],
+  .mtb-btn[data-action="next"] {
+    display: none;
+  }
+
+  .mobile-tab-bar.mtb-daily .mtb-btn[data-action="today"] {
+    display: none;
+  }
+
+  .mobile-tab-bar.mtb-daily .mtb-btn[data-action="prev"],
+  .mobile-tab-bar.mtb-daily .mtb-btn[data-action="next"] {
+    display: inline-flex;
   }
 
   .mtb-btn {
@@ -162,107 +201,209 @@ MobileTabBar.afterDOMLoaded = `
 
   function relUrlForDaily(currentSlug, target) {
     var slug = currentSlug || ''
-    // If we're already inside the Daily/ folder, navigate to a sibling.
-    // Without this guard, /Daily/2026-05-03 + '../Daily/X' resolves to
-    // /Daily/Daily/X (the first '../' walks from the file to /Daily/, then
-    // 'Daily/X' appends another Daily — that was the bug).
     if (slug.indexOf('Daily/') === 0) return './' + target
     var depth = slug.split('/').length - 1
     var up = depth > 0 ? new Array(depth + 1).join('../') : './'
     return up + 'Daily/' + target
   }
 
+  function offsetDateSlug(dateSlug, days) {
+    var parts = dateSlug.split('-')
+    var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+    d.setDate(d.getDate() + days)
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+  }
+
   function findBtn(action) {
     return document.querySelector('.mobile-tab-bar .mtb-btn[data-action="' + action + '"]')
+  }
+
+  function haptic() {
+    try { navigator.vibrate && navigator.vibrate(5) } catch(e) {}
+  }
+
+  function getMenuBackdrop() {
+    var bd = document.querySelector('.menu-backdrop')
+    if (!bd) {
+      bd = document.createElement('div')
+      bd.className = 'menu-backdrop'
+      document.body.appendChild(bd)
+    }
+    return bd
+  }
+
+  function closeExplorer(explorer, backdrop) {
+    explorer.classList.add('collapsed')
+    explorer.setAttribute('aria-expanded', 'false')
+    document.documentElement.classList.remove('mobile-no-scroll')
+    if (backdrop) backdrop.classList.remove('open')
+    explorer.dataset.expanded = ''
+  }
+
+  function openExplorer(explorer, backdrop) {
+    explorer.classList.remove('collapsed')
+    explorer.setAttribute('aria-expanded', 'true')
+    document.documentElement.classList.add('mobile-no-scroll')
+    if (backdrop) backdrop.classList.add('open')
+    haptic()
+  }
+
+  function setupExplorerDrag(explorer) {
+    var content = explorer.querySelector('.explorer-content')
+    if (!content || content.dataset.dragInit) return
+    content.dataset.dragInit = '1'
+
+    var startY = 0
+    var currentY = 0
+    var dragging = false
+    var isExpanded = false
+
+    content.addEventListener('touchstart', function(e) {
+      // Only initiate drag from the top handle area (::before is not touchable,
+      // so we use the top 40px of the content element)
+      var rect = content.getBoundingClientRect()
+      if (e.touches[0].clientY - rect.top > 48) return
+      startY = e.touches[0].clientY
+      currentY = startY
+      dragging = true
+      content.style.transition = 'none'
+    }, { passive: true })
+
+    content.addEventListener('touchmove', function(e) {
+      if (!dragging) return
+      currentY = e.touches[0].clientY
+      var dy = currentY - startY
+      if (dy > 0 && !isExpanded) content.style.transform = 'translateY(' + Math.max(0, dy) + 'px)'
+      if (dy < 0 && !isExpanded) content.style.transform = 'translateY(' + dy + 'px)'
+    }, { passive: true })
+
+    content.addEventListener('touchend', function() {
+      if (!dragging) return
+      dragging = false
+      content.style.transition = ''
+      content.style.transform = ''
+      var dy = currentY - startY
+      if (dy < -60 && !isExpanded) {
+        isExpanded = true
+        explorer.dataset.expanded = '1'
+        content.style.height = 'calc(100svh - env(safe-area-inset-top, 44px) - 8px)'
+        content.style.maxHeight = 'calc(100svh - env(safe-area-inset-top, 44px) - 8px)'
+      } else if (dy > 80) {
+        if (isExpanded) {
+          isExpanded = false
+          explorer.dataset.expanded = ''
+          content.style.height = ''
+          content.style.maxHeight = ''
+        } else {
+          var bd = document.querySelector('.menu-backdrop')
+          closeExplorer(explorer, bd)
+        }
+      }
+    })
+  }
+
+  function trigger(el) {
+    if (!el) return
+    el.click()
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }))
+  }
+
+  function refreshDailyState(bar) {
+    var currentSlug = (document.body.getAttribute('data-slug') || '')
+    var isDaily = currentSlug.indexOf('Daily/') === 0
+    if (isDaily) {
+      bar.classList.add('mtb-daily')
+      var dateStr = currentSlug.replace('Daily/', '')
+      var prevBtn = findBtn('prev')
+      var nextBtn = findBtn('next')
+      if (prevBtn) prevBtn.dataset.targetDate = offsetDateSlug(dateStr, -1)
+      if (nextBtn) nextBtn.dataset.targetDate = offsetDateSlug(dateStr, 1)
+    } else {
+      bar.classList.remove('mtb-daily')
+    }
+
+    var todayBtn = findBtn('today')
+    if (todayBtn) {
+      if (currentSlug === 'Daily/' + todaySlug()) todayBtn.classList.add('mtb-active')
+      else todayBtn.classList.remove('mtb-active')
+    }
   }
 
   function init() {
     var bar = document.querySelector('.mobile-tab-bar')
     if (!bar) return
 
-    // CRITICAL: move the bar to <body> root so position:fixed resolves
-    // against the viewport. The bar is server-rendered inside .page-footer
-    // which is inside .center > #quartz-body > .page — any ancestor with
-    // backdrop-filter / transform / will-change / filter creates a new
-    // containing block and breaks position:fixed. Reparenting to <body>
-    // sidesteps the problem entirely.
-    //
-    // Quartz SPA only replaces #quartz-body, not afterBody components, so
-    // the bar stays at body root across navigations — we never remove it.
+    // Reparent to <body> root so position:fixed resolves against viewport
     if (bar.parentElement !== document.body) {
       document.body.appendChild(bar)
     }
 
-    // On SPA nav the bar is already initialized — just refresh today state.
+    // On SPA nav: bar already initialized — just refresh state
     if (bar.dataset.mtbInit) {
-      var todayBtn = findBtn('today')
-      if (todayBtn) {
-        var currentSlug = (document.body.getAttribute('data-slug') || '')
-        if (currentSlug === 'Daily/' + todaySlug()) todayBtn.classList.add('mtb-active')
-        else todayBtn.classList.remove('mtb-active')
-      }
+      refreshDailyState(bar)
       return
     }
-
-    if (bar.dataset.mtbInit) return
     bar.dataset.mtbInit = '1'
 
-    // Robust click trigger: .click() works on display:none in modern browsers,
-    // but a synthetic click event with bubbles:true is more reliable across
-    // edge cases (delegated handlers, event phases). Fire both for safety.
-    function trigger(el) {
-      if (!el) return
-      el.click()
-      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }))
-    }
-
-    // ── Click handlers — proxy back to existing components so nothing dupes ──
+    // ── Menu: open explorer as bottom sheet ────────────────────────────────
     var menu = findBtn('menu')
     if (menu) menu.addEventListener('click', function (e) {
       e.preventDefault()
       e.stopPropagation()
-      // Phone (≤800px): the explorer flips into a fixed-position slide-in
-      // drawer. Toggle .explorer.collapsed → .explorer-content slides in.
-      // Tablet (800–1199px): the explorer is the always-visible left
-      // column. The "Menu" action there means "show/hide the rail" via
-      // SidebarCollapse — proxy a click on its .sidebar-toggle-left chip.
       if (window.matchMedia('(max-width: 800px)').matches) {
         var explorer = document.querySelector('.explorer')
-        if (!explorer) return
-        var nowCollapsed = explorer.classList.toggle('collapsed')
-        explorer.setAttribute('aria-expanded', String(!nowCollapsed))
-        if (nowCollapsed) document.documentElement.classList.remove('mobile-no-scroll')
-        else document.documentElement.classList.add('mobile-no-scroll')
+        var bd = getMenuBackdrop()
+        if (!explorer) {
+          // 404 or page without explorer — open fallback nav sheet
+          var fallback = document.querySelector('.menu-fallback-sheet')
+          if (!fallback) return
+          fallback.classList.add('open')
+          bd.classList.add('open')
+          document.documentElement.classList.add('mobile-no-scroll')
+          haptic()
+          return
+        }
+        if (!explorer.classList.contains('collapsed')) {
+          closeExplorer(explorer, bd)
+        } else {
+          openExplorer(explorer, bd)
+          setupExplorerDrag(explorer)
+        }
+        bd.onclick = function() { closeExplorer(explorer, bd) }
       } else {
         trigger(document.querySelector('.sidebar-toggle-left'))
       }
     })
 
+    // ── Search: open search container directly as bottom sheet ─────────────
     var search = findBtn('search')
     if (search) search.addEventListener('click', function (e) {
       e.preventDefault()
       e.stopPropagation()
-      // Try the explicit search button first.
-      var sb = document.querySelector('.search > .search-button')
-      if (sb) { trigger(sb); return }
-      // Fallback: directly open the search-container by adding .active
-      // and focusing the input. The search modal is shared across instances.
-      var container = document.querySelector('.search > .search-container')
-      var input = document.querySelector('.search-bar')
-      if (container) container.classList.add('active')
-      if (input) setTimeout(function () { input.focus() }, 30)
+      haptic()
+      var container = document.querySelector('.search-container')
+      if (!container) return
+      if (container.classList.contains('active')) return
+      // Reparent to <body>: escapes both the display:none parent (.sidebar.left
+      // hides all non-explorer children on mobile) and the .center stacking
+      // context created by the SPA opacity/transform transition animation.
+      if (container.parentElement !== document.body) {
+        document.body.appendChild(container)
+      }
+      container.classList.add('active')
+      document.documentElement.classList.add('mobile-no-scroll')
+      var input = container.querySelector('.search-bar')
+      if (input) setTimeout(function () { input.focus() }, 40)
     })
 
+    // ── More: open settings sheet ──────────────────────────────────────────
     var more = findBtn('more')
     if (more) more.addEventListener('click', function (e) {
       e.preventDefault()
       e.stopPropagation()
-      // Try the proxy click first.
+      haptic()
       var fab = document.querySelector('.mobile-settings-fab')
-      if (fab) trigger(fab)
-      // Direct fallback: toggle the sheet open class. mobileSettings.inline.ts
-      // listens for clicks on .mobile-settings-backdrop to close, so just
-      // adding .open is enough to surface the sheet.
+      if (fab) { fab.click(); return }
       var sheet = document.querySelector('.mobile-settings-sheet')
       var backdrop = document.querySelector('.mobile-settings-backdrop')
       if (sheet && !sheet.classList.contains('open')) {
@@ -272,23 +413,38 @@ MobileTabBar.afterDOMLoaded = `
       }
     })
 
+    // ── Today ──────────────────────────────────────────────────────────────
     var today = findBtn('today')
     if (today) today.addEventListener('click', function (e) {
       e.preventDefault()
       var slug = todaySlug()
       var currentSlug = (document.body.getAttribute('data-slug') || '')
-      if (currentSlug === 'Daily/' + slug) return // already there
+      if (currentSlug === 'Daily/' + slug) return
       window.location.href = relUrlForDaily(currentSlug, slug)
     })
 
-    // Mark today-icon active when actually on today's daily note.
-    if (today) {
-      var slug = (document.body.getAttribute('data-slug') || '')
-      if (slug === 'Daily/' + todaySlug()) today.classList.add('mtb-active')
-      else today.classList.remove('mtb-active')
-    }
+    // ── Prev/Next daily notes ──────────────────────────────────────────────
+    var prevBtn = findBtn('prev')
+    if (prevBtn) prevBtn.addEventListener('click', function (e) {
+      e.preventDefault()
+      haptic()
+      var target = prevBtn.dataset.targetDate
+      if (!target) return
+      var currentSlug = (document.body.getAttribute('data-slug') || '')
+      window.location.href = relUrlForDaily(currentSlug, target)
+    })
 
-    // ── Auto-hide on scroll-down, reveal on scroll-up ──
+    var nextBtn = findBtn('next')
+    if (nextBtn) nextBtn.addEventListener('click', function (e) {
+      e.preventDefault()
+      haptic()
+      var target = nextBtn.dataset.targetDate
+      if (!target) return
+      var currentSlug = (document.body.getAttribute('data-slug') || '')
+      window.location.href = relUrlForDaily(currentSlug, target)
+    })
+
+    // ── Scroll shrink: labels fade, bar gets tighter ───────────────────────
     var lastY = window.scrollY
     var ticking = false
     function onScroll() {
@@ -297,9 +453,8 @@ MobileTabBar.afterDOMLoaded = `
       requestAnimationFrame(function () {
         var y = window.scrollY
         var dy = y - lastY
-        // Threshold: only react past 80px and only on >8px deltas
-        if (y > 80 && dy > 8) bar.classList.add('mtb-hidden')
-        else if (dy < -8) bar.classList.remove('mtb-hidden')
+        if (y > 60 && dy > 4) bar.classList.add('mtb-shrunk')
+        else if (dy < -4) bar.classList.remove('mtb-shrunk')
         lastY = y
         ticking = false
       })
@@ -308,6 +463,8 @@ MobileTabBar.afterDOMLoaded = `
     if (typeof window.addCleanup === 'function') {
       window.addCleanup(function () { window.removeEventListener('scroll', onScroll) })
     }
+
+    refreshDailyState(bar)
   }
 
   init()
